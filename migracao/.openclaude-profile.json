@@ -1,0 +1,9 @@
+{
+  "profile": "gemini",
+  "env": {
+    "GEMINI_AUTH_MODE": "api-key",
+    "GEMINI_MODEL": "gemini-2.0-flash$env:CLAUDE_CODE_USE_OPENAI=\"1\"\n$env:OPENAI_BASE_URL=\"https://openrouter.ai/api/v1\"\n$env:OPENAI_API_KEY=\"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\"\n$env:OPENAI_MODEL=\"qwen/qwen3.6-plus:free\"",
+    "GEMINI_API_KEY": "$env:CLAUDE_CODE_USE_OPENAI=\"1\"\n$env:OPENAI_BASE_URL=\"https://openrouter.ai/api/v1\"\n$env:OPENAI_API_KEY=\"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\"\n$env:OPENAI_MODEL=\"qwen/qwen3.6-plus:free\""
+  },
+  "createdAt": "2026-04-08T22:08:25.087Z"
+}
