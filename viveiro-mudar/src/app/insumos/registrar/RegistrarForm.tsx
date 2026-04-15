@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useEffect, useCallback } from 'react'
 import Toast, { ToastType } from '@/components/Toast'
 import { enqueue, getAll, remove } from '@/lib/offline-queue'
@@ -117,7 +118,10 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-green-700 text-white px-4 py-5">
+      <header className="bg-green-700 text-white px-4 py-4">
+        <Link href="/" className="text-sm text-green-300 hover:text-white mb-1 inline-block">
+          ← Início
+        </Link>
         <h1 className="text-xl font-bold">Registrar Uso de Insumo</h1>
         {pendingCount > 0 && (
           <p className="text-sm text-green-200 mt-1">
