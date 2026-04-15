@@ -1,6 +1,7 @@
 import pool from '@/lib/db'
 import RegistrarForm from './RegistrarForm'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Registrar Insumo — Viveiro Mudar' }
 
 export default async function RegistrarPage() {
