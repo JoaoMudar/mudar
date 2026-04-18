@@ -1,6 +1,6 @@
 # Deploy — Vercel + Neon
 
-## Status: NÃO INICIADO
+## Status: EM ANDAMENTO
 ## Prioridade: ALTA
 ## Dependências: Banco local funcionando, dump.sql gerado
 ## Bloqueia: Acesso externo ao sistema (todos os projetos)
@@ -38,15 +38,13 @@ Hoje o sistema só roda na máquina do João. Gilberto e Débora não conseguem 
 
 ### Fase 2: Adaptar a Conexão para Serverless
 
-- [ ] **T5** Instalar o driver serverless do Neon:
+- [x] **T5** Instalar o driver serverless do Neon:
   ```bash
   npm install @neondatabase/serverless
   ```
-- [ ] **T6** Atualizar `src/lib/db.ts` para usar o driver do Neon em produção e manter `pg` em desenvolvimento:
-  ```ts
-  // Em produção (Vercel), usar @neondatabase/serverless
-  // Em desenvolvimento, continuar usando pg (pool local)
-  ```
+- [x] **T6** Atualizar `src/lib/db.ts` para usar o driver do Neon em produção e manter `pg` em desenvolvimento
+  - Pool com inicialização lazy (Proxy) — não estoura durante o build do Vercel sem DATABASE_URL
+  - `next.config.ts` com `serverExternalPackages: ['pg', 'pg-native', '@neondatabase/serverless']` — evita falha de bundling no Vercel
 - [ ] **T7** Testar localmente apontando `.env.local` para o banco Neon (garantir que nada quebrou)
 
 ### Fase 3: Configurar o Projeto no Vercel
