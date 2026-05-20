@@ -25,43 +25,31 @@ Hoje o sistema só roda na máquina do João. Gilberto e Débora não conseguem 
 
 ### Fase 1: Criar e Popular o Banco no Neon
 
-- [ ] **T1** Criar conta no Neon (neon.tech) e criar novo projeto `viveiro-mudar`
-- [ ] **T2** Copiar a `DATABASE_URL` gerada pelo Neon (formato: `postgresql://user:pass@host/db?sslmode=require`)
-- [ ] **T3** Restaurar o dump no banco Neon:
-  ```bash
-  psql "DATABASE_URL_DO_NEON" < dump.sql
-  ```
-- [ ] **T4** Verificar se as tabelas e dados foram importados corretamente:
-  ```sql
-  SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
-  ```
+- [x] **T1** Criar conta no Neon (neon.tech) e criar novo projeto `viveiro-mudar`
+- [x] **T2** Copiar a `DATABASE_URL` gerada pelo Neon (formato: `postgresql://user:pass@host/db?sslmode=require`)
+- [x] **T3** Restaurar o dump no banco Neon (schema via dump.sql + 142 espécies migradas via script Node.js)
+- [x] **T4** Verificar se as tabelas e dados foram importados corretamente (7 tabelas + 142 species confirmadas)
 
 ### Fase 2: Adaptar a Conexão para Serverless
 
-- [x] **T5** Instalar o driver serverless do Neon:
-  ```bash
-  npm install @neondatabase/serverless
-  ```
+- [x] **T5** Instalar o driver serverless do Neon
 - [x] **T6** Atualizar `src/lib/db.ts` para usar o driver do Neon em produção e manter `pg` em desenvolvimento
   - Pool com inicialização lazy (Proxy) — não estoura durante o build do Vercel sem DATABASE_URL
   - `next.config.ts` com `serverExternalPackages: ['pg', 'pg-native', '@neondatabase/serverless']` — evita falha de bundling no Vercel
-- [ ] **T7** Testar localmente apontando `.env.local` para o banco Neon (garantir que nada quebrou)
+- [x] **T7** Testar localmente apontando `.env.local` para o banco Neon (garantir que nada quebrou)
 
 ### Fase 3: Configurar o Projeto no Vercel
 
-- [ ] **T8** Fazer login no Vercel e importar o repositório do GitHub
-  - Se o repo não estiver no GitHub ainda: criar repo, fazer push, importar
-- [ ] **T9** Na tela de configuração do projeto no Vercel, definir as variáveis de ambiente:
-  - `DATABASE_URL` → colar a URL do Neon
-  - `NEXT_PUBLIC_APP_URL` → URL gerada pelo Vercel (preencher após primeiro deploy)
-- [ ] **T10** Verificar se o build passa no Vercel (aba "Deployments")
-- [ ] **T11** Acessar a URL pública e testar o fluxo principal (cadastrar insumo, listar espécies)
+- [x] **T8** Fazer login no Vercel e importar o repositório do GitHub
+- [x] **T9** Variáveis de ambiente configuradas (DATABASE_URL do Neon)
+- [x] **T10** Build passa no Vercel
+- [x] **T11** Espécies aparecem corretamente na URL pública
 
 ### Fase 4: Ajustes Pós-Deploy
 
-- [ ] **T12** Configurar domínio personalizado no Vercel (se houver)
-- [ ] **T13** Atualizar `.env.local` com a URL de produção para testes cruzados
-- [ ] **T14** Testar no celular Android (Chrome) — verificar responsividade e PWA
+- [ ] **T12** Domínio personalizado (viveiromudar.com.br) — pendente, acessando via URL do Vercel por enquanto
+- [x] **T13** `.env.local` atualizado com `NEXT_PUBLIC_APP_URL=https://viveiromudar.com.br`
+- [x] **T14** Testado no celular Android — funcionando
 - [ ] **T15** Criar novo dump de referência após migração confirmada
 
 ---

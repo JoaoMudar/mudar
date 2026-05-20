@@ -12,6 +12,7 @@ export interface InputPayload {
   category: InputCategory
   unit_of_measure: string
   cost_per_unit: number | null
+  quantity_purchased: number | null
   supplier: string
   last_purchase_date: string
   active: boolean
@@ -20,10 +21,10 @@ export interface InputPayload {
 export async function createInsumo(data: InputPayload): Promise<{ error?: string }> {
   try {
     await pool.query(
-      `INSERT INTO inputs (name, category, unit_of_measure, cost_per_unit, supplier, last_purchase_date, active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      `INSERT INTO inputs (name, category, unit_of_measure, cost_per_unit, quantity_purchased, supplier, last_purchase_date, active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [data.name, data.category, data.unit_of_measure, data.cost_per_unit,
-       data.supplier, data.last_purchase_date, data.active]
+       data.quantity_purchased, data.supplier, data.last_purchase_date, data.active]
     )
   } catch (e: unknown) {
     return { error: (e as Error).message }
@@ -53,9 +54,9 @@ export async function updateInsumo(id: string, data: InputPayload): Promise<{ er
 
     await pool.query(
       `UPDATE inputs SET name=$1, category=$2, unit_of_measure=$3, cost_per_unit=$4,
-       supplier=$5, last_purchase_date=$6, active=$7 WHERE id=$8`,
+       quantity_purchased=$5, supplier=$6, last_purchase_date=$7, active=$8 WHERE id=$9`,
       [data.name, data.category, data.unit_of_measure, data.cost_per_unit,
-       data.supplier, data.last_purchase_date, data.active, id]
+       data.quantity_purchased, data.supplier, data.last_purchase_date, data.active, id]
     )
   } catch (e: unknown) {
     return { error: (e as Error).message }

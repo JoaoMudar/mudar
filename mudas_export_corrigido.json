@@ -1,0 +1,2748 @@
+{
+  "mudas": [
+    {
+      "id": 1,
+      "nomePopular": "Acácia-mimosa",
+      "nomeCientifico": "Acacia podalyriifolia A.Cunn. ex G.Don",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-7m",
+      "regioesCultivo": "Cultivada em todo o Brasil.",
+      "floracao": "julho-agosto",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Acácia_mimosa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 2,
+      "nomePopular": "Acácia-negra",
+      "nomeCientifico": "Acacia mearnsii De Wild.",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "8-15m",
+      "regioesCultivo": "Cultivada no RS, SC e PR.",
+      "floracao": "setembro-novembro",
+      "frutificacao": null,
+      "corFloracao": "amarelo-claro",
+      "mapaRegiao": "mudas/mapas/Acácia_negra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 3,
+      "nomePopular": "Açoita-cavalo",
+      "nomeCientifico": "Luehea divaricata Mart.",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "15-25m",
+      "regioesCultivo": "Sul da BA, RJ, SP, MG, GO, MS até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Açoita_cavalo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 4,
+      "nomePopular": "Agulheiro",
+      "nomeCientifico": "Seguieria langsdorffii Moq.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "8-16m",
+      "regioesCultivo": "Sul da BA, MG até SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Agulheiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 5,
+      "nomePopular": "Alecrim",
+      "nomeCientifico": "Holocalyx balansae Micheli",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "15-25m",
+      "regioesCultivo": "SP até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": null,
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 6,
+      "nomePopular": "Amora-preta",
+      "nomeCientifico": "Morus nigra L.",
+      "finsPlantio": [
+        "EX",
+        "FH",
+        "FA",
+        "O"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "7-12m",
+      "regioesCultivo": "Cultivada no Sul e Sudeste do Brasil.",
+      "floracao": null,
+      "frutificacao": "a partir de setembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Amora_preta.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 7,
+      "nomePopular": "Angico-branco",
+      "nomeCientifico": "Anadenanthera colubrina (Vell.) Brenan",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "12-15m",
+      "regioesCultivo": "MA até o PR e GO. É cultivado em SC e RS.",
+      "floracao": "novembro-janeiro",
+      "frutificacao": null,
+      "corFloracao": "branca",
+      "mapaRegiao": "mudas/mapas/Angico_branco.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 8,
+      "nomePopular": "Angico-vermelho",
+      "nomeCientifico": "Parapiptadenia rigida (Benth.) Brenan",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "MG, MS, SP até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Angico_vermelho.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 9,
+      "nomePopular": "Aperta-goela",
+      "nomeCientifico": "Myrcia hebepetala DC.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "4-6m",
+      "regioesCultivo": "MG, SP até o RS.",
+      "floracao": null,
+      "frutificacao": "junho-outubro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Aperta_goela.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 10,
+      "nomePopular": "Araçá-amarelo",
+      "nomeCientifico": "Psidium cattleyanum Sabine",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "3-6m",
+      "regioesCultivo": "BA até o RS.",
+      "floracao": null,
+      "frutificacao": "setembro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Araçá_amarelo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 11,
+      "nomePopular": "Araçá-da-serra",
+      "nomeCientifico": "Calycorectes acutatus (Miq.) Toledo",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-14m",
+      "regioesCultivo": "MG, SP e PR. É cultivado no RS e SC.",
+      "floracao": null,
+      "frutificacao": "dezembro-janeiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Araçá_da_serra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 12,
+      "nomePopular": "Araçá-piranga",
+      "nomeCientifico": "Eugenia leitonii D.Legrand",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "8-14m",
+      "regioesCultivo": "Sul da Ba até o PR. É cultivado no RS e SC.",
+      "floracao": null,
+      "frutificacao": "fevereiro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Araçá_piranga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 13,
+      "nomePopular": "Araçá-vermelho",
+      "nomeCientifico": "Eugenia multicostata D.Legrand",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "10-30m",
+      "regioesCultivo": "Sul de SP ao RS.",
+      "floracao": null,
+      "frutificacao": "outubro-novembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Araçá_vermelho.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 14,
+      "nomePopular": "Araribá-amarelo",
+      "nomeCientifico": "Centrolobium robustum (Vell.) Mart. ex Benth.",
+      "finsPlantio": [
+        "NA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "18-25m",
+      "regioesCultivo": "Sul da BA até SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Araribá_amarelo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 15,
+      "nomePopular": "Aroeira-branca",
+      "nomeCientifico": "Schinus lentiscifolius Marchand",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-8m",
+      "regioesCultivo": "Regiões de altitude do Rj até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Aroeira_branca.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 16,
+      "nomePopular": "Aroeira-piriquita",
+      "nomeCientifico": "Schinus molle L.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-8m",
+      "regioesCultivo": "MG até o RS, em campos de altitude.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Aroeira_piriquita.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 17,
+      "nomePopular": "Aroeira-vermelha",
+      "nomeCientifico": "Schinus terebinthifolius Raddi",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-10m",
+      "regioesCultivo": "PE, MS até RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Aroeira_vermelha.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 18,
+      "nomePopular": "Baga-de-macaco",
+      "nomeCientifico": "Posoqueria latifolia (Rudge) Roem. & Schult.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-15m",
+      "regioesCultivo": "Sul da BA até SC.",
+      "floracao": null,
+      "frutificacao": "junho-julho",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Baga_de_macaco.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 19,
+      "nomePopular": "Baguaçu",
+      "nomeCientifico": "Magnolia ovata (A.St.-Hil.) Spreng.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "20-30m",
+      "regioesCultivo": "Sul de MG até o norte do RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Baguaçú.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 20,
+      "nomePopular": "Bracatinga",
+      "nomeCientifico": "Mimosa scabrella Benth.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "IND",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-15m",
+      "regioesCultivo": "SP até RS, em regiões de altitudes na floresta de pinhais",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Bracatinga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 21,
+      "nomePopular": "Butiá",
+      "nomeCientifico": "Butia eriospatha (Mart. ex Drude) Becc.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-6m",
+      "regioesCultivo": "PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": "janeiro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Butiá.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 22,
+      "nomePopular": "Cabreúva",
+      "nomeCientifico": "Myrocarpus frondosus Allemão",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "Sul da BA ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cabreúva.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 23,
+      "nomePopular": "Calistemone",
+      "nomeCientifico": "Callistemon viminalis (Sol. ex Gaertn.) G.Don",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-7m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": "junho-setembro",
+      "frutificacao": null,
+      "corFloracao": "vermelha",
+      "mapaRegiao": "mudas/mapas/Calistemone.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 24,
+      "nomePopular": "Camboatá-vermelho",
+      "nomeCientifico": "Cupania vernalis Cambess.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "10-22m",
+      "regioesCultivo": "MG, MS, SP até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Camboatá_vermelho.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 25,
+      "nomePopular": "Canafístula",
+      "nomeCientifico": "Peltophorum dubium (Spreng.) Taub.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "15-25m",
+      "regioesCultivo": "BA, MS, MG, GO, RJ até o PR. Cultivada em SC e RS.",
+      "floracao": "dezembro-fevereiro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Canafístula.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 26,
+      "nomePopular": "Canela-de-tempero",
+      "nomeCientifico": "Cinnamomum verum J.Presl",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "8-12m",
+      "regioesCultivo": "Cultivada em todo o Brasil, porém suscetível a geada.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_de_tempero.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 27,
+      "nomePopular": "Canela-fogo",
+      "nomeCientifico": "Cryptocarya aschersoniana Mez",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-30m",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_fogo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 28,
+      "nomePopular": "Canela-garuva",
+      "nomeCientifico": "Nectandra rigida (Kunth) Nees",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-20m",
+      "regioesCultivo": "Desde a região Amazônica até o RS, exceto Nordeste.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_garuva.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 29,
+      "nomePopular": "Canela-guaicá",
+      "nomeCientifico": "Ocotea puberula (Rich.) Nees",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "15-25m",
+      "regioesCultivo": "RJ, MG, MS até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_guaicá.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 30,
+      "nomePopular": "Canela-imbuia",
+      "nomeCientifico": "Nectandra megapotamica (Spreng.) Mez",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-25m",
+      "regioesCultivo": "SP ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_imbuia.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 31,
+      "nomePopular": "Canela-preta",
+      "nomeCientifico": "Ocotea catharinensis Mez",
+      "finsPlantio": [
+        "NA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "25-30m",
+      "regioesCultivo": "SP ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_preta.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 32,
+      "nomePopular": "Canela-sassafrás",
+      "nomeCientifico": "Ocotea odorifera (Vell.) Rohwer",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-25m",
+      "regioesCultivo": "Sul da BA ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canela_sassafrás.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 33,
+      "nomePopular": "Canjerana",
+      "nomeCientifico": "Cabralea canjerana (Vell.) Mart.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "MG, MS até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Canjerana.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 34,
+      "nomePopular": "Capororoca",
+      "nomeCientifico": "Myrsine ferruginea Spreng.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-12m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Capororoca.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 35,
+      "nomePopular": "Capororocão",
+      "nomeCientifico": "Myrsine umbellata Mart.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-15m",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": null,
+      "frutificacao": "março-abril e outubro-novembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Capororocão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 36,
+      "nomePopular": "Caroba",
+      "nomeCientifico": "Jacaranda micrantha Cham.",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-25m",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": "outubro-dezembro",
+      "frutificacao": null,
+      "corFloracao": "lilás",
+      "mapaRegiao": "mudas/mapas/Caroba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 37,
+      "nomePopular": "Carvalho-europeu",
+      "nomeCientifico": "Quercus robur L.",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "Cultivada nas regiões de altitude do RS, SC e PR.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Carvalho_europeu.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 38,
+      "nomePopular": "Castanha-da-praia",
+      "nomeCientifico": "Pachira glabra Pasq.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-6m",
+      "regioesCultivo": "PE ao RJ. É cultivada em SC.",
+      "floracao": null,
+      "frutificacao": "janeiro-fevereiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Castanha_da_praia.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 39,
+      "nomePopular": "Cedro-rosa",
+      "nomeCientifico": "Cedrela fissilis Vell.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-35m",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cedro_rosa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 40,
+      "nomePopular": "Cereja-australiana",
+      "nomeCientifico": "Eugenia reinwardtiana (Blume) DC.",
+      "finsPlantio": [
+        "EX",
+        "FH",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "2-5m",
+      "regioesCultivo": "Cultivada na região Sudeste, e SC.",
+      "floracao": null,
+      "frutificacao": "a partir de setembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cereja_australiana.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 41,
+      "nomePopular": "Cereja-do-rio-grande",
+      "nomeCientifico": "Eugenia involucrata DC.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "5-8m (10-15m na mata)",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": null,
+      "frutificacao": "outubro-dezembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cereja_do_rio_grande.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 42,
+      "nomePopular": "Chal-Chal",
+      "nomeCientifico": "Allophylus edulis (A.St.-Hil., A.Juss. & Cambess.) Hieron. ex Niederl.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-10m",
+      "regioesCultivo": "Região Amazônica até o Ceará, MS, MG, BA, RJ até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Chal_chal.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 43,
+      "nomePopular": "Cinamomo",
+      "nomeCientifico": "Melia azedarach L.",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "15-20m",
+      "regioesCultivo": "Cultivado nas regiões sul e sudeste do Brasil.",
+      "floracao": "setembro-novembro",
+      "frutificacao": null,
+      "corFloracao": "lilás-rósea",
+      "mapaRegiao": "mudas/mapas/Cinamomo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 44,
+      "nomePopular": "Cipreste-português",
+      "nomeCientifico": "Cupressus lusitanica Mill.",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "20-30m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cipreste_português.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 45,
+      "nomePopular": "Cocão",
+      "nomeCientifico": "Erythroxylum argentinum O.E.Schulz",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-7m",
+      "regioesCultivo": "SP ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cocão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 46,
+      "nomePopular": "Cortiça-crespa",
+      "nomeCientifico": "Annona sylvatica A.St.-Hil.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-8m",
+      "regioesCultivo": "PE ao RS, MG, GO e MS.",
+      "floracao": null,
+      "frutificacao": "janeiro-abril",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cortiça-crespa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 47,
+      "nomePopular": "Cortiça-lisa",
+      "nomeCientifico": "Annona cacans Warm.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "12-16m",
+      "regioesCultivo": "MG, RJ até o RS.",
+      "floracao": null,
+      "frutificacao": "janeiro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Cortiça_lisa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 48,
+      "nomePopular": "Cotoneaster",
+      "nomeCientifico": "Cotoneaster franchetii Bois",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "3-4m",
+      "regioesCultivo": "Cultivada nas regiões de altitude do sul e sudeste do Brasil.",
+      "floracao": "setembro-outubro",
+      "frutificacao": null,
+      "corFloracao": "branco-rósea",
+      "mapaRegiao": "mudas/mapas/Cotoneaster.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 49,
+      "nomePopular": "Dedaleiro",
+      "nomeCientifico": "Lafoensia pacari A.St.-Hil.",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-18m",
+      "regioesCultivo": "MG, SP, MS até SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Dedaleiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 50,
+      "nomePopular": "Embaúba",
+      "nomeCientifico": "Cecropia glaziovii Snethl.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "8-16m",
+      "regioesCultivo": "BA até o PR. É cultivada no RS e SC.",
+      "floracao": null,
+      "frutificacao": "janeiro-fevereiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Embaúba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 51,
+      "nomePopular": "Erva-mate",
+      "nomeCientifico": "Ilex paraguariensis A.St.-Hil.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "IND",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-8m",
+      "regioesCultivo": "MS, SP até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Erva_mate.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 52,
+      "nomePopular": "Espatódea",
+      "nomeCientifico": "Spathodea campanulata P.Beauv.",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR",
+        "RMC"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "15-20m",
+      "regioesCultivo": "Cultivada em todo o Brasil.",
+      "floracao": "novembro-abril",
+      "frutificacao": null,
+      "corFloracao": "vermelho-alaranjada",
+      "mapaRegiao": "mudas/mapas/Espatódea.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 53,
+      "nomePopular": "Espinheira-santa",
+      "nomeCientifico": "Monteverdia ilicifolia (Mart. ex Reissek) Biral",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-5m",
+      "regioesCultivo": "RS, SC, PR, SP e MS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Espinheira_santa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 54,
+      "nomePopular": "Eucalipto-limão",
+      "nomeCientifico": "Corymbia citriodora (Hook.) K.D.Hill & L.A.S.Johnson",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-30m",
+      "regioesCultivo": "Cultivado no PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Eucalipto_limão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 55,
+      "nomePopular": "Eucalipto-cidra",
+      "nomeCientifico": "Eucalyptus dunnii Maiden",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "30-35m",
+      "regioesCultivo": "Cultivado no PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Eucalipto_cidra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 56,
+      "nomePopular": "Eucalipto-rosa",
+      "nomeCientifico": "Eucalyptus grandis W.Hill ex Maiden",
+      "finsPlantio": [
+        "EX",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "20-40m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Eucalipto_rosa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 57,
+      "nomePopular": "Falsa-canela",
+      "nomeCientifico": "Cinnamomum burmannii (Nees & T.Nees) Blume",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-8m",
+      "regioesCultivo": "Cultivada em todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Falsa_canela.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 58,
+      "nomePopular": "Falso-barbatimão",
+      "nomeCientifico": "Senna leptophylla (Vogel) H.S.Irwin & Barneby",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "8-10m",
+      "regioesCultivo": "PR e SC. É cultivado no RS.",
+      "floracao": "novembro-janeiro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Falso_barbatimão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 59,
+      "nomePopular": "Farinha-seca",
+      "nomeCientifico": "Machaerium stipitatum (DC.) Vogel",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "10-20m",
+      "regioesCultivo": "RJ, SP, MG, MS até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Farinha_seca.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 60,
+      "nomePopular": "Figueira-folha-fina",
+      "nomeCientifico": "Ficus enormis (Mart. ex Miq.) Miq.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-14m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Figueira_folha_fina.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 61,
+      "nomePopular": "Figueira-mata-pau",
+      "nomeCientifico": "Ficus guaranitica Chodat",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-20m",
+      "regioesCultivo": "RJ, MG, MS, GO, SP e PR. É cultivada em SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Figueira_mata_pau.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 62,
+      "nomePopular": "Flamboyant",
+      "nomeCientifico": "Delonix regia (Bojer ex Hook.) Raf.",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-12m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": "outubro-janeiro",
+      "frutificacao": null,
+      "corFloracao": "vermelha",
+      "mapaRegiao": "mudas/mapas/Flamboyant.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 63,
+      "nomePopular": "Gerivá",
+      "nomeCientifico": "Syagrus romanzoffiana (Cham.) Glassm.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-20m",
+      "regioesCultivo": "ES, RJ, MG, GO , MS até o RS.",
+      "floracao": null,
+      "frutificacao": "fevereiro-agosto",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Gerivá.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 64,
+      "nomePopular": "Goiaba",
+      "nomeCientifico": "Psidium guajava L.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "3-6m",
+      "regioesCultivo": "RJ ao RS.",
+      "floracao": null,
+      "frutificacao": "dezembro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Goiaba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 65,
+      "nomePopular": "Goiaba-da-serra",
+      "nomeCientifico": "Acca sellowiana (O.Berg) Burret",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "3-4m",
+      "regioesCultivo": "Norte do RS até o PR.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Goiaba_da_serra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 66,
+      "nomePopular": "Grandiúva",
+      "nomeCientifico": "Trema micrantha (L.) Blume",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-12m",
+      "regioesCultivo": "RJ, MG, GO, MS até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Grandiúva.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 67,
+      "nomePopular": "Grevílea",
+      "nomeCientifico": "Grevillea robusta A.Cunn. ex R.Br.",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "IND",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "15-20m",
+      "regioesCultivo": "É cultivada em SP, PR, SC e RS.",
+      "floracao": "agosto-dezembro",
+      "frutificacao": null,
+      "corFloracao": "amarelo-alaranjada",
+      "mapaRegiao": "mudas/mapas/Grevílea.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 68,
+      "nomePopular": "Grevílea-anã",
+      "nomeCientifico": "Grevillea banksii R.Br.",
+      "finsPlantio": [
+        "EX",
+        "FA",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "3-6m",
+      "regioesCultivo": "Cultivada nas regiões Sul e Sudeste do Brasil.",
+      "floracao": "maio-setembro",
+      "frutificacao": null,
+      "corFloracao": "róseo-avermelhada",
+      "mapaRegiao": "mudas/mapas/Grevílea_anã.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 69,
+      "nomePopular": "Grumixama",
+      "nomeCientifico": "Eugenia brasiliensis Lam.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-15m",
+      "regioesCultivo": "Sul da BA até SC.",
+      "floracao": null,
+      "frutificacao": "novembro-dezembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Grumixama.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 70,
+      "nomePopular": "Guabiju",
+      "nomeCientifico": "Myrcianthes pungens (O.Berg) D.Legrand",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "15-20m",
+      "regioesCultivo": "SP até o RS.",
+      "floracao": null,
+      "frutificacao": "janeiro-fevereiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Guabiju.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 71,
+      "nomePopular": "Guabiroba",
+      "nomeCientifico": "Campomanesia xanthocarpa O.Berg",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-20m",
+      "regioesCultivo": "MG, SP, MS até o RS.",
+      "floracao": null,
+      "frutificacao": "novembro-dezembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Guabiroba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 72,
+      "nomePopular": "Guabiroba-crespa",
+      "nomeCientifico": "Campomanesia reitziana D. Legrand",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-20m",
+      "regioesCultivo": "MG, SP, MS até o RS.",
+      "floracao": null,
+      "frutificacao": "outubro-novembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Guabiroba_crespa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 73,
+      "nomePopular": "Guaçatunga",
+      "nomeCientifico": "Casearia sylvestris Sw.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "4-6m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Guaçatunga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 74,
+      "nomePopular": "Guamirim-folha-larga",
+      "nomeCientifico": "Calyptranthes grandifolia O.Berg",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-14m",
+      "regioesCultivo": "RJ até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Guamirim_folha_larga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 75,
+      "nomePopular": "Guapuruvu",
+      "nomeCientifico": "Schizolobium parahyba (Vell.) Blake",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "BA até SC. É cultivada também no RS.",
+      "floracao": "agosto-outubro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Guapuruvu.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 76,
+      "nomePopular": "Ingá-anão",
+      "nomeCientifico": "Inga vera Willd.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-10m",
+      "regioesCultivo": "SP ao RS.",
+      "floracao": null,
+      "frutificacao": "dezembro a março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_anão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 77,
+      "nomePopular": "Ingá-banana",
+      "nomeCientifico": "Inga uruguensis Hook. & Arn.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-10m",
+      "regioesCultivo": "SP até o RS.",
+      "floracao": null,
+      "frutificacao": "dezembro-fevereiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_banana.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 78,
+      "nomePopular": "Ingá-de-metro",
+      "nomeCientifico": "Inga edulis Mart.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-25m",
+      "regioesCultivo": "Região amazônica, toda orla litorânea desde o RN até norte de SC.",
+      "floracao": null,
+      "frutificacao": "a partir de maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_de_metro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 79,
+      "nomePopular": "Ingá-feijão",
+      "nomeCientifico": "Inga marginata Willd.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-15m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": "março-maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_feijão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 80,
+      "nomePopular": "Ingá-macaco",
+      "nomeCientifico": "Inga sessilis (Vell.) Mart.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "12-20m",
+      "regioesCultivo": "MG até o RS.",
+      "floracao": null,
+      "frutificacao": "julho-janeiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_macaco.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 81,
+      "nomePopular": "Ingá-quatro-quinas",
+      "nomeCientifico": "Inga striata Benth.",
+      "finsPlantio": [
+        "NA",
+        "FA"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "25-30m",
+      "regioesCultivo": "AM até AL. É cultivada em MG até SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ingá_quatro_quinas.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 82,
+      "nomePopular": "Ipê-roxo",
+      "nomeCientifico": "Handroanthus impetiginosus (Mart. ex DC.) Mattos",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-35m",
+      "regioesCultivo": "MA até o RS.",
+      "floracao": "junho-agosto",
+      "frutificacao": null,
+      "corFloracao": "rosa",
+      "mapaRegiao": "mudas/mapas/Ipê_roxo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 83,
+      "nomePopular": "Ipê-amarelo",
+      "nomeCientifico": "Handroanthus chrysotrichus (Mart. ex DC.) Mattos",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "4-10m",
+      "regioesCultivo": "ES até SC. É cultivada no RS.",
+      "floracao": "agosto-setembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Ipê_amarelo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 84,
+      "nomePopular": "Ipê-amarelo-da-serra",
+      "nomeCientifico": "Handroanthus alba (Cham.) Mattos",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "RJ, MG até o RS.",
+      "floracao": "julho-setembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Ipê_amarelo_da_serra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 85,
+      "nomePopular": "Ipê-amarelo-de-jardim",
+      "nomeCientifico": "Tecoma stans (L.) Juss. ex Kunth.",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-7m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": "abril-setembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Ipê_amarelo_de_jardim.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 86,
+      "nomePopular": "Ipê-branco",
+      "nomeCientifico": "Handroanthus roseo-albus (Ridl.) Mattos",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "7-16m",
+      "regioesCultivo": "Norte de SP, MG, MS e GO. É cultivado no PR, SC e RS.",
+      "floracao": "agosto-outubro",
+      "frutificacao": null,
+      "corFloracao": "róseo-branca",
+      "mapaRegiao": "mudas/mapas/Ipê_branco.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 87,
+      "nomePopular": "Ipê-rosa",
+      "nomeCientifico": "Handroanthus heptaphyllus (Vell.) Mattos",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-20m",
+      "regioesCultivo": "Sul da BA, ES, MG, RJ e SP. É cultivado no PR, SC e RS.",
+      "floracao": "julho-setembro",
+      "frutificacao": null,
+      "corFloracao": "rosa",
+      "mapaRegiao": "mudas/mapas/Ipê_rosa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 88,
+      "nomePopular": "Jabuticaba",
+      "nomeCientifico": "Plinia trunciflora (O.Berg) Kausel",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-15m",
+      "regioesCultivo": "MG, MS, SP até o RS.",
+      "floracao": null,
+      "frutificacao": "agosto-setembro e janeiro-fevereiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Jabuticaba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 89,
+      "nomePopular": "Jacarandá mimoso",
+      "nomeCientifico": "Jacaranda mimosifolia D. Don",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "IND",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "12-15m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": "dezembro-março",
+      "frutificacao": null,
+      "corFloracao": "azul-violeta",
+      "mapaRegiao": "mudas/mapas/Jacarandá_mimoso.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 90,
+      "nomePopular": "Jambolão",
+      "nomeCientifico": "Syzygium cumini (L.) Skeels",
+      "finsPlantio": [
+        "EX",
+        "FH",
+        "FA",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-20m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": null,
+      "frutificacao": "a partir de setembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Jambolão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 91,
+      "nomePopular": "Leucena",
+      "nomeCientifico": "Leucaena leucocephala (Lam.) R. de Wit",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-7m",
+      "regioesCultivo": "Pode ser cultivada em todo Brasil, contudo é sensível a geadas.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Leucena.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 92,
+      "nomePopular": "Ligustro",
+      "nomeCientifico": "Ligustrum lucidum W. T. Aiton",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "7-10m",
+      "regioesCultivo": "Cultivado no Sul e Sudeste do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Ligustro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 93,
+      "nomePopular": "Limoeiro-do-mato",
+      "nomeCientifico": "Randia armata (Sw.) DC.",
+      "finsPlantio": [
+        "NA",
+        "RAD"
+      ],
+      "comportamentoFolhar": null,
+      "altura": null,
+      "regioesCultivo": "PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": "junho",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Limoeiro_do_mato.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 94,
+      "nomePopular": "Louro-cravo",
+      "nomeCientifico": "Pimenta pseudocaryophyllus (Gomes) L. R. Landrum",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "4-10m",
+      "regioesCultivo": "BA, MG, GO até SC. É cultivada também no RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Louro_cravo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 95,
+      "nomePopular": "Louro-pardo",
+      "nomeCientifico": "Cordia trichotoma (Vell.) Arráb. ex Steud.",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "IND",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "CE até o RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Louro_pardo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 96,
+      "nomePopular": "Magnólia-amarela",
+      "nomeCientifico": "Magnolia champaca (L.) Baill. ex Pierre",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "7-10m",
+      "regioesCultivo": "Cultivada no PR, SC e RS.",
+      "floracao": "outubro-novembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Magnólia_amarela.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 97,
+      "nomePopular": "Mamica-de-porca",
+      "nomeCientifico": "Zanthoxylum rhoifolium Lam.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-12m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Mamica_de_porca.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 98,
+      "nomePopular": "Manacá-da-serra",
+      "nomeCientifico": "Pleroma mutabile (Vell.) Triana",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "7-12m",
+      "regioesCultivo": "RJ até SC.",
+      "floracao": "novembro-fevereiro",
+      "frutificacao": null,
+      "corFloracao": "branco-rósea",
+      "mapaRegiao": "mudas/mapas/Manacá_da_serra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 99,
+      "nomePopular": "Manduirana",
+      "nomeCientifico": "Senna macranthera (Collad.) H.S.Irwin & Barneby",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-8m",
+      "regioesCultivo": "CE até SP e MG. É cultivada no PR, SC e RS.",
+      "floracao": "dezembro-abril",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Manduirana.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 100,
+      "nomePopular": "Maracujá-doce",
+      "nomeCientifico": "Passiflora alata Curtis",
+      "finsPlantio": [
+        "NA",
+        "FH"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "trepadeira",
+      "regioesCultivo": "BA até o RS.",
+      "floracao": null,
+      "frutificacao": "dezembro-maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Maracujá_amarelo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 101,
+      "nomePopular": "Maracujá-amarelo",
+      "nomeCientifico": "Passiflora edulis Sims",
+      "finsPlantio": [
+        "NA",
+        "FH"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "trepadeira",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": null,
+      "frutificacao": "dezembro-maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Maracujá_do_mato.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 102,
+      "nomePopular": "Maria-preta",
+      "nomeCientifico": "Diospyros inconstans Jacq.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "6-9m",
+      "regioesCultivo": "MG até o RS.",
+      "floracao": null,
+      "frutificacao": "a partir de janeiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Maria_preta.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 103,
+      "nomePopular": "Monjoleiro",
+      "nomeCientifico": "Senegalia polyphylla (DC.) Britton & Rose",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "15-20m",
+      "regioesCultivo": "Região amazônica até o PR e SP. Cultivada em SC e no RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Maricá.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 104,
+      "nomePopular": "Mogno",
+      "nomeCientifico": "Swietenia macrophylla King",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "25-30m",
+      "regioesCultivo": "Toda região Amazônica. É cultivada na região centro-sul do país.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Mogno.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 105,
+      "nomePopular": "Mulungu-do-litoral",
+      "nomeCientifico": "Erythrina speciosa Andrews",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "3-5m",
+      "regioesCultivo": "ES, MG até SC.",
+      "floracao": "junho-setembro",
+      "frutificacao": null,
+      "corFloracao": "vermelha",
+      "mapaRegiao": "mudas/mapas/Mulungu_do_litoral.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 106,
+      "nomePopular": "Murta",
+      "nomeCientifico": "Myrtus communis L.",
+      "finsPlantio": [
+        "EX",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "5-7m",
+      "regioesCultivo": "Cultivada em todo território brasileiro.",
+      "floracao": "no decorre de todo ano",
+      "frutificacao": null,
+      "corFloracao": "branca",
+      "mapaRegiao": "mudas/mapas/Murta.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 107,
+      "nomePopular": "Olandi",
+      "nomeCientifico": "Calophyllum brasiliense Cambess.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "20-30m",
+      "regioesCultivo": "Região Amazônica até o norte de SC.",
+      "floracao": null,
+      "frutificacao": "novembro-dezembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Olandi.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 108,
+      "nomePopular": "Paineira-rosa",
+      "nomeCientifico": "Ceiba speciosa (A.St.-Hil.) Ravenna",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "15-30m",
+      "regioesCultivo": "RJ, MG, GO, SP, MS e norte do PR. É cultivada no RS e SC.",
+      "floracao": "dezembro-abril",
+      "frutificacao": null,
+      "corFloracao": "rosa",
+      "mapaRegiao": "mudas/mapas/Paineira_rosa.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 109,
+      "nomePopular": "Buriti-palito",
+      "nomeCientifico": "Trithrinax brasiliensis Mart.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "2-13m",
+      "regioesCultivo": "PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": "a partir de setembro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Palmeira_buriti.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 110,
+      "nomePopular": "Palmeira-real",
+      "nomeCientifico": "Archontophoenix alexandrae (F.Muell.) H.Wendl. & Drude",
+      "finsPlantio": [
+        "EX",
+        "FH",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "18-22m",
+      "regioesCultivo": "É cultivada no Sudeste e Sul do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Palmeira_real.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 111,
+      "nomePopular": "Palmiteiro",
+      "nomeCientifico": "Euterpe edulis Mart.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "IND",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-20m",
+      "regioesCultivo": "Sul da BA, MS, MG até o RS.",
+      "floracao": null,
+      "frutificacao": "abril-agosto",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Palmiteiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 112,
+      "nomePopular": "Pata-de-vaca",
+      "nomeCientifico": "Bauhinia forficata Link",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "5-9m",
+      "regioesCultivo": "RJ, MG até o RS.",
+      "floracao": "outubro-janeiro",
+      "frutificacao": null,
+      "corFloracao": "branca",
+      "mapaRegiao": "mudas/mapas/Pata_de_vaca.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 113,
+      "nomePopular": "Pau-brasil",
+      "nomeCientifico": "Paubrasilia echinata (Lam.) Gagnon, H.C.Lima & G.P.Lewis",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "8-12m",
+      "regioesCultivo": "CE até o RJ. Pode ser cultivado como curiosidade em SP, PR, SC e RS.",
+      "floracao": "setembro-outubro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Pau_brasil.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 114,
+      "nomePopular": "Pau-cigarra",
+      "nomeCientifico": "Senna multijuga (Rich.) H.S.Irwin & Barneby",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "6-10m",
+      "regioesCultivo": "Todo o Brasil.",
+      "floracao": "dezembro-abril",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Pau_cigarra.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 115,
+      "nomePopular": "Pau-ferro",
+      "nomeCientifico": "Libidibia ferrea var. leiostachya (Benth.) L.P.Queiroz",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "20-30m",
+      "regioesCultivo": "PI até SP. É cultivada no PR, SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pau_ferro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 116,
+      "nomePopular": "Pau-formiga",
+      "nomeCientifico": "Triplaris brasiliana Cham.",
+      "finsPlantio": [
+        "NA",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-20m",
+      "regioesCultivo": "MT, MS, SP. É cultivada no PR, SC e RS.",
+      "floracao": "agosto-outubro",
+      "frutificacao": null,
+      "corFloracao": "rosa",
+      "mapaRegiao": "mudas/mapas/Pau_formiga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 117,
+      "nomePopular": "Pau-jacaré",
+      "nomeCientifico": "Piptadenia gonoacantha (Mart.) J.F.Macbr.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "10-20m",
+      "regioesCultivo": "RJ, MG, MS até SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pau_jacaré.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 118,
+      "nomePopular": "Pau-óleo",
+      "nomeCientifico": "Copaifera trapezifolia Hayne",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-25m",
+      "regioesCultivo": "BA, MG, PE, PR, RS, SC e SP.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pau_óleo.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 119,
+      "nomePopular": "Peroba",
+      "nomeCientifico": "Aspidosperma parvifolium A.DC.",
+      "finsPlantio": [
+        "NA",
+        "O"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "10-15m",
+      "regioesCultivo": "Sul da BA até o RS, MG, GO e MS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Peroba.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 120,
+      "nomePopular": "Pinheiro-alemão",
+      "nomeCientifico": "Cunninghamia lanceolata (Lamb.) Hook.",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "25-45m",
+      "regioesCultivo": "Cultivado no Sul do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pinheiro_alemão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 121,
+      "nomePopular": "Pinheiro-brasileiro",
+      "nomeCientifico": "Araucaria angustifolia (Bertol.) Kuntze",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "IND",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "20-50m",
+      "regioesCultivo": "MG, RJ até o RS.",
+      "floracao": null,
+      "frutificacao": "abril-maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pinheiro_brasileiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 122,
+      "nomePopular": "Pinheiro-de-natal",
+      "nomeCientifico": "Araucaria columnaris (G.Forst.) Hook.",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "40-60m",
+      "regioesCultivo": "Cultivado no PR, SC e RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pinheiro_de_natal.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 123,
+      "nomePopular": "Pinus",
+      "nomeCientifico": "Pinus taeda L.",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "25-30m",
+      "regioesCultivo": "Cultivado principalmente no RS e SC.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pinus.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 124,
+      "nomePopular": "Pitanga",
+      "nomeCientifico": "Eugenia uniflora L.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-12m",
+      "regioesCultivo": "MG até o RS.",
+      "floracao": null,
+      "frutificacao": "outubro-janeiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Pitanga.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 125,
+      "nomePopular": "Plátano",
+      "nomeCientifico": "Platanus × acerifolia (Aiton) Willd.",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-30m",
+      "regioesCultivo": "Cultivado no Sul do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Plátano.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 126,
+      "nomePopular": "Quaresmeira",
+      "nomeCientifico": "Tibouchina granulosa (Desr.) Cogn.",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "8-12m",
+      "regioesCultivo": "BA, RJ, SP e MG. É cultivada em SC.",
+      "floracao": "junho-agosto e dezembro-março",
+      "frutificacao": null,
+      "corFloracao": "lilás",
+      "mapaRegiao": "mudas/mapas/Quaresmeira.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 127,
+      "nomePopular": "Romã",
+      "nomeCientifico": "Punica granatum L.",
+      "finsPlantio": [
+        "EX",
+        "FH",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "3-4m",
+      "regioesCultivo": "Cultivado em todo o Brasil.",
+      "floracao": "a partir de setembro",
+      "frutificacao": null,
+      "corFloracao": "vermelho-alaranjada",
+      "mapaRegiao": "mudas/mapas/Romã.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 128,
+      "nomePopular": "Salgueiro-chorão",
+      "nomeCientifico": "Salix babylonica L.",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-20m",
+      "regioesCultivo": "Cultivado nas regiões de altitude do Sul do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Salso_chorão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 129,
+      "nomePopular": "Sete-capotes",
+      "nomeCientifico": "Campomanesia guazumifolia (Cambess.) O.Berg",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "6-10m",
+      "regioesCultivo": "RJ, MG, SP, MS até o RS.",
+      "floracao": null,
+      "frutificacao": "março-maio",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Sete_capotes.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 130,
+      "nomePopular": "Sibipiruna",
+      "nomeCientifico": "Cenostigma pluviosum var. peltophoroides (Benth.) Gagnon & G.P.Lewis",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "FLOR",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "8-16m",
+      "regioesCultivo": "RJ, BA e MS. É cultivada em SP, PR, SC e RS.",
+      "floracao": "agosto-novembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Sibipiruna.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 131,
+      "nomePopular": "Sombreiro",
+      "nomeCientifico": "Clitoria fairchildiana R.A.Howard",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "6-12m",
+      "regioesCultivo": "AM, PA, MA e TO. É cultivado como ornamental nos estados do Sul e Sudeste do Brasil",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Sombreiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 132,
+      "nomePopular": "Tanheiro",
+      "nomeCientifico": "Alchornea triplinervia (Spreng.) Müll.Arg.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "S",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-30m",
+      "regioesCultivo": "BA ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Tanheiro.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 133,
+      "nomePopular": "Tarumã",
+      "nomeCientifico": "Vitex megapotamica (Spreng.) Moldenke",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "5-20m",
+      "regioesCultivo": "MG, MS até o RS.",
+      "floracao": null,
+      "frutificacao": "janeiro-março",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Tarumã.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 134,
+      "nomePopular": "Timbaúva",
+      "nomeCientifico": "Enterolobium contortisiliquum (Vell.) Morong",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "20-35m",
+      "regioesCultivo": "PA, MA, PI até MS e RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Timbaúva.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 135,
+      "nomePopular": "Timbó",
+      "nomeCientifico": "Ateleia glazioviana Baill.",
+      "finsPlantio": [
+        "NA",
+        "S",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "8-18m",
+      "regioesCultivo": "PR ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Timbó.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 136,
+      "nomePopular": "Tipuana",
+      "nomeCientifico": "Tipuana tipu (Benth.) Kuntze",
+      "finsPlantio": [
+        "EX",
+        "S",
+        "O",
+        "FLOR"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "12-15m",
+      "regioesCultivo": "Cultivada nas regiões Sul e Sudeste do Brasil.",
+      "floracao": "setembro-dezembro",
+      "frutificacao": null,
+      "corFloracao": "amarela",
+      "mapaRegiao": "mudas/mapas/Tipuana.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 137,
+      "nomePopular": "Tucaneira",
+      "nomeCientifico": "Citharexylum myrianthum Cham.",
+      "finsPlantio": [
+        "NA",
+        "FA",
+        "O",
+        "RMC",
+        "RAD"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "8-20m",
+      "regioesCultivo": "BA ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Tucaneira.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 138,
+      "nomePopular": "Tuia",
+      "nomeCientifico": "Thuja occidentalis L.",
+      "finsPlantio": [
+        "EX",
+        "O"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "15-20m",
+      "regioesCultivo": "Cultivada nas regiões Sul e Sudeste do Brasil.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Tuia.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 139,
+      "nomePopular": "Urucum",
+      "nomeCientifico": "Bixa orellana L.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "3-5m",
+      "regioesCultivo": "Região amazônica até a BA. É cultivada nos demais estados.",
+      "floracao": null,
+      "frutificacao": "final do verão e no início do outono",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Urucum.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 140,
+      "nomePopular": "Uva-do-japão",
+      "nomeCientifico": "Hovenia dulcis Thunb.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "S",
+        "O",
+        "IND"
+      ],
+      "comportamentoFolhar": "D",
+      "altura": "10-15m",
+      "regioesCultivo": "Cultivada principalmente no Sul, e em todas regiões do Brasil como curiosidade.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Uva_do_japão.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 141,
+      "nomePopular": "Uvaia",
+      "nomeCientifico": "Eugenia pyriformis Cambess.",
+      "finsPlantio": [
+        "NA",
+        "FH",
+        "FA",
+        "O",
+        "RAD"
+      ],
+      "comportamentoFolhar": "SD",
+      "altura": "6-13m",
+      "regioesCultivo": "SP ao RS.",
+      "floracao": null,
+      "frutificacao": "setembro-janeiro",
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Uvaia.jpg",
+      "fotoMuda": "mudas/"
+    },
+    {
+      "id": 142,
+      "nomePopular": "Vassourão-preto",
+      "nomeCientifico": "Vernonanthura discolor (Spreng.) H.Rob.",
+      "finsPlantio": [
+        "NA",
+        "RAD"
+      ],
+      "comportamentoFolhar": "P",
+      "altura": "10-15m",
+      "regioesCultivo": "MG ao RS.",
+      "floracao": null,
+      "frutificacao": null,
+      "corFloracao": null,
+      "mapaRegiao": "mudas/mapas/Vassourão_preto.jpg",
+      "fotoMuda": "mudas/"
+    }
+  ]
+}

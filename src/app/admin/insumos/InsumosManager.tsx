@@ -18,6 +18,7 @@ interface Input {
   category: InputCategory
   unit_of_measure: string
   cost_per_unit: number | null
+  quantity_purchased: number | null
   supplier: string | null
   last_purchase_date: string | null
   active: boolean
@@ -43,7 +44,7 @@ const CATEGORY_LABEL: Record<InputCategory, string> = {
 }
 
 function emptyForm(): InputPayload {
-  return { name: '', category: 'substrato', unit_of_measure: '', cost_per_unit: null, supplier: '', last_purchase_date: '', active: true }
+  return { name: '', category: 'substrato', unit_of_measure: '', cost_per_unit: null, quantity_purchased: null, supplier: '', last_purchase_date: '', active: true }
 }
 
 function toNum(s: string): number | null { return s.trim() === '' ? null : Number(s) }
@@ -75,6 +76,7 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
       category: item.category,
       unit_of_measure: item.unit_of_measure,
       cost_per_unit: item.cost_per_unit,
+      quantity_purchased: item.quantity_purchased,
       supplier: item.supplier ?? '',
       last_purchase_date: item.last_purchase_date ?? '',
       active: item.active,
@@ -159,11 +161,28 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
                 placeholder="0.00" className="input" />
             </div>
             <div className="flex flex-col gap-1">
+              <label className="label">Qtd. comprada {form.unit_of_measure ? `(${form.unit_of_measure})` : ''}</label>
+              <input type="number" min="0" step="0.01" value={numField(form.quantity_purchased)}
+                onChange={e => setForm(f => ({ ...f, quantity_purchased: toNum(e.target.value) }))}
+                placeholder="0.00" className="input" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
               <label className="label">Última compra</label>
               <input type="date" value={form.last_purchase_date}
                 onChange={e => setForm(f => ({ ...f, last_purchase_date: e.target.value }))}
                 className="input" />
             </div>
+            {form.cost_per_unit != null && form.quantity_purchased != null && (
+              <div className="flex flex-col gap-1">
+                <label className="label">Total (R$)</label>
+                <p className="input bg-gray-50 text-gray-700 font-semibold">
+                  {(form.cost_per_unit * form.quantity_purchased).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -226,6 +245,16 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
                       {item.cost_per_unit != null && (
                         <span className="text-xs font-semibold text-gray-700">
                           {Number(item.cost_per_unit).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/{item.unit_of_measure}
+                        </span>
+                      )}
+                      {item.quantity_purchased != null && (
+                        <span className="text-xs text-gray-500">
+                          {Number(item.quantity_purchased)} {item.unit_of_measure}
+                        </span>
+                      )}
+                      {item.cost_per_unit != null && item.quantity_purchased != null && (
+                        <span className="text-xs font-semibold text-green-700">
+                          Total: {(Number(item.cost_per_unit) * Number(item.quantity_purchased)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </span>
                       )}
                     </div>
