@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsx scripts/migrate.ts && next build",
     "start": "next start",
     "lint": "next lint",
-    "db:migrate": "tsx scripts/migrate.ts"
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:migrate:status": "tsx scripts/migrate.ts --status",
+    "db:migrate:mark": "tsx scripts/migrate.ts --mark-applied"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
