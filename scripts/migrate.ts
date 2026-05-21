@@ -24,7 +24,7 @@ const args = process.argv.slice(2)
 const markApplied = args.includes('--mark-applied')
 const statusOnly = args.includes('--status')
 
-async function getAppliedMigrations(client: ReturnType<PgPool['connect']> extends Promise<infer T> ? T : never): Promise<Set<string>> {
+async function getAppliedMigrations(client: { query: (sql: string) => Promise<{ rows: { filename: string }[] }> }): Promise<Set<string>> {
   const result = await client.query('SELECT filename FROM _migrations ORDER BY filename')
   return new Set(result.rows.map((r: { filename: string }) => r.filename))
 }
