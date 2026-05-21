@@ -11,7 +11,7 @@ const pool = isNeon
   ? new NeonPool({ connectionString: DATABASE_URL })
   : new PgPool({ connectionString: DATABASE_URL })
 
-const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations')
+const migrationsDir = path.join(process.cwd(), 'migrations')
 
 const BOOTSTRAP_SQL = `
 CREATE TABLE IF NOT EXISTS _migrations (

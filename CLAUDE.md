@@ -29,7 +29,7 @@ Sistema integrado de gestão para viveiro de mudas nativas no Alto Vale do Itaja
 
 ## Estrutura do Banco de Dados (schema central)
 O schema é compartilhado entre todos os projetos. Qualquer alteração no banco deve:
-1. Ser feita como arquivo `.sql` na pasta `supabase/migrations/` (compatível com psql puro)
+1. Ser feita como arquivo `.sql` na pasta `migrations/` (compatível com psql puro)
 2. Manter compatibilidade retroativa
 3. Documentar a migração no CHANGELOG
 

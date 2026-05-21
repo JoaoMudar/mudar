@@ -11,7 +11,7 @@ Na aba de cadastro de insumos (`/admin/insumos`), só era possível registrar a 
 
 ### 1. Migração SQL
 
-**Arquivo criado:** `supabase/migrations/20260520000001_add_quantity_purchased.sql`
+**Arquivo criado:** `migrations/20260520000001_add_quantity_purchased.sql`
 
 ```sql
 ALTER TABLE inputs ADD COLUMN quantity_purchased NUMERIC(10,2);
@@ -51,7 +51,7 @@ ALTER TABLE inputs ADD COLUMN quantity_purchased NUMERIC(10,2);
 
 | Arquivo | Ação |
 |---------|------|
-| `supabase/migrations/20260520000001_add_quantity_purchased.sql` | Criado |
+| `migrations/20260520000001_add_quantity_purchased.sql` | Criado |
 | `src/app/admin/insumos/actions.ts` | Alterado |
 | `src/app/admin/insumos/InsumosManager.tsx` | Alterado |
 
