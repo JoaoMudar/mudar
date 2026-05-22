@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { requireAuth } from '@/lib/auth'
+import LogoutButton from './LogoutButton'
 
 const WORKER_LINKS = [
   {
@@ -15,20 +17,43 @@ const ADMIN_LINKS = [
   { href: '/admin/insumos',         label: 'Insumos' },
   { href: '/admin/custos-fixos',    label: 'Custos Fixos' },
   { href: '/admin/coleta-sementes', label: 'Coleta Sementes' },
+  { href: '/admin/usuarios',        label: 'Usuários' },
 ]
 
-export default function Home() {
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Administrador',
+  chefia: 'Chefia',
+  gerencia: 'Gerência',
+  funcionario: 'Funcionário',
+}
+
+export default async function Home() {
+  const user = await requireAuth()
+
+  const showAdmin = user.role === 'admin' || user.role === 'chefia'
+
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Cabeçalho */}
+      {/* Cabecalho */}
       <header className="bg-green-800 text-white px-4 py-5">
-        <p className="text-xs text-green-300 uppercase tracking-widest font-semibold">Sistema</p>
-        <h1 className="text-xl font-bold">Viveiro Mudar</h1>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs text-green-300 uppercase tracking-widest font-semibold">Sistema</p>
+            <h1 className="text-xl font-bold">Viveiro Mudar</h1>
+          </div>
+          <div className="text-right flex flex-col items-end gap-1">
+            <p className="text-sm text-green-100">
+              Olá, <span className="font-semibold text-white">{user.display_name}</span>
+            </p>
+            <p className="text-xs text-green-400">{ROLE_LABELS[user.role]}</p>
+            <LogoutButton />
+          </div>
+        </div>
       </header>
 
       <div className="px-4 py-6 space-y-8 max-w-lg mx-auto">
 
-        {/* Seção operários */}
+        {/* Secao operacoes */}
         <section>
           <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
             Operações de Campo
@@ -50,23 +75,30 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Seção admin */}
-        <section>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
-            Administração
-          </h2>
-          <div className="grid grid-cols-2 gap-2">
-            {ADMIN_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Secao admin — visivel para admin e chefia */}
+        {showAdmin && (
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+              Administração
+            </h2>
+            <div className="grid grid-cols-2 gap-2">
+              {ADMIN_LINKS
+                .filter((link) => {
+                  if (link.href === '/admin/usuarios') return user.role === 'admin'
+                  return true
+                })
+                .map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
+                  >
+                    {label}
+                  </Link>
+                ))}
+            </div>
+          </section>
+        )}
 
       </div>
     </main>

@@ -9,6 +9,7 @@ const NAV = [
   { href: '/admin/insumos',         label: 'Insumos' },
   { href: '/admin/custos-fixos',    label: 'Custos Fixos' },
   { href: '/admin/coleta-sementes', label: 'Coleta Sementes' },
+  { href: '/admin/usuarios',        label: 'Usuários' },
 ]
 
 export default function AdminNav() {

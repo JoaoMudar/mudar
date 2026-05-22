@@ -3,6 +3,20 @@ import { Pool as NeonPool } from '@neondatabase/serverless'
 import fs from 'fs'
 import path from 'path'
 
+// Carrega .env.local se existir (tsx nao carrega automaticamente)
+const envPath = path.join(process.cwd(), '.env.local')
+if (fs.existsSync(envPath)) {
+  for (const line of fs.readFileSync(envPath, 'utf-8').split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const idx = trimmed.indexOf('=')
+    if (idx === -1) continue
+    const key = trimmed.slice(0, idx)
+    const val = trimmed.slice(idx + 1)
+    if (!process.env[key]) process.env[key] = val
+  }
+}
+
 const DATABASE_URL =
   process.env.DATABASE_URL ?? 'postgresql://postgres:123@localhost:5432/viveiro'
 
