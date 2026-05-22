@@ -6,8 +6,10 @@ import { getSession } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
 import {
   validateOrderItems,
+  validateGenericAssignment,
   type CreateOrderInput,
   type OrderItemInput,
+  type SpeciesAssignment,
 } from '@/lib/orders'
 
 const LIST_PATH = '/pedidos'
@@ -336,6 +338,216 @@ export async function cancelOrder(
       [orderId, fromStatus, user.id],
     )
     await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+// ============================================================
+// T4.1 — Verificacao de disponibilidade (gerencia)
+// ============================================================
+
+export async function startVerification(
+  orderId: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão para verificar pedidos.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    const from = rows[0].status
+    // Idempotente: so inicia a partir de cadastrado ou pendente_alteracao
+    if (from !== 'cadastrado' && from !== 'pendente_alteracao') {
+      await client.query('ROLLBACK')
+      return {}
+    }
+    await client.query(
+      `UPDATE orders SET status = 'verificando_disponibilidade' WHERE id = $1`,
+      [orderId],
+    )
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
+       VALUES ($1, $2, 'verificando_disponibilidade', $3)`,
+      [orderId, from, user.id],
+    )
+    await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function toggleItemAvailability(
+  itemId: string,
+  isAvailable: boolean,
+  notes?: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  try {
+    await pool.query(
+      `UPDATE order_items SET is_available = $1, availability_notes = $2 WHERE id = $3`,
+      [isAvailable, notes?.trim() || null, itemId],
+    )
+    return {}
+  } catch (e: unknown) {
+    return { error: (e as Error).message }
+  }
+}
+
+export async function assignSpeciesToGenericItem(
+  parentItemId: string,
+  assignments: SpeciesAssignment[],
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+
+  // Carrega item pai e volume minimo do recipiente
+  const { rows: parentRows } = await pool.query(
+    `SELECT oi.order_id, oi.quantity, ct.volume_liters AS min_volume
+     FROM order_items oi
+     JOIN containers ct ON ct.id = oi.container_id
+     WHERE oi.id = $1 AND oi.is_generic = true`,
+    [parentItemId],
+  )
+  if (parentRows.length === 0) return { error: 'Item genérico não encontrado.' }
+  const parent = parentRows[0]
+
+  // Volumes dos recipientes escolhidos
+  const containerIds = [...new Set(assignments.map((a) => a.container_id))]
+  const volumes: Record<string, number | null> = {}
+  if (containerIds.length > 0) {
+    const { rows: volRows } = await pool.query(
+      `SELECT id, volume_liters FROM containers WHERE id = ANY($1::uuid[])`,
+      [containerIds],
+    )
+    for (const r of volRows) {
+      volumes[r.id] = r.volume_liters === null ? null : Number(r.volume_liters)
+    }
+  }
+  const minVol = parent.min_volume === null ? 0 : Number(parent.min_volume)
+  const err = validateGenericAssignment(
+    Number(parent.quantity),
+    minVol,
+    assignments,
+    volumes,
+  )
+  if (err) return { error: err }
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    await client.query(`DELETE FROM order_items WHERE parent_item_id = $1`, [
+      parentItemId,
+    ])
+    for (const a of assignments) {
+      await client.query(
+        `INSERT INTO order_items
+           (order_id, species_id, container_id, quantity, is_generic, parent_item_id, is_available)
+         VALUES ($1, $2, $3, $4, false, $5, true)`,
+        [parent.order_id, a.species_id, a.container_id, a.quantity, parentItemId],
+      )
+    }
+    await client.query(`UPDATE order_items SET is_available = true WHERE id = $1`, [
+      parentItemId,
+    ])
+    await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${parent.order_id}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function finishVerification(
+  orderId: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+
+  const { rows: items } = await pool.query(
+    `SELECT is_generic, is_available
+     FROM order_items
+     WHERE order_id = $1 AND parent_item_id IS NULL`,
+    [orderId],
+  )
+  if (items.length === 0) return { error: 'Pedido sem itens.' }
+  if (items.some((i) => i.is_available === null)) {
+    return { error: 'Ainda há itens não verificados.' }
+  }
+
+  const especificos = items.filter((i) => !i.is_generic)
+  const disponiveis = especificos.filter((i) => i.is_available === true).length
+  const genericosDef = items.filter(
+    (i) => i.is_generic && i.is_available === true,
+  ).length
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    const from = rows[0].status
+    const orderNumber = rows[0].order_number
+    await client.query(`UPDATE orders SET status = 'verificado' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
+       VALUES ($1, $2, 'verificado', $3)`,
+      [orderId, from, user.id],
+    )
+    await client.query('COMMIT')
+
+    const parts = [`${disponiveis} de ${especificos.length} disponíveis`]
+    if (genericosDef > 0) parts.push(`${genericosDef} genérico(s) definido(s)`)
+    await notifyRole(
+      'chefia',
+      'pedido_verificado',
+      `Pedido #${orderNumber} verificado`,
+      parts.join(', '),
+      `/pedidos/${orderId}`,
+    )
+
     revalidatePath(`${LIST_PATH}/${orderId}`)
     revalidatePath(LIST_PATH)
     return {}
