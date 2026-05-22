@@ -12,43 +12,43 @@ Notificacoes sao o "elo" entre as etapas do fluxo de pedidos.
 ## Tarefas
 
 ### T2.1 — Server Actions de notificacoes
-- [ ] Criar `src/lib/notifications.ts` com funcoes:
+- [x] Criar `src/lib/notifications.ts` com funcoes:
   - `createNotification(userId, type, title, message, link)` — insere notificacao no banco
   - `getUnreadNotifications(userId)` — retorna notificacoes nao lidas do usuario
   - `getNotifications(userId, limit=20)` — retorna ultimas notificacoes (lidas e nao lidas)
   - `markAsRead(notificationId)` — marca uma notificacao como lida
   - `markAllAsRead(userId)` — marca todas como lidas
   - `getUnreadCount(userId)` — retorna contagem de nao lidas (para badge)
-- [ ] Todas as funcoes devem usar `'use server'` e importar `pool` de `@/lib/db`
-- [ ] Funcao helper `notifyRole(role, type, title, message, link)` — cria notificacao para TODOS os usuarios ativos com determinado role
+- [x] Todas as funcoes devem usar `'use server'` e importar `pool` de `@/lib/db`
+- [x] Funcao helper `notifyRole(role, type, title, message, link)` — cria notificacao para TODOS os usuarios ativos com determinado role
 
 ### T2.2 — Componente NotificationBell (sino de notificacoes)
-- [ ] Criar `src/components/NotificationBell.tsx` (client component)
-- [ ] Exibir icone de sino no header/nav
-- [ ] Badge vermelho com contagem de nao lidas (ex: "3")
-- [ ] Ao clicar, abrir dropdown/painel com lista de notificacoes
-- [ ] Cada notificacao mostra: titulo, mensagem resumida, tempo relativo ("ha 5 min")
-- [ ] Clicar em uma notificacao: marca como lida + navega para o link
-- [ ] Botao "Marcar todas como lidas"
-- [ ] Polling a cada 30 segundos para atualizar contagem (via fetch a uma API route ou server action)
+- [x] Criar `src/components/NotificationBell.tsx` (client component)
+- [x] Exibir icone de sino no header/nav
+- [x] Badge vermelho com contagem de nao lidas (ex: "3")
+- [x] Ao clicar, abrir dropdown/painel com lista de notificacoes
+- [x] Cada notificacao mostra: titulo, mensagem resumida, tempo relativo ("ha 5 min")
+- [x] Clicar em uma notificacao: marca como lida + navega para o link
+- [x] Botao "Marcar todas como lidas"
+- [x] Polling a cada 30 segundos para atualizar contagem (via fetch a uma API route ou server action)
   - Alternativa: usar `router.refresh()` com revalidacao, mas polling eh mais simples para MVP
 
 ### T2.3 — API Route para polling de notificacoes
-- [ ] Criar `src/app/api/notifications/route.ts`
-- [ ] GET: retorna `{ unreadCount, notifications }` para o usuario autenticado
-- [ ] Verificar sessao no handler (rejeitar se nao autenticado)
+- [x] Criar `src/app/api/notifications/route.ts`
+- [x] GET: retorna `{ unreadCount, notifications }` para o usuario autenticado
+- [x] Verificar sessao no handler (rejeitar se nao autenticado)
 
 ### T2.4 — Integrar NotificationBell no layout
-- [ ] Adicionar `<NotificationBell />` no layout principal (`src/app/layout.tsx` ou header compartilhado)
-- [ ] Exibir apenas para usuarios autenticados
-- [ ] Posicionar no canto superior direito
-- [ ] Responsivo: funcionar bem em mobile e desktop
+- [x] Adicionar `<NotificationBell />` no layout principal (`src/app/layout.tsx` ou header compartilhado)
+- [x] Exibir apenas para usuarios autenticados
+- [x] Posicionar no canto superior direito
+- [x] Responsivo: funcionar bem em mobile e desktop
 
 ### T2.5 — Pagina de notificacoes (opcional, mas recomendada)
-- [ ] Criar `src/app/notificacoes/page.tsx`
-- [ ] Lista completa de notificacoes com scroll
-- [ ] Filtro: todas / nao lidas
-- [ ] Link do sino "Ver todas" aponta para esta pagina
+- [x] Criar `src/app/notificacoes/page.tsx`
+- [x] Lista completa de notificacoes com scroll
+- [x] Filtro: todas / nao lidas
+- [x] Link do sino "Ver todas" aponta para esta pagina
 
 ## Design do NotificationBell
 

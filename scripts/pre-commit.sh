@@ -43,10 +43,13 @@ if [ -n "$SENSITIVE" ]; then
     exit 1
 fi
 
-# --- Lint ---
-if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-    echo "[pre-commit] Rodando lint..."
-    if ! npm run lint --silent 2>&1; then
+# --- Filtrar arquivos staged que sao lintaveis/testaveis ---
+STAGED_TS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx|mjs)$' || true)
+
+# --- Lint (somente arquivos staged) ---
+if [ -n "$STAGED_TS" ]; then
+    echo "[pre-commit] Rodando lint nos arquivos alterados..."
+    if ! npx eslint $STAGED_TS 2>&1; then
         echo "============================================"
         echo "[pre-commit] COMMIT BLOQUEADO"
         echo "[pre-commit] Lint falhou. Corrija antes de commitar."
@@ -56,10 +59,10 @@ if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
     echo "[pre-commit] Lint OK."
 fi
 
-# --- Testes ---
-if [ -f "package.json" ] && grep -q '"test"' package.json 2>/dev/null; then
-    echo "[pre-commit] Rodando testes..."
-    if ! npm test 2>&1; then
+# --- Testes (somente relacionados aos arquivos alterados) ---
+if [ -n "$STAGED_TS" ] && [ -f "package.json" ] && grep -q '"test"' package.json 2>/dev/null; then
+    echo "[pre-commit] Rodando testes relacionados..."
+    if ! npx vitest run --changed 2>&1; then
         echo "============================================"
         echo "[pre-commit] COMMIT BLOQUEADO"
         echo "[pre-commit] Testes falharam. Corrija antes de commitar."

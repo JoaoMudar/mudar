@@ -2,9 +2,14 @@
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "bash .claude/hooks/auto-commit-stop.sh",
-        "timeout": 120
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/auto-commit-stop.sh",
+            "timeout": 120
+          }
+        ]
       }
     ]
   }

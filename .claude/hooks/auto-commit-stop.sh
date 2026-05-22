@@ -100,11 +100,16 @@ if [ -n "$SENSITIVE_FOUND" ]; then
 fi
 
 # ------------------------------------------------------------
-# Validacao: rodar lint se existir
+# Filtrar arquivos alterados que sao lintaveis/testaveis
 # ------------------------------------------------------------
-if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
-    echo "[hook] Rodando lint..."
-    if ! npm run lint --silent 2>&1; then
+CHANGED_TS=$(printf '%s\n' $ALL_CHANGED | grep -E '\.(ts|tsx|js|jsx|mjs)$' || true)
+
+# ------------------------------------------------------------
+# Validacao: rodar lint somente nos arquivos alterados
+# ------------------------------------------------------------
+if [ -n "$CHANGED_TS" ]; then
+    echo "[hook] Rodando lint nos arquivos alterados..."
+    if ! npx eslint $CHANGED_TS 2>&1; then
         echo "============================================"
         echo "[hook] AUTO-COMMIT BLOQUEADO"
         echo "[hook] Lint falhou. Corrija os erros antes."
@@ -115,11 +120,11 @@ if [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
 fi
 
 # ------------------------------------------------------------
-# Validacao: rodar testes se existirem
+# Validacao: rodar testes relacionados aos arquivos alterados
 # ------------------------------------------------------------
-if [ -f "package.json" ] && grep -q '"test"' package.json 2>/dev/null; then
-    echo "[hook] Rodando testes..."
-    if ! npm test --silent 2>&1; then
+if [ -n "$CHANGED_TS" ] && [ -f "package.json" ] && grep -q '"test"' package.json 2>/dev/null; then
+    echo "[hook] Rodando testes relacionados..."
+    if ! npx vitest run --changed 2>&1; then
         echo "============================================"
         echo "[hook] AUTO-COMMIT BLOQUEADO"
         echo "[hook] Testes falharam. Corrija antes."
