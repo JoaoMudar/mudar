@@ -7,6 +7,7 @@ import { notifyRole } from '@/lib/notifications'
 import {
   validateOrderItems,
   validateGenericAssignment,
+  validateLoadsSplit,
   type CreateOrderInput,
   type OrderItemInput,
   type ReviewItemInput,
@@ -841,4 +842,311 @@ export async function updateOrderAfterReview(
   } finally {
     client.release()
   }
+}
+
+// ============================================================
+// T6.1 — Cargas e separacao (gerencia)
+// ============================================================
+
+export interface LoadInput {
+  items: { order_item_id: string; quantity: number }[]
+}
+
+// Itens "reais" do pedido = especificos e filhos de genericos (is_generic = false)
+async function fetchRealItemQuantities(
+  orderId: string,
+): Promise<Record<string, number>> {
+  const { rows } = await pool.query(
+    `SELECT id, quantity FROM order_items
+     WHERE order_id = $1 AND is_generic = false`,
+    [orderId],
+  )
+  const map: Record<string, number> = {}
+  for (const r of rows) map[r.id] = Number(r.quantity)
+  return map
+}
+
+export async function createDefaultLoad(
+  orderId: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (rows[0].status !== 'aprovado') {
+      await client.query('ROLLBACK')
+      return { error: 'Só pedidos aprovados podem ser separados.' }
+    }
+    const { rows: loadRows } = await client.query(
+      `INSERT INTO order_loads (order_id, load_number, status)
+       VALUES ($1, 1, 'pendente') RETURNING id`,
+      [orderId],
+    )
+    const loadId = loadRows[0].id
+    const { rows: items } = await client.query(
+      `SELECT id, quantity FROM order_items
+       WHERE order_id = $1 AND is_generic = false`,
+      [orderId],
+    )
+    if (items.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido sem itens para separar.' }
+    }
+    for (const it of items) {
+      await client.query(
+        `INSERT INTO order_load_items (load_id, order_item_id, quantity)
+         VALUES ($1, $2, $3)`,
+        [loadId, it.id, it.quantity],
+      )
+    }
+    await client.query(`UPDATE orders SET status = 'separando' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
+       VALUES ($1, 'aprovado', 'separando', $2)`,
+      [orderId, user.id],
+    )
+    await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function createMultipleLoads(
+  orderId: string,
+  loadsData: LoadInput[],
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  if (!loadsData || loadsData.length === 0) {
+    return { error: 'Crie ao menos uma carga.' }
+  }
+
+  const original = await fetchRealItemQuantities(orderId)
+  const splitError = validateLoadsSplit(original, loadsData)
+  if (splitError) return { error: splitError }
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (rows[0].status !== 'aprovado') {
+      await client.query('ROLLBACK')
+      return { error: 'Só pedidos aprovados podem ser separados.' }
+    }
+    let loadNumber = 0
+    for (const load of loadsData) {
+      const itemsWithQty = load.items.filter((i) => Number(i.quantity) > 0)
+      if (itemsWithQty.length === 0) continue
+      loadNumber += 1
+      const { rows: loadRows } = await client.query(
+        `INSERT INTO order_loads (order_id, load_number, status)
+         VALUES ($1, $2, 'pendente') RETURNING id`,
+        [orderId, loadNumber],
+      )
+      const loadId = loadRows[0].id
+      for (const it of itemsWithQty) {
+        await client.query(
+          `INSERT INTO order_load_items (load_id, order_item_id, quantity)
+           VALUES ($1, $2, $3)`,
+          [loadId, it.order_item_id, it.quantity],
+        )
+      }
+    }
+    if (loadNumber === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Nenhuma carga com itens.' }
+    }
+    await client.query(`UPDATE orders SET status = 'separando' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
+       VALUES ($1, 'aprovado', 'separando', $2, $3)`,
+      [orderId, user.id, `Dividido em ${loadNumber} carga(s).`],
+    )
+    await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function toggleLoadItemSeparated(
+  loadItemId: string,
+  isSeparated: boolean,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  try {
+    await pool.query(
+      `UPDATE order_load_items SET is_separated = $1 WHERE id = $2`,
+      [isSeparated, loadItemId],
+    )
+    return {}
+  } catch (e: unknown) {
+    return { error: (e as Error).message }
+  }
+}
+
+export async function finishLoad(
+  loadId: string,
+): Promise<{ error?: string; orderReady?: boolean }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows: loadRows } = await client.query(
+      `SELECT order_id FROM order_loads WHERE id = $1 FOR UPDATE`,
+      [loadId],
+    )
+    if (loadRows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Carga não encontrada.' }
+    }
+    const orderId = loadRows[0].order_id
+
+    const { rows: pending } = await client.query(
+      `SELECT COUNT(*)::int AS n FROM order_load_items
+       WHERE load_id = $1 AND is_separated = false`,
+      [loadId],
+    )
+    if (pending[0].n > 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Ainda há itens não separados nesta carga.' }
+    }
+
+    await client.query(`UPDATE order_loads SET status = 'pronto' WHERE id = $1`, [
+      loadId,
+    ])
+
+    // Todas as cargas do pedido prontas?
+    const { rows: remaining } = await client.query(
+      `SELECT COUNT(*)::int AS n FROM order_loads
+       WHERE order_id = $1 AND status <> 'pronto'`,
+      [orderId],
+    )
+    let orderReady = false
+    let orderNumber: number | null = null
+    if (remaining[0].n === 0) {
+      const { rows: ord } = await client.query(
+        `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+        [orderId],
+      )
+      const from = ord[0].status
+      orderNumber = ord[0].order_number
+      await client.query(
+        `UPDATE orders SET status = 'pronto_envio' WHERE id = $1`,
+        [orderId],
+      )
+      await client.query(
+        `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
+         VALUES ($1, $2, 'pronto_envio', $3)`,
+        [orderId, from, user.id],
+      )
+      orderReady = true
+    }
+    await client.query('COMMIT')
+
+    if (orderReady && orderNumber !== null) {
+      await notifyRole(
+        'chefia',
+        'pedido_pronto',
+        `Pedido #${orderNumber} pronto para envio`,
+        'Todas as cargas foram separadas.',
+        `/pedidos/${orderId}`,
+      )
+    }
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return { orderReady }
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function getOrderLoads(orderId: string) {
+  const { rows: loads } = await pool.query(
+    `SELECT id, load_number, status FROM order_loads
+     WHERE order_id = $1 ORDER BY load_number`,
+    [orderId],
+  )
+  if (loads.length === 0) return []
+  const loadIds = loads.map((l) => l.id)
+  const { rows: items } = await pool.query(
+    `SELECT li.id, li.load_id, li.order_item_id, li.quantity, li.is_separated,
+            s.common_name AS species_name, s.photo_url AS species_photo,
+            ct.name AS container_name
+     FROM order_load_items li
+     JOIN order_items oi ON oi.id = li.order_item_id
+     LEFT JOIN species s ON s.id = oi.species_id
+     JOIN containers ct ON ct.id = oi.container_id
+     WHERE li.load_id = ANY($1::uuid[])
+     ORDER BY s.common_name`,
+    [loadIds],
+  )
+  return loads.map((l) => ({
+    ...l,
+    items: items.filter((i) => i.load_id === l.id),
+  }))
+}
+
+export async function getDeliveryCalendarData(startDate: string, endDate: string) {
+  const { rows } = await pool.query(
+    `SELECT o.id, o.order_number, o.delivery_date, o.status,
+            c.name AS customer_name,
+            COUNT(DISTINCT l.id) AS load_count,
+            COUNT(DISTINCT l.id) FILTER (WHERE l.status = 'pronto') AS ready_count
+     FROM orders o
+     JOIN customers c ON c.id = o.customer_id
+     LEFT JOIN order_loads l ON l.order_id = o.id
+     WHERE o.delivery_date BETWEEN $1 AND $2
+       AND o.status IN ('aprovado', 'separando', 'pronto_envio')
+     GROUP BY o.id, c.name
+     ORDER BY o.delivery_date`,
+    [startDate, endDate],
+  )
+  return rows
 }

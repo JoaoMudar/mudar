@@ -18,6 +18,10 @@ import {
   requestChanges,
   approvePartial,
   updateOrderAfterReview,
+  createDefaultLoad,
+  createMultipleLoads,
+  toggleLoadItemSeparated,
+  finishLoad,
 } from '../actions'
 import type { CreateOrderInput, ReviewItemInput, SpeciesAssignment } from '@/lib/orders'
 
@@ -348,6 +352,94 @@ describe('updateOrderAfterReview', () => {
     expect(mockedNotify).toHaveBeenCalledWith(
       'gerencia',
       'pedido_alterado',
+      expect.stringContaining('#47'),
+      expect.any(String),
+      '/pedidos/o1',
+    )
+  })
+})
+
+describe('createDefaultLoad', () => {
+  it('rejeita pedido nao aprovado', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado' }] })
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await createDefaultLoad('o1')
+    expect(result.error).toMatch(/aprovados/i)
+  })
+
+  it('cria carga unica com todos os itens', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'aprovado' }] }) // SELECT status
+      .mockResolvedValueOnce({ rows: [{ id: 'l1' }] }) // INSERT load
+      .mockResolvedValueOnce({ rows: [{ id: 'i1', quantity: 10 }] }) // SELECT items
+      .mockResolvedValue({}) // INSERT load_item, UPDATE, INSERT history, COMMIT
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await createDefaultLoad('o1')
+    expect(result.error).toBeUndefined()
+    expect(clientQuery).toHaveBeenCalledWith('COMMIT')
+  })
+})
+
+describe('createMultipleLoads', () => {
+  it('rejeita divisao que nao soma o total', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'i1', quantity: 500 }] }) // fetchRealItemQuantities
+    const result = await createMultipleLoads('o1', [
+      { items: [{ order_item_id: 'i1', quantity: 300 }] },
+    ])
+    expect(result.error).toMatch(/não bate/i)
+  })
+})
+
+describe('toggleLoadItemSeparated', () => {
+  it('atualiza item da carga', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery.mockResolvedValueOnce({})
+    const result = await toggleLoadItemSeparated('li1', true)
+    expect(result.error).toBeUndefined()
+  })
+})
+
+describe('finishLoad', () => {
+  it('rejeita carga com itens pendentes', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ order_id: 'o1' }] }) // SELECT order_id
+      .mockResolvedValueOnce({ rows: [{ n: 2 }] }) // pending > 0
+      .mockResolvedValue({}) // ROLLBACK
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await finishLoad('l1')
+    expect(result.error).toMatch(/não separados/i)
+  })
+
+  it('finaliza ultima carga e marca pedido pronto', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ order_id: 'o1' }] }) // SELECT order_id
+      .mockResolvedValueOnce({ rows: [{ n: 0 }] }) // pending = 0
+      .mockResolvedValueOnce({}) // UPDATE load pronto
+      .mockResolvedValueOnce({ rows: [{ n: 0 }] }) // remaining loads = 0
+      .mockResolvedValueOnce({ rows: [{ status: 'separando', order_number: 47 }] }) // SELECT order
+      .mockResolvedValue({}) // UPDATE orders, INSERT history, COMMIT
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await finishLoad('l1')
+    expect(result.error).toBeUndefined()
+    expect(result.orderReady).toBe(true)
+    expect(mockedNotify).toHaveBeenCalledWith(
+      'chefia',
+      'pedido_pronto',
       expect.stringContaining('#47'),
       expect.any(String),
       '/pedidos/o1',

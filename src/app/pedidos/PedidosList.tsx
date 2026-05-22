@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import DeliveryCalendar from './DeliveryCalendar'
 import {
   ORDER_STATUS_META,
   SALE_CHANNEL_LABEL,
@@ -50,6 +51,28 @@ function gerenciaTag(status: OrderStatus): { text: string; cls: string } | null 
   }
 }
 
+// Dias ate a entrega (ignora horario). null se sem data.
+function daysUntil(value: string | Date | null): number | null {
+  if (!value) return null
+  const d = typeof value === 'string' ? new Date(value) : new Date(value)
+  if (Number.isNaN(d.getTime())) return null
+  d.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.round((d.getTime() - today.getTime()) / 86_400_000)
+}
+
+// Tag de urgencia para pedidos com separacao pendente (aprovado/separando)
+function urgencyTag(status: OrderStatus, delivery: string | Date | null): { text: string; cls: string } | null {
+  if (status !== 'aprovado' && status !== 'separando') return null
+  const days = daysUntil(delivery)
+  if (days === null) return null
+  if (days <= 0) return { text: 'URGENTE', cls: 'bg-red-600 text-white' }
+  if (days === 1) return { text: 'SEPARAR HOJE', cls: 'bg-red-500 text-white' }
+  if (days <= 3) return { text: 'EM BREVE', cls: 'bg-orange-500 text-white' }
+  return { text: `${days} dias`, cls: 'bg-blue-100 text-blue-700' }
+}
+
 const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: '', label: 'Todos' },
   ...(Object.keys(ORDER_STATUS_META) as OrderStatus[]).map((s) => ({
@@ -68,12 +91,17 @@ export default function PedidosList({ orders, role }: Props) {
     ? orders.filter((o) => o.status === statusFilter)
     : orders
 
-  // Para gerencia, joga pedidos acionaveis para o topo.
+  // Para gerencia: acionaveis no topo, depois por data de entrega mais proxima.
   const sorted = isGerencia
     ? [...filtered].sort((a, b) => {
         const pa = gerenciaTag(a.status) ? 0 : 1
         const pb = gerenciaTag(b.status) ? 0 : 1
-        return pa - pb
+        if (pa !== pb) return pa - pb
+        const da = daysUntil(a.delivery_date)
+        const db = daysUntil(b.delivery_date)
+        if (da === null) return 1
+        if (db === null) return -1
+        return da - db
       })
     : filtered
 
@@ -97,6 +125,9 @@ export default function PedidosList({ orders, role }: Props) {
       </header>
 
       <div className="max-w-4xl mx-auto p-4 space-y-4">
+        {/* Calendario de entregas (gerencia) */}
+        {isGerencia && <DeliveryCalendar />}
+
         {/* Filtro de status */}
         <div className="flex items-center gap-2">
           <label htmlFor="statusFilter" className="text-sm font-semibold text-gray-600">
@@ -123,6 +154,7 @@ export default function PedidosList({ orders, role }: Props) {
             {sorted.map((o) => {
               const meta = ORDER_STATUS_META[o.status]
               const tag = isGerencia ? gerenciaTag(o.status) : null
+              const urg = isGerencia ? urgencyTag(o.status, o.delivery_date) : null
               const generic = Number(o.generic_count) || 0
               const total = Number(o.item_count) || 0
               return (
@@ -139,6 +171,11 @@ export default function PedidosList({ orders, role }: Props) {
                         {tag && (
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tag.cls}`}>
                             {tag.text}
+                          </span>
+                        )}
+                        {urg && (
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${urg.cls}`}>
+                            {urg.text}
                           </span>
                         )}
                       </div>
