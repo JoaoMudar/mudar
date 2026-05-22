@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
 import LogoutButton from './LogoutButton'
+import NotificationBell from '@/components/NotificationBell'
 
 const WORKER_LINKS = [
   {
@@ -41,12 +42,15 @@ export default async function Home() {
             <p className="text-xs text-green-300 uppercase tracking-widest font-semibold">Sistema</p>
             <h1 className="text-xl font-bold">Viveiro Mudar</h1>
           </div>
-          <div className="text-right flex flex-col items-end gap-1">
-            <p className="text-sm text-green-100">
-              Olá, <span className="font-semibold text-white">{user.display_name}</span>
-            </p>
-            <p className="text-xs text-green-400">{ROLE_LABELS[user.role]}</p>
-            <LogoutButton />
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className="text-right flex flex-col items-end gap-1">
+              <p className="text-sm text-green-100">
+                Olá, <span className="font-semibold text-white">{user.display_name}</span>
+              </p>
+              <p className="text-xs text-green-400">{ROLE_LABELS[user.role]}</p>
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>
