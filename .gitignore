@@ -47,3 +47,14 @@ next-env.d.ts
 
 # uploads (fotos grandes, usar storage externo)
 /public/uploads/
+
+# === Seguranca: padroes de nomes sensiveis ===
+*.key
+*.log
+*secret*
+*credential*
+*token*.json
+
+# === Build/cache adicionais ===
+/dist/
+/.cache/
