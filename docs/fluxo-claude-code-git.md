@@ -41,7 +41,69 @@ bash scripts/setup-hooks.sh
 - Voce pode revisar, testar e ate descartar a branch inteira sem afetar o projeto
 - Facilita code review e historico limpo
 
-## Como usar
+## Trabalho paralelo com multiplos terminais (worktrees)
+
+Quando voce roda 2 ou mais terminais com Claude Code no mesmo projeto, cada um **deve** trabalhar em seu proprio worktree com sua propria branch. O Git so permite uma branch ativa por diretorio — se dois terminais compartilham o mesmo diretorio, eles pisam um no outro.
+
+### Criar um worktree para cada terminal
+
+```bash
+# Terminal 1: trabalha no diretorio principal
+git checkout -b feat/tarefa-a
+
+# Terminal 2: cria um worktree separado com sua branch
+git worktree add ../viveiro-tarefa-b feat/tarefa-b
+cd ../viveiro-tarefa-b
+npm install
+```
+
+Cada worktree:
+- Tem seu proprio diretorio com arquivos independentes
+- Tem sua propria branch ativa
+- Compartilha o mesmo historico Git (commits, remotes, tags)
+- Precisa de seu proprio `npm install` (cada um tem seu `node_modules`)
+- Os hooks e configs do repo ja estao disponiveis
+
+### Regras importantes
+
+- **Duas worktrees nao podem estar na mesma branch** — o Git bloqueia isso automaticamente
+- Sempre crie a branch junto com o worktree (`git worktree add <caminho> <branch>`)
+- Depois do merge, limpe o worktree para nao acumular diretorios
+
+### Limpar worktrees apos o merge
+
+```bash
+# Listar worktrees ativos
+git worktree list
+
+# Remover um worktree (volta ao diretorio principal primeiro)
+git worktree remove ../viveiro-tarefa-b
+
+# Se o diretorio ja foi deletado manualmente
+git worktree prune
+```
+
+### Fluxo resumido para 2 terminais
+
+```
+Terminal 1 (diretorio principal):
+  git checkout -b feat/tarefa-a
+  # abre claude code, trabalha normalmente
+
+Terminal 2 (worktree separado):
+  git worktree add ../viveiro-tarefa-b feat/tarefa-b
+  cd ../viveiro-tarefa-b && npm install
+  # abre claude code, trabalha normalmente
+
+Depois:
+  # volta ao principal, faz merge de cada branch
+  git checkout main
+  git merge feat/tarefa-a
+  git merge feat/tarefa-b
+  git worktree remove ../viveiro-tarefa-b
+```
+
+## Como usar (terminal unico)
 
 ### 1. Criar uma branch antes de pedir tarefa ao Claude Code
 
