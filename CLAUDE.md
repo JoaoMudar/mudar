@@ -77,3 +77,39 @@ P8 (Instagram) ← independente (campo)
 - Botões grandes para dedos sujos de terra
 - Funcionar com conexão lenta ou offline (queue de sync)
 - Feedback visual imediato (toast de confirmação)
+
+## Regras de Branch
+- NUNCA trabalhe diretamente na branch `main` ou `master`.
+- Antes de alterar qualquer arquivo, verifique a branch atual com `git branch --show-current`.
+- Se estiver na `main` ou `master`, PARE e crie uma branch de tarefa:
+  ```
+  git checkout -b feat/nome-da-tarefa
+  ```
+- NUNCA faça merge para `main` sem autorização explícita do usuário.
+
+## Regras de Commit
+- Nunca commite arquivos `.env`, credenciais, tokens, dumps sensíveis ou arquivos privados.
+- Use mensagens de commit objetivas e descritivas (Conventional Commits em português).
+- O pre-commit hook roda lint e testes automaticamente — commits são bloqueados se falharem.
+
+## Testes Obrigatórios
+- **Toda alteração de código deve incluir testes correspondentes.**
+- Testes unitários com Vitest: arquivos `*.test.ts` em pastas `__tests__/` ao lado do código testado.
+- Rodar `npm test` antes de qualquer commit — o pre-commit hook faz isso automaticamente.
+- Commits são bloqueados se qualquer teste falhar.
+- Testes devem cobrir: funções utilitárias, lógica de negócio, middleware, validações.
+- Server Actions que dependem de banco devem ter os imports do DB mockados com `vi.mock`.
+
+## Ao Finalizar uma Tarefa
+Sempre apresente um resumo contendo:
+- O que foi feito
+- Arquivos alterados
+- Decisões técnicas tomadas
+- Pendências (se houver)
+- Comandos importantes executados
+
+## Segurança
+- Nunca execute `git push --force` em nenhuma branch.
+- Nunca execute `git reset --hard` sem autorização.
+- Nunca delete branches sem autorização.
+- Nunca modifique `.claude/settings.json` ou os hooks sem autorização.

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "tsx scripts/migrate.ts && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "bash scripts/setup-hooks.sh",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:status": "tsx scripts/migrate.ts --status",
     "db:migrate:mark": "tsx scripts/migrate.ts --mark-applied",
@@ -30,6 +33,7 @@
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.7"
   }
 }
