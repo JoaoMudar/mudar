@@ -14,18 +14,18 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 ## Tarefas
 
 ### T5.1 — Server Actions de analise
-- [ ] Adicionar em `src/app/pedidos/actions.ts`:
-- [ ] `approveOrder(orderId, userId)`:
+- [x] Adicionar em `src/app/pedidos/actions.ts`:
+- [x] `approveOrder(orderId, userId)`:
   1. Validar que status eh `verificado`
   2. Mudar status para `aprovado`
   3. Registrar historico
   4. Notificar gerencia: "Pedido #47 aprovado — separar ate DD/MM"
-- [ ] `requestChanges(orderId, userId, notes?)`:
+- [x] `requestChanges(orderId, userId, notes?)`:
   1. Validar que status eh `verificado`
   2. Mudar status para `pendente_alteracao`
   3. Registrar historico com notas
   4. Notificar gerencia: "Pedido #47 precisa de alteracoes"
-- [ ] `updateOrderAfterReview(orderId, userId, updatedItems, removedItemIds)`:
+- [x] `updateOrderAfterReview(orderId, userId, updatedItems, removedItemIds)`:
   1. Validar que status eh `pendente_alteracao`
   2. Atualizar itens (quantidade, recipiente) ou remover itens
   3. Setar `is_available = NULL` nos itens alterados (precisam ser re-verificados)
@@ -34,17 +34,17 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
   6. Para itens genericos alterados: remover filhos (serao re-atribuidos pela gerencia)
   7. Mudar status para `cadastrado` (volta pro ciclo de verificacao)
   8. Notificar gerencia: "Pedido #47 alterado — verificar novamente"
-- [ ] `approvePartial(orderId, userId, keepItemIds)`:
+- [x] `approvePartial(orderId, userId, keepItemIds)`:
   1. Remover itens nao incluidos em keepItemIds (e seus filhos se genericos)
   2. Mudar status para `aprovado`
   3. Registrar historico
   4. Notificar gerencia
 
 ### T5.2 — Pagina de detalhes do pedido
-- [ ] Criar `src/app/pedidos/[id]/page.tsx` (server component)
-- [ ] Acessivel para admin, chefia, gerencia
-- [ ] Carregar pedido completo com `getOrderById(id)`
-- [ ] Layout em secoes:
+- [x] Criar `src/app/pedidos/[id]/page.tsx` (server component)
+- [x] Acessivel para admin, chefia, gerencia
+- [x] Carregar pedido completo com `getOrderById(id)`
+- [x] Layout em secoes:
 
 **Cabecalho:**
 - Numero do pedido (#47)
@@ -84,48 +84,48 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 | `pronto_envio` | chefia | (futuro: criar entrega) |
 
 ### T5.3 — Componente de analise (chefia)
-- [ ] Criar `src/app/pedidos/[id]/OrderAnalysis.tsx` (client component)
-- [ ] Visivel quando status = `verificado` e role = chefia/admin
-- [ ] Mostrar tabela de itens com indicadores visuais claros:
+- [x] Criar `src/app/pedidos/[id]/OrderAnalysis.tsx` (client component)
+- [x] Visivel quando status = `verificado` e role = chefia/admin
+- [x] Mostrar tabela de itens com indicadores visuais claros:
   - Itens disponiveis: fundo verde claro
   - Itens indisponiveis: fundo vermelho claro com alerta
   - Itens genericos: fundo azul claro com composicao expandida (mostrar filhos)
   - Observacoes da gerencia abaixo de cada item indisponivel
-- [ ] Se TODOS disponiveis:
+- [x] Se TODOS disponiveis:
   - Destaque: "Todos os itens disponiveis!"
   - Botao grande verde: "Aprovar Pedido"
-- [ ] Se ALGUNS indisponiveis:
+- [x] Se ALGUNS indisponiveis:
   - Destaque: "3 de 7 itens indisponiveis"
   - Botao: "Aprovar apenas disponiveis" (remove itens indisponiveis e aprova)
   - Botao: "Editar pedido" (vai para modo edicao — trocar especie, quantidade, etc)
   - Botao: "Cancelar pedido"
 
 ### T5.4 — Modo edicao de itens (para pendente_alteracao)
-- [ ] Criar `src/app/pedidos/[id]/editar/page.tsx`
-- [ ] Proteger com `requireRole('admin', 'chefia')`
-- [ ] Reutilizar logica similar ao formulario de criacao (T3.4):
+- [x] Criar `src/app/pedidos/[id]/editar/page.tsx`
+- [x] Proteger com `requireRole('admin', 'chefia')`
+- [x] Reutilizar logica similar ao formulario de criacao (T3.4):
   - Tabela editavel de itens com toggle E/G (especifico/generico)
   - Poder remover itens indisponiveis
   - Poder alterar quantidades
   - Poder adicionar novos itens (especificos ou genericos)
   - Poder trocar especie/recipiente
   - Poder converter item especifico em generico (e vice-versa)
-- [ ] Pre-carregar com dados atuais do pedido
-- [ ] Itens indisponiveis destacados em vermelho com observacao da gerencia
-- [ ] Itens genericos mostram a composicao que a gerencia definiu (referencia visual)
-- [ ] Ao salvar: chama `updateOrderAfterReview` que volta o pedido para verificacao
-- [ ] Toast: "Pedido alterado — enviado para re-verificacao"
+- [x] Pre-carregar com dados atuais do pedido
+- [x] Itens indisponiveis destacados em vermelho com observacao da gerencia
+- [x] Itens genericos mostram a composicao que a gerencia definiu (referencia visual)
+- [x] Ao salvar: chama `updateOrderAfterReview` que volta o pedido para verificacao
+- [x] Toast: "Pedido alterado — enviado para re-verificacao"
 
 ### T5.5 — Fluxo de re-verificacao
-- [ ] Garantir que ao voltar para `cadastrado` apos edicao:
+- [x] Garantir que ao voltar para `cadastrado` apos edicao:
   - Itens especificos que nao foram alterados manteem `is_available`
   - Itens especificos alterados recebem `is_available = NULL`
   - Itens genericos que nao foram alterados manteem seus filhos e `is_available`
   - Itens genericos alterados (quantidade ou recipiente minimo mudou): filhos removidos, `is_available = NULL`
   - Itens novos recebem `is_available = NULL`
   - Gerencia recebe notificacao para re-verificar
-- [ ] Na tela de verificacao (Fase 4), itens ja verificados aparecem com marca mas editaveis
-- [ ] Barra de progresso conta apenas itens com `is_available IS NULL`
+- [x] Na tela de verificacao (Fase 4), itens ja verificados aparecem com marca mas editaveis
+- [x] Barra de progresso conta apenas itens com `is_available IS NULL`
 
 ## Wireframe — Pagina de Detalhes com Genericos (Desktop)
 

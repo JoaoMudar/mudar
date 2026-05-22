@@ -84,6 +84,11 @@ export interface SpeciesAssignment {
   quantity: number
 }
 
+// Item enviado na edicao pos-verificacao. `id` presente => item existente.
+export interface ReviewItemInput extends OrderItemInput {
+  id?: string
+}
+
 // --- Helpers puros (testaveis) ---
 
 /**

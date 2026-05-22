@@ -9,8 +9,16 @@ import {
   validateGenericAssignment,
   type CreateOrderInput,
   type OrderItemInput,
+  type ReviewItemInput,
   type SpeciesAssignment,
 } from '@/lib/orders'
+
+function fmtDateBR(value: string | Date | null): string {
+  if (!value) return 'sem data'
+  const d = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(d.getTime())) return 'sem data'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
 
 const LIST_PATH = '/pedidos'
 
@@ -548,6 +556,282 @@ export async function finishVerification(
       `/pedidos/${orderId}`,
     )
 
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+// ============================================================
+// T5.1 — Analise e fechamento (chefia)
+// ============================================================
+
+export async function approveOrder(
+  orderId: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'chefia') {
+    return { error: 'Sem permissão para aprovar pedidos.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status, order_number, delivery_date FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (rows[0].status !== 'verificado') {
+      await client.query('ROLLBACK')
+      return { error: 'Só é possível aprovar pedidos verificados.' }
+    }
+    await client.query(`UPDATE orders SET status = 'aprovado' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
+       VALUES ($1, 'verificado', 'aprovado', $2)`,
+      [orderId, user.id],
+    )
+    await client.query('COMMIT')
+
+    await notifyRole(
+      'gerencia',
+      'pedido_aprovado',
+      `Pedido #${rows[0].order_number} aprovado`,
+      `Separar até ${fmtDateBR(rows[0].delivery_date)}`,
+      `/pedidos/${orderId}`,
+    )
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function requestChanges(
+  orderId: string,
+  notes?: string,
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'chefia') {
+    return { error: 'Sem permissão.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (rows[0].status !== 'verificado') {
+      await client.query('ROLLBACK')
+      return { error: 'Só pedidos verificados podem ir para alteração.' }
+    }
+    await client.query(
+      `UPDATE orders SET status = 'pendente_alteracao' WHERE id = $1`,
+      [orderId],
+    )
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
+       VALUES ($1, 'verificado', 'pendente_alteracao', $2, $3)`,
+      [orderId, user.id, notes?.trim() || null],
+    )
+    await client.query('COMMIT')
+
+    await notifyRole(
+      'gerencia',
+      'pedido_alterado',
+      `Pedido #${rows[0].order_number} precisa de alterações`,
+      notes?.trim() || 'A chefia solicitou ajustes.',
+      `/pedidos/${orderId}`,
+    )
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function approvePartial(
+  orderId: string,
+  keepItemIds: string[],
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'chefia') {
+    return { error: 'Sem permissão.' }
+  }
+  if (!keepItemIds || keepItemIds.length === 0) {
+    return { error: 'Mantenha ao menos um item para aprovar.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows } = await client.query(
+      `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (rows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (rows[0].status !== 'verificado') {
+      await client.query('ROLLBACK')
+      return { error: 'Só é possível aprovar pedidos verificados.' }
+    }
+    // Remove itens de topo nao mantidos (filhos caem em cascata)
+    const { rowCount } = await client.query(
+      `DELETE FROM order_items
+       WHERE order_id = $1 AND parent_item_id IS NULL AND id <> ALL($2::uuid[])`,
+      [orderId, keepItemIds],
+    )
+    await client.query(`UPDATE orders SET status = 'aprovado' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
+       VALUES ($1, 'verificado', 'aprovado', $2, $3)`,
+      [orderId, user.id, `Aprovação parcial: ${rowCount} item(ns) removido(s).`],
+    )
+    await client.query('COMMIT')
+
+    await notifyRole(
+      'gerencia',
+      'pedido_aprovado',
+      `Pedido #${rows[0].order_number} aprovado (parcial)`,
+      `${rowCount} item(ns) removido(s). Pronto para separar.`,
+      `/pedidos/${orderId}`,
+    )
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    revalidatePath(LIST_PATH)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
+export async function updateOrderAfterReview(
+  orderId: string,
+  items: ReviewItemInput[],
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'chefia') {
+    return { error: 'Sem permissão.' }
+  }
+  const itemsError = validateOrderItems(items)
+  if (itemsError) return { error: itemsError }
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows: orderRows } = await client.query(
+      `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+      [orderId],
+    )
+    if (orderRows.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Pedido não encontrado.' }
+    }
+    if (orderRows[0].status !== 'pendente_alteracao') {
+      await client.query('ROLLBACK')
+      return { error: 'Só pedidos pendentes de alteração podem ser editados aqui.' }
+    }
+
+    // Itens de topo atuais
+    const { rows: current } = await client.query(
+      `SELECT id, species_id, container_id, quantity, is_generic
+       FROM order_items WHERE order_id = $1 AND parent_item_id IS NULL`,
+      [orderId],
+    )
+    const currentById = new Map<string, (typeof current)[number]>(
+      current.map((c) => [c.id, c]),
+    )
+    const keptIds = new Set(items.filter((i) => i.id).map((i) => i.id as string))
+
+    // Remove itens que sairam (cascade nos filhos)
+    for (const c of current) {
+      if (!keptIds.has(c.id)) {
+        await client.query(`DELETE FROM order_items WHERE id = $1`, [c.id])
+      }
+    }
+
+    for (const item of items) {
+      const speciesId = item.is_generic ? null : item.species_id
+      if (item.id && currentById.has(item.id)) {
+        const cur = currentById.get(item.id)!
+        const changed =
+          (cur.species_id ?? null) !== (speciesId ?? null) ||
+          cur.container_id !== item.container_id ||
+          Number(cur.quantity) !== Number(item.quantity) ||
+          cur.is_generic !== item.is_generic
+        if (changed) {
+          await client.query(
+            `UPDATE order_items
+             SET species_id = $1, container_id = $2, quantity = $3, is_generic = $4,
+                 is_available = NULL, availability_notes = NULL
+             WHERE id = $5`,
+            [speciesId, item.container_id, item.quantity, item.is_generic, item.id],
+          )
+          // Composicao de generico invalidada — remove filhos
+          await client.query(
+            `DELETE FROM order_items WHERE parent_item_id = $1`,
+            [item.id],
+          )
+        }
+      } else {
+        // Novo item
+        await client.query(
+          `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [orderId, speciesId, item.container_id, item.quantity, item.is_generic],
+        )
+      }
+    }
+
+    await client.query(`UPDATE orders SET status = 'cadastrado' WHERE id = $1`, [
+      orderId,
+    ])
+    await client.query(
+      `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
+       VALUES ($1, 'pendente_alteracao', 'cadastrado', $2, 'Itens ajustados pela chefia')`,
+      [orderId, user.id],
+    )
+    await client.query('COMMIT')
+
+    await notifyRole(
+      'gerencia',
+      'pedido_alterado',
+      `Pedido #${orderRows[0].order_number} alterado`,
+      'Verificar novamente os itens ajustados.',
+      `/pedidos/${orderId}`,
+    )
     revalidatePath(`${LIST_PATH}/${orderId}`)
     revalidatePath(LIST_PATH)
     return {}

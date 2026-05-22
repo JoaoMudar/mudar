@@ -14,8 +14,12 @@ import {
   toggleItemAvailability,
   assignSpeciesToGenericItem,
   finishVerification,
+  approveOrder,
+  requestChanges,
+  approvePartial,
+  updateOrderAfterReview,
 } from '../actions'
-import type { CreateOrderInput, SpeciesAssignment } from '@/lib/orders'
+import type { CreateOrderInput, ReviewItemInput, SpeciesAssignment } from '@/lib/orders'
 
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
 const mockedConnect = pool.connect as unknown as ReturnType<typeof vi.fn>
@@ -226,5 +230,127 @@ describe('finishVerification', () => {
       '/pedidos/o1',
     )
     expect(release).toHaveBeenCalled()
+  })
+})
+
+describe('approveOrder', () => {
+  it('rejeita pedido que nao esta verificado', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado', order_number: 47, delivery_date: null }] })
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approveOrder('o1')
+    expect(result.error).toMatch(/verificados/i)
+  })
+
+  it('aprova e notifica gerencia', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47, delivery_date: '2026-06-15' }] })
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approveOrder('o1')
+    expect(result.error).toBeUndefined()
+    expect(mockedNotify).toHaveBeenCalledWith(
+      'gerencia',
+      'pedido_aprovado',
+      expect.stringContaining('#47'),
+      expect.any(String),
+      '/pedidos/o1',
+    )
+  })
+})
+
+describe('requestChanges', () => {
+  it('move para pendente_alteracao e notifica gerencia', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47 }] })
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await requestChanges('o1', 'trocar ipê por cedro')
+    expect(result.error).toBeUndefined()
+    expect(mockedNotify).toHaveBeenCalledWith(
+      'gerencia',
+      'pedido_alterado',
+      expect.stringContaining('#47'),
+      expect.any(String),
+      '/pedidos/o1',
+    )
+  })
+})
+
+describe('approvePartial', () => {
+  it('rejeita lista vazia de itens mantidos', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const result = await approvePartial('o1', [])
+    expect(result.error).toMatch(/ao menos um item/i)
+  })
+
+  it('remove indisponiveis e aprova', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47 }] })
+      .mockResolvedValueOnce({ rowCount: 2 }) // DELETE
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approvePartial('o1', ['keep1', 'keep2'])
+    expect(result.error).toBeUndefined()
+    expect(mockedNotify).toHaveBeenCalledWith(
+      'gerencia',
+      'pedido_aprovado',
+      expect.stringContaining('parcial'),
+      expect.any(String),
+      '/pedidos/o1',
+    )
+  })
+})
+
+describe('updateOrderAfterReview', () => {
+  const items: ReviewItemInput[] = [
+    { id: 'i1', species_id: 's1', container_id: 'c1', quantity: 10, is_generic: false },
+  ]
+
+  it('rejeita quando nao esta pendente_alteracao', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado', order_number: 47 }] })
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await updateOrderAfterReview('o1', items)
+    expect(result.error).toMatch(/pendentes de alteração/i)
+  })
+
+  it('atualiza itens e devolve para verificacao', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'pendente_alteracao', order_number: 47 }] }) // SELECT order
+      .mockResolvedValueOnce({
+        rows: [{ id: 'i1', species_id: 's1', container_id: 'c1', quantity: 10, is_generic: false }],
+      }) // SELECT current items (i1 inalterado)
+      .mockResolvedValue({}) // UPDATE orders, INSERT history, COMMIT
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await updateOrderAfterReview('o1', items)
+    expect(result.error).toBeUndefined()
+    expect(mockedNotify).toHaveBeenCalledWith(
+      'gerencia',
+      'pedido_alterado',
+      expect.stringContaining('#47'),
+      expect.any(String),
+      '/pedidos/o1',
+    )
   })
 })
