@@ -5,7 +5,9 @@
 ```
 viveiro-mudar/
 ├── CLAUDE.md                              ← Contexto global (carregado em toda sessão)
-├── EXECUTION-GUIDE.md                     ← Este arquivo
+├── docs/
+│   ├── README.md                          ← Mapa da documentação (ponto de entrada)
+│   └── EXECUTION-GUIDE.md                  ← Este arquivo
 ├── plans/
 │   ├── P1-custeio-por-especie.md          ← CRÍTICO (sem dependências)
 │   ├── P2-controle-mortalidade-perdas.md  ← CRÍTICO (depende de P1)

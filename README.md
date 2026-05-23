@@ -68,6 +68,7 @@ A aplicação fica disponível em `http://localhost:3000`. O login é exigido em
 ## Estrutura do projeto
 
 ```
+docs/              Documentação de referência (ver docs/README.md — mapa de tudo)
 migrations/        Migrações SQL (psql puro), aplicadas em ordem cronológica
 plans/             Planos de implementação por projeto (P1–P10)
 scripts/           migrate.ts, seed-admin.ts, geração de ícones, hooks de git

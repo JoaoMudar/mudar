@@ -1,115 +1,51 @@
 # Viveiro Mudar — Ecossistema de Gestão
 
-## Sobre o Projeto
-Sistema integrado de gestão para viveiro de mudas nativas no Alto Vale do Itajaí, SC.
-Área: ~10.000 m². Equipe: 7 pessoas. Venda atacado via WhatsApp.
+> 📂 **Mapa de toda a documentação em [`docs/README.md`](docs/README.md)** — comece por aí para se situar.
+> Contexto completo (arquitetura dos projetos P1→P10, princípios de formulário de campo,
+> histórico do sistema antigo) em `docs/contexto-projeto.md`. Rotinas de negócio em `docs/rotinas/`.
 
-## Contexto Crítico
-- Empresa opera há anos **sem dados estruturados** — tudo feito de cabeça
-- Usuários finais (Gilberto, Débora, funcionários) **não são técnicos** — interfaces devem ser extremamente simples
-- **Celular é o dispositivo principal** — tudo precisa ser mobile-first
-- Sistema de NF atual é do Sebrae — dados de notas em Excel com campos genéricos
-- Não existe controle de lotes, perdas, margem por espécie, estoque estruturado
+## Projeto
+Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10.000 m², 7 pessoas, venda atacado via WhatsApp.
 
-## Stack Técnica
-- **Banco de dados**: PostgreSQL local (via `pg` / node-postgres)
-- **Frontend**: Next.js 15 (App Router) com Tailwind CSS
-- **Acesso ao banco**: Server Actions com queries SQL diretas (`pool.query`)
-- **Mobile**: PWA (Progressive Web App) — funcionar offline é desejável
-- **Automação**: n8n (self-hosted)
-- **WhatsApp**: Evolution API (self-hosted)
-- **Deploy**: VPS ou local
-- **Linguagem**: TypeScript em todo o ecossistema
-- **Fotos de espécies**: salvas em `public/uploads/especies/`, servidas estaticamente
+**Contexto que molda decisões:**
+- Usuários (Gilberto, Débora, funcionários) **não são técnicos** → interfaces extremamente simples.
+- **Mobile-first** — celular é o dispositivo principal; offline desejável (PWA).
+- Empresa operou sempre sem dados estruturados; não há controle de lotes, perdas, margem ou estoque.
 
-## Conexão com o Banco
-- Variável de ambiente: `DATABASE_URL` (ex: `postgresql://postgres:postgres@localhost:5432/viveiro`)
-- Pool singleton em `src/lib/db.ts` — importar como `import pool from '@/lib/db'`
-- Nunca usar o pool no lado cliente (browser) — apenas em Server Components e Server Actions
+## Stack
+- **Banco**: PostgreSQL local via `pg` (node-postgres). Pool singleton em `src/lib/db.ts` → `import pool from '@/lib/db'`. Nunca usar no client — só Server Components/Actions.
+  - Env: `DATABASE_URL` (ex: `postgresql://postgres:postgres@localhost:5432/viveiro`)
+- **Frontend**: Next.js 15 (App Router) + Tailwind. TypeScript em todo o ecossistema.
+- **Dados**: Server Actions com SQL direto (`pool.query`).
+- **Infra**: PWA mobile, n8n + Evolution API (WhatsApp), deploy VPS/local.
+- **Fotos de espécies**: `public/uploads/especies/`, servidas estaticamente.
 
-## Estrutura do Banco de Dados (schema central)
-O schema é compartilhado entre todos os projetos. Qualquer alteração no banco deve:
-1. Ser feita como arquivo `.sql` na pasta `migrations/` (compatível com psql puro)
-2. Manter compatibilidade retroativa
-3. Documentar a migração no CHANGELOG
+## Banco de dados (schema compartilhado entre projetos)
+Toda alteração no banco: (1) arquivo `.sql` em `migrations/` (psql puro), (2) manter compatibilidade retroativa, (3) documentar no CHANGELOG. Tabelas: snake_case, plural (`species`, `batches`, `loss_events`).
 
-## Arquitetura dos Projetos
-Os projetos são interdependentes. A ordem de implementação importa:
-```
-P1 (Custeio) ──┐
-P2 (Perdas)  ──┤──→ P6 (Dashboard) ──→ P7 (Catálogo)
-P3 (Preço)   ──┘                         ↓
-                                     P9 (Site) → P10 (E-commerce)
-P4 (WhatsApp) ← depende de P1+P3
-P5 (Automação n8n) ← depende de P4
-P8 (Instagram) ← independente (campo)
-```
+## Convenções de código
+- Arquivos/código em inglês; comentários podem ser em português.
+- Componentes React PascalCase (1 por arquivo); hooks `useNome.ts`; utils camelCase; rotas API kebab-case.
+- Commits: Conventional Commits em português (ex: `feat(custeio): adiciona cálculo de custo`).
 
-## Convenções de Código
-- Arquivos em inglês, comentários podem ser em português
-- Componentes React: PascalCase, um componente por arquivo
-- Hooks customizados: useNomeDoHook.ts
-- Funções utilitárias: camelCase
-- Tabelas do banco: snake_case, plural (ex: species, batches, loss_events)
-- API routes: kebab-case
-- Commits: Conventional Commits em português (ex: `feat(custeio): adiciona cálculo de custo por espécie`)
-- Testes: Vitest para unit, Playwright para e2e (apenas fluxos críticos)
+## Regras de negócio
+- **Espécie** é a entidade central — tudo gira em torno dela.
+- **Recipientes** (tubete, sacos 10x18 / 17x22 / 20x26 / 28x32, balde) definem o tamanho da muda → impactam custo e preço.
+- **Canais de venda**: atacado (padrão), compensação ambiental, paisagismo, prefeitura, varejo futuro.
+- **Preço** = custo real + margem por canal, com piso mínimo de segurança. Frete por R$/km incorporado ao preço.
+- **Mortalidade** acima de 20% gera alerta.
 
-## Workflow de Desenvolvimento
-1. Ler o plan file do projeto em `plans/P{N}-*.md`
-2. Criar branch: `feat/p{n}-nome-curto`
-3. Implementar task por task, marcando `[x]` no plan file
-4. Rodar testes antes de commitar
-5. Commitar com mensagem descritiva
-6. Atualizar o plan file com notas se necessário
+## Workflow
+1. Ler o plan file em `plans/P{N}-*.md`; implementar task por task marcando `[x]` ao concluir cada uma.
+2. Garantir a branch correta (ver abaixo) antes de editar.
+3. `npm test` antes de commitar — o pre-commit hook roda lint+testes e bloqueia se falhar.
+4. Ao finalizar: resumo com o que foi feito, arquivos alterados, decisões técnicas e pendências.
 
-## Regras de Negócio Importantes
-- **Espécie** é a entidade central — tudo gira em torno dela
-- **Recipientes** (tubete, saco 10x18, 17x22, 20x26, 28x32, balde) definem o tamanho da muda e impactam custo e preço
-- **Canais de venda**: atacado (padrão), compensação ambiental, paisagismo, prefeitura, varejo futuro
-- **Frete**: calculado por R$/km, incorporado ao preço final
-- **Mortalidade aceitável**: varia por espécie, mas >20% deve gerar alerta
-- **Precificação**: custo real + margem por canal, com piso mínimo de segurança
+## Testes obrigatórios
+- Toda alteração de código inclui testes. Vitest unit em `__tests__/` ao lado do código (`*.test.ts`).
+- Cobrir: utils, lógica de negócio, validações. Server Actions que dependem do DB: mockar imports com `vi.mock`.
 
-## Formulários de Campo (princípios)
-- Máximo 5 campos por tela
-- Dropdowns com opções pré-definidas (nunca campo aberto para categorias)
-- Botões grandes para dedos sujos de terra
-- Funcionar com conexão lenta ou offline (queue de sync)
-- Feedback visual imediato (toast de confirmação)
-
-## Regras de Branch
-- NUNCA trabalhe diretamente na branch `main` ou `master`.
-- Antes de alterar qualquer arquivo, verifique a branch atual com `git branch --show-current`.
-- Se estiver na `main` ou `master`, PARE e crie uma branch de tarefa:
-  ```
-  git checkout -b feat/nome-da-tarefa
-  ```
-- NUNCA faça merge para `main` sem autorização explícita do usuário.
-
-## Regras de Commit
-- Nunca commite arquivos `.env`, credenciais, tokens, dumps sensíveis ou arquivos privados.
-- Use mensagens de commit objetivas e descritivas (Conventional Commits em português).
-- O pre-commit hook roda lint e testes automaticamente — commits são bloqueados se falharem.
-
-## Testes Obrigatórios
-- **Toda alteração de código deve incluir testes correspondentes.**
-- Testes unitários com Vitest: arquivos `*.test.ts` em pastas `__tests__/` ao lado do código testado.
-- Rodar `npm test` antes de qualquer commit — o pre-commit hook faz isso automaticamente.
-- Commits são bloqueados se qualquer teste falhar.
-- Testes devem cobrir: funções utilitárias, lógica de negócio, middleware, validações.
-- Server Actions que dependem de banco devem ter os imports do DB mockados com `vi.mock`.
-
-## Ao Finalizar uma Tarefa
-Sempre apresente um resumo contendo:
-- O que foi feito
-- Arquivos alterados
-- Decisões técnicas tomadas
-- Pendências (se houver)
-- Comandos importantes executados
-
-## Segurança
-- Nunca execute `git push --force` em nenhuma branch.
-- Nunca execute `git reset --hard` sem autorização.
-- Nunca delete branches sem autorização.
-- Nunca modifique `.claude/settings.json` ou os hooks sem autorização.
+## Branch, commit e segurança
+- **NUNCA** trabalhe direto em `main`/`master`. Antes de editar: `git branch --show-current`; se estiver em main/master, **pare** e crie `git checkout -b feat/nome-da-tarefa`. (Detalhes em `docs/fluxo-claude-code-git.md`.)
+- Sem autorização explícita do usuário, **nunca**: faça merge para main, `git push --force`, `git reset --hard`, delete branches, ou altere `.claude/settings.json`/hooks.
+- Nunca commite `.env`, credenciais, tokens ou dumps sensíveis.
