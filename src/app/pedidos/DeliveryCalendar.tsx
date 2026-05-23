@@ -8,7 +8,7 @@ import { getDeliveryCalendarData } from './actions'
 interface CalOrder {
   id: string
   order_number: number
-  delivery_date: string
+  delivery_date: string | Date
   status: string
   customer_name: string
   load_count: number | string
@@ -21,8 +21,13 @@ const MONTHS = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ]
 
-function parseDate(value: string): Date {
-  // value vem como 'YYYY-MM-DD' (ou ISO) — fixa meia-noite local
+function parseDate(value: string | Date): Date {
+  // O driver pg devolve colunas date/timestamp como Date; server actions
+  // preservam o tipo. Normaliza para meia-noite local em ambos os casos.
+  if (value instanceof Date) {
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate())
+  }
+  // value como 'YYYY-MM-DD' (ou ISO) — fixa meia-noite local
   return new Date(`${value.slice(0, 10)}T00:00:00`)
 }
 
