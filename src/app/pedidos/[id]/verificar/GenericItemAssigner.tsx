@@ -6,6 +6,7 @@ import { ToastType } from '@/components/Toast'
 import {
   sumQuantities,
   validateGenericAssignment,
+  describeContainerChange,
   type SpeciesAssignment,
 } from '@/lib/orders'
 import { assignSpeciesToGenericItem } from '../../actions'
@@ -29,6 +30,7 @@ interface Child {
 export interface GenericItem {
   id: string
   quantity: number
+  container_id: string
   container_name: string
   container_volume: number | null
   is_available: boolean | null
@@ -64,12 +66,10 @@ export default function GenericItemAssigner({
   onSaved,
   showToast,
 }: Props) {
-  const minVol = item.container_volume === null ? 0 : Number(item.container_volume)
-  const eligibleContainers = containers.filter(
-    (c) => (c.volume_liters === null ? 0 : Number(c.volume_liters)) >= minVol,
-  )
-  const containerVolumes: Record<string, number | null> = {}
-  for (const c of containers) containerVolumes[c.id] = c.volume_liters
+  // O recipiente do pedido eh apenas um MINIMO de referencia. A gerencia pode
+  // escolher qualquer recipiente (maior OU menor); a troca eh destacada, nao bloqueada.
+  const containerNameById: Record<string, string> = {}
+  for (const c of containers) containerNameById[c.id] = c.name
 
   const [rows, setRows] = useState<Row[]>(() =>
     item.children.length > 0
@@ -100,7 +100,7 @@ export default function GenericItemAssigner({
   function addRow() {
     setRows((rs) => [
       ...rs,
-      { key: rowKey(), species_id: '', species_label: '', container_id: item.children.length ? '' : '', quantity: '' },
+      { key: rowKey(), species_id: '', species_label: '', container_id: item.container_id, quantity: '' },
     ])
     setSaved(false)
   }
@@ -115,7 +115,7 @@ export default function GenericItemAssigner({
       container_id: r.container_id,
       quantity: Number(r.quantity),
     }))
-    const err = validateGenericAssignment(item.quantity, minVol, assignments, containerVolumes)
+    const err = validateGenericAssignment(item.quantity, assignments)
     if (err) {
       showToast(err, 'error')
       return
@@ -164,53 +164,64 @@ export default function GenericItemAssigner({
 
       {/* Linhas de especies atribuidas */}
       <div className="space-y-2">
-        {rows.map((r) => (
-          <div key={r.key} className="grid grid-cols-12 gap-2 items-start">
-            <div className="col-span-6">
-              <Autocomplete
-                items={speciesItems}
-                placeholder="Espécie…"
-                initialValue={r.species_label}
-                onSelect={(it) => updateRow(r.key, { species_id: it.id, species_label: it.label })}
-              />
+        {rows.map((r) => {
+          const change = describeContainerChange(
+            containerNameById[r.container_id] ?? null,
+            item.container_name,
+          )
+          return (
+            <div key={r.key} className="space-y-1">
+              <div className="grid grid-cols-12 gap-2 items-start">
+                <div className="col-span-6">
+                  <Autocomplete
+                    items={speciesItems}
+                    placeholder="Espécie…"
+                    initialValue={r.species_label}
+                    onSelect={(it) => updateRow(r.key, { species_id: it.id, species_label: it.label })}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <select
+                    value={r.container_id}
+                    onChange={(e) => updateRow(r.key, { container_id: e.target.value })}
+                    className="input px-2 py-3"
+                  >
+                    <option value="">Recip.…</option>
+                    {containers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-2">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    value={r.quantity}
+                    onChange={(e) => updateRow(r.key, { quantity: e.target.value })}
+                    placeholder="Qtd"
+                    className="input px-2 py-3"
+                  />
+                </div>
+                <div className="col-span-1 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => removeRow(r.key)}
+                    className="text-red-600 font-bold text-lg leading-none mt-3"
+                    aria-label="Remover espécie"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+              {change && (
+                <p className="text-xs font-bold text-amber-700 pl-1">⇄ recipiente: {change}</p>
+              )}
             </div>
-            <div className="col-span-3">
-              <select
-                value={r.container_id}
-                onChange={(e) => updateRow(r.key, { container_id: e.target.value })}
-                className="input px-2 py-3"
-              >
-                <option value="">Recip.…</option>
-                {eligibleContainers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-span-2">
-              <input
-                type="number"
-                inputMode="numeric"
-                min="1"
-                value={r.quantity}
-                onChange={(e) => updateRow(r.key, { quantity: e.target.value })}
-                placeholder="Qtd"
-                className="input px-2 py-3"
-              />
-            </div>
-            <div className="col-span-1 flex justify-center">
-              <button
-                type="button"
-                onClick={() => removeRow(r.key)}
-                className="text-red-600 font-bold text-lg leading-none mt-3"
-                aria-label="Remover espécie"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <button

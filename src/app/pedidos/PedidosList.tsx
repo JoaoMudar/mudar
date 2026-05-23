@@ -73,7 +73,11 @@ function urgencyTag(status: OrderStatus, delivery: string | Date | null): { text
   return { text: `${days} dias`, cls: 'bg-blue-100 text-blue-700' }
 }
 
+// Status considerados "finalizados/encerrados" — escondidos por padrao (B2).
+const ARCHIVED_STATUSES: OrderStatus[] = ['cancelado', 'pronto_envio']
+
 const STATUS_FILTERS: { value: string; label: string }[] = [
+  { value: 'ativos', label: 'Em tramitação' },
   { value: '', label: 'Todos' },
   ...(Object.keys(ORDER_STATUS_META) as OrderStatus[]).map((s) => ({
     value: s,
@@ -83,13 +87,17 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 
 export default function PedidosList({ orders, role }: Props) {
   const router = useRouter()
-  const [statusFilter, setStatusFilter] = useState('')
+  // Padrao: so pedidos em tramitacao; cancelados/prontos exigem filtro ativo.
+  const [statusFilter, setStatusFilter] = useState('ativos')
   const isChefia = role === 'admin' || role === 'chefia'
   const isGerencia = role === 'admin' || role === 'gerencia'
 
-  const filtered = statusFilter
-    ? orders.filter((o) => o.status === statusFilter)
-    : orders
+  const filtered =
+    statusFilter === 'ativos'
+      ? orders.filter((o) => !ARCHIVED_STATUSES.includes(o.status))
+      : statusFilter
+        ? orders.filter((o) => o.status === statusFilter)
+        : orders
 
   // Para gerencia: acionaveis no topo, depois por data de entrega mais proxima.
   const sorted = isGerencia

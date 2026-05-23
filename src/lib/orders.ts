@@ -21,6 +21,10 @@ export type OrderStatus =
 
 export type LoadStatus = 'pendente' | 'separando' | 'pronto'
 
+// Estado de disponibilidade marcado pela gerencia para um item especifico.
+// 'parcial' => so parte da quantidade esta disponivel (eventualmente em outro recipiente).
+export type AvailabilityState = 'disponivel' | 'parcial' | 'indisponivel'
+
 export const SALE_CHANNELS: { value: SaleChannel; label: string }[] = [
   { value: 'atacado', label: 'Atacado' },
   { value: 'compensacao_ambiental', label: 'Compensação Ambiental' },
@@ -126,14 +130,13 @@ export function sumQuantities(items: { quantity: number }[]): number {
 /**
  * Valida a atribuicao de especies a um item generico.
  * - soma das quantidades deve ser igual a quantidade do item pai
- * - cada container atribuido deve ter volume >= volume do container minimo
- * `containerVolumes` mapeia container_id -> volume_liters (null tratado como 0).
+ * - cada linha precisa de especie, recipiente e quantidade > 0
+ * Obs: o recipiente do pedido eh apenas um MINIMO de referencia. A gerencia pode
+ * escolher recipiente maior OU menor; a troca eh destacada para a chefia (nao bloqueada).
  */
 export function validateGenericAssignment(
   parentQuantity: number,
-  minContainerVolume: number,
   assignments: SpeciesAssignment[],
-  containerVolumes: Record<string, number | null>,
 ): string | null {
   if (!assignments || assignments.length === 0) {
     return 'Atribua pelo menos uma espécie.'
@@ -144,16 +147,95 @@ export function validateGenericAssignment(
     if (!Number.isFinite(a.quantity) || a.quantity <= 0) {
       return 'A quantidade de cada espécie deve ser maior que zero.'
     }
-    const vol = containerVolumes[a.container_id] ?? 0
-    if (vol < minContainerVolume) {
-      return 'O recipiente escolhido é menor que o mínimo do pedido.'
-    }
   }
   const total = sumQuantities(assignments)
   if (total !== parentQuantity) {
     return `A soma (${total}) deve ser igual ao total do item (${parentQuantity}).`
   }
   return null
+}
+
+// --- Disponibilidade (parcial) ---
+
+export interface ResolvedAvailability {
+  is_available: boolean | null
+  available_quantity: number | null
+  available_container_id: string | null
+}
+
+/**
+ * Converte o estado escolhido pela gerencia nos valores persistidos em order_items.
+ * Para 'parcial' valida quantidade (1..total-1) e exige recipiente.
+ * Retorna { error } ou { resolved }.
+ */
+export function resolveAvailability(
+  state: AvailabilityState,
+  total: number,
+  opts: { availableQuantity?: number; availableContainerId?: string | null } = {},
+): { error?: string; resolved?: ResolvedAvailability } {
+  if (state === 'disponivel') {
+    return {
+      resolved: { is_available: true, available_quantity: null, available_container_id: null },
+    }
+  }
+  if (state === 'indisponivel') {
+    return {
+      resolved: { is_available: false, available_quantity: 0, available_container_id: null },
+    }
+  }
+  // parcial
+  const qty = Number(opts.availableQuantity)
+  if (!Number.isFinite(qty) || qty <= 0) {
+    return { error: 'Informe a quantidade disponível (maior que zero).' }
+  }
+  if (qty >= total) {
+    return { error: 'Para parcial, a quantidade deve ser menor que o total. Use "Disponível".' }
+  }
+  if (!opts.availableContainerId) {
+    return { error: 'Selecione o recipiente disponível.' }
+  }
+  return {
+    resolved: {
+      is_available: false,
+      available_quantity: qty,
+      available_container_id: opts.availableContainerId,
+    },
+  }
+}
+
+/**
+ * Texto automatico de discrepancia para um item especifico parcial.
+ * Ex: "Pediu 25un 27x22 — disponível 15un 12x18" (recipiente so aparece quando difere).
+ * Retorna null quando nao ha o que destacar (disponivel, indisponivel ou nao verificado).
+ */
+export function buildAvailabilityNote(args: {
+  requestedQuantity: number
+  requestedContainerName: string
+  isAvailable: boolean | null
+  availableQuantity: number | null
+  availableContainerName: string | null
+}): string | null {
+  const { requestedQuantity, requestedContainerName, isAvailable, availableQuantity, availableContainerName } = args
+  if (isAvailable !== false) return null
+  if (availableQuantity === null || availableQuantity <= 0) return null
+  let avail = `disponível ${availableQuantity}un`
+  if (availableContainerName && availableContainerName !== requestedContainerName) {
+    avail += ` ${availableContainerName}`
+  }
+  return `Pediu ${requestedQuantity}un ${requestedContainerName} — ${avail}`
+}
+
+/**
+ * Rotulo curto destacando troca de recipiente num filho de item generico.
+ * Ex: "10x18 → 12x18". Retorna null quando o recipiente eh o mesmo do minimo.
+ */
+export function describeContainerChange(
+  childContainerName: string | null,
+  minContainerName: string | null,
+): string | null {
+  if (!childContainerName || !minContainerName) return null
+  if (childContainerName === minContainerName) return null
+  return `${minContainerName} → ${childContainerName}`
 }
 
 /**

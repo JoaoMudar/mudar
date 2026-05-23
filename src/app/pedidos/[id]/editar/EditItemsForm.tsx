@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { updateOrderAfterReview } from '../../actions'
-import type { ReviewItemInput } from '@/lib/orders'
+import { buildAvailabilityNote, type ReviewItemInput } from '@/lib/orders'
 
 interface Species {
   id: string
@@ -21,9 +21,12 @@ interface CurrentItem {
   species_id: string | null
   species_name: string | null
   container_id: string
+  container_name: string
   quantity: number
   is_generic: boolean
   is_available: boolean | null
+  available_quantity: number | null
+  available_container_name: string | null
   availability_notes: string | null
 }
 
@@ -44,6 +47,8 @@ interface Row {
   container_id: string
   quantity: string
   is_available: boolean | null
+  is_partial: boolean
+  partial_note: string | null
   notes: string | null
 }
 
@@ -63,6 +68,8 @@ function newRow(): Row {
     container_id: '',
     quantity: '',
     is_available: null,
+    is_partial: false,
+    partial_note: null,
     notes: null,
   }
 }
@@ -80,6 +87,7 @@ export default function EditItemsForm({
   const [rows, setRows] = useState<Row[]>(() =>
     items.map((it) => {
       seq += 1
+      const is_partial = it.is_available === false && (it.available_quantity ?? 0) > 0
       return {
         key: `e${seq}`,
         id: it.id,
@@ -89,6 +97,14 @@ export default function EditItemsForm({
         container_id: it.container_id,
         quantity: String(it.quantity),
         is_available: it.is_available,
+        is_partial,
+        partial_note: buildAvailabilityNote({
+          requestedQuantity: it.quantity,
+          requestedContainerName: it.container_name,
+          isAvailable: it.is_available,
+          availableQuantity: it.available_quantity,
+          availableContainerName: it.available_container_name,
+        }),
         notes: it.availability_notes,
       }
     }),
@@ -168,16 +184,18 @@ export default function EditItemsForm({
         </p>
 
         {rows.map((r) => {
-          const indisponivel = r.is_available === false
+          const indisponivel = r.is_available === false && !r.is_partial
           return (
             <div
               key={r.key}
               className={`rounded-xl border-2 p-3 space-y-3 ${
                 indisponivel
                   ? 'border-red-300 bg-red-50'
-                  : r.is_generic
-                    ? 'border-blue-200 bg-blue-50/50'
-                    : 'border-gray-200 bg-white'
+                  : r.is_partial
+                    ? 'border-amber-300 bg-amber-50'
+                    : r.is_generic
+                      ? 'border-blue-200 bg-blue-50/50'
+                      : 'border-gray-200 bg-white'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -202,6 +220,11 @@ export default function EditItemsForm({
               {indisponivel && (
                 <p className="text-xs font-semibold text-red-600">
                   Indisponível{r.notes ? `: ${r.notes}` : ''}
+                </p>
+              )}
+              {r.is_partial && (
+                <p className="text-xs font-semibold text-amber-700">
+                  {r.partial_note ?? 'Parcial'}{r.notes ? ` · ${r.notes}` : ''}
                 </p>
               )}
 

@@ -144,16 +144,40 @@ describe('createOrder — caminho feliz', () => {
 describe('toggleItemAvailability', () => {
   it('rejeita role sem permissao', async () => {
     mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
-    const result = await toggleItemAvailability('item1', true)
+    const result = await toggleItemAvailability('item1', 'disponivel')
     expect(result.error).toMatch(/permissão/i)
   })
 
-  it('atualiza disponibilidade', async () => {
+  it('atualiza disponibilidade total', async () => {
     mockedGetSession.mockResolvedValueOnce(gerencia)
-    mockedQuery.mockResolvedValueOnce({})
-    const result = await toggleItemAvailability('item1', true, 'só tem 300')
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ quantity: 25 }] }) // SELECT quantity
+      .mockResolvedValueOnce({}) // UPDATE
+    const result = await toggleItemAvailability('item1', 'disponivel', { notes: 'ok' })
     expect(result.error).toBeUndefined()
-    expect(mockedQuery).toHaveBeenCalled()
+    expect(mockedQuery).toHaveBeenCalledTimes(2)
+  })
+
+  it('persiste parcial com quantidade e recipiente', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ quantity: 25 }] }) // SELECT quantity
+      .mockResolvedValueOnce({}) // UPDATE
+    const result = await toggleItemAvailability('item1', 'parcial', {
+      availableQuantity: 15,
+      availableContainerId: 'c2',
+    })
+    expect(result.error).toBeUndefined()
+    // UPDATE recebe is_available=false, available_quantity=15, available_container_id='c2'
+    const updateCall = mockedQuery.mock.calls[1]
+    expect(updateCall[1]).toEqual([false, 15, 'c2', null, 'item1'])
+  })
+
+  it('rejeita parcial sem recipiente', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery.mockResolvedValueOnce({ rows: [{ quantity: 25 }] }) // SELECT quantity
+    const result = await toggleItemAvailability('item1', 'parcial', { availableQuantity: 15 })
+    expect(result.error).toMatch(/recipiente/i)
   })
 })
 
@@ -172,18 +196,14 @@ describe('assignSpeciesToGenericItem', () => {
 
   it('rejeita quando a soma nao bate com o total', async () => {
     mockedGetSession.mockResolvedValueOnce(gerencia)
-    mockedQuery
-      .mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 999, min_volume: 1 }] })
-      .mockResolvedValueOnce({ rows: [{ id: 'c1', volume_liters: 1 }] })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 999 }] }) // SELECT parent
     const result = await assignSpeciesToGenericItem('p1', assignments)
     expect(result.error).toMatch(/soma/i)
   })
 
-  it('salva atribuicao valida em transacao', async () => {
+  it('aceita recipiente diferente do minimo (sem bloqueio por volume)', async () => {
     mockedGetSession.mockResolvedValueOnce(gerencia)
-    mockedQuery
-      .mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 500, min_volume: 1 }] })
-      .mockResolvedValueOnce({ rows: [{ id: 'c1', volume_liters: 1 }] })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 500 }] }) // SELECT parent
     const clientQuery = vi.fn().mockResolvedValue({})
     const release = vi.fn()
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release })
@@ -304,7 +324,8 @@ describe('approvePartial', () => {
       .fn()
       .mockResolvedValueOnce({}) // BEGIN
       .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47 }] })
-      .mockResolvedValueOnce({ rowCount: 2 }) // DELETE
+      .mockResolvedValueOnce({ rowCount: 2 }) // DELETE itens nao mantidos
+      .mockResolvedValueOnce({ rowCount: 0 }) // UPDATE ajuste de parciais
       .mockResolvedValue({})
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
     const result = await approvePartial('o1', ['keep1', 'keep2'])
@@ -317,6 +338,25 @@ describe('approvePartial', () => {
       '/pedidos/o1',
     )
   })
+
+  it('ajusta itens parciais para a quantidade disponivel ao aprovar', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47 }] })
+      .mockResolvedValueOnce({ rowCount: 0 }) // DELETE (nada removido)
+      .mockResolvedValueOnce({ rowCount: 1 }) // UPDATE ajustou 1 parcial
+      .mockResolvedValue({})
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approvePartial('o1', ['keep1'])
+    expect(result.error).toBeUndefined()
+    // A nota de historico deve mencionar o ajuste de parcial
+    const historyInsert = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('order_status_history'),
+    )
+    expect(historyInsert?.[1]?.[2]).toMatch(/ajustado/i)
+  })
 })
 
 describe('updateOrderAfterReview', () => {
@@ -324,16 +364,16 @@ describe('updateOrderAfterReview', () => {
     { id: 'i1', species_id: 's1', container_id: 'c1', quantity: 10, is_generic: false },
   ]
 
-  it('rejeita quando nao esta pendente_alteracao', async () => {
+  it('rejeita edicao em estado nao editavel (ex: pronto_envio)', async () => {
     mockedGetSession.mockResolvedValueOnce(chefia)
     const clientQuery = vi
       .fn()
       .mockResolvedValueOnce({}) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado', order_number: 47 }] })
+      .mockResolvedValueOnce({ rows: [{ status: 'pronto_envio', order_number: 47, delivery_date: null }] })
       .mockResolvedValue({})
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
     const result = await updateOrderAfterReview('o1', items)
-    expect(result.error).toMatch(/pendentes de alteração/i)
+    expect(result.error).toMatch(/não pode ser editado/i)
   })
 
   it('atualiza itens e devolve para verificacao', async () => {
@@ -341,7 +381,9 @@ describe('updateOrderAfterReview', () => {
     const clientQuery = vi
       .fn()
       .mockResolvedValueOnce({}) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ status: 'pendente_alteracao', order_number: 47 }] }) // SELECT order
+      .mockResolvedValueOnce({
+        rows: [{ status: 'pendente_alteracao', order_number: 47, delivery_date: null }],
+      }) // SELECT order
       .mockResolvedValueOnce({
         rows: [{ id: 'i1', species_id: 's1', container_id: 'c1', quantity: 10, is_generic: false }],
       }) // SELECT current items (i1 inalterado)
@@ -356,6 +398,47 @@ describe('updateOrderAfterReview', () => {
       expect.any(String),
       '/pedidos/o1',
     )
+  })
+
+  it('editar pedido aprovado descarta cargas e volta para verificacao', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const future = new Date()
+    future.setDate(future.getDate() + 5)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({
+        rows: [{ status: 'aprovado', order_number: 47, delivery_date: future.toISOString() }],
+      }) // SELECT order
+      .mockResolvedValueOnce({}) // DELETE order_loads
+      .mockResolvedValueOnce({
+        rows: [{ id: 'i1', species_id: 's1', container_id: 'c1', quantity: 10, is_generic: false }],
+      }) // SELECT current items
+      .mockResolvedValue({}) // UPDATE orders, INSERT history, COMMIT
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await updateOrderAfterReview('o1', items)
+    expect(result.error).toBeUndefined()
+    // cargas descartadas
+    const deletedLoads = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('DELETE FROM order_loads'),
+    )
+    expect(deletedLoads).toBeTruthy()
+  })
+
+  it('bloqueia edicao de pedido aprovado quando a data de entrega passou', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const past = new Date()
+    past.setDate(past.getDate() - 2)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({
+        rows: [{ status: 'aprovado', order_number: 47, delivery_date: past.toISOString() }],
+      }) // SELECT order
+      .mockResolvedValue({}) // ROLLBACK
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await updateOrderAfterReview('o1', items)
+    expect(result.error).toMatch(/data de entrega/i)
   })
 })
 

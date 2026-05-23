@@ -11,6 +11,7 @@ import {
   toggleItemAvailability,
   finishVerification,
 } from '../../actions'
+import type { AvailabilityState } from '@/lib/orders'
 
 interface Item {
   id: string
@@ -23,6 +24,8 @@ interface Item {
   quantity: number
   is_generic: boolean
   is_available: boolean | null
+  available_quantity: number | null
+  available_container_id: string | null
   availability_notes: string | null
   children: GenericItem['children']
 }
@@ -43,6 +46,16 @@ interface Props {
   items: Item[]
   species: Species[]
   containers: Container[]
+  pendingChangeReason?: string | null
+}
+
+// Deriva o estado inicial de cada item especifico a partir das colunas persistidas.
+function initialState(it: Item): AvailabilityState | null {
+  if (it.is_available === true) return 'disponivel'
+  if (it.is_available === false) {
+    return (it.available_quantity ?? 0) > 0 ? 'parcial' : 'indisponivel'
+  }
+  return null
 }
 
 interface ToastState {
@@ -57,6 +70,7 @@ export default function VerificationChecklist({
   items,
   species,
   containers,
+  pendingChangeReason,
 }: Props) {
   const router = useRouter()
   const startedRef = useRef(false)
@@ -67,8 +81,16 @@ export default function VerificationChecklist({
   const specifics = items.filter((i) => !i.is_generic)
   const generics = items.filter((i) => i.is_generic)
 
-  const [avail, setAvail] = useState<Record<string, boolean | null>>(() =>
-    Object.fromEntries(specifics.map((i) => [i.id, i.is_available])),
+  const [stateMap, setStateMap] = useState<Record<string, AvailabilityState | null>>(() =>
+    Object.fromEntries(specifics.map((i) => [i.id, initialState(i)])),
+  )
+  const [partialQty, setPartialQty] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      specifics.map((i) => [i.id, i.available_quantity != null ? String(i.available_quantity) : '']),
+    ),
+  )
+  const [partialContainer, setPartialContainer] = useState<Record<string, string>>(() =>
+    Object.fromEntries(specifics.map((i) => [i.id, i.available_container_id ?? i.container_id])),
   )
   const [notesMap, setNotesMap] = useState<Record<string, string>>(() =>
     Object.fromEntries(specifics.map((i) => [i.id, i.availability_notes ?? ''])),
@@ -90,25 +112,50 @@ export default function VerificationChecklist({
     setToast({ message, type })
   }
 
-  async function handleToggle(itemId: string, value: boolean) {
-    const prev = avail[itemId]
-    setAvail((a) => ({ ...a, [itemId]: value }))
-    setSavingId(itemId)
-    const result = await toggleItemAvailability(itemId, value, notesMap[itemId])
-    setSavingId(null)
-    if (result.error) {
-      setAvail((a) => ({ ...a, [itemId]: prev }))
-      showToast(`Erro: ${result.error}`, 'error')
+  // Parcial valido localmente: qtd no intervalo (0, total) e recipiente escolhido.
+  function partialValid(it: Item): boolean {
+    const qty = Number(partialQty[it.id])
+    return Number.isFinite(qty) && qty > 0 && qty < it.quantity && !!partialContainer[it.id]
+  }
+
+  // Persiste o estado escolhido. Para 'parcial' so envia quando os campos estao validos.
+  async function persist(it: Item, next: AvailabilityState) {
+    const opts: { availableQuantity?: number; availableContainerId?: string | null; notes?: string } = {
+      notes: notesMap[it.id],
     }
+    if (next === 'parcial') {
+      if (!partialValid(it)) return // aguarda usuario preencher qtd + recipiente
+      opts.availableQuantity = Number(partialQty[it.id])
+      opts.availableContainerId = partialContainer[it.id]
+    }
+    setSavingId(it.id)
+    const result = await toggleItemAvailability(it.id, next, opts)
+    setSavingId(null)
+    if (result.error) showToast(`Erro: ${result.error}`, 'error')
   }
 
-  async function handleNotesBlur(itemId: string) {
-    const value = avail[itemId]
-    if (value === null || value === undefined) return
-    await toggleItemAvailability(itemId, value, notesMap[itemId])
+  function handleSetState(it: Item, next: AvailabilityState) {
+    setStateMap((m) => ({ ...m, [it.id]: next }))
+    // disponivel/indisponivel salvam na hora; parcial salva quando os campos ficarem validos.
+    if (next !== 'parcial') void persist(it, next)
+    else if (partialValid(it)) void persist(it, next)
   }
 
-  const especificosDone = specifics.filter((i) => avail[i.id] !== null && avail[i.id] !== undefined).length
+  // Re-salva o item se ja estiver num estado terminal (apos editar nota/qtd/recipiente).
+  function resaveIfSet(it: Item) {
+    const s = stateMap[it.id]
+    if (s === 'disponivel' || s === 'indisponivel') void persist(it, s)
+    else if (s === 'parcial' && partialValid(it)) void persist(it, 'parcial')
+  }
+
+  function isItemDone(it: Item): boolean {
+    const s = stateMap[it.id]
+    if (s === 'disponivel' || s === 'indisponivel') return true
+    if (s === 'parcial') return partialValid(it)
+    return false
+  }
+
+  const especificosDone = specifics.filter(isItemDone).length
   const genericosDone = generics.filter((i) => genericDone[i.id]).length
   const totalDone = especificosDone + genericosDone
   const total = items.length
@@ -154,15 +201,27 @@ export default function VerificationChecklist({
       </header>
 
       <div className="max-w-lg mx-auto p-4 space-y-3 pb-28">
+        {/* Motivo do retorno (A3): destaque amarelo quando a chefia pediu alteracao */}
+        {pendingChangeReason && (
+          <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-3">
+            <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">
+              ⚠ A chefia pediu alteração
+            </p>
+            <p className="text-sm text-amber-900 mt-1 whitespace-pre-line">{pendingChangeReason}</p>
+          </div>
+        )}
+
         {/* Itens especificos */}
         {specifics.map((it) => {
-          const state = avail[it.id]
+          const state = stateMap[it.id]
           const cardCls =
-            state === true
+            state === 'disponivel'
               ? 'border-green-400 bg-green-50'
-              : state === false
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-200 bg-white'
+              : state === 'parcial'
+                ? 'border-amber-400 bg-amber-50'
+                : state === 'indisponivel'
+                  ? 'border-red-300 bg-red-50'
+                  : 'border-gray-200 bg-white'
           return (
             <div key={it.id} className={`rounded-xl border-2 p-4 space-y-3 ${cardCls}`}>
               <div className="flex gap-3">
@@ -183,37 +242,92 @@ export default function VerificationChecklist({
                 type="text"
                 value={notesMap[it.id] ?? ''}
                 onChange={(e) => setNotesMap((n) => ({ ...n, [it.id]: e.target.value }))}
-                onBlur={() => handleNotesBlur(it.id)}
+                onBlur={() => resaveIfSet(it)}
                 placeholder="Observação (opcional)"
                 className="input py-2 text-sm"
               />
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   disabled={savingId === it.id}
-                  onClick={() => handleToggle(it.id, false)}
+                  onClick={() => handleSetState(it, 'indisponivel')}
                   className={`py-3 rounded-xl font-bold text-sm border-2 disabled:opacity-50 ${
-                    state === false
+                    state === 'indisponivel'
                       ? 'bg-red-600 text-white border-red-600'
                       : 'bg-white text-red-600 border-red-300'
                   }`}
                 >
-                  ✗ Indisponível
+                  ✗ Indisp.
                 </button>
                 <button
                   type="button"
                   disabled={savingId === it.id}
-                  onClick={() => handleToggle(it.id, true)}
+                  onClick={() => handleSetState(it, 'parcial')}
                   className={`py-3 rounded-xl font-bold text-sm border-2 disabled:opacity-50 ${
-                    state === true
+                    state === 'parcial'
+                      ? 'bg-amber-500 text-white border-amber-500'
+                      : 'bg-white text-amber-600 border-amber-300'
+                  }`}
+                >
+                  ≈ Parcial
+                </button>
+                <button
+                  type="button"
+                  disabled={savingId === it.id}
+                  onClick={() => handleSetState(it, 'disponivel')}
+                  className={`py-3 rounded-xl font-bold text-sm border-2 disabled:opacity-50 ${
+                    state === 'disponivel'
                       ? 'bg-green-700 text-white border-green-700'
                       : 'bg-white text-green-700 border-green-300'
                   }`}
                 >
-                  ✓ Disponível
+                  ✓ Disp.
                 </button>
               </div>
+
+              {/* Painel de parcial: quantidade disponivel + recipiente real */}
+              {state === 'parcial' && (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-amber-700 mb-1">
+                      Qtd disponível (de {it.quantity})
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="1"
+                      max={it.quantity - 1}
+                      value={partialQty[it.id] ?? ''}
+                      onChange={(e) => setPartialQty((q) => ({ ...q, [it.id]: e.target.value }))}
+                      onBlur={() => resaveIfSet(it)}
+                      placeholder="Qtd"
+                      className="input px-2 py-3"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-amber-700 mb-1">
+                      Recipiente
+                    </label>
+                    <select
+                      value={partialContainer[it.id] ?? ''}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        setPartialContainer((c) => ({ ...c, [it.id]: v }))
+                      }}
+                      onBlur={() => resaveIfSet(it)}
+                      className="input px-2 py-3"
+                    >
+                      <option value="">Recip.…</option>
+                      {containers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           )
         })}
@@ -225,6 +339,7 @@ export default function VerificationChecklist({
             item={{
               id: it.id,
               quantity: it.quantity,
+              container_id: it.container_id,
               container_name: it.container_name,
               container_volume: it.container_volume,
               is_available: it.is_available,

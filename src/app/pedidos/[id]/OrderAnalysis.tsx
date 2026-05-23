@@ -13,6 +13,8 @@ interface AnalysisItem {
   species_name: string | null
   container_name: string
   quantity: number
+  available_quantity: number | null
+  available_container_name: string | null
 }
 
 interface Props {
@@ -25,6 +27,11 @@ interface ToastState {
   type: ToastType
 }
 
+// Item parcial: indisponivel no total, mas com parte disponivel (eventualmente noutro recipiente).
+function isPartial(i: AnalysisItem): boolean {
+  return !i.is_generic && i.is_available === false && (i.available_quantity ?? 0) > 0
+}
+
 export default function OrderAnalysis({ orderId, items }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -32,9 +39,14 @@ export default function OrderAnalysis({ orderId, items }: Props) {
   const [showChangeBox, setShowChangeBox] = useState(false)
   const [changeNotes, setChangeNotes] = useState('')
 
-  const unavailable = items.filter((i) => !i.is_generic && i.is_available === false)
-  const available = items.filter((i) => i.is_available === true)
-  const allAvailable = unavailable.length === 0
+  // Totalmente indisponivel = marcado indisponivel e sem quantidade parcial.
+  const fullyUnavailable = items.filter(
+    (i) => !i.is_generic && i.is_available === false && (i.available_quantity ?? 0) === 0,
+  )
+  const partials = items.filter(isPartial)
+  // Aprovaveis: disponiveis (inclui genericos definidos) + parciais (ajustados na aprovacao).
+  const keepItems = items.filter((i) => i.is_available === true || isPartial(i))
+  const needsPartialFlow = fullyUnavailable.length > 0 || partials.length > 0
 
   function showToast(message: string, type: ToastType) {
     setToast({ message, type })
@@ -58,13 +70,16 @@ export default function OrderAnalysis({ orderId, items }: Props) {
   }
 
   function handleApprovePartial() {
-    const keep = available.map((i) => i.id)
+    const keep = keepItems.map((i) => i.id)
     if (keep.length === 0) {
       showToast('Nenhum item disponível para aprovar.', 'error')
       return
     }
-    if (!window.confirm(`Aprovar apenas os ${keep.length} itens disponíveis? Os indisponíveis serão removidos.`)) return
-    run(() => approvePartial(orderId, keep), 'Pedido aprovado parcialmente!')
+    const parts: string[] = []
+    if (fullyUnavailable.length > 0) parts.push(`${fullyUnavailable.length} indisponível(is) será(ão) removido(s)`)
+    if (partials.length > 0) parts.push(`${partials.length} parcial(is) ajustado(s) p/ a qtd disponível`)
+    if (!window.confirm(`Aprovar o que é possível? ${parts.join('; ')}.`)) return
+    run(() => approvePartial(orderId, keep), 'Pedido aprovado!')
   }
 
   function handleRequestChanges() {
@@ -75,18 +90,38 @@ export default function OrderAnalysis({ orderId, items }: Props) {
 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-4 space-y-4">
-      <div>
-        {allAvailable ? (
+      <div className="space-y-1">
+        {!needsPartialFlow ? (
           <p className="font-bold text-green-700">✓ Todos os itens disponíveis!</p>
         ) : (
-          <p className="font-bold text-red-600">
-            {unavailable.length} de {items.length} item(ns) indisponível(is)
-          </p>
+          <>
+            {fullyUnavailable.length > 0 && (
+              <p className="font-bold text-red-600">
+                {fullyUnavailable.length} de {items.length} item(ns) indisponível(is)
+              </p>
+            )}
+            {partials.length > 0 && (
+              <>
+                <p className="font-bold text-amber-600">{partials.length} item(ns) parcial(is):</p>
+                <ul className="text-xs text-amber-700 space-y-0.5 pl-1">
+                  {partials.map((p) => (
+                    <li key={p.id}>
+                      ≈ {p.species_name}: {p.available_quantity} un
+                      {p.available_container_name && p.available_container_name !== p.container_name
+                        ? ` ${p.available_container_name}`
+                        : ''}{' '}
+                      <span className="text-gray-400">(pediu {p.quantity} {p.container_name})</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </>
         )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
-        {allAvailable ? (
+        {!needsPartialFlow ? (
           <button
             type="button"
             onClick={handleApprove}
@@ -102,7 +137,7 @@ export default function OrderAnalysis({ orderId, items }: Props) {
             disabled={isPending}
             className="btn-primary"
           >
-            {isPending ? 'Processando…' : 'Aprovar apenas disponíveis'}
+            {isPending ? 'Processando…' : 'Aprovar o que é possível'}
           </button>
         )}
         <Link href={`/pedidos/${orderId}/editar`} className="btn-secondary text-center">
@@ -124,14 +159,14 @@ export default function OrderAnalysis({ orderId, items }: Props) {
               type="button"
               onClick={handleRequestChanges}
               disabled={isPending}
-              className="flex-1 bg-orange-600 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+              className="flex-1 bg-orange-600 text-white text-base font-bold py-4 rounded-2xl active:scale-95 transition-transform disabled:opacity-50 shadow-md"
             >
               Solicitar alteração
             </button>
             <button
               type="button"
               onClick={() => setShowChangeBox(false)}
-              className="btn-secondary py-3"
+              className="bg-gray-100 text-gray-800 font-semibold px-5 py-4 rounded-2xl active:scale-95 transition-transform"
             >
               Cancelar
             </button>

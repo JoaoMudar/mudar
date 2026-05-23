@@ -28,6 +28,12 @@ export default async function VerificarPage({
     getContainersForSelect(),
   ])
 
+  // Motivo do retorno (A3): ultima transicao para pendente_alteracao com observacao.
+  const pendingChangeReason =
+    [...data.history]
+      .reverse()
+      .find((h) => h.to_status === 'pendente_alteracao' && h.notes)?.notes ?? null
+
   return (
     <VerificationChecklist
       orderId={id}
@@ -36,6 +42,7 @@ export default async function VerificarPage({
       items={data.items}
       species={species}
       containers={containers}
+      pendingChangeReason={pendingChangeReason}
     />
   )
 }

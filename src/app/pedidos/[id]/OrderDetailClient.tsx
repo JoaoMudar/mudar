@@ -9,6 +9,7 @@ import { cancelOrder } from '../actions'
 import {
   ORDER_STATUS_META,
   SALE_CHANNEL_LABEL,
+  buildAvailabilityNote,
   type OrderStatus,
   type SaleChannel,
 } from '@/lib/orders'
@@ -27,6 +28,8 @@ interface Item {
   quantity: number
   is_generic: boolean
   is_available: boolean | null
+  available_quantity: number | null
+  available_container_name: string | null
   availability_notes: string | null
   children: Child[]
 }
@@ -75,10 +78,24 @@ function fmtDateTime(value: string | Date): string {
   })
 }
 
-function AvailabilityIcon({ value }: { value: boolean | null }) {
-  if (value === true) return <span className="text-green-600 font-bold">✓</span>
-  if (value === false) return <span className="text-red-600 font-bold">✗</span>
+function AvailabilityIcon({ item }: { item: Item }) {
+  if (item.is_available === true) return <span className="text-green-600 font-bold">✓</span>
+  if (item.is_available === false) {
+    if ((item.available_quantity ?? 0) > 0) return <span className="text-amber-600 font-bold">≈</span>
+    return <span className="text-red-600 font-bold">✗</span>
+  }
   return <span className="text-gray-400 font-bold">?</span>
+}
+
+// Data de entrega ja passou? (compara so a data, ignora horario)
+function isPastDelivery(value: string | Date | null): boolean {
+  if (!value) return false
+  const d = typeof value === 'string' ? new Date(value) : new Date(value)
+  if (Number.isNaN(d.getTime())) return false
+  d.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return d.getTime() < today.getTime()
 }
 
 export default function OrderDetailClient({ order, items, history, role }: Props) {
@@ -89,6 +106,11 @@ export default function OrderDetailClient({ order, items, history, role }: Props
   const isChefia = role === 'admin' || role === 'chefia'
   const isGerencia = role === 'admin' || role === 'gerencia'
   const meta = ORDER_STATUS_META[order.status]
+
+  // Motivo do retorno (A3): ultima transicao para pendente_alteracao com observacao.
+  const pendingChangeReason =
+    [...history].reverse().find((h) => h.to_status === 'pendente_alteracao' && h.notes)?.notes ?? null
+  const pastDelivery = isPastDelivery(order.delivery_date)
 
   function showToast(message: string, type: ToastType) {
     setToast({ message, type })
@@ -164,6 +186,16 @@ export default function OrderDetailClient({ order, items, history, role }: Props
 
         {/* Acoes por status/perfil */}
         <section className="space-y-3">
+          {/* A3: motivo do retorno em destaque amarelo */}
+          {order.status === 'pendente_alteracao' && pendingChangeReason && (
+            <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-3">
+              <p className="text-xs font-bold text-amber-700 uppercase tracking-wide">
+                ⚠ A chefia pediu alteração
+              </p>
+              <p className="text-sm text-amber-900 mt-1 whitespace-pre-line">{pendingChangeReason}</p>
+            </div>
+          )}
+
           {order.status === 'verificado' && isChefia && (
             <OrderAnalysis
               orderId={order.id}
@@ -174,6 +206,8 @@ export default function OrderDetailClient({ order, items, history, role }: Props
                 species_name: i.species_name,
                 container_name: i.container_name,
                 quantity: i.quantity,
+                available_quantity: i.available_quantity,
+                available_container_name: i.available_container_name,
               }))}
             />
           )}
@@ -197,6 +231,22 @@ export default function OrderDetailClient({ order, items, history, role }: Props
             <Link href={`/pedidos/${order.id}/separar`} className="btn-primary block text-center">
               {order.status === 'aprovado' ? 'Organizar e separar' : 'Continuar separação'}
             </Link>
+          )}
+
+          {/* C1: editar pedido ja aprovado/em separacao (volta p/ verificacao), ate a data de entrega */}
+          {(order.status === 'aprovado' || order.status === 'separando') && isChefia && (
+            pastDelivery ? (
+              <p className="text-xs text-gray-500 text-center">
+                Data de entrega já passou — não é possível editar este pedido.
+              </p>
+            ) : (
+              <Link
+                href={`/pedidos/${order.id}/editar`}
+                className="w-full block text-center text-orange-600 font-semibold py-3 rounded-xl border-2 border-orange-200 active:scale-95 transition-transform"
+              >
+                Editar pedido (volta p/ verificação)
+              </Link>
+            )
           )}
 
           {isChefia &&
@@ -263,8 +313,24 @@ function FragmentRow({ it }: { it: Item }) {
         </td>
         <td className="px-4 py-2 text-gray-600">{it.is_generic ? '—' : it.container_name}</td>
         <td className="px-4 py-2 text-right text-gray-900">{it.quantity}</td>
-        <td className="px-4 py-2 text-center"><AvailabilityIcon value={it.is_available} /></td>
-        <td className="px-4 py-2 text-gray-500 text-xs">{it.availability_notes ?? ''}</td>
+        <td className="px-4 py-2 text-center"><AvailabilityIcon item={it} /></td>
+        <td className="px-4 py-2 text-gray-500 text-xs">
+          {(() => {
+            const autoNote = buildAvailabilityNote({
+              requestedQuantity: it.quantity,
+              requestedContainerName: it.container_name,
+              isAvailable: it.is_available,
+              availableQuantity: it.available_quantity,
+              availableContainerName: it.available_container_name,
+            })
+            return (
+              <>
+                {autoNote && <span className="text-amber-700 font-semibold block">{autoNote}</span>}
+                {it.availability_notes && <span className="block">{it.availability_notes}</span>}
+              </>
+            )
+          })()}
+        </td>
       </tr>
       {it.children.map((c) => (
         <tr key={c.id} className="bg-blue-50/30 text-gray-600">

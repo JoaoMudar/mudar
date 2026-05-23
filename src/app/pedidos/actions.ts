@@ -8,6 +8,8 @@ import {
   validateOrderItems,
   validateGenericAssignment,
   validateLoadsSplit,
+  resolveAvailability,
+  type AvailabilityState,
   type CreateOrderInput,
   type OrderItemInput,
   type ReviewItemInput,
@@ -165,23 +167,33 @@ export async function getOrderById(id: string) {
   const { rows: itemRows } = await pool.query(
     `SELECT oi.id, oi.order_id, oi.species_id, oi.container_id, oi.quantity,
             oi.is_generic, oi.parent_item_id, oi.is_available, oi.availability_notes,
+            oi.available_quantity, oi.available_container_id,
             s.common_name AS species_name, s.photo_url AS species_photo,
-            ct.name AS container_name, ct.volume_liters AS container_volume
+            ct.name AS container_name, ct.volume_liters AS container_volume,
+            act.name AS available_container_name
      FROM order_items oi
      LEFT JOIN species s ON s.id = oi.species_id
      JOIN containers ct ON ct.id = oi.container_id
+     LEFT JOIN containers act ON act.id = oi.available_container_id
      WHERE oi.order_id = $1
      ORDER BY oi.is_generic DESC, oi.created_at`,
     [id],
   )
 
-  // Monta arvore: itens de topo + filhos (de genericos)
+  // Monta arvore: itens de topo + filhos (de genericos).
+  // Filhos recebem parent_container_name p/ destacar troca de recipiente vs. minimo.
   const children = itemRows.filter((i) => i.parent_item_id)
+  const byId = new Map<string, (typeof itemRows)[number]>(itemRows.map((i) => [i.id, i]))
   const topLevel = itemRows
     .filter((i) => !i.parent_item_id)
     .map((i) => ({
       ...i,
-      children: children.filter((c) => c.parent_item_id === i.id),
+      children: children
+        .filter((c) => c.parent_item_id === i.id)
+        .map((c) => ({
+          ...c,
+          parent_container_name: byId.get(c.parent_item_id)?.container_name ?? null,
+        })),
     }))
 
   const { rows: history } = await pool.query(
@@ -409,8 +421,12 @@ export async function startVerification(
 
 export async function toggleItemAvailability(
   itemId: string,
-  isAvailable: boolean,
-  notes?: string,
+  state: AvailabilityState,
+  opts: {
+    availableQuantity?: number
+    availableContainerId?: string | null
+    notes?: string
+  } = {},
 ): Promise<{ error?: string }> {
   const user = await getSession()
   if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
@@ -418,9 +434,32 @@ export async function toggleItemAvailability(
     return { error: 'Sem permissão.' }
   }
   try {
+    // Quantidade total do item (base p/ validar parcial)
+    const { rows } = await pool.query(
+      `SELECT quantity FROM order_items WHERE id = $1`,
+      [itemId],
+    )
+    if (rows.length === 0) return { error: 'Item não encontrado.' }
+    const total = Number(rows[0].quantity)
+
+    const { error, resolved } = resolveAvailability(state, total, {
+      availableQuantity: opts.availableQuantity,
+      availableContainerId: opts.availableContainerId,
+    })
+    if (error || !resolved) return { error: error ?? 'Estado inválido.' }
+
     await pool.query(
-      `UPDATE order_items SET is_available = $1, availability_notes = $2 WHERE id = $3`,
-      [isAvailable, notes?.trim() || null, itemId],
+      `UPDATE order_items
+       SET is_available = $1, available_quantity = $2, available_container_id = $3,
+           availability_notes = $4
+       WHERE id = $5`,
+      [
+        resolved.is_available,
+        resolved.available_quantity,
+        resolved.available_container_id,
+        opts.notes?.trim() || null,
+        itemId,
+      ],
     )
     return {}
   } catch (e: unknown) {
@@ -438,36 +477,17 @@ export async function assignSpeciesToGenericItem(
     return { error: 'Sem permissão.' }
   }
 
-  // Carrega item pai e volume minimo do recipiente
+  // Carrega item pai. O recipiente do pai eh apenas um minimo de referencia:
+  // a gerencia pode atribuir recipiente maior ou menor (a troca eh destacada, nao bloqueada).
   const { rows: parentRows } = await pool.query(
-    `SELECT oi.order_id, oi.quantity, ct.volume_liters AS min_volume
-     FROM order_items oi
-     JOIN containers ct ON ct.id = oi.container_id
-     WHERE oi.id = $1 AND oi.is_generic = true`,
+    `SELECT order_id, quantity FROM order_items
+     WHERE id = $1 AND is_generic = true`,
     [parentItemId],
   )
   if (parentRows.length === 0) return { error: 'Item genérico não encontrado.' }
   const parent = parentRows[0]
 
-  // Volumes dos recipientes escolhidos
-  const containerIds = [...new Set(assignments.map((a) => a.container_id))]
-  const volumes: Record<string, number | null> = {}
-  if (containerIds.length > 0) {
-    const { rows: volRows } = await pool.query(
-      `SELECT id, volume_liters FROM containers WHERE id = ANY($1::uuid[])`,
-      [containerIds],
-    )
-    for (const r of volRows) {
-      volumes[r.id] = r.volume_liters === null ? null : Number(r.volume_liters)
-    }
-  }
-  const minVol = parent.min_volume === null ? 0 : Number(parent.min_volume)
-  const err = validateGenericAssignment(
-    Number(parent.quantity),
-    minVol,
-    assignments,
-    volumes,
-  )
+  const err = validateGenericAssignment(Number(parent.quantity), assignments)
   if (err) return { error: err }
 
   const client = await pool.connect()
@@ -709,13 +729,29 @@ export async function approvePartial(
        WHERE order_id = $1 AND parent_item_id IS NULL AND id <> ALL($2::uuid[])`,
       [orderId, keepItemIds],
     )
+    // Itens parciais mantidos sao ajustados para a quantidade/recipiente realmente disponivel.
+    const { rowCount: adjusted } = await client.query(
+      `UPDATE order_items
+       SET quantity = available_quantity,
+           container_id = COALESCE(available_container_id, container_id),
+           is_available = true,
+           available_quantity = NULL,
+           available_container_id = NULL,
+           availability_notes = NULL
+       WHERE order_id = $1 AND parent_item_id IS NULL
+         AND is_available = false AND available_quantity IS NOT NULL AND available_quantity > 0`,
+      [orderId],
+    )
     await client.query(`UPDATE orders SET status = 'aprovado' WHERE id = $1`, [
       orderId,
     ])
+    const noteParts = [`${rowCount} item(ns) removido(s)`]
+    if (adjusted && adjusted > 0) noteParts.push(`${adjusted} ajustado(s) p/ qtd disponível`)
+    const partialNote = `Aprovação parcial: ${noteParts.join(', ')}.`
     await client.query(
       `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
        VALUES ($1, 'verificado', 'aprovado', $2, $3)`,
-      [orderId, user.id, `Aprovação parcial: ${rowCount} item(ns) removido(s).`],
+      [orderId, user.id, partialNote],
     )
     await client.query('COMMIT')
 
@@ -723,7 +759,7 @@ export async function approvePartial(
       'gerencia',
       'pedido_aprovado',
       `Pedido #${rows[0].order_number} aprovado (parcial)`,
-      `${rowCount} item(ns) removido(s). Pronto para separar.`,
+      `${partialNote} Pronto para separar.`,
       `/pedidos/${orderId}`,
     )
     revalidatePath(`${LIST_PATH}/${orderId}`)
@@ -749,20 +785,41 @@ export async function updateOrderAfterReview(
   const itemsError = validateOrderItems(items)
   if (itemsError) return { error: itemsError }
 
+  // Status a partir dos quais a chefia pode editar e devolver o pedido para verificacao.
+  const EDITABLE_FROM = ['pendente_alteracao', 'verificado', 'aprovado', 'separando']
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
     const { rows: orderRows } = await client.query(
-      `SELECT status, order_number FROM orders WHERE id = $1 FOR UPDATE`,
+      `SELECT status, order_number, delivery_date FROM orders WHERE id = $1 FOR UPDATE`,
       [orderId],
     )
     if (orderRows.length === 0) {
       await client.query('ROLLBACK')
       return { error: 'Pedido não encontrado.' }
     }
-    if (orderRows[0].status !== 'pendente_alteracao') {
+    const fromStatus = orderRows[0].status as string
+    if (!EDITABLE_FROM.includes(fromStatus)) {
       await client.query('ROLLBACK')
-      return { error: 'Só pedidos pendentes de alteração podem ser editados aqui.' }
+      return { error: 'Este pedido não pode ser editado no estado atual.' }
+    }
+
+    // Pedido ja aprovado/em separacao: so editavel ate a data de entrega; cargas sao descartadas.
+    if (fromStatus === 'aprovado' || fromStatus === 'separando') {
+      const delivery = orderRows[0].delivery_date
+      if (delivery) {
+        const d = new Date(delivery)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        d.setHours(0, 0, 0, 0)
+        if (d.getTime() < today.getTime()) {
+          await client.query('ROLLBACK')
+          return { error: 'A data de entrega já passou — não é possível editar este pedido.' }
+        }
+      }
+      // Descarta cargas (cascateia em order_load_items)
+      await client.query(`DELETE FROM order_loads WHERE order_id = $1`, [orderId])
     }
 
     // Itens de topo atuais
@@ -796,7 +853,8 @@ export async function updateOrderAfterReview(
           await client.query(
             `UPDATE order_items
              SET species_id = $1, container_id = $2, quantity = $3, is_generic = $4,
-                 is_available = NULL, availability_notes = NULL
+                 is_available = NULL, availability_notes = NULL,
+                 available_quantity = NULL, available_container_id = NULL
              WHERE id = $5`,
             [speciesId, item.container_id, item.quantity, item.is_generic, item.id],
           )
@@ -819,10 +877,14 @@ export async function updateOrderAfterReview(
     await client.query(`UPDATE orders SET status = 'cadastrado' WHERE id = $1`, [
       orderId,
     ])
+    const reviewNote =
+      fromStatus === 'aprovado' || fromStatus === 'separando'
+        ? 'Pedido editado após aprovação — cargas descartadas, volta para verificação'
+        : 'Itens ajustados pela chefia'
     await client.query(
       `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by, notes)
-       VALUES ($1, 'pendente_alteracao', 'cadastrado', $2, 'Itens ajustados pela chefia')`,
-      [orderId, user.id],
+       VALUES ($1, $2, 'cadastrado', $3, $4)`,
+      [orderId, fromStatus, user.id, reviewNote],
     )
     await client.query('COMMIT')
 

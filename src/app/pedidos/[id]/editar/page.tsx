@@ -9,6 +9,10 @@ import EditItemsForm from './EditItemsForm'
 
 export const dynamic = 'force-dynamic'
 
+// Status a partir dos quais a chefia pode editar os itens (e devolver p/ verificacao).
+// aprovado/separando: edicao de ultima hora, limitada pela data de entrega (validada na action).
+const EDITABLE = ['pendente_alteracao', 'verificado', 'aprovado', 'separando']
+
 export default async function EditarPedidoPage({
   params,
 }: {
@@ -19,8 +23,7 @@ export default async function EditarPedidoPage({
 
   const data = await getOrderById(id)
   if (!data) redirect('/pedidos')
-  // Edicao de itens so faz sentido em pendente_alteracao
-  if (data.order.status !== 'pendente_alteracao') redirect(`/pedidos/${id}`)
+  if (!EDITABLE.includes(data.order.status)) redirect(`/pedidos/${id}`)
 
   const [species, containers] = await Promise.all([
     getSpeciesForSelect(),
