@@ -1,4 +1,4 @@
--- Migration: 20260521100006_pedidos_partial_availability.sql
+-- Migration: 20260521100008_pedidos_partial_availability.sql
 -- Descricao: Disponibilidade parcial em itens de pedido.
 --   Permite registrar que so parte da quantidade pedida esta disponivel
 --   (available_quantity) e, opcionalmente, em um recipiente diferente do pedido
