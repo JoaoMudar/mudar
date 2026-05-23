@@ -32,6 +32,8 @@ export default async function Home() {
   const user = await requireAuth()
 
   const showAdmin = user.role === 'admin' || user.role === 'chefia'
+  const showPedidos =
+    user.role === 'admin' || user.role === 'chefia' || user.role === 'gerencia'
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -56,6 +58,25 @@ export default async function Home() {
       </header>
 
       <div className="px-4 py-6 space-y-8 max-w-lg mx-auto">
+
+        {/* Secao pedidos — visivel para admin, chefia e gerencia */}
+        {showPedidos && (
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+              Pedidos
+            </h2>
+            <Link
+              href="/pedidos"
+              className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+            >
+              <span className="text-3xl">🧾</span>
+              <div>
+                <p className="font-semibold text-gray-900 text-base">Pedidos</p>
+                <p className="text-sm text-gray-500">Cadastrar, verificar e separar pedidos</p>
+              </div>
+            </Link>
+          </section>
+        )}
 
         {/* Secao operacoes */}
         <section>

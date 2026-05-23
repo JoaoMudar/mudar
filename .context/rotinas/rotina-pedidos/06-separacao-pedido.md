@@ -18,44 +18,44 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
 ## Tarefas
 
 ### T6.1 — Server Actions de cargas e separacao
-- [ ] Adicionar em `src/app/pedidos/actions.ts`:
-- [ ] `createDefaultLoad(orderId, userId)`:
+- [x] Adicionar em `src/app/pedidos/actions.ts`:
+- [x] `createDefaultLoad(orderId, userId)`:
   1. Criar 1 carga (load_number=1) com TODOS os itens do pedido (quantidade total)
   2. Para itens genericos: usar os itens filhos (nao o pai)
   3. Mudar status do pedido para `separando`
   4. Registrar historico
-- [ ] `createMultipleLoads(orderId, userId, loadsData)`:
+- [x] `createMultipleLoads(orderId, userId, loadsData)`:
   - `loadsData` eh array de `{ items: [{ order_item_id, quantity }] }`
   - Cria N cargas com itens distribuidos
   - Valida que soma de quantidades por item across loads == quantidade original
   - Mudar status do pedido para `separando`
   - Registrar historico
-- [ ] `toggleLoadItemSeparated(loadItemId, isSeparated)`:
+- [x] `toggleLoadItemSeparated(loadItemId, isSeparated)`:
   1. Atualizar `is_separated` do item da carga
   2. Sem mudanca de status da carga nem do pedido (parcial)
-- [ ] `finishLoad(loadId, userId)`:
+- [x] `finishLoad(loadId, userId)`:
   1. Validar que TODOS os `order_load_items` da carga tem `is_separated = true`
   2. Mudar status da carga para `pronto`
   3. Verificar se TODAS as cargas do pedido estao `pronto`:
      - Se sim: mudar status do pedido para `pronto_envio` + notificar chefia
      - Se nao: nao muda status do pedido (ainda tem cargas pendentes)
-- [ ] `getOrderLoads(orderId)` — retorna cargas com itens, status e progresso
-- [ ] `getDeliveryCalendarData(startDate, endDate)` — retorna pedidos com delivery_date no periodo
+- [x] `getOrderLoads(orderId)` — retorna cargas com itens, status e progresso
+- [x] `getDeliveryCalendarData(startDate, endDate)` — retorna pedidos com delivery_date no periodo
   - Para cada pedido: order_number, customer name, delivery_date, status, qtd cargas, cargas prontas
 
 ### T6.2 — Tela de organizacao de cargas
-- [ ] Criar `src/app/pedidos/[id]/separar/page.tsx`
-- [ ] Proteger com `requireRole('admin', 'gerencia')`
-- [ ] Carregar pedido com itens via `getOrderById(id)` e cargas via `getOrderLoads(orderId)`
-- [ ] Se status eh `aprovado` (sem cargas ainda): mostrar tela de ORGANIZACAO
-- [ ] Se status eh `separando` (cargas ja existem): mostrar tela de SEPARACAO
+- [x] Criar `src/app/pedidos/[id]/separar/page.tsx`
+- [x] Proteger com `requireRole('admin', 'gerencia')`
+- [x] Carregar pedido com itens via `getOrderById(id)` e cargas via `getOrderLoads(orderId)`
+- [x] Se status eh `aprovado` (sem cargas ainda): mostrar tela de ORGANIZACAO
+- [x] Se status eh `separando` (cargas ja existem): mostrar tela de SEPARACAO
 
 **Tela de organizacao (primeira vez):**
-- [ ] Mostrar todos os itens do pedido (para genericos, mostrar os filhos)
-- [ ] Dois botoes grandes:
+- [x] Mostrar todos os itens do pedido (para genericos, mostrar os filhos)
+- [x] Dois botoes grandes:
   - "Cabe em 1 viagem" — chama `createDefaultLoad`, vai para separacao
   - "Dividir em cargas" — abre modo de divisao
-- [ ] **Modo de divisao em cargas (mobile-friendly):**
+- [x] **Modo de divisao em cargas (mobile-friendly):**
   ```
   +------------------------------------------+
   | Dividir Pedido #47 em Cargas             |
@@ -91,8 +91,8 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   - Botao "Confirmar Divisao" ativo quando todas as quantidades batem
 
 ### T6.3 — Componente de checklist de separacao por carga
-- [ ] Criar `src/app/pedidos/[id]/separar/LoadSeparation.tsx` (client component)
-- [ ] Exibir cargas como abas ou cards expansiveis:
+- [x] Criar `src/app/pedidos/[id]/separar/LoadSeparation.tsx` (client component)
+- [x] Exibir cargas como abas ou cards expansiveis:
   ```
   +------------------------------------------+
   | Pedido #47 — Joao da Silva               |
@@ -118,54 +118,54 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   | [ Carga 1 Pronta ]                      |
   +------------------------------------------+
   ```
-- [ ] Abas/tabs para alternar entre cargas (se houver mais de 1)
-- [ ] Badge em cada aba: progresso (ex: "3/5")
-- [ ] Aba com cor: verde se carga pronta, normal se em andamento
-- [ ] Cada item: botao toggle grande "Separado" / "Separar"
+- [x] Abas/tabs para alternar entre cargas (se houver mais de 1)
+- [x] Badge em cada aba: progresso (ex: "3/5")
+- [x] Aba com cor: verde se carga pronta, normal se em andamento
+- [x] Cada item: botao toggle grande "Separado" / "Separar"
   - Nao separado: botao cinza com outline
   - Separado: botao verde preenchido com check
-- [ ] Cada toggle salva imediatamente (`toggleLoadItemSeparated`)
-- [ ] Botao "Carga X Pronta" ao final de cada carga (quando todos separados)
+- [x] Cada toggle salva imediatamente (`toggleLoadItemSeparated`)
+- [x] Botao "Carga X Pronta" ao final de cada carga (quando todos separados)
   - Chama `finishLoad`
   - Se era a ultima carga: toast "Pedido #47 pronto para envio!"
   - Se ainda tem cargas: toast "Carga 1 pronta! Falta(m) carga(s) 2"
 
 ### T6.4 — Calendario de entregas na lista de pedidos
-- [ ] Criar `src/app/pedidos/DeliveryCalendar.tsx` (client component)
-- [ ] Exibir na pagina `/pedidos` para gerencia (acima da lista)
-- [ ] Visualizacao de calendario mensal simples (grade de dias)
-- [ ] Cada dia que tem entrega: marcador com quantidade de pedidos
-- [ ] Codigo de cores nos dias:
+- [x] Criar `src/app/pedidos/DeliveryCalendar.tsx` (client component)
+- [x] Exibir na pagina `/pedidos` para gerencia (acima da lista)
+- [x] Visualizacao de calendario mensal simples (grade de dias)
+- [x] Cada dia que tem entrega: marcador com quantidade de pedidos
+- [x] Codigo de cores nos dias:
   - **Verde** (dia util antes da entrega): dia de CARREGAMENTO — precisa separar/carregar
   - **Amarelo** (dia da entrega): SAIDA do caminhao
   - **Vermelho**: entregas atrasadas (delivery_date < hoje e status != pronto_envio)
-- [ ] Clicar em um dia mostra os pedidos daquele dia (lista abaixo do calendario)
-- [ ] Dia atual destacado com borda
-- [ ] Navegacao entre meses (< Junho 2026 >)
+- [x] Clicar em um dia mostra os pedidos daquele dia (lista abaixo do calendario)
+- [x] Dia atual destacado com borda
+- [x] Navegacao entre meses (< Junho 2026 >)
 
 ### T6.5 — Logica de dia util anterior
-- [ ] Criar funcao `getPreviousBusinessDay(date)` em `src/lib/date-utils.ts`
-- [ ] Considerar dias uteis = segunda a sexta
-- [ ] Se entrega eh segunda -> carregamento eh sexta anterior
-- [ ] Se entrega eh terca a sabado -> carregamento eh dia anterior
-- [ ] Nao considerar feriados por enquanto (simplicidade)
+- [x] Criar funcao `getPreviousBusinessDay(date)` em `src/lib/date-utils.ts`
+- [x] Considerar dias uteis = segunda a sexta
+- [x] Se entrega eh segunda -> carregamento eh sexta anterior
+- [x] Se entrega eh terca a sabado -> carregamento eh dia anterior
+- [x] Nao considerar feriados por enquanto (simplicidade)
 
 ### T6.6 — Barra de progresso geral e urgencia
-- [ ] Se pedido tem 1 carga: progresso = "4 de 7 separados"
-- [ ] Se pedido tem N cargas: progresso = "Carga 1: 5/5 V | Carga 2: 2/3"
-- [ ] Informacoes do pedido no cabecalho: cliente, data de entrega, order_number
-- [ ] Destaque se a entrega eh urgente (amanha ou hoje): banner vermelho "ENTREGA AMANHA"
-- [ ] Banner de carregamento: "CARREGAR HOJE" se hoje == dia util antes da delivery_date
+- [x] Se pedido tem 1 carga: progresso = "4 de 7 separados"
+- [x] Se pedido tem N cargas: progresso = "Carga 1: 5/5 V | Carga 2: 2/3"
+- [x] Informacoes do pedido no cabecalho: cliente, data de entrega, order_number
+- [x] Destaque se a entrega eh urgente (amanha ou hoje): banner vermelho "ENTREGA AMANHA"
+- [x] Banner de carregamento: "CARREGAR HOJE" se hoje == dia util antes da delivery_date
 
 ### T6.7 — Indicadores na lista de pedidos para gerencia
-- [ ] Pedidos aprovados (sem cargas): tag "ORGANIZAR" — precisa dividir em cargas
-- [ ] Pedidos separando: tag "SEPARANDO" com progresso de cargas (ex: "Carga 1/2")
-- [ ] Urgencia visual baseada na data de entrega:
+- [x] Pedidos aprovados (sem cargas): tag "ORGANIZAR" — precisa dividir em cargas
+- [x] Pedidos separando: tag "SEPARANDO" com progresso de cargas (ex: "Carga 1/2")
+- [x] Urgencia visual baseada na data de entrega:
   - Entrega em >3 dias: cor azul
   - Entrega em 2-3 dias: cor laranja "EM BREVE"
   - Entrega amanha: cor vermelho "SEPARAR HOJE"
   - Entrega hoje: cor vermelho "URGENTE"
-- [ ] Ordenar por urgencia (data de entrega mais proxima primeiro)
+- [x] Ordenar por urgencia (data de entrega mais proxima primeiro)
 
 ## Design Mobile — Fluxo Completo
 
