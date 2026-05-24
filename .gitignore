@@ -58,3 +58,8 @@ next-env.d.ts
 # === Build/cache adicionais ===
 /dist/
 /.cache/
+
+# === Dumps de banco locais (NUNCA versionar) — migrations/*.sql NÃO são afetadas ===
+/dump.sql
+/species_data.sql
+*.dump

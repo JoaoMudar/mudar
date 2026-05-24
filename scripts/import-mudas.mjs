@@ -8,7 +8,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const jsonPath = join(__dirname, '..', 'mudas_export_corrigido.json')
+const jsonPath = join(__dirname, '..', 'data', 'seeds', 'mudas_export_corrigido.json')
 
 const data = JSON.parse(readFileSync(jsonPath, 'utf-8'))
 

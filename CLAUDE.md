@@ -13,9 +13,9 @@ Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10
 - Empresa operou sempre sem dados estruturados; não há controle de lotes, perdas, margem ou estoque.
 
 ## Stack
-- **Banco**: PostgreSQL local via `pg` (node-postgres). Pool singleton em `src/lib/db.ts` → `import pool from '@/lib/db'`. Nunca usar no client — só Server Components/Actions.
+- **Banco**: PostgreSQL. Driver `pg` (node-postgres) em dev e `@neondatabase/serverless` em produção — seleção por `NODE_ENV` em `src/lib/db.ts`. Pool singleton → `import pool from '@/lib/db'`. Nunca usar no client — só Server Components/Actions.
   - Env: `DATABASE_URL` (ex: `postgresql://postgres:postgres@localhost:5432/viveiro`)
-- **Frontend**: Next.js 15 (App Router) + Tailwind. TypeScript em todo o ecossistema.
+- **Frontend**: Next.js 16 (App Router) + React 19 + Tailwind. TypeScript em todo o ecossistema.
 - **Dados**: Server Actions com SQL direto (`pool.query`).
 - **Infra**: PWA mobile, n8n + Evolution API (WhatsApp), deploy VPS/local.
 - **Fotos de espécies**: `public/uploads/especies/`, servidas estaticamente.
