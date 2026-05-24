@@ -58,15 +58,16 @@ interface ToastState {
 }
 
 let seq = 0
-function newRow(): Row {
+/** Nova linha; herda recipiente e quantidade do `template` (nunca a especie). */
+function newRow(template?: Pick<Row, 'container_id' | 'quantity'>): Row {
   seq += 1
   return {
     key: `e${seq}`,
     is_generic: false,
     species_id: '',
     species_label: '',
-    container_id: '',
-    quantity: '',
+    container_id: template?.container_id ?? '',
+    quantity: template?.quantity ?? '',
     is_available: null,
     is_partial: false,
     partial_note: null,
@@ -84,6 +85,7 @@ export default function EditItemsForm({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [toast, setToast] = useState<ToastState | null>(null)
+  const [focusKey, setFocusKey] = useState<string | null>(null)
   const [rows, setRows] = useState<Row[]>(() =>
     items.map((it) => {
       seq += 1
@@ -122,7 +124,12 @@ export default function EditItemsForm({
     setRows((rs) => rs.filter((r) => r.key !== key))
   }
   function addRow() {
-    setRows((rs) => [...rs, newRow()])
+    const last = rows[rows.length - 1]
+    const row = newRow(
+      last ? { container_id: last.container_id, quantity: last.quantity } : undefined,
+    )
+    setRows((rs) => [...rs, row])
+    setFocusKey(row.key)
   }
   function toggleGeneric(key: string) {
     setRows((rs) =>
@@ -239,6 +246,7 @@ export default function EditItemsForm({
                       items={speciesItems}
                       placeholder="Buscar espécie…"
                       initialValue={r.species_label}
+                      autoFocus={r.key === focusKey}
                       onSelect={(it) => updateRow(r.key, { species_id: it.id, species_label: it.label })}
                     />
                   )}

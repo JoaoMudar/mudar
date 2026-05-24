@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { normalizeText, matchesSearch } from '@/lib/text'
 
 export interface AutocompleteItem {
   id: string
@@ -56,13 +57,14 @@ export default function Autocomplete({
     return () => document.removeEventListener('mousedown', onClickOutside)
   }, [])
 
-  const q = debounced.trim().toLowerCase()
+  // Busca tolerante: ignora acento, caixa e espacos nas pontas.
+  const q = normalizeText(debounced)
   const filtered = q
-    ? items.filter((i) => i.label.toLowerCase().includes(q))
+    ? items.filter((i) => matchesSearch(i.label, debounced))
     : items
   const visible = filtered.slice(0, 50)
 
-  const exactMatch = items.some((i) => i.label.toLowerCase() === q)
+  const exactMatch = items.some((i) => normalizeText(i.label) === q)
   const showCreate = allowCreate && q.length > 0 && !exactMatch
 
   function choose(item: AutocompleteItem) {

@@ -44,15 +44,20 @@ interface ToastState {
 }
 
 let rowSeq = 0
-function newRow(): ItemRow {
+/**
+ * Cria uma nova linha de item. Se `template` for passado, herda recipiente e
+ * quantidade dele (mas nunca a especie) — assim cada linha nova ja nasce
+ * preenchida com o padrao da linha anterior, e quem cadastra so troca a especie.
+ */
+function newRow(template?: Pick<ItemRow, 'container_id' | 'quantity'>): ItemRow {
   rowSeq += 1
   return {
     key: `r${rowSeq}`,
     is_generic: false,
     species_id: '',
     species_label: '',
-    container_id: '',
-    quantity: '',
+    container_id: template?.container_id ?? '',
+    quantity: template?.quantity ?? '',
   }
 }
 
@@ -69,7 +74,9 @@ export default function OrderForm({ customers, species, containers }: Props) {
   const [channel, setChannel] = useState<SaleChannel>('atacado')
   const [deliveryDate, setDeliveryDate] = useState('')
   const [notes, setNotes] = useState('')
-  const [items, setItems] = useState<ItemRow[]>([newRow()])
+  const [items, setItems] = useState<ItemRow[]>(() => [newRow()])
+  // Linha cuja busca de especie deve receber foco automatico (linha recem-criada).
+  const [focusKey, setFocusKey] = useState<string | null>(null)
   const [toast, setToast] = useState<ToastState | null>(null)
 
   const speciesItems: AutocompleteItem[] = species.map((s) => ({
@@ -93,7 +100,13 @@ export default function OrderForm({ customers, species, containers }: Props) {
     setItems((rows) => (rows.length === 1 ? rows : rows.filter((r) => r.key !== key)))
   }
   function addItem() {
-    setItems((rows) => [...rows, newRow()])
+    // Herda recipiente + quantidade da ultima linha (padrao do pedido).
+    const last = items[items.length - 1]
+    const row = newRow(
+      last ? { container_id: last.container_id, quantity: last.quantity } : undefined,
+    )
+    setItems((rows) => [...rows, row])
+    setFocusKey(row.key)
   }
 
   function toggleGeneric(key: string) {
@@ -320,6 +333,7 @@ export default function OrderForm({ customers, species, containers }: Props) {
                         items={speciesItems}
                         placeholder="Buscar espécie…"
                         initialValue={it.species_label}
+                        autoFocus={it.key === focusKey}
                         onSelect={(item) =>
                           updateItem(it.key, { species_id: item.id, species_label: item.label })
                         }
