@@ -11,6 +11,7 @@
 | `docs/` | Documentação de referência (este diretório). | Para entender contexto, domínio e fluxo de trabalho. |
 | `plans/` (raiz) | Roadmaps de implementação P1–P10 (trabalho ativo). | Antes de implementar uma feature. |
 | `migrations/` (raiz) | Migrações SQL (`psql` puro), em ordem cronológica. | Ao mexer no schema do banco. |
+| `data/seeds/` (raiz) | Fontes de carga inicial (seed) — ex.: export das 142 espécies. Ver `data/seeds/README.md`. | Ao gerar/re-importar dados de catálogo. |
 | `src/` (raiz) | Código da aplicação (Next.js App Router). | Ao implementar. |
 
 ## Por onde começar (ordem de leitura para pegar contexto)

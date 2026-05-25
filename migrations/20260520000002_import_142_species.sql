@@ -1,4 +1,4 @@
--- Importação de 142 espécies do mudas_export_corrigido.json
+-- Importação de 142 espécies de data/seeds/mudas_export_corrigido.json
 -- Gerado em: 2026-05-20
 
 BEGIN;

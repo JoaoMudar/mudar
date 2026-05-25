@@ -70,6 +70,7 @@ A aplicação fica disponível em `http://localhost:3000`. O login é exigido em
 ```
 docs/              Documentação de referência (ver docs/README.md — mapa de tudo)
 migrations/        Migrações SQL (psql puro), aplicadas em ordem cronológica
+data/seeds/        Fontes de carga inicial (seed), ex.: export das 142 espécies
 plans/             Planos de implementação por projeto (P1–P10)
 scripts/           migrate.ts, seed-admin.ts, geração de ícones, hooks de git
 public/uploads/    Fotos de espécies (servidas estaticamente)
