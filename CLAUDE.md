@@ -13,8 +13,8 @@ Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10
 - Empresa operou sempre sem dados estruturados; não há controle de lotes, perdas, margem ou estoque.
 
 ## Stack
-- **Banco**: PostgreSQL. Driver `pg` (node-postgres) em dev e `@neondatabase/serverless` em produção — seleção por `NODE_ENV` em `src/lib/db.ts`. Pool singleton → `import pool from '@/lib/db'`. Nunca usar no client — só Server Components/Actions.
-  - Env: `DATABASE_URL` (ex: `postgresql://postgres:postgres@localhost:5432/viveiro`)
+- **Banco**: **PostgreSQL hospedado no Neon** (cloud, região `sa-east-1`). É o mesmo banco em **dev e produção** — **não há Postgres local**. A diferença é só o driver: `pg` (node-postgres) em dev e `@neondatabase/serverless` em produção (evita esgotar conexões no serverless), selecionado por `NODE_ENV` em `src/lib/db.ts`. Ambos apontam para o mesmo `DATABASE_URL` do Neon. Pool singleton → `import pool from '@/lib/db'`. Nunca usar no client — só Server Components/Actions.
+  - Env: `DATABASE_URL` = connection string do Neon (ex: `postgresql://<user>:<senha>@ep-xxxx-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require`)
 - **Frontend**: Next.js 16 (App Router) + React 19 + Tailwind. TypeScript em todo o ecossistema.
 - **Dados**: Server Actions com SQL direto (`pool.query`).
 - **Infra**: PWA mobile, n8n + Evolution API (WhatsApp), deploy VPS/local.
