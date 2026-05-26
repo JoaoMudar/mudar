@@ -60,3 +60,4 @@ Cada carga vira uma entrega independente na rotina de entregas.
 - **Entregas**: CARGAS com status `pronto` alimentam agenda de entregas (cada carga = 1 viagem)
 - **Estoque**: verificacao de disponibilidade sera automatizada quando estoque existir
 - **Precificacao**: precos por canal podem ser exibidos nos itens (futuro)
+- **Clientes (NF)**: na analise/fechamento a chefia indica se o pedido precisa de Nota Fiscal; quando sim, o cliente precisa estar fiscalmente completo. Ver `rotina-clientes/04-integracao-pedidos-nf.md`

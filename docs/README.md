@@ -34,6 +34,7 @@
 | Arquivo | Conteúdo |
 |---------|----------|
 | [`fluxo-claude-code-git.md`](fluxo-claude-code-git.md) | Fluxo de branches/commits com Claude Code (referenciado pelo `CLAUDE.md`). |
+| [`banco-local-espelho.md`](banco-local-espelho.md) | Espelhar o Neon para um Postgres local descartável (`npm run db:refresh-local`) para testes seguros. |
 | [`EXECUTION-GUIDE.md`](EXECUTION-GUIDE.md) | Como conduzir as sessões de desenvolvimento e a ordem dos sprints. |
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
 
@@ -44,6 +45,7 @@ Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 | Rotina | Arquivo |
 |--------|---------|
 | Pedidos (visão geral + detalhamento) | [`rotinas/rotina-pedidos.md`](rotinas/rotina-pedidos.md) e a pasta [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/) |
+| Clientes (visão geral + detalhamento) | [`rotinas/rotina-clientes.md`](rotinas/rotina-clientes.md) e a pasta [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/) |
 | Estoque | [`rotinas/rotina-estoque.md`](rotinas/rotina-estoque.md) |
 | Tarefas diárias | [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) |
 | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
@@ -53,6 +55,10 @@ Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 
 A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/):
 banco de dados, notificações, cadastro, verificação de disponibilidade, análise/fechamento e separação.
+
+A rotina de **Clientes** tem detalhamento por fase em [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/):
+banco de dados (campos fiscais), validações, área `/clientes`, integração com NF no fechamento de pedido,
+testes e o futuro de emissão de nota fiscal via API.
 
 ## Roadmap de implementação (`plans/`)
 

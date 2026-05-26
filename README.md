@@ -15,7 +15,7 @@ principal de uso no campo.
 | ----------------- | ----------------------------------------------------------------- |
 | Frontend          | Next.js 16 (App Router) + React 19 + Tailwind CSS                 |
 | Backend           | Server Actions com SQL direto (`pool.query`)                      |
-| Banco de dados    | PostgreSQL (driver `pg` local; `@neondatabase/serverless` em prod)|
+| Banco de dados    | PostgreSQL — **local em dev**, **Neon (cloud) na produção/Vercel**; driver escolhido pelo host |
 | Autenticação      | Sessão própria por cookie (scrypt + tokens SHA-256)               |
 | Mobile            | PWA (manifest + service worker, fila de sync offline)             |
 | Linguagem         | TypeScript                                                        |
@@ -25,14 +25,16 @@ principal de uso no campo.
 
 ## Como rodar localmente
 
-Pré-requisitos: **Node.js 20+** e um **PostgreSQL** acessível.
+Pré-requisitos: **Node.js 20+** e um **PostgreSQL local** acessível (ex.: instância do pgAdmin).
+Na produção (Vercel) o banco é o **Neon** — basta apontar a `DATABASE_URL` de cada ambiente;
+o driver certo é escolhido automaticamente pelo host (`*.neon.tech` → driver serverless).
 
 ```bash
 # 1. Instalar dependências
 npm install
 
-# 2. Configurar a conexão com o banco (.env.local)
-echo 'DATABASE_URL=postgresql://postgres:postgres@localhost:5432/viveiro' > .env.local
+# 2. Configurar a conexão com o banco local (.env.local)
+echo 'DATABASE_URL=postgresql://postgres:<senha>@localhost:5432/viveiro' > .env.local
 
 # 3. Rodar as migrações
 npm run db:migrate
@@ -142,8 +144,11 @@ Pedidos** (cadastro → verificação → fechamento → separação por cargas)
 - Toda alteração deve ser um arquivo `.sql` em `migrations/` (compatível com `psql` puro),
   manter compatibilidade retroativa e ser documentada.
 - A entidade central é a **espécie** — quase tudo se relaciona a ela.
-- Conexão via `DATABASE_URL`; pool singleton em `src/lib/db.ts`
-  (importar como `import pool from '@/lib/db'`). Nunca usar o pool no lado cliente.
+- PostgreSQL: **local no desenvolvimento** (pgAdmin/`localhost`) e **Neon (cloud) na produção/Vercel**.
+- Conexão via `DATABASE_URL`; pool singleton em `src/lib/db.ts`. O driver é escolhido pelo
+  **host** da URL: `*.neon.tech` → `@neondatabase/serverless`; qualquer outro → `pg`
+  (mesmo critério de `scripts/migrate.ts`). Importar como `import pool from '@/lib/db'`.
+  Nunca usar o pool no lado cliente.
 
 ---
 
