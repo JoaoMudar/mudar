@@ -71,3 +71,13 @@
 | Visão de produção por espécie | Chefia |
 | Atribuição de atividades de produção | Gerência |
 | Registro de atividade (semeadura, repicagem, irrigação, adubação) | Colaborador |
+
+## 8. Clientes (`rotina-clientes.md`)
+
+| Etapa | Perfil |
+|-------|--------|
+| Cadastro rápido (nome + telefone, inline no pedido) | Chefia |
+| Cadastro/edição completa (dados fiscais PF/PJ) na área `/clientes` | Chefia / Gerência |
+| Definir se o pedido precisa de Nota Fiscal (no fechamento) | Chefia |
+| Complementação fiscal inline quando o cliente está incompleto | Chefia |
+| Consulta/busca de clientes | Chefia / Gerência |

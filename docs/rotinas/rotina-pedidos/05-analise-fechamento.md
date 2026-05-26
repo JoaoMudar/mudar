@@ -168,3 +168,4 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 - Ao remover item generico, seus filhos sao removidos em cascata (ON DELETE CASCADE)
 - Considerar: Gilberto pode querer ligar pro cliente antes de decidir — o pedido pode ficar em `verificado` por horas/dias
 - A composicao do generico eh apenas informativa para a chefia — ele ve o que a gerencia escolheu mas nao altera as especies individuais (se quiser mudar, altera o item generico e reenvia)
+- **Nota Fiscal**: ao aprovar, a chefia responde "Precisa de Nota Fiscal?". Se sim, o cliente precisa estar fiscalmente completo (gate validado no servidor) — detalhes e complementacao inline na rotina de Clientes, `../rotina-clientes/04-integracao-pedidos-nf.md`
