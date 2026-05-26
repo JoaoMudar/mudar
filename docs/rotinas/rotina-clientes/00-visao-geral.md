@@ -21,11 +21,13 @@ quando o pedido realmente precisar de NF.
 |--------|---------------------------|-------|
 | Admin | Sim | Tudo |
 | Chefia | Sim | Cadastra/edita clientes, decide NF no fechamento |
-| Gerência | Sim | Cadastra/edita clientes (apoio) |
+| Gerência | Não | Apenas **vê** o cliente dentro do pedido; não gerencia a área nem edita cadastros |
 | Colaborador | Não | — |
 
 A área `/clientes` é **top-level** (rota própria, fora de Administração), com card
-próprio na home — mesmo gate de visibilidade da seção Pedidos (`admin`/`chefia`/`gerência`).
+próprio na home — visível só para `admin`/`chefia` (a gerência continua vendo a seção
+Pedidos, mas sem o card Clientes). A gerência acessa os dados do cliente apenas pela
+leitura dentro do pedido (`getCustomerById`), nunca pelas actions de gestão.
 
 ## Dois níveis de cadastro
 

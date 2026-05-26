@@ -5,7 +5,7 @@ import ClientesManager from './ClientesManager'
 export const dynamic = 'force-dynamic'
 
 export default async function ClientesPage() {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let customers: any[] = []

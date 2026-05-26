@@ -175,7 +175,7 @@ export async function getCustomerById(id: string) {
 export async function lookupCnpj(
   cnpj: string,
 ): Promise<{ data?: CnpjData; error?: string }> {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
   const digits = onlyDigits(cnpj)
   if (!isValidCNPJ(digits)) return { error: 'CNPJ inválido.' }
 
@@ -218,7 +218,7 @@ export async function lookupCnpj(
 export async function createCustomer(
   data: CustomerInput,
 ): Promise<{ id?: string; error?: string; conflict?: { id: string; name: string } }> {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
 
   const personType = normPersonType(data.person_type)
   const name = displayName(data, personType)
@@ -279,7 +279,7 @@ export async function updateCustomer(
   id: string,
   data: CustomerInput,
 ): Promise<{ error?: string; conflict?: { id: string; name: string } }> {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
 
   const personType = normPersonType(data.person_type)
   const name = displayName(data, personType)
@@ -337,7 +337,7 @@ export async function toggleCustomerActive(
   id: string,
   active: boolean,
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(`UPDATE customers SET active = $1 WHERE id = $2`, [active, id])
     revalidatePath(PATH)
@@ -357,7 +357,7 @@ export async function mergeCustomers(
   duplicateId: string,
   originalId: string,
 ): Promise<{ movedOrders?: number; error?: string }> {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requireRole('admin', 'chefia')
   if (!duplicateId || !originalId) return { error: 'Clientes inválidos para unir.' }
   if (duplicateId === originalId) return { error: 'Não é possível unir um cliente a ele mesmo.' }
 
