@@ -9,6 +9,7 @@ import {
   isFiscallyComplete,
   onlyDigits,
   formatDocument,
+  mergeSuccessMessage,
   type FiscalCustomer,
 } from '@/lib/customers'
 import CustomerFiscalForm, { type CustomerRecord } from './CustomerFiscalForm'
@@ -132,12 +133,7 @@ export default function ClientesManager({
               router.refresh()
             }}
             onMerged={(_originalId, movedOrders) => {
-              showToast(
-                movedOrders > 0
-                  ? `Cadastros unidos — ${movedOrders} pedido(s) movido(s).`
-                  : 'Cadastros unidos.',
-                'success',
-              )
+              showToast(mergeSuccessMessage(movedOrders), 'success')
               setMode('list')
               router.refresh()
             }}

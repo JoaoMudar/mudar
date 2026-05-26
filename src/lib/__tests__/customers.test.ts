@@ -14,6 +14,7 @@ import {
   isFiscallyComplete,
   validateSimpleCustomer,
   validateFiscalCustomer,
+  mergeSuccessMessage,
   type FiscalCustomer,
 } from '../customers'
 
@@ -255,5 +256,18 @@ describe('validateFiscalCustomer', () => {
     expect(msg).toMatch(/Faltam para NF/i)
     expect(msg).toContain('CPF')
     expect(msg).toContain('E-mail')
+  })
+})
+
+describe('mergeSuccessMessage', () => {
+  it('omite a contagem quando nenhum pedido foi movido', () => {
+    expect(mergeSuccessMessage(0)).toBe('Cadastros unidos com sucesso.')
+    expect(mergeSuccessMessage(-1)).toBe('Cadastros unidos com sucesso.')
+  })
+  it('usa o singular para um pedido', () => {
+    expect(mergeSuccessMessage(1)).toBe('Cadastros unidos com sucesso — 1 pedido movido.')
+  })
+  it('usa o plural para varios pedidos', () => {
+    expect(mergeSuccessMessage(3)).toBe('Cadastros unidos com sucesso — 3 pedidos movidos.')
   })
 })

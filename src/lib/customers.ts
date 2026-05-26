@@ -201,3 +201,15 @@ export function validateFiscalCustomer(c: FiscalCustomer): string | null {
   if (missing.length === 0) return null
   return `Faltam para NF: ${missing.join(', ')}`
 }
+
+/**
+ * Mensagem de confirmacao da uniao de cadastros (toast). Inclui a contagem de
+ * pedidos reapontados ao cliente original, com plural correto, e omite a contagem
+ * quando nada foi movido. Compartilhada pela rotina de clientes e pela aprovacao
+ * de pedido para o feedback ficar identico nos dois lugares.
+ */
+export function mergeSuccessMessage(movedOrders: number): string {
+  if (movedOrders <= 0) return 'Cadastros unidos com sucesso.'
+  const orders = movedOrders === 1 ? '1 pedido movido' : `${movedOrders} pedidos movidos`
+  return `Cadastros unidos com sucesso — ${orders}.`
+}

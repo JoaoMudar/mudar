@@ -7,6 +7,7 @@ import Toast, { ToastType } from '@/components/Toast'
 import { approveOrder, approvePartial, requestChanges } from '../actions'
 import { getCustomerById } from '@/app/clientes/actions'
 import CustomerFiscalForm, { type CustomerRecord } from '@/app/clientes/CustomerFiscalForm'
+import { mergeSuccessMessage } from '@/lib/customers'
 
 interface AnalysisItem {
   id: string
@@ -104,6 +105,20 @@ export default function OrderAnalysis({ orderId, orderNumber, customerId, items 
     })
   }
 
+  // Documento ja pertence a outro cadastro e o usuario uniu os dois: o pedido
+  // passou a apontar para o cliente original. Recarrega os dados dele no formulario
+  // (fonte da verdade — pode ja estar fiscalmente completo) para conferir e aprovar.
+  async function handleMerged(originalId: string, movedOrders: number) {
+    setLoadingCustomer(true)
+    const c = (await getCustomerById(originalId)) as CustomerRecord | null
+    setCustomer(c)
+    setLoadingCustomer(false)
+    // O formulario recarrega visivelmente com os dados do original — o toast so
+    // confirma a uniao (curto, p/ nao estourar a largura do Toast no celular).
+    showToast(mergeSuccessMessage(movedOrders), 'success')
+    router.refresh()
+  }
+
   // Apos salvar a complementacao: se ficou completo, aprova automaticamente.
   function handleFiscalSaved({ complete }: { complete: boolean }) {
     if (!complete) {
@@ -156,10 +171,12 @@ export default function OrderAnalysis({ orderId, orderNumber, customerId, items 
           <p className="text-gray-400 py-8 text-center">Carregando cliente…</p>
         ) : (
           <CustomerFiscalForm
+            key={customer?.id ?? 'novo'}
             customer={customer}
             submitLabel="Salvar e aprovar"
             onCancel={() => setNfStep('idle')}
             onSaved={handleFiscalSaved}
+            onMerged={handleMerged}
           />
         )}
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
