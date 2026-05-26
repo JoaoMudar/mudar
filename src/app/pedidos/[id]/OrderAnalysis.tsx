@@ -5,6 +5,9 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import { approveOrder, approvePartial, requestChanges } from '../actions'
+import { getCustomerById } from '@/app/clientes/actions'
+import CustomerFiscalForm, { type CustomerRecord } from '@/app/clientes/CustomerFiscalForm'
+import { mergeSuccessMessage } from '@/lib/customers'
 
 interface AnalysisItem {
   id: string
@@ -19,6 +22,8 @@ interface AnalysisItem {
 
 interface Props {
   orderId: string
+  orderNumber: number
+  customerId: string
   items: AnalysisItem[]
 }
 
@@ -32,12 +37,18 @@ function isPartial(i: AnalysisItem): boolean {
   return !i.is_generic && i.is_available === false && (i.available_quantity ?? 0) > 0
 }
 
-export default function OrderAnalysis({ orderId, items }: Props) {
+// Etapa do fluxo de NF no fechamento.
+type NfStep = 'idle' | 'asking' | 'complementing'
+
+export default function OrderAnalysis({ orderId, orderNumber, customerId, items }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [toast, setToast] = useState<ToastState | null>(null)
   const [showChangeBox, setShowChangeBox] = useState(false)
   const [changeNotes, setChangeNotes] = useState('')
+  const [nfStep, setNfStep] = useState<NfStep>('idle')
+  const [customer, setCustomer] = useState<CustomerRecord | null>(null)
+  const [loadingCustomer, setLoadingCustomer] = useState(false)
 
   // Totalmente indisponivel = marcado indisponivel e sem quantidade parcial.
   const fullyUnavailable = items.filter(
@@ -64,9 +75,67 @@ export default function OrderAnalysis({ orderId, items }: Props) {
     })
   }
 
-  function handleApprove() {
-    if (!window.confirm('Aprovar este pedido?')) return
-    run(() => approveOrder(orderId), 'Pedido aprovado!')
+  // Aprovacao sem NF: comportamento de sempre, sem nenhuma checagem fiscal.
+  function approveWithoutInvoice() {
+    setNfStep('idle')
+    run(() => approveOrder(orderId, false), 'Pedido aprovado!')
+  }
+
+  // Aprovacao com NF: tenta aprovar; se o cliente estiver incompleto, o servidor
+  // bloqueia e abrimos a complementacao inline (sem sair do pedido).
+  function approveWithInvoice() {
+    startTransition(async () => {
+      const result = await approveOrder(orderId, true)
+      if (!result.error) {
+        setNfStep('idle')
+        showToast('Pedido aprovado com NF!', 'success')
+        router.refresh()
+        return
+      }
+      // Cliente sem dados fiscais -> carrega o cliente e abre o formulario inline.
+      if (result.error.startsWith('Cliente sem dados de NF')) {
+        setLoadingCustomer(true)
+        const c = (await getCustomerById(customerId)) as CustomerRecord | null
+        setLoadingCustomer(false)
+        setCustomer(c)
+        setNfStep('complementing')
+        return
+      }
+      showToast(`Erro: ${result.error}`, 'error')
+    })
+  }
+
+  // Documento ja pertence a outro cadastro e o usuario uniu os dois: o pedido
+  // passou a apontar para o cliente original. Recarrega os dados dele no formulario
+  // (fonte da verdade — pode ja estar fiscalmente completo) para conferir e aprovar.
+  async function handleMerged(originalId: string, movedOrders: number) {
+    setLoadingCustomer(true)
+    const c = (await getCustomerById(originalId)) as CustomerRecord | null
+    setCustomer(c)
+    setLoadingCustomer(false)
+    // O formulario recarrega visivelmente com os dados do original — o toast so
+    // confirma a uniao (curto, p/ nao estourar a largura do Toast no celular).
+    showToast(mergeSuccessMessage(movedOrders), 'success')
+    router.refresh()
+  }
+
+  // Apos salvar a complementacao: se ficou completo, aprova automaticamente.
+  function handleFiscalSaved({ complete }: { complete: boolean }) {
+    if (!complete) {
+      showToast('Cliente salvo, mas ainda faltam dados para a NF.', 'error')
+      router.refresh()
+      return
+    }
+    startTransition(async () => {
+      const result = await approveOrder(orderId, true)
+      if (result.error) {
+        showToast(`Erro: ${result.error}`, 'error')
+        return
+      }
+      setNfStep('idle')
+      showToast('Dados salvos e pedido aprovado com NF!', 'success')
+      router.refresh()
+    })
   }
 
   function handleApprovePartial() {
@@ -86,6 +155,33 @@ export default function OrderAnalysis({ orderId, items }: Props) {
     run(() => requestChanges(orderId, changeNotes), 'Enviado para alteração.')
     setShowChangeBox(false)
     setChangeNotes('')
+  }
+
+  // ─── Complementação fiscal inline (Sim + cliente incompleto) ───
+  if (nfStep === 'complementing') {
+    return (
+      <div className="bg-white rounded-xl border-2 border-amber-300 p-4 space-y-4">
+        <div>
+          <h3 className="font-bold text-gray-900">Pedido #{orderNumber} — dados de NF do cliente</h3>
+          <p className="text-sm text-amber-700 mt-1">
+            Complete os dados fiscais para emitir a Nota Fiscal. Ao ficar completo, o pedido é aprovado automaticamente.
+          </p>
+        </div>
+        {loadingCustomer ? (
+          <p className="text-gray-400 py-8 text-center">Carregando cliente…</p>
+        ) : (
+          <CustomerFiscalForm
+            key={customer?.id ?? 'novo'}
+            customer={customer}
+            submitLabel="Salvar e aprovar"
+            onCancel={() => setNfStep('idle')}
+            onSaved={handleFiscalSaved}
+            onMerged={handleMerged}
+          />
+        )}
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </div>
+    )
   }
 
   return (
@@ -120,30 +216,62 @@ export default function OrderAnalysis({ orderId, items }: Props) {
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2">
-        {!needsPartialFlow ? (
+      {/* Pergunta de NF (apos clicar Aprovar Pedido no fluxo completo) */}
+      {nfStep === 'asking' ? (
+        <div className="space-y-3 border-2 border-green-200 bg-green-50/50 rounded-xl p-3">
+          <p className="font-semibold text-gray-800">Este pedido precisa de Nota Fiscal?</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={approveWithoutInvoice}
+              disabled={isPending}
+              className="flex-1 bg-white border-2 border-gray-300 text-gray-800 font-bold py-4 rounded-2xl active:scale-95 transition-transform disabled:opacity-50"
+            >
+              Não
+            </button>
+            <button
+              type="button"
+              onClick={approveWithInvoice}
+              disabled={isPending}
+              className="flex-1 bg-green-700 text-white font-bold py-4 rounded-2xl active:scale-95 transition-transform disabled:opacity-50"
+            >
+              {isPending ? 'Processando…' : 'Sim'}
+            </button>
+          </div>
           <button
             type="button"
-            onClick={handleApprove}
-            disabled={isPending}
-            className="btn-primary"
+            onClick={() => setNfStep('idle')}
+            className="text-sm font-semibold text-gray-500"
           >
-            {isPending ? 'Processando…' : 'Aprovar Pedido'}
+            Cancelar
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleApprovePartial}
-            disabled={isPending}
-            className="btn-primary"
-          >
-            {isPending ? 'Processando…' : 'Aprovar o que é possível'}
-          </button>
-        )}
-        <Link href={`/pedidos/${orderId}/editar`} className="btn-secondary text-center">
-          Editar pedido
-        </Link>
-      </div>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row gap-2">
+          {!needsPartialFlow ? (
+            <button
+              type="button"
+              onClick={() => setNfStep('asking')}
+              disabled={isPending}
+              className="btn-primary"
+            >
+              {isPending ? 'Processando…' : 'Aprovar Pedido'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleApprovePartial}
+              disabled={isPending}
+              className="btn-primary"
+            >
+              {isPending ? 'Processando…' : 'Aprovar o que é possível'}
+            </button>
+          )}
+          <Link href={`/pedidos/${orderId}/editar`} className="btn-secondary text-center">
+            Editar pedido
+          </Link>
+        </div>
+      )}
 
       {showChangeBox ? (
         <div className="space-y-2 border-t border-gray-100 pt-3">

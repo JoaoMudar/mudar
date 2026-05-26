@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { getSession } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
+import { getMissingFiscalFields, type FiscalCustomer } from '@/lib/customers'
 import {
   validateOrderItems,
   validateGenericAssignment,
@@ -26,62 +27,11 @@ function fmtDateBR(value: string | Date | null): string {
 const LIST_PATH = '/pedidos'
 
 // ============================================================
-// T3.1 — Clientes
+// Clientes — casa canonica: src/app/clientes/actions.ts
+// (getCustomers / searchCustomers / createCustomer / updateCustomer / etc.)
+// Importe-as de '@/app/clientes/actions'. Nao reexportamos daqui porque um
+// arquivo 'use server' so pode exportar funcoes async (re-export quebra o build).
 // ============================================================
-
-export interface CustomerInput {
-  name: string
-  phone?: string
-  city?: string
-  state?: string
-  notes?: string
-}
-
-export async function getCustomers() {
-  const { rows } = await pool.query(
-    `SELECT id, name, phone, city, state, notes, active
-     FROM customers WHERE active = true ORDER BY name`,
-  )
-  return rows
-}
-
-export async function searchCustomers(query: string) {
-  const q = (query ?? '').trim()
-  if (!q) return []
-  const { rows } = await pool.query(
-    `SELECT id, name, phone, city, state
-     FROM customers
-     WHERE active = true AND name ILIKE $1
-     ORDER BY name LIMIT 10`,
-    [`%${q}%`],
-  )
-  return rows
-}
-
-export async function createCustomer(
-  data: CustomerInput,
-): Promise<{ id?: string; error?: string }> {
-  const name = (data.name ?? '').trim()
-  if (!name) return { error: 'Nome do cliente é obrigatório.' }
-  try {
-    const { rows } = await pool.query(
-      `INSERT INTO customers (name, phone, city, state, notes)
-       VALUES ($1, $2, $3, $4, COALESCE($5, 'SC'))
-       RETURNING id`,
-      [
-        name,
-        data.phone?.trim() || null,
-        data.city?.trim() || null,
-        data.notes?.trim() || null,
-        data.state?.trim() || null,
-      ],
-    )
-    revalidatePath(LIST_PATH)
-    return { id: rows[0].id }
-  } catch (e: unknown) {
-    return { error: (e as Error).message }
-  }
-}
 
 // ============================================================
 // T3.2 — Pedidos
@@ -137,6 +87,7 @@ export async function getOrders(filters: OrderFilters = {}) {
   const { rows } = await pool.query(
     `SELECT
        o.id, o.order_number, o.status, o.sale_channel, o.delivery_date, o.created_at,
+       o.needs_invoice,
        c.name AS customer_name,
        COUNT(oi.id) FILTER (WHERE oi.parent_item_id IS NULL) AS item_count,
        COUNT(oi.id) FILTER (WHERE oi.is_generic = true AND oi.parent_item_id IS NULL) AS generic_count
@@ -149,6 +100,26 @@ export async function getOrders(filters: OrderFilters = {}) {
     params,
   )
   return rows
+}
+
+/**
+ * Sinal leve para a lista detectar pedidos novos sem recarregar tudo: so um
+ * COUNT + MAX(created_at). A lista faz polling deste sinal (aba visivel) e, se
+ * mudar, chama router.refresh(). Sem JOINs nem itens — barato de rodar.
+ */
+export async function getOrdersSignal(): Promise<{ count: number; latest: string | null }> {
+  const user = await getSession()
+  if (!user || (user.role !== 'admin' && user.role !== 'chefia' && user.role !== 'gerencia')) {
+    return { count: 0, latest: null }
+  }
+  const { rows } = await pool.query(
+    `SELECT COUNT(*)::int AS count, MAX(created_at) AS latest FROM orders`,
+  )
+  const r = rows[0] ?? { count: 0, latest: null }
+  return {
+    count: Number(r.count) || 0,
+    latest: r.latest ? new Date(r.latest).toISOString() : null,
+  }
 }
 
 export async function getOrderById(id: string) {
@@ -594,6 +565,7 @@ export async function finishVerification(
 
 export async function approveOrder(
   orderId: string,
+  needsInvoice: boolean,
 ): Promise<{ error?: string }> {
   const user = await getSession()
   if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
@@ -604,7 +576,7 @@ export async function approveOrder(
   try {
     await client.query('BEGIN')
     const { rows } = await client.query(
-      `SELECT status, order_number, delivery_date FROM orders WHERE id = $1 FOR UPDATE`,
+      `SELECT status, order_number, delivery_date, customer_id FROM orders WHERE id = $1 FOR UPDATE`,
       [orderId],
     )
     if (rows.length === 0) {
@@ -615,9 +587,30 @@ export async function approveOrder(
       await client.query('ROLLBACK')
       return { error: 'Só é possível aprovar pedidos verificados.' }
     }
-    await client.query(`UPDATE orders SET status = 'aprovado' WHERE id = $1`, [
-      orderId,
-    ])
+
+    // Gate fiscal (defesa em profundidade): so quando o pedido exige NF.
+    // Pedido sem NF nunca dispara checagem — atrito zero no fluxo comum.
+    if (needsInvoice) {
+      const { rows: custRows } = await client.query(
+        `SELECT name, person_type, document, email, legal_name, trade_name,
+                state_registration, ie_exempt, zip_code, street, address_number,
+                complement, neighborhood, city, state
+         FROM customers WHERE id = $1`,
+        [rows[0].customer_id],
+      )
+      const missing = custRows[0]
+        ? getMissingFiscalFields(custRows[0] as FiscalCustomer)
+        : ['cliente não encontrado']
+      if (missing.length > 0) {
+        await client.query('ROLLBACK')
+        return { error: `Cliente sem dados de NF: ${missing.join(', ')}` }
+      }
+    }
+
+    await client.query(
+      `UPDATE orders SET status = 'aprovado', needs_invoice = $2 WHERE id = $1`,
+      [orderId, needsInvoice],
+    )
     await client.query(
       `INSERT INTO order_status_history (order_id, from_status, to_status, changed_by)
        VALUES ($1, 'verificado', 'aprovado', $2)`,

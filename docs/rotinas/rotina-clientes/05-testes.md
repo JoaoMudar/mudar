@@ -14,11 +14,11 @@ código inclui testes; Server Actions que dependem do banco mockam os imports co
 ## Tarefas
 
 ### T5.1 — Testes da lib pura (`customers.test.ts`)
-- [ ] `src/lib/__tests__/customers.test.ts`
-- [ ] `isValidCPF` / `isValidCNPJ`: válidos conhecidos, inválidos, dígitos repetidos,
+- [x] `src/lib/__tests__/customers.test.ts`
+- [x] `isValidCPF` / `isValidCNPJ`: válidos conhecidos, inválidos, dígitos repetidos,
   tamanho errado, com/sem máscara (via `onlyDigits`).
-- [ ] `isValidEmail`, `isValidCEP`, `isValidUF`: casos felizes e de borda.
-- [ ] `getMissingFiscalFields` / `isFiscallyComplete`:
+- [x] `isValidEmail`, `isValidCEP`, `isValidUF`: casos felizes e de borda.
+- [x] `getMissingFiscalFields` / `isFiscallyComplete`:
   - PF completo → vazio/`true`.
   - PJ completo com IE → `true`; PJ completo com `ie_exempt` → `true`.
   - PJ sem IE e sem isenção → falta IE.
@@ -26,16 +26,16 @@ código inclui testes; Server Actions que dependem do banco mockam os imports co
   - cliente simples (`person_type=NULL`) → incompleto (lista não vazia).
 
 ### T5.2 — Testes das actions de `/clientes`
-- [ ] `src/app/clientes/__tests__/actions.test.ts` (mock `@/lib/db` e `@/lib/auth`).
-- [ ] cria cliente **simples** (só nome) → ok.
-- [ ] cria **PF completo** → ok.
-- [ ] cria **PJ completo** → ok.
-- [ ] `updateCustomer` altera campos → ok.
-- [ ] documento duplicado (violação do índice único) → retorna erro amigável.
-- [ ] `toggleCustomerActive(id,false)` → cliente sai da listagem ativa.
+- [x] `src/app/clientes/__tests__/actions.test.ts` (mock `@/lib/db` e `@/lib/auth`).
+- [x] cria cliente **simples** (só nome) → ok.
+- [x] cria **PF completo** → ok.
+- [x] cria **PJ completo** → ok.
+- [x] `updateCustomer` altera campos → ok.
+- [x] documento duplicado (violação do índice único) → retorna erro amigável.
+- [x] `toggleCustomerActive(id,false)` → cliente sai da listagem ativa.
 
 ### T5.3 — Estender testes de `approveOrder`
-- [ ] Em `src/app/pedidos/__tests__/actions.test.ts`:
+- [x] Em `src/app/pedidos/__tests__/actions.test.ts`:
   - aprovar **sem NF** (`needsInvoice=false`) → aprova, **nenhuma** checagem fiscal.
   - aprovar **com NF** + cliente completo → aprova e grava `needs_invoice=true`.
   - aprovar **com NF** + cliente incompleto → bloqueia e lista campos faltantes; status

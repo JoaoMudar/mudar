@@ -65,16 +65,28 @@ export default async function Home() {
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
               Pedidos
             </h2>
-            <Link
-              href="/pedidos"
-              className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
-            >
-              <span className="text-3xl">🧾</span>
-              <div>
-                <p className="font-semibold text-gray-900 text-base">Pedidos</p>
-                <p className="text-sm text-gray-500">Cadastrar, verificar e separar pedidos</p>
-              </div>
-            </Link>
+            <div className="space-y-3">
+              <Link
+                href="/pedidos"
+                className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+              >
+                <span className="text-3xl">🧾</span>
+                <div>
+                  <p className="font-semibold text-gray-900 text-base">Pedidos</p>
+                  <p className="text-sm text-gray-500">Cadastrar, verificar e separar pedidos</p>
+                </div>
+              </Link>
+              <Link
+                href="/clientes"
+                className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+              >
+                <span className="text-3xl">👥</span>
+                <div>
+                  <p className="font-semibold text-gray-900 text-base">Clientes</p>
+                  <p className="text-sm text-gray-500">Cadastrar e completar dados fiscais de clientes</p>
+                </div>
+              </Link>
+            </div>
           </section>
         )}
 

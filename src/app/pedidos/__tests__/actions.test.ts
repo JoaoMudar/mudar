@@ -10,7 +10,7 @@ import { getSession } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
 import {
   createOrder,
-  createCustomer,
+  getOrdersSignal,
   toggleItemAvailability,
   assignSpeciesToGenericItem,
   finishVerification,
@@ -47,17 +47,29 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe('createCustomer', () => {
-  it('rejeita nome vazio', async () => {
-    const result = await createCustomer({ name: '   ' })
-    expect(result.error).toMatch(/obrigatório/i)
+describe('getOrdersSignal', () => {
+  it('nega acesso sem permissao (sem tocar o banco)', async () => {
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    const sig = await getOrdersSignal()
+    expect(sig).toEqual({ count: 0, latest: null })
+    expect(mockedQuery).not.toHaveBeenCalled()
   })
 
-  it('cria cliente e retorna id', async () => {
-    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'new-id' }] })
-    const result = await createCustomer({ name: 'João' })
-    expect(result.id).toBe('new-id')
-    expect(result.error).toBeUndefined()
+  it('retorna contagem e o created_at mais recente em ISO', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const latest = new Date('2026-05-26T12:00:00Z')
+    mockedQuery.mockResolvedValueOnce({ rows: [{ count: 7, latest }] })
+    const sig = await getOrdersSignal()
+    expect(sig.count).toBe(7)
+    expect(sig.latest).toBe('2026-05-26T12:00:00.000Z')
+    expect(mockedQuery.mock.calls[0][0]).toContain('FROM orders')
+  })
+
+  it('sem pedidos retorna count 0 e latest null', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery.mockResolvedValueOnce({ rows: [{ count: 0, latest: null }] })
+    const sig = await getOrdersSignal()
+    expect(sig).toEqual({ count: 0, latest: null })
   })
 })
 
@@ -258,28 +270,46 @@ describe('finishVerification', () => {
 })
 
 describe('approveOrder', () => {
+  // Cliente fiscalmente completo (PF) para o gate de NF.
+  const completeCustomer = {
+    name: 'João', person_type: 'pf', document: '11144477735', email: 'j@x.com',
+    legal_name: null, trade_name: null, state_registration: null, ie_exempt: false,
+    zip_code: '89160000', street: 'Rua A', address_number: '1', complement: null,
+    neighborhood: 'Centro', city: 'Rio do Sul', state: 'SC',
+  }
+
   it('rejeita pedido que nao esta verificado', async () => {
     mockedGetSession.mockResolvedValueOnce(chefia)
     const clientQuery = vi
       .fn()
       .mockResolvedValueOnce({}) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado', order_number: 47, delivery_date: null }] })
+      .mockResolvedValueOnce({ rows: [{ status: 'cadastrado', order_number: 47, delivery_date: null, customer_id: 'c1' }] })
       .mockResolvedValue({})
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
-    const result = await approveOrder('o1')
+    const result = await approveOrder('o1', false)
     expect(result.error).toMatch(/verificados/i)
   })
 
-  it('aprova e notifica gerencia', async () => {
+  it('aprova SEM NF sem nenhuma checagem fiscal e grava needs_invoice=false', async () => {
     mockedGetSession.mockResolvedValueOnce(chefia)
     const clientQuery = vi
       .fn()
       .mockResolvedValueOnce({}) // BEGIN
-      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47, delivery_date: '2026-06-15' }] })
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47, delivery_date: '2026-06-15', customer_id: 'c1' }] })
       .mockResolvedValue({})
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
-    const result = await approveOrder('o1')
+    const result = await approveOrder('o1', false)
     expect(result.error).toBeUndefined()
+    // Nenhuma query de cliente (gate fiscal nao roda sem NF)
+    const customerSelect = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('FROM customers'),
+    )
+    expect(customerSelect).toBeUndefined()
+    // UPDATE grava needs_invoice = false
+    const update = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('UPDATE orders SET status'),
+    )
+    expect(update?.[1]).toEqual(['o1', false])
     expect(mockedNotify).toHaveBeenCalledWith(
       'gerencia',
       'pedido_aprovado',
@@ -287,6 +317,43 @@ describe('approveOrder', () => {
       expect.any(String),
       '/pedidos/o1',
     )
+  })
+
+  it('aprova COM NF quando o cliente esta completo e grava needs_invoice=true', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47, delivery_date: '2026-06-15', customer_id: 'c1' }] })
+      .mockResolvedValueOnce({ rows: [completeCustomer] }) // SELECT customer
+      .mockResolvedValue({}) // UPDATE, INSERT, COMMIT
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approveOrder('o1', true)
+    expect(result.error).toBeUndefined()
+    const update = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('UPDATE orders SET status'),
+    )
+    expect(update?.[1]).toEqual(['o1', true])
+  })
+
+  it('bloqueia NF quando o cliente esta incompleto e lista campos faltantes', async () => {
+    mockedGetSession.mockResolvedValueOnce(chefia)
+    const incomplete = { ...completeCustomer, person_type: null, document: null, email: null }
+    const clientQuery = vi
+      .fn()
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ status: 'verificado', order_number: 47, delivery_date: null, customer_id: 'c1' }] })
+      .mockResolvedValueOnce({ rows: [incomplete] }) // SELECT customer
+      .mockResolvedValue({}) // ROLLBACK
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release: vi.fn() })
+    const result = await approveOrder('o1', true)
+    expect(result.error).toMatch(/Cliente sem dados de NF/i)
+    // Nao deve aprovar — rollback, sem UPDATE de status
+    expect(clientQuery).toHaveBeenCalledWith('ROLLBACK')
+    const update = clientQuery.mock.calls.find(
+      (c) => typeof c[0] === 'string' && c[0].includes('UPDATE orders SET status'),
+    )
+    expect(update).toBeUndefined()
   })
 })
 
