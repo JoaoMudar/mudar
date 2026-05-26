@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
-import { onlyDigits, validateSimpleCustomer, type PersonType } from '@/lib/customers'
+import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
+import { mapOpenCnpj, type CnpjData, type OpenCnpjResponse } from '@/lib/cnpj'
 
 const PATH = '/clientes'
 
@@ -86,6 +87,25 @@ function isDuplicateDocument(e: unknown): boolean {
   )
 }
 
+/** Cliente que ja possui o documento — alimenta a mensagem de conflito e a uniao. */
+async function findCustomerByDocument(
+  document: string | null,
+  excludeId?: string,
+): Promise<{ id: string; name: string } | null> {
+  if (!document) return null
+  const params: unknown[] = [document]
+  let exclude = ''
+  if (excludeId) {
+    params.push(excludeId)
+    exclude = ` AND id <> $2`
+  }
+  const { rows } = await pool.query(
+    `SELECT id, name FROM customers WHERE document = $1${exclude} LIMIT 1`,
+    params,
+  )
+  return rows[0] ?? null
+}
+
 /**
  * Lista clientes ativos. `search` (opcional) casa nome, telefone, documento,
  * razao social e nome fantasia (ILIKE). A pagina /clientes carrega tudo e filtra
@@ -141,12 +161,38 @@ export async function getCustomerById(id: string) {
 }
 
 /**
+ * Consulta um CNPJ na base publica (OpenCNPJ) para autopreencher o cadastro.
+ * Roda no servidor (evita CORS e centraliza a escolha da API; se um dia virar
+ * provedor com chave, muda so aqui). Nao persiste nada — devolve os campos
+ * mapeados para o formulario preencher.
+ */
+export async function lookupCnpj(
+  cnpj: string,
+): Promise<{ data?: CnpjData; error?: string }> {
+  await requireRole('admin', 'chefia', 'gerencia')
+  const digits = onlyDigits(cnpj)
+  if (!isValidCNPJ(digits)) return { error: 'CNPJ inválido.' }
+  try {
+    const res = await fetch(`https://api.opencnpj.org/${digits}`, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    })
+    if (res.status === 404) return { error: 'CNPJ não encontrado na base da Receita.' }
+    if (!res.ok) return { error: `Não foi possível consultar o CNPJ (erro ${res.status}).` }
+    const json = (await res.json()) as OpenCnpjResponse
+    return { data: mapOpenCnpj(json) }
+  } catch {
+    return { error: 'Falha ao consultar o CNPJ. Verifique a conexão e tente de novo.' }
+  }
+}
+
+/**
  * Cria cliente. Aceita o cadastro simples (so `name`, como o inline do pedido) e
  * o completo (com campos fiscais). Campos fiscais nullable => o simples segue valido.
  */
 export async function createCustomer(
   data: CustomerInput,
-): Promise<{ id?: string; error?: string }> {
+): Promise<{ id?: string; error?: string; conflict?: { id: string; name: string } }> {
   await requireRole('admin', 'chefia', 'gerencia')
 
   const personType = normPersonType(data.person_type)
@@ -190,7 +236,15 @@ export async function createCustomer(
     revalidatePath(PATH)
     return { id: rows[0].id }
   } catch (e: unknown) {
-    if (isDuplicateDocument(e)) return { error: 'Documento já cadastrado para outro cliente.' }
+    if (isDuplicateDocument(e)) {
+      const conflict = await findCustomerByDocument(f.document)
+      return {
+        error: conflict
+          ? `Este documento já está cadastrado para "${conflict.name}".`
+          : 'Documento já cadastrado para outro cliente.',
+        conflict: conflict ?? undefined,
+      }
+    }
     return { error: (e as Error).message }
   }
 }
@@ -199,7 +253,7 @@ export async function createCustomer(
 export async function updateCustomer(
   id: string,
   data: CustomerInput,
-): Promise<{ error?: string }> {
+): Promise<{ error?: string; conflict?: { id: string; name: string } }> {
   await requireRole('admin', 'chefia', 'gerencia')
 
   const personType = normPersonType(data.person_type)
@@ -240,7 +294,15 @@ export async function updateCustomer(
     revalidatePath(PATH)
     return {}
   } catch (e: unknown) {
-    if (isDuplicateDocument(e)) return { error: 'Documento já cadastrado para outro cliente.' }
+    if (isDuplicateDocument(e)) {
+      const conflict = await findCustomerByDocument(f.document, id)
+      return {
+        error: conflict
+          ? `Este documento já está cadastrado para "${conflict.name}".`
+          : 'Documento já cadastrado para outro cliente.',
+        conflict: conflict ?? undefined,
+      }
+    }
     return { error: (e as Error).message }
   }
 }
@@ -257,5 +319,47 @@ export async function toggleCustomerActive(
     return {}
   } catch (e: unknown) {
     return { error: (e as Error).message }
+  }
+}
+
+/**
+ * Une dois clientes: reaponta todos os pedidos do `duplicateId` para o
+ * `originalId` e inativa o duplicado (soft-delete — padrao do sistema). Usado
+ * quando o documento digitado ja pertence a outro cadastro: o original e mantido
+ * como a verdade e o cadastro repetido sai da listagem ativa.
+ */
+export async function mergeCustomers(
+  duplicateId: string,
+  originalId: string,
+): Promise<{ movedOrders?: number; error?: string }> {
+  await requireRole('admin', 'chefia', 'gerencia')
+  if (!duplicateId || !originalId) return { error: 'Clientes inválidos para unir.' }
+  if (duplicateId === originalId) return { error: 'Não é possível unir um cliente a ele mesmo.' }
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows: found } = await client.query(
+      `SELECT id FROM customers WHERE id = ANY($1::uuid[])`,
+      [[duplicateId, originalId]],
+    )
+    if (found.length < 2) {
+      await client.query('ROLLBACK')
+      return { error: 'Cliente não encontrado.' }
+    }
+    const moved = await client.query(
+      `UPDATE orders SET customer_id = $1 WHERE customer_id = $2`,
+      [originalId, duplicateId],
+    )
+    await client.query(`UPDATE customers SET active = false WHERE id = $1`, [duplicateId])
+    await client.query('COMMIT')
+    revalidatePath(PATH)
+    revalidatePath('/pedidos')
+    return { movedOrders: moved.rowCount ?? 0 }
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
   }
 }

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
-vi.mock('@/lib/db', () => ({ default: { query: vi.fn() } }))
+vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
 vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))
 
 import pool from '@/lib/db'
@@ -10,9 +10,12 @@ import {
   createCustomer,
   updateCustomer,
   toggleCustomerActive,
+  mergeCustomers,
+  lookupCnpj,
 } from '../actions'
 
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
+const mockedConnect = pool.connect as unknown as ReturnType<typeof vi.fn>
 
 // Indices dos binds do INSERT/UPDATE (mesma ordem nas duas queries).
 const I = {
@@ -103,17 +106,21 @@ describe('createCustomer — PJ completo', () => {
 })
 
 describe('createCustomer — duplicidade de documento', () => {
-  it('retorna erro amigavel na violacao do indice unico', async () => {
+  it('retorna o cliente em conflito (nome) na violacao do indice unico', async () => {
     mockedQuery.mockRejectedValueOnce({
       code: '23505',
       message: 'duplicate key value violates unique constraint "idx_customers_document"',
     })
+    // findCustomerByDocument: SELECT do cliente que ja tem o documento
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'orig1', name: 'Cliente Original' }] })
     const result = await createCustomer({
       name: 'João',
       person_type: 'pf',
       document: '11144477735',
     })
-    expect(result.error).toMatch(/já cadastrado/i)
+    expect(result.error).toMatch(/cadastrado/i)
+    expect(result.error).toContain('Cliente Original')
+    expect(result.conflict).toEqual({ id: 'orig1', name: 'Cliente Original' })
   })
 })
 
@@ -134,10 +141,16 @@ describe('updateCustomer', () => {
     expect(upd[1][upd[1].length - 1]).toBe('c1') // id no fim
   })
 
-  it('propaga duplicidade de documento como erro amigavel', async () => {
+  it('propaga duplicidade com o cliente em conflito (exclui o proprio id)', async () => {
     mockedQuery.mockRejectedValueOnce({ code: '23505', message: 'duplicate' })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'orig1', name: 'Outro Cliente' }] })
     const result = await updateCustomer('c1', { name: 'X', person_type: 'pf', document: '11144477735' })
-    expect(result.error).toMatch(/já cadastrado/i)
+    expect(result.error).toMatch(/cadastrado/i)
+    expect(result.conflict).toEqual({ id: 'orig1', name: 'Outro Cliente' })
+    // o SELECT de conflito exclui o proprio id (c1)
+    const select = mockedQuery.mock.calls[1]
+    expect(select[0]).toContain('id <> $2')
+    expect(select[1]).toEqual(['11144477735', 'c1'])
   })
 })
 
@@ -168,5 +181,100 @@ describe('getCustomers', () => {
     const q = mockedQuery.mock.calls[0]
     expect(q[0]).toContain('ILIKE')
     expect(q[1][0]).toBe('%Verde%')
+  })
+})
+
+describe('lookupCnpj', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('rejeita CNPJ invalido sem chamar a API', async () => {
+    const fetchSpy = vi.fn()
+    vi.stubGlobal('fetch', fetchSpy)
+    const res = await lookupCnpj('123')
+    expect(res.error).toMatch(/inválido/i)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('404 retorna "nao encontrado"', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
+    const res = await lookupCnpj('11.222.333/0001-81')
+    expect(res.error).toMatch(/não encontrado/i)
+  })
+
+  it('sucesso mapeia os dados da Receita', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ razao_social: 'Verde Ltda', uf: 'sc', cep: '89010-000' }),
+      }),
+    )
+    const res = await lookupCnpj('11222333000181')
+    expect(res.error).toBeUndefined()
+    expect(res.data?.legal_name).toBe('Verde Ltda')
+    expect(res.data?.state).toBe('SC')
+    expect(res.data?.zip_code).toBe('89010000')
+  })
+
+  it('falha de rede retorna erro amigavel', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')))
+    const res = await lookupCnpj('11222333000181')
+    expect(res.error).toMatch(/falha/i)
+  })
+})
+
+describe('mergeCustomers', () => {
+  function fakeClient(query: ReturnType<typeof vi.fn>) {
+    return { query, release: vi.fn() }
+  }
+
+  it('reaponta os pedidos para o original e inativa o duplicado', async () => {
+    const q = vi
+      .fn()
+      .mockResolvedValueOnce(undefined) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ id: 'dup' }, { id: 'orig' }] }) // existem os dois
+      .mockResolvedValueOnce({ rowCount: 3 }) // UPDATE orders
+      .mockResolvedValueOnce({ rowCount: 1 }) // UPDATE customers active=false
+      .mockResolvedValueOnce(undefined) // COMMIT
+    const client = fakeClient(q)
+    mockedConnect.mockResolvedValueOnce(client)
+
+    const res = await mergeCustomers('dup', 'orig')
+    expect(res.error).toBeUndefined()
+    expect(res.movedOrders).toBe(3)
+
+    const updOrders = q.mock.calls.find((c) => String(c[0]).includes('UPDATE orders'))
+    expect(updOrders?.[1]).toEqual(['orig', 'dup'])
+    const inactivate = q.mock.calls.find((c) => String(c[0]).includes('SET active = false'))
+    expect(inactivate?.[1]).toEqual(['dup'])
+    expect(client.release).toHaveBeenCalled()
+  })
+
+  it('rejeita unir um cliente a ele mesmo (sem tocar o banco)', async () => {
+    const res = await mergeCustomers('x', 'x')
+    expect(res.error).toMatch(/ele mesmo/i)
+    expect(mockedConnect).not.toHaveBeenCalled()
+  })
+
+  it('rejeita ids vazios', async () => {
+    const res = await mergeCustomers('', 'orig')
+    expect(res.error).toMatch(/inválidos/i)
+    expect(mockedConnect).not.toHaveBeenCalled()
+  })
+
+  it('faz rollback quando um dos clientes nao existe', async () => {
+    const q = vi
+      .fn()
+      .mockResolvedValueOnce(undefined) // BEGIN
+      .mockResolvedValueOnce({ rows: [{ id: 'dup' }] }) // so um existe
+      .mockResolvedValueOnce(undefined) // ROLLBACK
+    const client = fakeClient(q)
+    mockedConnect.mockResolvedValueOnce(client)
+
+    const res = await mergeCustomers('dup', 'orig')
+    expect(res.error).toMatch(/não encontrado/i)
+    expect(q.mock.calls.some((c) => c[0] === 'ROLLBACK')).toBe(true)
+    expect(client.release).toHaveBeenCalled()
   })
 })

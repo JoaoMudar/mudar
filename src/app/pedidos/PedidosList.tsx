@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import DeliveryCalendar from './DeliveryCalendar'
+import { getOrdersSignal } from './actions'
 import {
   ORDER_STATUS_META,
   SALE_CHANNEL_LABEL,
@@ -90,8 +91,56 @@ export default function PedidosList({ orders, role }: Props) {
   const router = useRouter()
   // Padrao: so pedidos em tramitacao; cancelados/prontos exigem filtro ativo.
   const [statusFilter, setStatusFilter] = useState('ativos')
+  const [newOrdersFlash, setNewOrdersFlash] = useState(false)
   const isChefia = role === 'admin' || role === 'chefia'
   const isGerencia = role === 'admin' || role === 'gerencia'
+
+  // Baseline do que esta renderizado; o polling compara o sinal contra isto.
+  const seenRef = useRef<{ count: number; latestMs: number }>({ count: 0, latestMs: 0 })
+  useEffect(() => {
+    let latestMs = 0
+    for (const o of orders) {
+      const ms = o.created_at ? new Date(o.created_at).getTime() : 0
+      if (ms > latestMs) latestMs = ms
+    }
+    seenRef.current = { count: orders.length, latestMs }
+  }, [orders])
+
+  // Polling leve: a cada 30s (so com a aba visivel) confere o sinal; se chegou
+  // pedido novo, atualiza a lista sozinha e mostra um aviso rapido. Pausa fora de foco.
+  useEffect(() => {
+    let alive = true
+    async function check() {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+      try {
+        const sig = await getOrdersSignal()
+        if (!alive) return
+        const latestMs = sig.latest ? new Date(sig.latest).getTime() : 0
+        const seen = seenRef.current
+        if (sig.count !== seen.count || latestMs > seen.latestMs) {
+          const isNewOrder = sig.count > seen.count || latestMs > seen.latestMs
+          seenRef.current = { count: sig.count, latestMs }
+          if (isNewOrder) {
+            setNewOrdersFlash(true)
+            setTimeout(() => setNewOrdersFlash(false), 4000)
+          }
+          router.refresh()
+        }
+      } catch {
+        // silencioso: a proxima checagem tenta de novo
+      }
+    }
+    const timer = setInterval(check, 30_000)
+    const onVis = () => {
+      if (document.visibilityState === 'visible') check()
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      alive = false
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [router])
 
   const filtered =
     statusFilter === 'ativos'
@@ -116,6 +165,11 @@ export default function PedidosList({ orders, role }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {newOrdersFlash && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
+          🌱 Novos pedidos recebidos
+        </div>
+      )}
       <header className="bg-green-800 text-white px-4 py-4">
         <Link href="/" className="text-sm text-green-300 hover:text-white mb-1 inline-block">
           ← Início

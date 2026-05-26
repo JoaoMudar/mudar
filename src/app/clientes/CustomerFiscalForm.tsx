@@ -1,15 +1,22 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   UFS,
   onlyDigits,
+  isValidCNPJ,
   getMissingFiscalFields,
   isFiscallyComplete,
   type PersonType,
   type FiscalCustomer,
 } from '@/lib/customers'
-import { createCustomer, updateCustomer, type CustomerInput } from './actions'
+import {
+  createCustomer,
+  updateCustomer,
+  lookupCnpj,
+  mergeCustomers,
+  type CustomerInput,
+} from './actions'
 
 // Registro vindo do banco (getCustomerById). Todos os campos fiscais sao nullable.
 export interface CustomerRecord {
@@ -38,6 +45,10 @@ interface Props {
   onSaved: (result: { id?: string; complete: boolean }) => void
   onCancel?: () => void
   submitLabel?: string
+  // Conflito de documento: abrir o cliente que ja existe (cadastro novo) ou
+  // confirmar a uniao dos cadastros (edicao de um duplicado).
+  onUseExisting?: (customerId: string) => void
+  onMerged?: (originalId: string, movedOrders: number) => void
 }
 
 interface FormState {
@@ -110,15 +121,67 @@ export default function CustomerFiscalForm({
   onSaved,
   onCancel,
   submitLabel = 'Salvar cliente',
+  onUseExisting,
+  onMerged,
 }: Props) {
   const [form, setForm] = useState<FormState>(() => initState(customer))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Busca de CNPJ (autopreenchimento)
+  const [looking, setLooking] = useState(false)
+  const [lookupMsg, setLookupMsg] = useState<{ text: string; ok: boolean } | null>(null)
+  const lastLookupRef = useRef('')
+  // Conflito de documento (cliente ja cadastrado) — habilita unir/abrir o original
+  const [conflict, setConflict] = useState<{ id: string; name: string } | null>(null)
+  const [merging, setMerging] = useState(false)
   const isPF = form.person_type === 'pf'
   const isPJ = form.person_type === 'pj'
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  // Busca dados do CNPJ na base publica e preenche os campos. Endereco/razao
+  // sao sobrescritos pelo dado oficial; e-mail/telefone so preenchem se vazios.
+  // Dispara no blur do campo e no botao; o ref evita repetir a mesma consulta.
+  async function runCnpjLookup() {
+    const digits = onlyDigits(form.document)
+    if (looking || !isValidCNPJ(digits) || lastLookupRef.current === digits) return
+    lastLookupRef.current = digits
+    setLooking(true)
+    setLookupMsg(null)
+    try {
+      const res = await lookupCnpj(digits)
+      if (res.error || !res.data) {
+        lastLookupRef.current = '' // permite nova tentativa
+        setLookupMsg({ text: res.error ?? 'Não foi possível buscar o CNPJ.', ok: false })
+        return
+      }
+      const d = res.data
+      setForm((f) => ({
+        ...f,
+        legal_name: d.legal_name || f.legal_name,
+        trade_name: d.trade_name || f.trade_name,
+        zip_code: d.zip_code || f.zip_code,
+        street: d.street || f.street,
+        address_number: d.address_number || f.address_number,
+        complement: d.complement || f.complement,
+        neighborhood: d.neighborhood || f.neighborhood,
+        city: d.city || f.city,
+        state: d.state || f.state,
+        email: f.email || d.email,
+        phone: f.phone || d.phone,
+      }))
+      const inactive = d.status && d.status.toLowerCase() !== 'ativa'
+      setLookupMsg({
+        text: inactive
+          ? `Dados preenchidos. Atenção: situação cadastral "${d.status}".`
+          : 'Dados preenchidos pela Receita. Confira e ajuste se precisar.',
+        ok: !inactive,
+      })
+    } finally {
+      setLooking(false)
+    }
   }
 
   // Nome de exibicao: PJ usa nome fantasia (ou razao social); PF usa o nome.
@@ -153,6 +216,7 @@ export default function CustomerFiscalForm({
     e.preventDefault()
     if (submitting) return
     setError(null)
+    setConflict(null)
 
     const payload: CustomerInput = {
       name: computedName,
@@ -181,6 +245,7 @@ export default function CustomerFiscalForm({
         : await createCustomer(payload)
       if (result.error) {
         setError(result.error)
+        setConflict(result.conflict ?? null)
         return
       }
       onSaved({
@@ -189,6 +254,23 @@ export default function CustomerFiscalForm({
       })
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  // Une o cadastro atual (duplicado) ao cliente que ja possui o documento.
+  async function handleMerge() {
+    if (!conflict || !customer?.id || customer.id === conflict.id || merging) return
+    setMerging(true)
+    setError(null)
+    try {
+      const res = await mergeCustomers(customer.id, conflict.id)
+      if (res.error) {
+        setError(res.error)
+        return
+      }
+      onMerged?.(conflict.id, res.movedOrders ?? 0)
+    } finally {
+      setMerging(false)
     }
   }
 
@@ -241,15 +323,34 @@ export default function CustomerFiscalForm({
               className="input"
             />
           </Field>
-          <Field label="CNPJ">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={maskCNPJ(form.document)}
-              onChange={(e) => set('document', onlyDigits(e.target.value).slice(0, 14))}
-              placeholder="00.000.000/0000-00"
-              className="input"
-            />
+          <Field label="CNPJ" hint="busca os dados na Receita">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={maskCNPJ(form.document)}
+                onChange={(e) => {
+                  set('document', onlyDigits(e.target.value).slice(0, 14))
+                  setLookupMsg(null)
+                }}
+                onBlur={runCnpjLookup}
+                placeholder="00.000.000/0000-00"
+                className="input flex-1"
+              />
+              <button
+                type="button"
+                onClick={runCnpjLookup}
+                disabled={looking || !isValidCNPJ(form.document)}
+                className="px-4 rounded-xl text-sm font-semibold bg-green-100 text-green-800 disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {looking ? 'Buscando…' : 'Buscar'}
+              </button>
+            </div>
+            {lookupMsg && (
+              <p className={`text-xs mt-1 ${lookupMsg.ok ? 'text-green-700' : 'text-amber-700'}`}>
+                {lookupMsg.text}
+              </p>
+            )}
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Inscrição Estadual">
@@ -425,6 +526,40 @@ export default function CustomerFiscalForm({
         <p className="text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
           {error}
         </p>
+      )}
+
+      {conflict && (
+        <div className="text-sm bg-amber-50 border border-amber-200 rounded-xl px-3 py-3 space-y-2">
+          <p className="font-semibold text-amber-800">
+            Este documento já pertence a “{conflict.name}”.
+          </p>
+          {customer?.id && customer.id !== conflict.id ? (
+            <>
+              <p className="text-xs text-amber-700">
+                Unir move os pedidos deste cadastro para “{conflict.name}” e inativa este
+                cadastro duplicado.
+              </p>
+              <button
+                type="button"
+                onClick={handleMerge}
+                disabled={merging}
+                className="btn-primary py-2 text-sm"
+              >
+                {merging ? 'Unindo…' : `Unir a “${conflict.name}”`}
+              </button>
+            </>
+          ) : (
+            onUseExisting && (
+              <button
+                type="button"
+                onClick={() => onUseExisting(conflict.id)}
+                className="btn-primary py-2 text-sm"
+              >
+                Abrir “{conflict.name}”
+              </button>
+            )
+          )}
+        </div>
       )}
 
       <div className="flex gap-2">

@@ -102,6 +102,26 @@ export async function getOrders(filters: OrderFilters = {}) {
   return rows
 }
 
+/**
+ * Sinal leve para a lista detectar pedidos novos sem recarregar tudo: so um
+ * COUNT + MAX(created_at). A lista faz polling deste sinal (aba visivel) e, se
+ * mudar, chama router.refresh(). Sem JOINs nem itens — barato de rodar.
+ */
+export async function getOrdersSignal(): Promise<{ count: number; latest: string | null }> {
+  const user = await getSession()
+  if (!user || (user.role !== 'admin' && user.role !== 'chefia' && user.role !== 'gerencia')) {
+    return { count: 0, latest: null }
+  }
+  const { rows } = await pool.query(
+    `SELECT COUNT(*)::int AS count, MAX(created_at) AS latest FROM orders`,
+  )
+  const r = rows[0] ?? { count: 0, latest: null }
+  return {
+    count: Number(r.count) || 0,
+    latest: r.latest ? new Date(r.latest).toISOString() : null,
+  }
+}
+
 export async function getOrderById(id: string) {
   const { rows: orderRows } = await pool.query(
     `SELECT o.*, c.name AS customer_name, c.phone AS customer_phone,

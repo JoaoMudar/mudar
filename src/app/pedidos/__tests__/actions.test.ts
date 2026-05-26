@@ -10,6 +10,7 @@ import { getSession } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
 import {
   createOrder,
+  getOrdersSignal,
   toggleItemAvailability,
   assignSpeciesToGenericItem,
   finishVerification,
@@ -44,6 +45,32 @@ function validOrder(): CreateOrderInput {
 
 beforeEach(() => {
   vi.clearAllMocks()
+})
+
+describe('getOrdersSignal', () => {
+  it('nega acesso sem permissao (sem tocar o banco)', async () => {
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    const sig = await getOrdersSignal()
+    expect(sig).toEqual({ count: 0, latest: null })
+    expect(mockedQuery).not.toHaveBeenCalled()
+  })
+
+  it('retorna contagem e o created_at mais recente em ISO', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const latest = new Date('2026-05-26T12:00:00Z')
+    mockedQuery.mockResolvedValueOnce({ rows: [{ count: 7, latest }] })
+    const sig = await getOrdersSignal()
+    expect(sig.count).toBe(7)
+    expect(sig.latest).toBe('2026-05-26T12:00:00.000Z')
+    expect(mockedQuery.mock.calls[0][0]).toContain('FROM orders')
+  })
+
+  it('sem pedidos retorna count 0 e latest null', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery.mockResolvedValueOnce({ rows: [{ count: 0, latest: null }] })
+    const sig = await getOrdersSignal()
+    expect(sig).toEqual({ count: 0, latest: null })
+  })
 })
 
 describe('createOrder — guards', () => {

@@ -12,7 +12,7 @@ import {
   type FiscalCustomer,
 } from '@/lib/customers'
 import CustomerFiscalForm, { type CustomerRecord } from './CustomerFiscalForm'
-import { toggleCustomerActive } from './actions'
+import { toggleCustomerActive, getCustomerById } from './actions'
 
 interface CustomerRow extends CustomerRecord {
   active: boolean
@@ -123,12 +123,38 @@ export default function ClientesManager({
         </header>
         <div className="max-w-2xl mx-auto p-4 sm:p-6">
           <CustomerFiscalForm
+            key={editing?.id ?? 'novo'}
             customer={editing}
             onCancel={() => setMode('list')}
             onSaved={() => {
               showToast(editing ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success')
               setMode('list')
               router.refresh()
+            }}
+            onMerged={(_originalId, movedOrders) => {
+              showToast(
+                movedOrders > 0
+                  ? `Cadastros unidos — ${movedOrders} pedido(s) movido(s).`
+                  : 'Cadastros unidos.',
+                'success',
+              )
+              setMode('list')
+              router.refresh()
+            }}
+            onUseExisting={async (id) => {
+              // Cliente que ja tem o documento: abre o cadastro existente para edicao.
+              const existing = initialCustomers.find((c) => c.id === id)
+              if (existing) {
+                setEditing(existing)
+                return
+              }
+              // Pode estar inativo (fora da lista ativa) — busca direto no banco.
+              const fetched = (await getCustomerById(id)) as CustomerRow | null
+              if (fetched) {
+                setEditing(fetched)
+              } else {
+                showToast('Não foi possível abrir o cliente existente.', 'error')
+              }
             }}
           />
         </div>
