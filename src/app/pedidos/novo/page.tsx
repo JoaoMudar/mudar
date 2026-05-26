@@ -1,5 +1,6 @@
 import { requireRole } from '@/lib/auth'
-import { getCustomers, getSpeciesForSelect, getContainersForSelect } from '../actions'
+import { getSpeciesForSelect, getContainersForSelect } from '../actions'
+import { getCustomers } from '@/app/clientes/actions'
 import OrderForm from './OrderForm'
 
 export const dynamic = 'force-dynamic'

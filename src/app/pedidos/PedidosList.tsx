@@ -21,6 +21,7 @@ export interface OrderRow {
   customer_name: string
   item_count: number | string
   generic_count: number | string
+  needs_invoice: boolean
 }
 
 interface Props {
@@ -176,6 +177,11 @@ export default function PedidosList({ orders, role }: Props) {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-gray-900">#{o.order_number}</span>
                         <span className="text-gray-700 truncate">{o.customer_name}</span>
+                        {o.needs_invoice && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                            NF
+                          </span>
+                        )}
                         {tag && (
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tag.cls}`}>
                             {tag.text}

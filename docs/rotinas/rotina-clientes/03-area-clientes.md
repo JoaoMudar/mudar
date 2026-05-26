@@ -17,48 +17,48 @@ aqui a "casa canônica" das server actions de cliente.
 ## Tarefas
 
 ### T3.1 — Server actions (casa canônica)
-- [ ] Criar `src/app/clientes/actions.ts` com `'use server'`, importando `pool` de `@/lib/db`.
-- [ ] **Mover** de `src/app/pedidos/actions.ts` para cá: `getCustomers`, `searchCustomers`,
+- [x] Criar `src/app/clientes/actions.ts` com `'use server'`, importando `pool` de `@/lib/db`.
+- [x] **Mover** de `src/app/pedidos/actions.ts` para cá: `getCustomers`, `searchCustomers`,
   `createCustomer`. Em `pedidos/actions.ts`, passar a **importar** essas funções daqui
   (re-export ou import direto) — sem duplicar lógica.
-- [ ] `getCustomers(search?)` — lista ativos; `search` casa nome/telefone/documento/razão
+- [x] `getCustomers(search?)` — lista ativos; `search` casa nome/telefone/documento/razão
   social (ILIKE). Incluir campos fiscais para a lista calcular o selo de completude.
-- [ ] `getCustomerById(id)` — cliente completo (todos os campos fiscais).
-- [ ] `createCustomer(data)` — aceita o cadastro **simples** (só `name`, como hoje) e o
+- [x] `getCustomerById(id)` — cliente completo (todos os campos fiscais).
+- [x] `createCustomer(data)` — aceita o cadastro **simples** (só `name`, como hoje) e o
   **completo** (com campos fiscais). Campos fiscais nullable ⇒ o simples continua válido.
   Tratar violação do índice único de `document` → erro "Documento já cadastrado".
-- [ ] `updateCustomer(id, data)` — atualiza contato + fiscais; mesmo tratamento de duplicidade.
-- [ ] `toggleCustomerActive(id, active)` — soft-delete via `active`, espelhando `toggleUsuarioAtivo`.
-- [ ] Todas com `requireRole('admin','chefia','gerencia')` + `revalidatePath('/clientes')`.
+- [x] `updateCustomer(id, data)` — atualiza contato + fiscais; mesmo tratamento de duplicidade.
+- [x] `toggleCustomerActive(id, active)` — soft-delete via `active`, espelhando `toggleUsuarioAtivo`.
+- [x] Todas com `requireRole('admin','chefia','gerencia')` + `revalidatePath('/clientes')`.
 
 ### T3.2 — Página e listagem
-- [ ] Criar `src/app/clientes/page.tsx` (server component) com `requireRole('admin','chefia','gerencia')`.
-- [ ] Carregar `getCustomers(search)` e renderizar `ClientesManager`.
-- [ ] Lista com: nome, telefone, cidade/UF, **badge PF/PJ** e **selo fiscal**
+- [x] Criar `src/app/clientes/page.tsx` (server component) com `requireRole('admin','chefia','gerencia')`.
+- [x] Carregar `getCustomers(search)` e renderizar `ClientesManager`.
+- [x] Lista com: nome, telefone, cidade/UF, **badge PF/PJ** e **selo fiscal**
   (cinza "simples" se `person_type IS NULL`; vermelho "incompleto"; verde "completo"
   via `isFiscallyComplete`).
-- [ ] Busca no topo (debounce), reaproveitando o padrão de `Autocomplete`/filtro client-side.
+- [x] Busca no topo (debounce), reaproveitando o padrão de `Autocomplete`/filtro client-side.
 
 ### T3.3 — Manager (client component)
-- [ ] Criar `src/app/clientes/ClientesManager.tsx` no padrão de `UsuariosManager.tsx`:
+- [x] Criar `src/app/clientes/ClientesManager.tsx` no padrão de `UsuariosManager.tsx`:
   lista + botão "Novo cliente" + ações por linha (editar, inativar) + `Toast` de feedback.
-- [ ] Usar `useTransition` nas chamadas de action.
+- [x] Usar `useTransition` nas chamadas de action.
 
 ### T3.4 — Formulário fiscal reutilizável
-- [ ] Criar `src/app/clientes/CustomerFiscalForm.tsx` (client component) — **reutilizável**
+- [x] Criar `src/app/clientes/CustomerFiscalForm.tsx` (client component) — **reutilizável**
   (usado aqui e na complementação inline do fechamento, Fase 4).
-- [ ] Toggle **PF / PJ** no topo; campos condicionais:
+- [x] Toggle **PF / PJ** no topo; campos condicionais:
   - PF: nome completo, CPF (máscara).
   - PJ: razão social, nome fantasia, CNPJ (máscara), IE + checkbox "isento de IE".
   - Comum: e-mail, CEP, logradouro, número, complemento, bairro, cidade, UF.
-- [ ] Feedback de completude em tempo real usando `getMissingFiscalFields` (Fase 2):
+- [x] Feedback de completude em tempo real usando `getMissingFiscalFields` (Fase 2):
   destacar o que falta; não bloquear o salvamento (permite rascunho incompleto).
-- [ ] Reusar classes `.input` / `.label` / `.btn-primary`.
+- [x] Reusar classes `.input` / `.label` / `.btn-primary`.
 
 ### T3.5 — Card na home e navegação
-- [ ] Em `src/app/page.tsx`, adicionar card "Clientes" com o **mesmo gate** de
+- [x] Em `src/app/page.tsx`, adicionar card "Clientes" com o **mesmo gate** de
   `showPedidos` (`admin || chefia || gerencia`), seguindo o padrão visual da seção Pedidos.
-- [ ] Garantir link/rota `/clientes` na navegação onde fizer sentido.
+- [x] Garantir link/rota `/clientes` na navegação onde fizer sentido.
 
 ## Wireframe — Lista de Clientes
 

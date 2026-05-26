@@ -41,10 +41,12 @@ interface Order {
   delivery_date: string | Date | null
   notes: string | null
   created_at: string | Date
+  customer_id: string
   customer_name: string
   customer_phone: string | null
   customer_city: string | null
   created_by_name: string
+  needs_invoice: boolean
 }
 interface HistoryEntry {
   from_status: string | null
@@ -137,9 +139,16 @@ export default function OrderDetailClient({ order, items, history, role }: Props
         </Link>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">Pedido #{order.order_number}</h1>
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${meta.badge}`}>
-            {meta.label}
-          </span>
+          <div className="flex items-center gap-2">
+            {order.needs_invoice && (
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-100 text-indigo-800">
+                NF
+              </span>
+            )}
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${meta.badge}`}>
+              {meta.label}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -199,6 +208,8 @@ export default function OrderDetailClient({ order, items, history, role }: Props
           {order.status === 'verificado' && isChefia && (
             <OrderAnalysis
               orderId={order.id}
+              orderNumber={order.order_number}
+              customerId={order.customer_id}
               items={items.map((i) => ({
                 id: i.id,
                 is_generic: i.is_generic,

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { SALE_CHANNELS, type SaleChannel } from '@/lib/orders'
-import { createOrder, createCustomer } from '../actions'
+import { createOrder } from '../actions'
+import { createCustomer } from '@/app/clientes/actions'
 
 interface Customer {
   id: string

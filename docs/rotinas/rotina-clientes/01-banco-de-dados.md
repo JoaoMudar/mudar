@@ -16,8 +16,8 @@ Tudo aditivo, idempotente e retrocompatível: nenhum cliente legado deixa de fun
 ## Tarefas
 
 ### T1.1 — Campos fiscais em `customers`
-- [ ] Criar migração `migrations/20260525xxxxxx_clientes_fiscal_fields.sql`
-- [ ] `ADD COLUMN IF NOT EXISTS` para cada campo (todos NULL-able):
+- [x] Criar migração `migrations/20260525xxxxxx_clientes_fiscal_fields.sql`
+- [x] `ADD COLUMN IF NOT EXISTS` para cada campo (todos NULL-able):
   - `person_type` VARCHAR(2) — CHECK (`person_type IN ('pf','pj')`); `NULL` = legado/simples
   - `document` VARCHAR(14) — CPF (11) ou CNPJ (14), **só dígitos**
   - `email` VARCHAR(255)
@@ -31,24 +31,24 @@ Tudo aditivo, idempotente e retrocompatível: nenhum cliente legado deixa de fun
   - `complement` VARCHAR(255)
   - `neighborhood` VARCHAR(100) — bairro
   - (reutiliza `city` e `state` já existentes)
-- [ ] `name` permanece `NOT NULL` e é o rótulo de exibição: PF = nome completo;
+- [x] `name` permanece `NOT NULL` e é o rótulo de exibição: PF = nome completo;
   PJ = nome fantasia (ou razão social).
-- [ ] Índice **único parcial** para evitar documento duplicado só quando informado:
+- [x] Índice **único parcial** para evitar documento duplicado só quando informado:
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_document ON customers (document) WHERE document IS NOT NULL;`
-- [ ] Manter `idx_customers_name` e `idx_customers_active` existentes.
+- [x] Manter `idx_customers_name` e `idx_customers_active` existentes.
 
 ### T1.2 — `orders.needs_invoice`
-- [ ] Criar migração separada `migrations/20260525xxxxxx_orders_needs_invoice.sql`
-- [ ] `ALTER TABLE orders ADD COLUMN IF NOT EXISTS needs_invoice BOOLEAN NOT NULL DEFAULT false;`
-- [ ] Definido no fechamento do pedido (Fase 4). Default `false` garante que pedidos
+- [x] Criar migração separada `migrations/20260525xxxxxx_orders_needs_invoice.sql`
+- [x] `ALTER TABLE orders ADD COLUMN IF NOT EXISTS needs_invoice BOOLEAN NOT NULL DEFAULT false;`
+- [x] Definido no fechamento do pedido (Fase 4). Default `false` garante que pedidos
   antigos e o fluxo simples não exigem NF.
 
 ### T1.3 — Rodar e validar
-- [ ] Executar `npm run db:migrate` e confirmar que as colunas foram criadas.
-- [ ] Validar com:
+- [x] Executar `npm run db:migrate` e confirmar que as colunas foram criadas.
+- [x] Validar com:
   `SELECT column_name FROM information_schema.columns WHERE table_name='customers';`
-- [ ] Confirmar que clientes legados continuam selecionáveis (campos fiscais `NULL`).
-- [ ] (Local) Testar de forma segura no Postgres espelho — ver `docs/banco-local-espelho.md`
+- [x] Confirmar que clientes legados continuam selecionáveis (campos fiscais `NULL`).
+- [x] (Local) Testar de forma segura no Postgres espelho — ver `docs/banco-local-espelho.md`
   (`npm run db:refresh-local`).
 
 ## Esboço do SQL (referência)

@@ -15,36 +15,36 @@ sem `'use server'` — importável por Server Actions e Client Components, e 100
 ## Tarefas
 
 ### T2.1 — Tipos e constantes
-- [ ] Criar `src/lib/customers.ts` (sem `'use server'`, igual a `orders.ts`)
-- [ ] `export type PersonType = 'pf' | 'pj'`
-- [ ] Interface `FiscalCustomer` com os campos da Fase 1 (`person_type`, `document`,
+- [x] Criar `src/lib/customers.ts` (sem `'use server'`, igual a `orders.ts`)
+- [x] `export type PersonType = 'pf' | 'pj'`
+- [x] Interface `FiscalCustomer` com os campos da Fase 1 (`person_type`, `document`,
   `email`, `legal_name`, `trade_name`, `state_registration`, `ie_exempt`, `zip_code`,
   `street`, `address_number`, `complement`, `neighborhood`, `city`, `state`, `name`).
-- [ ] `export const UFS: string[]` — as 27 UFs brasileiras.
+- [x] `export const UFS: string[]` — as 27 UFs brasileiras.
 
 ### T2.2 — Helpers de formato (puros)
-- [ ] `onlyDigits(s: string): string` — remove tudo que não é dígito.
-- [ ] `isValidCPF(doc: string): boolean` — 11 dígitos + dígitos verificadores; rejeita repetidos (`111...`).
-- [ ] `isValidCNPJ(doc: string): boolean` — 14 dígitos + dígitos verificadores; rejeita repetidos.
-- [ ] `isValidEmail(email: string): boolean` — regex simples e segura.
-- [ ] `isValidCEP(cep: string): boolean` — 8 dígitos.
-- [ ] `isValidUF(uf: string): boolean` — pertence a `UFS`.
-- [ ] (Opcional) formatadores de exibição: `formatCPF`, `formatCNPJ`, `formatCEP`.
+- [x] `onlyDigits(s: string): string` — remove tudo que não é dígito.
+- [x] `isValidCPF(doc: string): boolean` — 11 dígitos + dígitos verificadores; rejeita repetidos (`111...`).
+- [x] `isValidCNPJ(doc: string): boolean` — 14 dígitos + dígitos verificadores; rejeita repetidos.
+- [x] `isValidEmail(email: string): boolean` — regex simples e segura.
+- [x] `isValidCEP(cep: string): boolean` — 8 dígitos.
+- [x] `isValidUF(uf: string): boolean` — pertence a `UFS`.
+- [x] (Opcional) formatadores de exibição: `formatCPF`, `formatCNPJ`, `formatCEP`.
 
 ### T2.3 — Completude fiscal + testes
-- [ ] `getMissingFiscalFields(c: FiscalCustomer): string[]` — devolve a lista de campos
+- [x] `getMissingFiscalFields(c: FiscalCustomer): string[]` — devolve a lista de campos
   faltantes/ inválidos em **rótulos legíveis** (ex.: `['CPF inválido', 'E-mail', 'CEP']`),
   para a UI e a mensagem de bloqueio no fechamento.
-- [ ] `isFiscallyComplete(c: FiscalCustomer): boolean` — `getMissingFiscalFields(c).length === 0`.
-- [ ] Regra (mínimo legal + e-mail):
+- [x] `isFiscallyComplete(c: FiscalCustomer): boolean` — `getMissingFiscalFields(c).length === 0`.
+- [x] Regra (mínimo legal + e-mail):
   - **Comum**: e-mail válido + endereço completo (`zip_code` válido, `street`,
     `address_number`, `neighborhood`, `city`, `state` UF válida).
   - **PF**: `person_type='pf'`, `name`, `document` = CPF válido.
   - **PJ**: `person_type='pj'`, `legal_name`, `document` = CNPJ válido,
     `state_registration` **ou** `ie_exempt === true`.
-- [ ] (Opcional) `validateSimpleCustomer({name})` e `validateFiscalCustomer(c)` para
+- [x] (Opcional) `validateSimpleCustomer({name})` e `validateFiscalCustomer(c)` para
   centralizar mensagens de erro, no estilo de `validateOrderItems`.
-- [ ] Testes em `src/lib/__tests__/customers.test.ts` cobrindo: CPF/CNPJ válidos e
+- [x] Testes em `src/lib/__tests__/customers.test.ts` cobrindo: CPF/CNPJ válidos e
   inválidos, e-mail, CEP, UF, PF completo, PJ completo (com IE e com isento), e os
   vários caminhos de incompletude.
 

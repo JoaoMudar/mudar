@@ -20,34 +20,34 @@ NF continua sendo aprovado exatamente como hoje (atrito zero).
 ## Tarefas
 
 ### T4.1 — `approveOrder` com `needsInvoice`
-- [ ] Alterar a assinatura para `approveOrder(orderId, needsInvoice: boolean)`.
-- [ ] Persistir `orders.needs_invoice = needsInvoice` na mesma transação da aprovação.
-- [ ] Se `needsInvoice === true`: carregar o cliente do pedido e revalidar
+- [x] Alterar a assinatura para `approveOrder(orderId, needsInvoice: boolean)`.
+- [x] Persistir `orders.needs_invoice = needsInvoice` na mesma transação da aprovação.
+- [x] Se `needsInvoice === true`: carregar o cliente do pedido e revalidar
   `isFiscallyComplete` **no servidor** (defesa em profundidade). Se incompleto:
   `ROLLBACK` e retornar `{ error }` com os campos faltantes de `getMissingFiscalFields`
   (ex.: "Cliente sem dados de NF: CNPJ, e-mail, CEP").
-- [ ] Se `needsInvoice === false`: aprovar exatamente como hoje — **nenhuma** checagem fiscal.
-- [ ] Manter o resto do fluxo atual (validação de status `verificado`, histórico,
+- [x] Se `needsInvoice === false`: aprovar exatamente como hoje — **nenhuma** checagem fiscal.
+- [x] Manter o resto do fluxo atual (validação de status `verificado`, histórico,
   `notifyRole('gerencia', ...)`).
 
 ### T4.2 — Pergunta "Precisa de Nota Fiscal?"
-- [ ] Em `OrderAnalysis.tsx`, ao clicar "Aprovar Pedido", abrir um modal/confirmação:
+- [x] Em `OrderAnalysis.tsx`, ao clicar "Aprovar Pedido", abrir um modal/confirmação:
   "Este pedido precisa de Nota Fiscal?" com **Sim** / **Não**.
-- [ ] **Não** → chama `approveOrder(id, false)` (comportamento atual).
-- [ ] **Sim** → chama `approveOrder(id, true)`:
+- [x] **Não** → chama `approveOrder(id, false)` (comportamento atual).
+- [x] **Sim** → chama `approveOrder(id, true)`:
   - cliente completo → aprova;
   - cliente incompleto → não aprova ainda; abre o painel de complementação (T4.3).
 
 ### T4.3 — Complementação fiscal inline
-- [ ] Quando "Sim" + cliente incompleto, exibir o `CustomerFiscalForm` (Fase 3)
+- [x] Quando "Sim" + cliente incompleto, exibir o `CustomerFiscalForm` (Fase 3)
   pré-carregado com os dados atuais do cliente, **dentro** da tela do pedido (modal/painel).
-- [ ] Salvar via `updateCustomer(id, data)`; ao salvar com sucesso e ficar completo,
+- [x] Salvar via `updateCustomer(id, data)`; ao salvar com sucesso e ficar completo,
   chamar `approveOrder(id, true)` automaticamente — sem navegar para fora do pedido.
-- [ ] Destacar os campos que faltam usando `getMissingFiscalFields`.
+- [x] Destacar os campos que faltam usando `getMissingFiscalFields`.
 
 ### T4.4 — Sinalização visual de NF
-- [ ] Badge "NF" no detalhe do pedido (`OrderDetailClient.tsx`) quando `needs_invoice = true`.
-- [ ] Badge/coluna "NF" na lista de pedidos (`PedidosList.tsx`).
+- [x] Badge "NF" no detalhe do pedido (`OrderDetailClient.tsx`) quando `needs_invoice = true`.
+- [x] Badge/coluna "NF" na lista de pedidos (`PedidosList.tsx`).
 - [ ] (Opcional) Filtro "somente pedidos com NF" na lista.
 
 ## Wireframe — Modal de NF no fechamento
