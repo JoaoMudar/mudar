@@ -217,10 +217,55 @@ describe('lookupCnpj', () => {
     expect(res.data?.zip_code).toBe('89010000')
   })
 
-  it('falha de rede retorna erro amigavel', async () => {
+  it('falha de rede (ambos provedores) retorna erro amigavel', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')))
     const res = await lookupCnpj('11222333000181')
     expect(res.error).toMatch(/falha/i)
+  })
+
+  it('404 na BrasilAPI e definitivo — nao tenta o fallback', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 404 })
+    vi.stubGlobal('fetch', fetchMock)
+    const res = await lookupCnpj('11222333000181')
+    expect(res.error).toMatch(/não encontrado/i)
+    expect(fetchMock).toHaveBeenCalledTimes(1) // OpenCNPJ nao foi chamada
+  })
+
+  it('cai para a OpenCNPJ quando a BrasilAPI responde 5xx', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500 }) // BrasilAPI fora
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          razao_social: 'Fallback Ltda',
+          telefones: [{ ddd: '47', numero: '999990000', is_fax: false }],
+        }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+    const res = await lookupCnpj('11222333000181')
+    expect(res.error).toBeUndefined()
+    expect(res.data?.legal_name).toBe('Fallback Ltda')
+    expect(res.data?.phone).toBe('(47) 999990000') // formato telefones[] = OpenCNPJ
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(String(fetchMock.mock.calls[0][0])).toContain('brasilapi.com.br')
+    expect(String(fetchMock.mock.calls[1][0])).toContain('opencnpj.org')
+  })
+
+  it('cai para a OpenCNPJ quando a BrasilAPI da erro de rede', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('reset')) // BrasilAPI inalcancavel
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ razao_social: 'Backup SA' }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+    const res = await lookupCnpj('11222333000181')
+    expect(res.data?.legal_name).toBe('Backup SA')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 })
 

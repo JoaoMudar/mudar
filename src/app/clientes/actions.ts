@@ -4,7 +4,13 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
-import { mapOpenCnpj, type CnpjData, type OpenCnpjResponse } from '@/lib/cnpj'
+import {
+  mapBrasilApi,
+  mapOpenCnpj,
+  type BrasilApiResponse,
+  type CnpjData,
+  type OpenCnpjResponse,
+} from '@/lib/cnpj'
 
 const PATH = '/clientes'
 
@@ -172,6 +178,25 @@ export async function lookupCnpj(
   await requireRole('admin', 'chefia', 'gerencia')
   const digits = onlyDigits(cnpj)
   if (!isValidCNPJ(digits)) return { error: 'CNPJ inválido.' }
+
+  // Provedor primario: BrasilAPI (estavel e alcancavel mesmo de redes que bloqueiam
+  // a OpenCNPJ). 404 e resposta definitiva (CNPJ inexistente) — nao cai no fallback.
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`, {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    })
+    if (res.status === 404) return { error: 'CNPJ não encontrado na base da Receita.' }
+    if (res.ok) {
+      const json = (await res.json()) as BrasilApiResponse
+      return { data: mapBrasilApi(json) }
+    }
+    // outros status (429/5xx): tenta o fallback
+  } catch {
+    // erro de rede: tenta o fallback
+  }
+
+  // Fallback: OpenCNPJ. Util em produção caso a BrasilAPI esteja fora do ar.
   try {
     const res = await fetch(`https://api.opencnpj.org/${digits}`, {
       headers: { Accept: 'application/json' },

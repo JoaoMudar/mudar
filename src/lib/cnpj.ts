@@ -45,6 +45,25 @@ export interface OpenCnpjResponse {
   situacao_cadastral?: string | null
 }
 
+// Formato do retorno da BrasilAPI (brasilapi.com.br/api/cnpj/v1) — provedor
+// primario, por ser alcancavel onde a OpenCNPJ as vezes e bloqueada por rede/ISP.
+// Telefone vem como string unica (DDD+numero) e CEP pode vir como numero.
+export interface BrasilApiResponse {
+  cnpj?: string
+  razao_social?: string | null
+  nome_fantasia?: string | null
+  email?: string | null
+  ddd_telefone_1?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cep?: string | number | null
+  uf?: string | null
+  municipio?: string | null
+  descricao_situacao_cadastral?: string | null
+}
+
 const clean = (v: string | null | undefined) => (v ?? '').trim()
 
 // Primeiro telefone nao-fax, formatado "(DD) NUMERO". Vazio se nao houver.
@@ -75,5 +94,34 @@ export function mapOpenCnpj(r: OpenCnpjResponse): CnpjData {
     city: clean(r.municipio),
     state: clean(r.uf).toUpperCase(),
     status: clean(r.situacao_cadastral),
+  }
+}
+
+// Telefone da BrasilAPI ("DDNNNNNNNN") -> "(DD) NNNNNNNN". Vazio se nao houver.
+function brasilApiPhone(raw: string | null | undefined): string {
+  const d = onlyDigits(raw)
+  if (!d) return ''
+  if (d.length <= 2) return d
+  return `(${d.slice(0, 2)}) ${d.slice(2)}`
+}
+
+/**
+ * Mapeia o retorno da BrasilAPI para os campos do formulario de cliente.
+ * Mesmas normalizacoes do mapOpenCnpj (CEP so-digitos, UF maiuscula, e-mail minusculo).
+ */
+export function mapBrasilApi(r: BrasilApiResponse): CnpjData {
+  return {
+    legal_name: clean(r.razao_social),
+    trade_name: clean(r.nome_fantasia),
+    email: clean(r.email).toLowerCase(),
+    phone: brasilApiPhone(r.ddd_telefone_1),
+    zip_code: onlyDigits(r.cep == null ? '' : String(r.cep)).slice(0, 8),
+    street: clean(r.logradouro),
+    address_number: clean(r.numero),
+    complement: clean(r.complemento),
+    neighborhood: clean(r.bairro),
+    city: clean(r.municipio),
+    state: clean(r.uf).toUpperCase(),
+    status: clean(r.descricao_situacao_cadastral),
   }
 }
