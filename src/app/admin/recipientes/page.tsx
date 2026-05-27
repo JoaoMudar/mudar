@@ -1,9 +1,12 @@
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
 import RecipientesManager from './RecipientesManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function RecipientesPage() {
+  await requireRole('admin', 'chefia')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let containers: any[] = []
   try {

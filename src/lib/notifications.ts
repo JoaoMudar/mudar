@@ -64,10 +64,11 @@ export async function getNotifications(userId: string, limit = 20): Promise<Noti
   return rows as Notification[]
 }
 
-export async function markAsRead(notificationId: string): Promise<void> {
+// Escopa ao dono: impede que um usuario marque a notificacao de outro (IDOR).
+export async function markAsRead(notificationId: string, userId: string): Promise<void> {
   await pool.query(
-    `UPDATE notifications SET read = true WHERE id = $1`,
-    [notificationId],
+    `UPDATE notifications SET read = true WHERE id = $1 AND user_id = $2`,
+    [notificationId, userId],
   )
 }
 

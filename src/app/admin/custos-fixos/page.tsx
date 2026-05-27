@@ -1,9 +1,12 @@
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
 import CustosFixosManager from './CustosFixosManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CustosFixosPage() {
+  await requireRole('admin', 'chefia')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let costs: any[] = []
   try {

@@ -1,9 +1,12 @@
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
 import ColetaSementesManager from './ColetaSementesManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ColetaSementesPage() {
+  await requireRole('admin', 'chefia')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let normalizedCollections: any[] = []
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
