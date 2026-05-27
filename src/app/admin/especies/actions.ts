@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
 
 const PATH = '/admin/especies'
 
@@ -49,6 +50,31 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
   }
   revalidatePath(PATH)
   return {}
+}
+
+/**
+ * Cadastro rapido de especie a partir do nome (usado na colagem de pedido).
+ * Categoria padrao 'restauracao' (editavel depois no cadastro completo).
+ * Retorna o id da especie criada para uso imediato no item do pedido.
+ */
+export async function createSpeciesQuick(
+  commonName: string,
+): Promise<{ id?: string; error?: string }> {
+  await requireRole('admin', 'chefia')
+  const name = commonName.trim()
+  if (!name) return { error: 'Informe o nome da espécie.' }
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO species (common_name, category, active)
+       VALUES ($1, 'restauracao', true)
+       RETURNING id`,
+      [name],
+    )
+    revalidatePath(PATH)
+    return { id: rows[0].id }
+  } catch (e: unknown) {
+    return { error: (e as Error).message }
+  }
 }
 
 export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{ error?: string }> {
