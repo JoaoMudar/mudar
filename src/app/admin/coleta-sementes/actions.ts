@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
+import { safeErrorMessage } from '@/lib/action-errors'
 
 const PATH = '/admin/coleta-sementes'
 
@@ -18,6 +20,7 @@ export interface SeedCollectionPayload {
 }
 
 export async function createColeta(data: SeedCollectionPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(
       `INSERT INTO seed_collection_costs
@@ -28,17 +31,18 @@ export async function createColeta(data: SeedCollectionPayload): Promise<{ error
        data.seeds_collected_qty, data.collection_date]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function deleteColeta(id: string): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(`DELETE FROM seed_collection_costs WHERE id=$1`, [id])
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}

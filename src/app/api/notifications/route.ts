@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   const { action, notificationId } = body
 
   if (action === 'markAsRead' && notificationId) {
-    await markAsRead(notificationId)
+    await markAsRead(notificationId, user.id)
   } else if (action === 'markAllAsRead') {
     await markAllAsRead(user.id)
   } else {

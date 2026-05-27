@@ -140,12 +140,15 @@ export default function UsuariosManager({ initialUsers }: { initialUsers: UserRo
             <input
               type="password"
               required
-              minLength={6}
+              minLength={8}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres"
               className="input"
             />
+            <p className="text-xs text-gray-400 mt-1">
+              Encerra as sessões ativas do usuário e exige nova troca no próximo acesso.
+            </p>
           </div>
           <button type="submit" disabled={submitting} className="btn-primary">
             {submitting ? 'Salvando…' : 'Redefinir senha'}
@@ -198,12 +201,15 @@ export default function UsuariosManager({ initialUsers }: { initialUsers: UserRo
               <input
                 type="password"
                 required
-                minLength={6}
+                minLength={8}
                 value={form.password || ''}
                 onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 className="input"
               />
+              <p className="text-xs text-gray-400">
+                Senha temporária — o usuário define a própria no primeiro acesso.
+              </p>
             </div>
           )}
 

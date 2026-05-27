@@ -1,9 +1,12 @@
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
 import EspeciesManager from './EspeciesManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function EspeciesPage() {
+  await requireRole('admin', 'chefia')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let species: any[] = []
   try {

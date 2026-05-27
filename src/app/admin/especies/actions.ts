@@ -3,9 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import { randomUUID } from 'crypto'
+import sharp from 'sharp'
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
+import { safeErrorMessage } from '@/lib/action-errors'
 
 const PATH = '/admin/especies'
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 // 8 MB
 
 export type SpeciesCategory = 'frutifera' | 'ornamental' | 'madeira' | 'restauracao' | 'pioneira' | 'climax'
 
@@ -21,22 +26,35 @@ export interface SpeciesPayload {
 }
 
 export async function uploadEspecieFoto(formData: FormData): Promise<{ url: string } | { error: string }> {
-  const file = formData.get('file') as File
+  await requireRole('admin', 'chefia')
+
+  const file = formData.get('file') as File | null
   if (!file || file.size === 0) return { error: 'Nenhum arquivo selecionado.' }
+  if (file.size > MAX_UPLOAD_BYTES) return { error: 'Imagem muito grande (máx. 8 MB).' }
 
-  const ext = file.name.split('.').pop() ?? 'jpg'
-  const filename = `${Date.now()}.${ext}`
-  const bytes = await file.arrayBuffer()
+  try {
+    const inputBuffer = Buffer.from(await file.arrayBuffer())
 
-  await writeFile(
-    join(process.cwd(), 'public', 'uploads', 'especies', filename),
-    Buffer.from(bytes)
-  )
+    // Re-encoda com sharp: valida que é uma imagem de verdade (lança se não for),
+    // remove EXIF/metadados e qualquer payload embutido, e normaliza para WebP.
+    const webp = await sharp(inputBuffer)
+      .rotate()
+      .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer()
 
-  return { url: `/uploads/especies/${filename}` }
+    // Nome gerado pelo servidor — ignora o nome enviado pelo cliente (mata path traversal).
+    const filename = `${randomUUID()}.webp`
+    await writeFile(join(process.cwd(), 'public', 'uploads', 'especies', filename), webp)
+
+    return { url: `/uploads/especies/${filename}` }
+  } catch {
+    return { error: 'Arquivo inválido. Envie uma imagem (JPG, PNG ou WebP).' }
+  }
 }
 
 export async function createEspecie(data: SpeciesPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(
       `INSERT INTO species (common_name, scientific_name, category, germination_time_days, growth_time_months, notes, photo_url, active)
@@ -45,13 +63,14 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
        data.growth_time_months, data.notes, data.photo_url, data.active]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(
       `UPDATE species SET common_name=$1, scientific_name=$2, category=$3, germination_time_days=$4,
@@ -60,17 +79,18 @@ export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{
        data.growth_time_months, data.notes, data.photo_url, data.active, id]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function toggleEspecieAtiva(id: string, active: boolean): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(`UPDATE species SET active=$1 WHERE id=$2`, [active, id])
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}

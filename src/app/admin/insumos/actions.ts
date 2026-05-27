@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
+import { safeErrorMessage } from '@/lib/action-errors'
 
 const PATH = '/admin/insumos'
 
@@ -19,6 +21,7 @@ export interface InputPayload {
 }
 
 export async function createInsumo(data: InputPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(
       `INSERT INTO inputs (name, category, unit_of_measure, cost_per_unit, quantity_purchased, supplier, last_purchase_date, active)
@@ -27,13 +30,14 @@ export async function createInsumo(data: InputPayload): Promise<{ error?: string
        data.quantity_purchased, data.supplier, data.last_purchase_date, data.active]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function updateInsumo(id: string, data: InputPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     // Registra histórico de preço se o preço mudou
     const { rows } = await pool.query(
@@ -59,23 +63,25 @@ export async function updateInsumo(id: string, data: InputPayload): Promise<{ er
        data.quantity_purchased, data.supplier, data.last_purchase_date, data.active, id]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function toggleInsumoAtivo(id: string, active: boolean): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(`UPDATE inputs SET active=$1 WHERE id=$2`, [active, id])
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function getPriceHistory(inputId: string) {
+  await requireRole('admin', 'chefia')
   const { rows } = await pool.query(
     `SELECT cost_per_unit, changed_at, notes
      FROM input_price_history

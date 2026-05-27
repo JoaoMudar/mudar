@@ -118,6 +118,7 @@ async function findCustomerByDocument(
  * no client; o parametro existe para reuso (ex.: busca server-side futura).
  */
 export async function getCustomers(search?: string) {
+  await requireRole('admin', 'chefia')
   const q = (search ?? '').trim()
   if (!q) {
     const { rows } = await pool.query(
@@ -145,6 +146,7 @@ export async function getCustomers(search?: string) {
 
 /** Busca rapida por nome (ILIKE), limite 10 — usada em autocomplete. */
 export async function searchCustomers(query: string) {
+  await requireRole('admin', 'chefia')
   const q = (query ?? '').trim()
   if (!q) return []
   const { rows } = await pool.query(
@@ -159,6 +161,7 @@ export async function searchCustomers(query: string) {
 
 /** Cliente completo (todos os campos fiscais) para a tela de edicao/detalhe. */
 export async function getCustomerById(id: string) {
+  await requireRole('admin', 'chefia')
   const { rows } = await pool.query(
     `SELECT ${CUSTOMER_COLUMNS} FROM customers WHERE id = $1`,
     [id],

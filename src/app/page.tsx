@@ -140,6 +140,27 @@ export default async function Home() {
           </section>
         )}
 
+        {/* Secao conta — todos os usuarios logados */}
+        <section>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
+            Minha Conta
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              href="/trocar-senha"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
+            >
+              🔑 Trocar senha
+            </Link>
+            <Link
+              href="/conta/sessoes"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
+            >
+              📱 Aparelhos
+            </Link>
+          </div>
+        </section>
+
       </div>
     </main>
   )
