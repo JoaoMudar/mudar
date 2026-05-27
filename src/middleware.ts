@@ -4,13 +4,17 @@ import type { NextRequest } from 'next/server'
 const PUBLIC_PATHS = ['/login']
 const PUBLIC_PREFIXES = ['/_next', '/icons', '/sw.js', '/manifest', '/uploads']
 
+// Deve casar com SESSION_COOKIE em src/lib/auth.ts (prefixo __Host- em producao).
+const SESSION_COOKIE =
+  process.env.NODE_ENV === 'production' ? '__Host-session_token' : 'session_token'
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (PUBLIC_PATHS.includes(pathname)) return NextResponse.next()
   if (PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) return NextResponse.next()
 
-  const sessionToken = request.cookies.get('session_token')?.value
+  const sessionToken = request.cookies.get(SESSION_COOKIE)?.value
   if (!sessionToken) {
     return NextResponse.redirect(new URL('/login', request.url))
   }

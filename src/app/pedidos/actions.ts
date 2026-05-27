@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { getSession } from '@/lib/auth'
+import { getSession, requireAuth, requireRole } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
 import { getMissingFiscalFields, type FiscalCustomer } from '@/lib/customers'
 import {
@@ -38,6 +38,7 @@ const LIST_PATH = '/pedidos'
 // ============================================================
 
 export async function getSpeciesForSelect() {
+  await requireAuth()
   const { rows } = await pool.query(
     `SELECT id, common_name, photo_url
      FROM species WHERE active = true ORDER BY common_name`,
@@ -46,6 +47,7 @@ export async function getSpeciesForSelect() {
 }
 
 export async function getContainersForSelect() {
+  await requireAuth()
   const { rows } = await pool.query(
     `SELECT id, name, volume_liters
      FROM containers WHERE active = true
@@ -62,6 +64,7 @@ export interface OrderFilters {
 }
 
 export async function getOrders(filters: OrderFilters = {}) {
+  await requireRole('admin', 'chefia', 'gerencia')
   const where: string[] = []
   const params: unknown[] = []
 
@@ -123,6 +126,7 @@ export async function getOrdersSignal(): Promise<{ count: number; latest: string
 }
 
 export async function getOrderById(id: string) {
+  await requireRole('admin', 'chefia', 'gerencia')
   const { rows: orderRows } = await pool.query(
     `SELECT o.*, c.name AS customer_name, c.phone AS customer_phone,
             c.city AS customer_city, u.display_name AS created_by_name
@@ -1163,6 +1167,7 @@ export async function finishLoad(
 }
 
 export async function getOrderLoads(orderId: string) {
+  await requireRole('admin', 'chefia', 'gerencia')
   const { rows: loads } = await pool.query(
     `SELECT id, load_number, status FROM order_loads
      WHERE order_id = $1 ORDER BY load_number`,
@@ -1189,6 +1194,7 @@ export async function getOrderLoads(orderId: string) {
 }
 
 export async function getDeliveryCalendarData(startDate: string, endDate: string) {
+  await requireRole('admin', 'chefia', 'gerencia')
   const { rows } = await pool.query(
     `SELECT o.id, o.order_number, o.delivery_date, o.status,
             c.name AS customer_name,

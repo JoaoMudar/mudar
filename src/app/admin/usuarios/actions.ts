@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { hashPassword, requireRole } from '@/lib/auth'
+import { validatePassword } from '@/lib/password-policy'
 
 const PATH = '/admin/usuarios'
 
@@ -16,15 +17,17 @@ export interface UserPayload {
 export async function createUsuario(data: UserPayload): Promise<{ error?: string }> {
   await requireRole('admin')
 
-  if (!data.password || data.password.length < 6) {
-    return { error: 'Senha deve ter no mínimo 6 caracteres.' }
-  }
+  const password = data.password ?? ''
+  const pwError = validatePassword(password)
+  if (pwError) return { error: pwError }
 
   try {
-    const passwordHash = await hashPassword(data.password)
+    const passwordHash = await hashPassword(password)
+    // must_change_password = true: a senha definida pelo admin e temporaria,
+    // o usuario troca por uma propria no primeiro acesso.
     await pool.query(
-      `INSERT INTO users (username, display_name, password_hash, role)
-       VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO users (username, display_name, password_hash, role, must_change_password)
+       VALUES ($1, $2, $3, $4, true)`,
       [data.username.trim().toLowerCase(), data.display_name.trim(), passwordHash, data.role],
     )
   } catch (e: unknown) {
@@ -66,16 +69,19 @@ export async function resetSenha(
 ): Promise<{ error?: string }> {
   await requireRole('admin')
 
-  if (newPassword.length < 6) {
-    return { error: 'Senha deve ter no mínimo 6 caracteres.' }
-  }
+  const pwError = validatePassword(newPassword)
+  if (pwError) return { error: pwError }
 
   try {
     const passwordHash = await hashPassword(newPassword)
     await pool.query(
-      `UPDATE users SET password_hash=$1, failed_login_attempts=0, locked_until=NULL WHERE id=$2`,
+      `UPDATE users SET password_hash=$1, failed_login_attempts=0, locked_until=NULL,
+              must_change_password=true WHERE id=$2`,
       [passwordHash, id],
     )
+    // Reset por suspeita de invasao deve derrubar o atacante: encerra todas as
+    // sessoes do usuario (ele faz novo login e e obrigado a trocar a senha).
+    await pool.query(`DELETE FROM sessions WHERE user_id=$1`, [id])
   } catch (e: unknown) {
     return { error: (e as Error).message }
   }

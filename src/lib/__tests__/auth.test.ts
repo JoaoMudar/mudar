@@ -40,4 +40,16 @@ describe('verifyPassword', () => {
     const result = await verifyPassword('', stored)
     expect(result).toBe(false)
   })
+
+  it('retorna false (sem lançar) para hash sem ":"', async () => {
+    await expect(verifyPassword('x', 'naotemdoispontos')).resolves.toBe(false)
+  })
+
+  it('retorna false para stored vazio', async () => {
+    await expect(verifyPassword('x', '')).resolves.toBe(false)
+  })
+
+  it('retorna false para hash com tamanho divergente (não lança em timingSafeEqual)', async () => {
+    await expect(verifyPassword('x', 'abcd:1234')).resolves.toBe(false)
+  })
 })

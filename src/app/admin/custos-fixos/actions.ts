@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
+import { requireRole } from '@/lib/auth'
+import { safeErrorMessage } from '@/lib/action-errors'
 
 const PATH = '/admin/custos-fixos'
 
@@ -16,6 +18,7 @@ export interface FixedCostPayload {
 }
 
 export async function createCustoFixo(data: FixedCostPayload): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(
       `INSERT INTO fixed_costs (category, monthly_amount, reference_month, notes)
@@ -23,17 +26,18 @@ export async function createCustoFixo(data: FixedCostPayload): Promise<{ error?:
       [data.category, data.monthly_amount, data.reference_month + '-01', data.notes]
     )
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
 }
 
 export async function deleteCustoFixo(id: string): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
   try {
     await pool.query(`DELETE FROM fixed_costs WHERE id=$1`, [id])
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e) }
   }
   revalidatePath(PATH)
   return {}
