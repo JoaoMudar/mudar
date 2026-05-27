@@ -8,6 +8,7 @@ import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { SALE_CHANNELS, type SaleChannel } from '@/lib/orders'
 import { createOrder } from '../actions'
 import { createCustomer } from '@/app/clientes/actions'
+import PasteImport, { type ImportedItem } from './PasteImport'
 
 interface Customer {
   id: string
@@ -78,6 +79,7 @@ export default function OrderForm({ customers, species, containers }: Props) {
   const [items, setItems] = useState<ItemRow[]>(() => [newRow()])
   // Linha cuja busca de especie deve receber foco automatico (linha recem-criada).
   const [focusKey, setFocusKey] = useState<string | null>(null)
+  const [showPaste, setShowPaste] = useState(false)
   const [toast, setToast] = useState<ToastState | null>(null)
 
   const speciesItems: AutocompleteItem[] = species.map((s) => ({
@@ -108,6 +110,34 @@ export default function OrderForm({ customers, species, containers }: Props) {
     )
     setItems((rows) => [...rows, row])
     setFocusKey(row.key)
+  }
+
+  // Recebe os itens reconhecidos pela colagem e os anexa a lista. Se so havia a
+  // linha vazia inicial, ela e substituida (nao deixa item em branco no meio).
+  function appendImported(imported: ImportedItem[]) {
+    const built: ItemRow[] = imported.map((it) => {
+      rowSeq += 1
+      return {
+        key: `r${rowSeq}`,
+        is_generic: it.is_generic,
+        species_id: it.species_id,
+        species_label: it.species_label,
+        container_id: it.container_id,
+        quantity: it.quantity,
+      }
+    })
+    setItems((rows) => {
+      const r0 = rows[0]
+      const onlyEmpty =
+        rows.length === 1 &&
+        !r0.species_id &&
+        !r0.quantity &&
+        !r0.container_id &&
+        !r0.is_generic
+      return onlyEmpty ? built : [...rows, ...built]
+    })
+    setShowPaste(false)
+    showToast(`${built.length} item(ns) adicionado(s).`, 'success')
   }
 
   function toggleGeneric(key: string) {
@@ -290,7 +320,28 @@ export default function OrderForm({ customers, species, containers }: Props) {
 
         {/* Secao 4: Itens */}
         <section className="space-y-3">
-          <label className="label">Itens do pedido</label>
+          <div className="flex items-center justify-between">
+            <label className="label">Itens do pedido</label>
+            {!showPaste && (
+              <button
+                type="button"
+                onClick={() => setShowPaste(true)}
+                className="text-sm font-semibold text-green-700 hover:text-green-900"
+              >
+                📋 Colar lista
+              </button>
+            )}
+          </div>
+
+          {showPaste && (
+            <PasteImport
+              species={species}
+              containers={containers}
+              onImport={appendImported}
+              onClose={() => setShowPaste(false)}
+            />
+          )}
+
           <div className="space-y-3">
             {items.map((it) => (
               <div

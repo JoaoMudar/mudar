@@ -69,6 +69,31 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
   return {}
 }
 
+/**
+ * Cadastro rapido de especie a partir do nome (usado na colagem de pedido).
+ * Categoria padrao 'restauracao' (editavel depois no cadastro completo).
+ * Retorna o id da especie criada para uso imediato no item do pedido.
+ */
+export async function createSpeciesQuick(
+  commonName: string,
+): Promise<{ id?: string; error?: string }> {
+  await requireRole('admin', 'chefia')
+  const name = commonName.trim()
+  if (!name) return { error: 'Informe o nome da espécie.' }
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO species (common_name, category, active)
+       VALUES ($1, 'restauracao', true)
+       RETURNING id`,
+      [name],
+    )
+    revalidatePath(PATH)
+    return { id: rows[0].id }
+  } catch (e: unknown) {
+    return { error: safeErrorMessage(e) }
+  }
+}
+
 export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{ error?: string }> {
   await requireRole('admin', 'chefia')
   try {

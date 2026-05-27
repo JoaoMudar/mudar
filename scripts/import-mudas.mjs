@@ -1,14 +1,36 @@
-// Script para importar mudas_export_corrigido.json na tabela species
-// Uso: node scripts/import-mudas.mjs
+// Script para importar mudas na tabela species a partir de um JSON { mudas: [...] }
+// Uso: node scripts/import-mudas.mjs [caminho-do-json]
+//   - sem argumento: usa data/seeds/mudas_export_corrigido.json
+//   - com argumento: usa o caminho informado (relativo ao diretório atual ou absoluto)
 // Requer: DATABASE_URL no .env ou ambiente
 
 import pg from 'pg'
-import { readFileSync } from 'fs'
-import { join, dirname } from 'path'
+import { Pool as NeonPool } from '@neondatabase/serverless'
+import { readFileSync, existsSync } from 'fs'
+import { join, dirname, isAbsolute, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const jsonPath = join(__dirname, '..', 'data', 'seeds', 'mudas_export_corrigido.json')
+
+// Carrega .env.local se existir (node nao carrega automaticamente) — mesma logica de migrate.ts
+const envPath = join(process.cwd(), '.env.local')
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const idx = trimmed.indexOf('=')
+    if (idx === -1) continue
+    const key = trimmed.slice(0, idx)
+    const val = trimmed.slice(idx + 1)
+    if (!process.env[key]) process.env[key] = val
+  }
+}
+const argPath = process.argv[2]
+const jsonPath = argPath
+  ? (isAbsolute(argPath) ? argPath : resolve(process.cwd(), argPath))
+  : join(__dirname, '..', 'data', 'seeds', 'mudas_export_corrigido.json')
+
+console.log(`Lendo: ${jsonPath}`)
 
 const data = JSON.parse(readFileSync(jsonPath, 'utf-8'))
 
@@ -88,7 +110,12 @@ function buildNotes(muda) {
 
 // --- Main ---
 const connStr = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/viveiro'
-const pool = new pg.Pool({ connectionString: connStr })
+// Driver escolhido pelo host (mesmo criterio de db.ts / migrate.ts): Neon -> serverless, resto -> pg
+const isNeon = connStr.includes('neon.tech')
+const pool = isNeon
+  ? new NeonPool({ connectionString: connStr })
+  : new pg.Pool({ connectionString: connStr })
+console.log(`Banco: ${isNeon ? 'NEON (producao)' : 'local/pg'}`)
 
 try {
   // Busca espécies já existentes para evitar duplicatas (por nome popular)
