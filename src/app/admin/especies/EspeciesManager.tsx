@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef, useTransition } from 'react'
+import { useState, useRef, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Toast, { ToastType } from '@/components/Toast'
 import SpeciesTags from '@/components/SpeciesTags'
 import { SPECIES_TAG_LIST, type SpeciesTagSlug } from '@/lib/species-tags'
+import { isSpeciesIncomplete, googleSearchUrl } from '@/lib/species-review'
 import {
   uploadEspecieFoto,
   createEspecie,
@@ -44,14 +45,22 @@ interface ToastState { message: string; type: ToastType }
 export default function EspeciesManager({ initialSpecies }: { initialSpecies: Species[] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [mode, setMode] = useState<'list' | 'form'>('list')
+  const [mode, setMode] = useState<'list' | 'form' | 'review'>('list')
   const [editingItem, setEditingItem] = useState<Species | null>(null)
   const [form, setForm] = useState<SpeciesPayload>(emptyForm())
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>('')
   const [toast, setToast] = useState<ToastState | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // Quando o form foi aberto a partir do modo "revisar", exigimos os dados
+  // minimos (nome cientifico + 1 caracteristica) e voltamos para a revisao.
+  const [completing, setCompleting] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const incompleteSpecies = useMemo(
+    () => initialSpecies.filter((s) => isSpeciesIncomplete(s)),
+    [initialSpecies],
+  )
 
   function showToast(message: string, type: ToastType) {
     setToast({ message, type })
@@ -62,10 +71,11 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     setForm(emptyForm())
     setPhotoFile(null)
     setPhotoPreview('')
+    setCompleting(false)
     setMode('form')
   }
 
-  function openEdit(item: Species) {
+  function openEdit(item: Species, fromReview = false) {
     setEditingItem(item)
     setForm({
       common_name: item.common_name,
@@ -79,6 +89,7 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     })
     setPhotoFile(null)
     setPhotoPreview(item.photo_url ?? '')
+    setCompleting(fromReview)
     setMode('form')
   }
 
@@ -99,6 +110,16 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (submitting) return
+
+    // Ao completar um cadastro incompleto, exigimos os dados minimos.
+    if (completing && (form.scientific_name.trim() === '' || form.tags.length === 0)) {
+      showToast(
+        'Para completar o cadastro, informe o nome científico e ao menos uma característica.',
+        'error',
+      )
+      return
+    }
+
     setSubmitting(true)
 
     try {
@@ -126,7 +147,8 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
       }
 
       showToast(editingItem ? 'Espécie atualizada!' : 'Espécie cadastrada!', 'success')
-      setMode('list')
+      // Veio da revisao: volta para a lista de incompletos para seguir revisando.
+      setMode(completing ? 'review' : 'list')
       startTransition(() => router.refresh())
     } finally {
       setSubmitting(false)
@@ -153,13 +175,13 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
       <div className="p-4 max-w-lg mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={() => setMode('list')}
+            onClick={() => setMode(completing ? 'review' : 'list')}
             className="text-green-700 font-bold text-2xl leading-none"
           >
             ←
           </button>
           <h2 className="text-xl font-bold text-gray-800">
-            {editingItem ? 'Editar Espécie' : 'Nova Espécie'}
+            {completing ? 'Completar cadastro' : editingItem ? 'Editar Espécie' : 'Nova Espécie'}
           </h2>
         </div>
 
@@ -187,6 +209,17 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
               placeholder="Ex: Handroanthus albus"
               className="input"
             />
+            {form.common_name.trim() !== '' && (
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(googleSearchUrl(form.common_name), '_blank', 'noopener')
+                }
+                className="self-start text-sm font-semibold text-green-700 mt-1"
+              >
+                🔍 Pesquisar no Google
+              </button>
+            )}
           </div>
 
           {/* Caracteristicas (multi-selecao) */}
@@ -307,6 +340,49 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     )
   }
 
+  // ─── REVISAR CADASTROS INCOMPLETOS ─────────────────────────
+  if (mode === 'review') {
+    return (
+      <div className="p-4 max-w-2xl mx-auto">
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setMode('list')}
+            className="text-green-700 font-bold text-2xl leading-none"
+          >
+            ←
+          </button>
+          <h2 className="text-xl font-bold text-gray-800">Revisar cadastros incompletos</h2>
+        </div>
+
+        {incompleteSpecies.length === 0 ? (
+          <p className="text-gray-400 text-center py-16">Nenhum cadastro incompleto. 🎉</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {incompleteSpecies.map(item => (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl shadow-sm border-2 border-amber-200 p-4 flex gap-3"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-gray-900 truncate">{item.common_name}</p>
+                  <p className="text-sm text-amber-700">Faltam nome científico e características</p>
+                </div>
+                <button
+                  onClick={() => openEdit(item, true)}
+                  className="text-sm font-semibold text-white bg-green-700 px-3 py-2 rounded-xl flex-shrink-0 self-center"
+                >
+                  Completar
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </div>
+    )
+  }
+
   // ─── LISTA ─────────────────────────────────────────────────
   return (
     <div className="p-4 max-w-2xl mx-auto">
@@ -316,6 +392,16 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
           + Nova
         </button>
       </div>
+
+      {incompleteSpecies.length > 0 && (
+        <button
+          onClick={() => setMode('review')}
+          className="w-full mb-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-left font-semibold text-amber-800 flex items-center justify-between"
+        >
+          <span>⚠ Revisar cadastros incompletos ({incompleteSpecies.length})</span>
+          <span className="text-amber-600">→</span>
+        </button>
+      )}
 
       {initialSpecies.length === 0 ? (
         <p className="text-gray-400 text-center py-16">Nenhuma espécie cadastrada.</p>
