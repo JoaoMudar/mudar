@@ -8,6 +8,7 @@ import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { SALE_CHANNELS, type SaleChannel } from '@/lib/orders'
 import { createOrder } from '../actions'
 import { createCustomer } from '@/app/clientes/actions'
+import { createSpeciesQuick } from '@/app/admin/especies/actions'
 import PasteImport, { type ImportedItem } from './PasteImport'
 
 interface Customer {
@@ -18,6 +19,7 @@ interface Customer {
 interface Species {
   id: string
   common_name: string
+  tags?: string[] | null
 }
 interface Container {
   id: string
@@ -81,10 +83,13 @@ export default function OrderForm({ customers, species, containers }: Props) {
   const [focusKey, setFocusKey] = useState<string | null>(null)
   const [showPaste, setShowPaste] = useState(false)
   const [toast, setToast] = useState<ToastState | null>(null)
+  // Lista local de especies (cresce com o cadastro rapido "+ Criar").
+  const [speciesList, setSpeciesList] = useState<Species[]>(species)
 
-  const speciesItems: AutocompleteItem[] = species.map((s) => ({
+  const speciesItems: AutocompleteItem[] = speciesList.map((s) => ({
     id: s.id,
     label: s.common_name,
+    tags: s.tags ?? undefined,
   }))
   const customerItems: AutocompleteItem[] = customers.map((c) => ({
     id: c.id,
@@ -148,6 +153,22 @@ export default function OrderForm({ customers, species, containers }: Props) {
           : r,
       ),
     )
+  }
+
+  // Cadastro rapido de especie a partir da busca: cria, anexa a lista local e
+  // seleciona na linha do item.
+  async function handleQuickCreateSpecies(key: string, name: string) {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    const result = await createSpeciesQuick(trimmed)
+    if (result.error || !result.id) {
+      showToast(result.error ?? 'Erro ao criar espécie.', 'error')
+      return
+    }
+    const created: Species = { id: result.id, common_name: trimmed, tags: [] }
+    setSpeciesList((list) => [...list, created])
+    updateItem(key, { species_id: created.id, species_label: created.common_name })
+    showToast(`Espécie "${trimmed}" criada!`, 'success')
   }
 
   async function handleCreateCustomer() {
@@ -335,7 +356,7 @@ export default function OrderForm({ customers, species, containers }: Props) {
 
           {showPaste && (
             <PasteImport
-              species={species}
+              species={speciesList}
               containers={containers}
               onImport={appendImported}
               onClose={() => setShowPaste(false)}
@@ -386,9 +407,11 @@ export default function OrderForm({ customers, species, containers }: Props) {
                         placeholder="Buscar espécie…"
                         initialValue={it.species_label}
                         autoFocus={it.key === focusKey}
+                        allowCreate
                         onSelect={(item) =>
                           updateItem(it.key, { species_id: item.id, species_label: item.label })
                         }
+                        onCreateNew={(q) => handleQuickCreateSpecies(it.key, q)}
                       />
                     )}
                   </div>

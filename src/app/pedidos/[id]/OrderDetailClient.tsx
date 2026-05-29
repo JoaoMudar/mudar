@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import SpeciesTags from '@/components/SpeciesTags'
 import OrderAnalysis from './OrderAnalysis'
 import { cancelOrder } from '../actions'
 import {
@@ -17,12 +18,14 @@ import {
 interface Child {
   id: string
   species_name: string | null
+  species_tags: string[] | null
   container_name: string
   quantity: number
 }
 interface Item {
   id: string
   species_name: string | null
+  species_tags: string[] | null
   container_name: string
   container_volume: number | null
   quantity: number
@@ -319,7 +322,10 @@ function FragmentRow({ it }: { it: Item }) {
               <span className="text-gray-600">Mín: {it.container_name}</span>
             </span>
           ) : (
-            it.species_name
+            <span className="inline-flex items-center gap-1.5 flex-wrap">
+              {it.species_name}
+              <SpeciesTags tags={it.species_tags} />
+            </span>
           )}
         </td>
         <td className="px-4 py-2 text-gray-600">{it.is_generic ? '—' : it.container_name}</td>
@@ -345,7 +351,12 @@ function FragmentRow({ it }: { it: Item }) {
       </tr>
       {it.children.map((c) => (
         <tr key={c.id} className="bg-blue-50/30 text-gray-600">
-          <td className="px-4 py-1.5 pl-8">↳ {c.species_name}</td>
+          <td className="px-4 py-1.5 pl-8">
+            <span className="inline-flex items-center gap-1.5 flex-wrap">
+              ↳ {c.species_name}
+              <SpeciesTags tags={c.species_tags} />
+            </span>
+          </td>
           <td className="px-4 py-1.5">{c.container_name}</td>
           <td className="px-4 py-1.5 text-right">{c.quantity}</td>
           <td className="px-4 py-1.5"></td>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import SpeciesTags from '@/components/SpeciesTags'
 import { validateLoadsSplit } from '@/lib/orders'
 import { createDefaultLoad, createMultipleLoads, type LoadInput } from '../../actions'
 import LoadSeparation, { type Load } from './LoadSeparation'
@@ -11,6 +12,7 @@ import LoadSeparation, { type Load } from './LoadSeparation'
 export interface RealItem {
   order_item_id: string
   species_name: string | null
+  species_tags: string[] | null
   container_name: string
   quantity: number
 }
@@ -141,7 +143,10 @@ export default function SeparationManager({
                   key={ri.order_item_id}
                   className="flex justify-between bg-white rounded-xl border border-gray-200 px-4 py-3 text-sm"
                 >
-                  <span className="font-medium text-gray-900">{ri.species_name}</span>
+                  <span className="font-medium text-gray-900 inline-flex items-center gap-1.5 flex-wrap">
+                    {ri.species_name}
+                    <SpeciesTags tags={ri.species_tags} />
+                  </span>
                   <span className="text-gray-600">
                     {ri.container_name} — {ri.quantity}
                   </span>

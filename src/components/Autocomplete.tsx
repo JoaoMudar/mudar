@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { normalizeText, matchesSearch } from '@/lib/text'
+import SpeciesTags from '@/components/SpeciesTags'
 
 export interface AutocompleteItem {
   id: string
   label: string
   sublabel?: string
+  /** Caracteristicas (badges) exibidas ao lado do label — ex: especie. */
+  tags?: string[]
 }
 
 interface Props {
@@ -124,7 +127,10 @@ export default function Autocomplete({
                   idx === highlight ? 'bg-green-50' : ''
                 }`}
               >
-                <span className="font-medium text-gray-900">{item.label}</span>
+                <span className="font-medium text-gray-900">
+                  {item.label}
+                  <SpeciesTags tags={item.tags} className="ml-1.5" />
+                </span>
                 {item.sublabel && (
                   <span className="block text-sm text-gray-500">{item.sublabel}</span>
                 )}

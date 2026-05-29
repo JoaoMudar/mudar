@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import SpeciesTags from '@/components/SpeciesTags'
 import GenericItemAssigner, { GenericItem } from './GenericItemAssigner'
 import {
   startVerification,
@@ -18,6 +19,7 @@ interface Item {
   species_id: string | null
   species_name: string | null
   species_photo: string | null
+  species_tags: string[] | null
   container_id: string
   container_name: string
   container_volume: number | null
@@ -231,7 +233,10 @@ export default function VerificationChecklist({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-bold text-gray-900 text-lg truncate">{it.species_name}</p>
+                  <p className="font-bold text-gray-900 text-lg truncate">
+                    {it.species_name}
+                    <SpeciesTags tags={it.species_tags} className="ml-1.5" />
+                  </p>
                   <p className="text-sm text-gray-600">
                     {it.container_name} — {it.quantity} un
                   </p>
