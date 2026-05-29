@@ -442,6 +442,42 @@ export async function toggleItemAvailability(
   }
 }
 
+/**
+ * Salva as observacoes de verificacao dos itens especificos sem alterar o
+ * estado (is_available/quantidade). Usado pelo botao "Salvar e continuar depois":
+ * os estados ja sao auto-salvos por toggleItemAvailability, mas uma observacao
+ * digitada num item ainda nao marcado so persiste por aqui. O `AND order_id`
+ * impede escrita cruzada entre pedidos.
+ */
+export async function saveVerificationNotes(
+  orderId: string,
+  notes: { itemId: string; notes: string }[],
+): Promise<{ error?: string }> {
+  const user = await getSession()
+  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
+  if (user.role !== 'admin' && user.role !== 'gerencia') {
+    return { error: 'Sem permissão.' }
+  }
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    for (const { itemId, notes: text } of notes) {
+      await client.query(
+        `UPDATE order_items SET availability_notes = $1 WHERE id = $2 AND order_id = $3`,
+        [text.trim() || null, itemId, orderId],
+      )
+    }
+    await client.query('COMMIT')
+    revalidatePath(`${LIST_PATH}/${orderId}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: (e as Error).message }
+  } finally {
+    client.release()
+  }
+}
+
 export async function assignSpeciesToGenericItem(
   parentItemId: string,
   assignments: SpeciesAssignment[],
