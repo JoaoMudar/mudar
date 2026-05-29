@@ -29,6 +29,7 @@ export default async function SepararPage({
         realItems.push({
           order_item_id: c.id,
           species_name: c.species_name,
+          species_tags: c.species_tags ?? null,
           container_name: c.container_name,
           quantity: c.quantity,
         })
@@ -37,6 +38,7 @@ export default async function SepararPage({
       realItems.push({
         order_item_id: it.id,
         species_name: it.species_name,
+        species_tags: it.species_tags ?? null,
         container_name: it.container_name,
         quantity: it.quantity,
       })

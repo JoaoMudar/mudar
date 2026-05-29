@@ -4,12 +4,13 @@ import { useState, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Toast, { ToastType } from '@/components/Toast'
+import SpeciesTags from '@/components/SpeciesTags'
+import { SPECIES_TAG_LIST, type SpeciesTagSlug } from '@/lib/species-tags'
 import {
   uploadEspecieFoto,
   createEspecie,
   updateEspecie,
   toggleEspecieAtiva,
-  type SpeciesCategory,
   type SpeciesPayload,
 } from './actions'
 
@@ -17,7 +18,7 @@ interface Species {
   id: string
   common_name: string
   scientific_name: string | null
-  category: SpeciesCategory
+  tags: SpeciesTagSlug[] | null
   germination_time_days: number | null
   growth_time_months: number | null
   notes: string | null
@@ -25,29 +26,11 @@ interface Species {
   active: boolean
 }
 
-const CATEGORIES: { value: SpeciesCategory; label: string }[] = [
-  { value: 'frutifera',   label: 'Frutífera' },
-  { value: 'ornamental',  label: 'Ornamental' },
-  { value: 'madeira',     label: 'Madeira' },
-  { value: 'restauracao', label: 'Restauração' },
-  { value: 'pioneira',    label: 'Pioneira' },
-  { value: 'climax',      label: 'Clímax' },
-]
-
-const CATEGORY_LABEL: Record<SpeciesCategory, string> = {
-  frutifera:   'Frutífera',
-  ornamental:  'Ornamental',
-  madeira:     'Madeira',
-  restauracao: 'Restauração',
-  pioneira:    'Pioneira',
-  climax:      'Clímax',
-}
-
 function emptyForm(): SpeciesPayload {
   return {
     common_name: '',
     scientific_name: '',
-    category: 'restauracao',
+    tags: [],
     germination_time_days: null,
     growth_time_months: null,
     notes: '',
@@ -87,7 +70,7 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     setForm({
       common_name: item.common_name,
       scientific_name: item.scientific_name ?? '',
-      category: item.category,
+      tags: item.tags ?? [],
       germination_time_days: item.germination_time_days,
       growth_time_months: item.growth_time_months,
       notes: item.notes ?? '',
@@ -97,6 +80,13 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     setPhotoFile(null)
     setPhotoPreview(item.photo_url ?? '')
     setMode('form')
+  }
+
+  function toggleTag(slug: SpeciesTagSlug) {
+    setForm((f) => ({
+      ...f,
+      tags: f.tags.includes(slug) ? f.tags.filter((t) => t !== slug) : [...f.tags, slug],
+    }))
   }
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -199,19 +189,29 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
             />
           </div>
 
-          {/* Categoria */}
+          {/* Caracteristicas (multi-selecao) */}
           <div className="flex flex-col gap-1">
-            <label className="label">Categoria *</label>
-            <select
-              required
-              value={form.category}
-              onChange={(e) => setForm(f => ({ ...f, category: e.target.value as SpeciesCategory }))}
-              className="input"
-            >
-              {CATEGORIES.map(c => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
-            </select>
+            <label className="label">Características</label>
+            <div className="flex flex-wrap gap-2">
+              {SPECIES_TAG_LIST.map(({ slug, label }) => {
+                const selected = form.tags.includes(slug)
+                return (
+                  <button
+                    key={slug}
+                    type="button"
+                    onClick={() => toggleTag(slug)}
+                    aria-pressed={selected}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-colors ${
+                      selected
+                        ? 'bg-green-700 text-white border-green-700'
+                        : 'bg-white text-gray-700 border-gray-200'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Tempos */}
@@ -338,9 +338,7 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
                 {item.scientific_name && (
                   <p className="text-sm text-gray-500 italic truncate">{item.scientific_name}</p>
                 )}
-                <span className="inline-block mt-1 text-xs bg-green-100 text-green-800 font-semibold px-2 py-0.5 rounded-full">
-                  {CATEGORY_LABEL[item.category]}
-                </span>
+                <SpeciesTags tags={item.tags} className="mt-1" />
               </div>
               <div className="flex flex-col gap-2 flex-shrink-0">
                 <button

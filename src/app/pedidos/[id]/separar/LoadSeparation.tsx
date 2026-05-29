@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import SpeciesTags from '@/components/SpeciesTags'
 import { getPreviousBusinessDay, isSameDay, addDays } from '@/lib/date-utils'
 import { toggleLoadItemSeparated, finishLoad } from '../../actions'
 
@@ -14,6 +15,7 @@ export interface LoadItem {
   is_separated: boolean
   species_name: string | null
   species_photo: string | null
+  species_tags: string[] | null
   container_name: string
 }
 export interface Load {
@@ -199,7 +201,10 @@ export default function LoadSeparation({
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold text-gray-900 truncate">{it.species_name}</p>
+                    <p className="font-bold text-gray-900 truncate">
+                      {it.species_name}
+                      <SpeciesTags tags={it.species_tags} className="ml-1.5" />
+                    </p>
                     <p className="text-sm text-gray-600">
                       {it.container_name} — {it.quantity} un
                     </p>

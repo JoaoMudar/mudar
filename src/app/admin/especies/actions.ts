@@ -8,16 +8,15 @@ import sharp from 'sharp'
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
+import type { SpeciesTagSlug } from '@/lib/species-tags'
 
 const PATH = '/admin/especies'
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 // 8 MB
 
-export type SpeciesCategory = 'frutifera' | 'ornamental' | 'madeira' | 'restauracao' | 'pioneira' | 'climax'
-
 export interface SpeciesPayload {
   common_name: string
   scientific_name: string
-  category: SpeciesCategory
+  tags: SpeciesTagSlug[]
   germination_time_days: number | null
   growth_time_months: number | null
   notes: string
@@ -57,9 +56,9 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
   await requireRole('admin', 'chefia')
   try {
     await pool.query(
-      `INSERT INTO species (common_name, scientific_name, category, germination_time_days, growth_time_months, notes, photo_url, active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [data.common_name, data.scientific_name, data.category, data.germination_time_days,
+      `INSERT INTO species (common_name, scientific_name, tags, germination_time_days, growth_time_months, notes, photo_url, active)
+       VALUES ($1, $2, $3::text[], $4, $5, $6, $7, $8)`,
+      [data.common_name, data.scientific_name, data.tags, data.germination_time_days,
        data.growth_time_months, data.notes, data.photo_url, data.active]
     )
   } catch (e: unknown) {
@@ -70,9 +69,9 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
 }
 
 /**
- * Cadastro rapido de especie a partir do nome (usado na colagem de pedido).
- * Categoria padrao 'restauracao' (editavel depois no cadastro completo).
- * Retorna o id da especie criada para uso imediato no item do pedido.
+ * Cadastro rapido de especie a partir do nome (usado na colagem de pedido e na
+ * busca de especie de novo/editar pedido). Sem caracteristicas — editaveis depois
+ * no cadastro completo. Retorna o id para uso imediato no item do pedido.
  */
 export async function createSpeciesQuick(
   commonName: string,
@@ -82,8 +81,8 @@ export async function createSpeciesQuick(
   if (!name) return { error: 'Informe o nome da espécie.' }
   try {
     const { rows } = await pool.query(
-      `INSERT INTO species (common_name, category, active)
-       VALUES ($1, 'restauracao', true)
+      `INSERT INTO species (common_name, active)
+       VALUES ($1, true)
        RETURNING id`,
       [name],
     )
@@ -98,9 +97,9 @@ export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{
   await requireRole('admin', 'chefia')
   try {
     await pool.query(
-      `UPDATE species SET common_name=$1, scientific_name=$2, category=$3, germination_time_days=$4,
+      `UPDATE species SET common_name=$1, scientific_name=$2, tags=$3::text[], germination_time_days=$4,
        growth_time_months=$5, notes=$6, photo_url=$7, active=$8 WHERE id=$9`,
-      [data.common_name, data.scientific_name, data.category, data.germination_time_days,
+      [data.common_name, data.scientific_name, data.tags, data.germination_time_days,
        data.growth_time_months, data.notes, data.photo_url, data.active, id]
     )
   } catch (e: unknown) {

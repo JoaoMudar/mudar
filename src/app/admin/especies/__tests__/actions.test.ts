@@ -23,7 +23,12 @@ vi.mock('sharp', () => ({
 
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
-import { createEspecie, uploadEspecieFoto, type SpeciesPayload } from '../actions'
+import {
+  createEspecie,
+  createSpeciesQuick,
+  uploadEspecieFoto,
+  type SpeciesPayload,
+} from '../actions'
 
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
 const mockedRequireRole = requireRole as unknown as ReturnType<typeof vi.fn>
@@ -31,7 +36,7 @@ const mockedRequireRole = requireRole as unknown as ReturnType<typeof vi.fn>
 const validSpecies: SpeciesPayload = {
   common_name: 'Ipê-amarelo',
   scientific_name: 'Handroanthus albus',
-  category: 'madeira',
+  tags: ['nativa', 'frutifera'],
   germination_time_days: null,
   growth_time_months: null,
   notes: '',
@@ -50,12 +55,39 @@ describe('createEspecie — guarda de autorização', () => {
     expect(mockedQuery).not.toHaveBeenCalled()
   })
 
-  it('insere quando autorizado', async () => {
+  it('insere quando autorizado, passando as tags como text[]', async () => {
     mockedRequireRole.mockResolvedValueOnce(undefined)
     mockedQuery.mockResolvedValueOnce({ rows: [] })
     const res = await createEspecie(validSpecies)
     expect(res).toEqual({})
     expect(mockedQuery).toHaveBeenCalledTimes(1)
+    const [sql, params] = mockedQuery.mock.calls[0]
+    expect(sql).toContain('tags')
+    expect(params).toContain(validSpecies.tags)
+  })
+})
+
+describe('createSpeciesQuick — cadastro rápido', () => {
+  it('não toca o banco quando requireRole nega', async () => {
+    mockedRequireRole.mockRejectedValueOnce(new Error('NEXT_REDIRECT'))
+    await expect(createSpeciesQuick('Cereja-do-rio-grande')).rejects.toThrow()
+    expect(mockedQuery).not.toHaveBeenCalled()
+  })
+
+  it('rejeita nome vazio sem tocar o banco', async () => {
+    mockedRequireRole.mockResolvedValueOnce(undefined)
+    const res = await createSpeciesQuick('   ')
+    expect(res).toMatchObject({ error: expect.stringMatching(/nome/i) })
+    expect(mockedQuery).not.toHaveBeenCalled()
+  })
+
+  it('cria sem categoria e retorna o id', async () => {
+    mockedRequireRole.mockResolvedValueOnce(undefined)
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'sp-1' }] })
+    const res = await createSpeciesQuick('Cereja-do-rio-grande')
+    expect(res).toEqual({ id: 'sp-1' })
+    const [sql] = mockedQuery.mock.calls[0]
+    expect(sql).not.toContain('category')
   })
 })
 

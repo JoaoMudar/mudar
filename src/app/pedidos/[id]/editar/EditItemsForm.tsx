@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { updateOrderAfterReview } from '../../actions'
+import { createSpeciesQuick } from '@/app/admin/especies/actions'
 import { buildAvailabilityNote, type ReviewItemInput } from '@/lib/orders'
 
 interface Species {
   id: string
   common_name: string
+  tags?: string[] | null
 }
 interface Container {
   id: string
@@ -33,6 +35,7 @@ interface CurrentItem {
 interface Props {
   orderId: string
   orderNumber: number
+  orderNotes: string | null
   items: CurrentItem[]
   species: Species[]
   containers: Container[]
@@ -78,6 +81,7 @@ function newRow(template?: Pick<Row, 'container_id' | 'quantity'>): Row {
 export default function EditItemsForm({
   orderId,
   orderNumber,
+  orderNotes,
   items,
   species,
   containers,
@@ -86,6 +90,8 @@ export default function EditItemsForm({
   const [isPending, startTransition] = useTransition()
   const [toast, setToast] = useState<ToastState | null>(null)
   const [focusKey, setFocusKey] = useState<string | null>(null)
+  // Lista local de especies (cresce com o cadastro rapido "+ Criar").
+  const [speciesList, setSpeciesList] = useState<Species[]>(species)
   const [rows, setRows] = useState<Row[]>(() =>
     items.map((it) => {
       seq += 1
@@ -112,10 +118,29 @@ export default function EditItemsForm({
     }),
   )
 
-  const speciesItems: AutocompleteItem[] = species.map((s) => ({ id: s.id, label: s.common_name }))
+  const speciesItems: AutocompleteItem[] = speciesList.map((s) => ({
+    id: s.id,
+    label: s.common_name,
+    tags: s.tags ?? undefined,
+  }))
 
   function showToast(message: string, type: ToastType) {
     setToast({ message, type })
+  }
+
+  // Cadastro rapido de especie a partir da busca: cria, anexa e seleciona na linha.
+  async function handleQuickCreateSpecies(key: string, name: string) {
+    const trimmed = name.trim()
+    if (!trimmed) return
+    const result = await createSpeciesQuick(trimmed)
+    if (result.error || !result.id) {
+      showToast(result.error ?? 'Erro ao criar espécie.', 'error')
+      return
+    }
+    const created: Species = { id: result.id, common_name: trimmed, tags: [] }
+    setSpeciesList((list) => [...list, created])
+    updateRow(key, { species_id: created.id, species_label: created.common_name })
+    showToast(`Espécie "${trimmed}" criada!`, 'success')
   }
   function updateRow(key: string, patch: Partial<Row>) {
     setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)))
@@ -190,6 +215,12 @@ export default function EditItemsForm({
           volta para re-verificação.
         </p>
 
+        {orderNotes && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+            <span className="font-semibold">Observações do pedido:</span> {orderNotes}
+          </div>
+        )}
+
         {rows.map((r) => {
           const indisponivel = r.is_available === false && !r.is_partial
           return (
@@ -234,6 +265,13 @@ export default function EditItemsForm({
                   {r.partial_note ?? 'Parcial'}{r.notes ? ` · ${r.notes}` : ''}
                 </p>
               )}
+              {/* Observacao da gerencia sempre visivel (mesmo quando o item esta
+                  disponivel) — guia o ajuste, ex: "so temos balde". */}
+              {r.notes && !indisponivel && !r.is_partial && (
+                <p className="text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
+                  📝 Gerência: {r.notes}
+                </p>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                 <div className="sm:col-span-6">
@@ -247,7 +285,9 @@ export default function EditItemsForm({
                       placeholder="Buscar espécie…"
                       initialValue={r.species_label}
                       autoFocus={r.key === focusKey}
+                      allowCreate
                       onSelect={(it) => updateRow(r.key, { species_id: it.id, species_label: it.label })}
+                      onCreateNew={(q) => handleQuickCreateSpecies(r.key, q)}
                     />
                   )}
                 </div>

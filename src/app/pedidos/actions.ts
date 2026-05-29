@@ -40,7 +40,7 @@ const LIST_PATH = '/pedidos'
 export async function getSpeciesForSelect() {
   await requireAuth()
   const { rows } = await pool.query(
-    `SELECT id, common_name, photo_url
+    `SELECT id, common_name, photo_url, tags
      FROM species WHERE active = true ORDER BY common_name`,
   )
   return rows
@@ -143,7 +143,7 @@ export async function getOrderById(id: string) {
     `SELECT oi.id, oi.order_id, oi.species_id, oi.container_id, oi.quantity,
             oi.is_generic, oi.parent_item_id, oi.is_available, oi.availability_notes,
             oi.available_quantity, oi.available_container_id,
-            s.common_name AS species_name, s.photo_url AS species_photo,
+            s.common_name AS species_name, s.photo_url AS species_photo, s.tags AS species_tags,
             ct.name AS container_name, ct.volume_liters AS container_volume,
             act.name AS available_container_name
      FROM order_items oi
@@ -1177,7 +1177,7 @@ export async function getOrderLoads(orderId: string) {
   const loadIds = loads.map((l) => l.id)
   const { rows: items } = await pool.query(
     `SELECT li.id, li.load_id, li.order_item_id, li.quantity, li.is_separated,
-            s.common_name AS species_name, s.photo_url AS species_photo,
+            s.common_name AS species_name, s.photo_url AS species_photo, s.tags AS species_tags,
             ct.name AS container_name
      FROM order_load_items li
      JOIN order_items oi ON oi.id = li.order_item_id

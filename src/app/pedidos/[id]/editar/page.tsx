@@ -34,6 +34,7 @@ export default async function EditarPedidoPage({
     <EditItemsForm
       orderId={id}
       orderNumber={data.order.order_number}
+      orderNotes={data.order.notes ?? null}
       items={data.items}
       species={species}
       containers={containers}
