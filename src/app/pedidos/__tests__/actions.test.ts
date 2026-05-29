@@ -12,6 +12,7 @@ import {
   createOrder,
   getOrdersSignal,
   toggleItemAvailability,
+  saveVerificationNotes,
   assignSpeciesToGenericItem,
   finishVerification,
   approveOrder,
@@ -190,6 +191,38 @@ describe('toggleItemAvailability', () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ quantity: 25 }] }) // SELECT quantity
     const result = await toggleItemAvailability('item1', 'parcial', { availableQuantity: 15 })
     expect(result.error).toMatch(/recipiente/i)
+  })
+})
+
+describe('saveVerificationNotes', () => {
+  it('nega sem permissao sem tocar o banco', async () => {
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    const result = await saveVerificationNotes('o1', [{ itemId: 'i1', notes: 'x' }])
+    expect(result.error).toMatch(/permissão/i)
+    expect(mockedConnect).not.toHaveBeenCalled()
+  })
+
+  it('persiste observacoes (trim/null) com order_id correto', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    const clientQuery = vi.fn().mockResolvedValue({})
+    const release = vi.fn()
+    mockedConnect.mockResolvedValueOnce({ query: clientQuery, release })
+
+    const result = await saveVerificationNotes('o1', [
+      { itemId: 'i1', notes: '  checar fornecedor  ' },
+      { itemId: 'i2', notes: '   ' },
+    ])
+    expect(result.error).toBeUndefined()
+
+    const updates = clientQuery.mock.calls.filter(
+      (c) => typeof c[0] === 'string' && c[0].includes('UPDATE order_items SET availability_notes'),
+    )
+    expect(updates).toHaveLength(2)
+    // nota com espacos -> trim; escopo por order_id
+    expect(updates[0][1]).toEqual(['checar fornecedor', 'i1', 'o1'])
+    // nota so com espacos -> null
+    expect(updates[1][1]).toEqual([null, 'i2', 'o1'])
+    expect(release).toHaveBeenCalled()
   })
 })
 

@@ -11,6 +11,7 @@ import {
   startVerification,
   toggleItemAvailability,
   finishVerification,
+  saveVerificationNotes,
 } from '../../actions'
 import type { AvailabilityState } from '@/lib/orders'
 
@@ -77,6 +78,7 @@ export default function VerificationChecklist({
   const router = useRouter()
   const startedRef = useRef(false)
   const [isFinishing, startFinish] = useTransition()
+  const [isSaving, startSave] = useTransition()
   const [toast, setToast] = useState<ToastState | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
 
@@ -163,6 +165,23 @@ export default function VerificationChecklist({
   const total = items.length
   const allDone = totalDone === total && total > 0
 
+  // Salva o estado atual (inclui observacoes de itens ainda nao marcados) e sai
+  // para o detalhe do pedido. Os estados ja sao auto-salvos; aqui garantimos as
+  // observacoes soltas, que so persistem por esta via.
+  function handleSaveAndExit() {
+    startSave(async () => {
+      const notes = specifics.map((it) => ({ itemId: it.id, notes: notesMap[it.id] ?? '' }))
+      const result = await saveVerificationNotes(orderId, notes)
+      if (result.error) {
+        showToast(`Erro: ${result.error}`, 'error')
+        return
+      }
+      showToast('Progresso salvo', 'success')
+      router.push(`/pedidos/${orderId}`)
+      router.refresh()
+    })
+  }
+
   function handleFinish() {
     startFinish(async () => {
       const result = await finishVerification(orderId)
@@ -202,7 +221,7 @@ export default function VerificationChecklist({
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto p-4 space-y-3 pb-28">
+      <div className="max-w-lg mx-auto p-4 space-y-3 pb-40">
         {/* Motivo do retorno (A3): destaque amarelo quando a chefia pediu alteracao */}
         {pendingChangeReason && (
           <div className="rounded-xl border-2 border-amber-400 bg-amber-50 p-3">
@@ -358,21 +377,29 @@ export default function VerificationChecklist({
         ))}
       </div>
 
-      {/* Botao finalizar */}
-      {allDone && (
-        <div className="fixed bottom-0 inset-x-0 p-4 bg-white border-t border-gray-200">
-          <div className="max-w-lg mx-auto">
+      {/* Barra inferior: salvar progresso sempre; finalizar quando tudo verificado */}
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-white border-t border-gray-200">
+        <div className="max-w-lg mx-auto flex flex-col gap-2">
+          {allDone && (
             <button
               type="button"
               onClick={handleFinish}
-              disabled={isFinishing}
+              disabled={isFinishing || isSaving}
               className="btn-primary"
             >
               {isFinishing ? 'Enviando…' : 'Enviar para Chefia'}
             </button>
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={handleSaveAndExit}
+            disabled={isSaving || isFinishing}
+            className="w-full py-3 rounded-xl font-bold text-green-700 border-2 border-green-300 bg-white disabled:opacity-50"
+          >
+            {isSaving ? 'Salvando…' : 'Salvar e continuar depois'}
+          </button>
         </div>
-      )}
+      </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
