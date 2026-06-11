@@ -12,8 +12,16 @@ import {
   createEspecie,
   updateEspecie,
   toggleEspecieAtiva,
+  addPopularName,
+  removePopularName,
+  setMainPopularName,
   type SpeciesPayload,
 } from './actions'
+
+interface PopularName {
+  id: string
+  name: string
+}
 
 interface Species {
   id: string
@@ -25,6 +33,7 @@ interface Species {
   notes: string | null
   photo_url: string | null
   active: boolean
+  popular_names: PopularName[]
 }
 
 function emptyForm(): SpeciesPayload {
@@ -55,6 +64,10 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
   // Quando o form foi aberto a partir do modo "revisar", exigimos os dados
   // minimos (nome cientifico + 1 caracteristica) e voltamos para a revisao.
   const [completing, setCompleting] = useState(false)
+  // Sinonimos da especie em edicao (copia local: salvos na hora, fora do submit).
+  const [popularNames, setPopularNames] = useState<PopularName[]>([])
+  const [newPopularName, setNewPopularName] = useState('')
+  const [savingName, setSavingName] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const incompleteSpecies = useMemo(
@@ -72,6 +85,8 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     setPhotoFile(null)
     setPhotoPreview('')
     setCompleting(false)
+    setPopularNames([])
+    setNewPopularName('')
     setMode('form')
   }
 
@@ -90,6 +105,8 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     setPhotoFile(null)
     setPhotoPreview(item.photo_url ?? '')
     setCompleting(fromReview)
+    setPopularNames(item.popular_names ?? [])
+    setNewPopularName('')
     setMode('form')
   }
 
@@ -155,6 +172,60 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
     }
   }
 
+  async function handleAddPopularName() {
+    if (!editingItem || savingName) return
+    const name = newPopularName.trim()
+    if (!name) return
+    setSavingName(true)
+    try {
+      const res = await addPopularName(editingItem.id, name)
+      if (res.error) {
+        showToast(res.error, 'error')
+        return
+      }
+      setPopularNames((p) => [...p, { id: res.id!, name }])
+      setNewPopularName('')
+      showToast('Nome adicionado!', 'success')
+      startTransition(() => router.refresh())
+    } finally {
+      setSavingName(false)
+    }
+  }
+
+  async function handleRemovePopularName(pn: PopularName) {
+    if (!window.confirm(`Remover o nome "${pn.name}"?`)) return
+    const res = await removePopularName(pn.id)
+    if (res.error) {
+      showToast(`Erro: ${res.error}`, 'error')
+      return
+    }
+    setPopularNames((p) => p.filter((x) => x.id !== pn.id))
+    showToast('Nome removido.', 'success')
+    startTransition(() => router.refresh())
+  }
+
+  async function handleSetMainPopularName(pn: PopularName) {
+    if (!editingItem) return
+    const current = editingItem.common_name
+    if (
+      !window.confirm(
+        `Tornar "${pn.name}" o nome principal? "${current}" continua na lista como outro nome.`,
+      )
+    )
+      return
+    const res = await setMainPopularName(pn.id)
+    if (res.error) {
+      showToast(`Erro: ${res.error}`, 'error')
+      return
+    }
+    // Reflete o swap feito no banco: sinonimo vira principal e vice-versa.
+    setPopularNames((p) => p.map((x) => (x.id === pn.id ? { ...x, name: current } : x)))
+    setEditingItem({ ...editingItem, common_name: pn.name })
+    setForm((f) => ({ ...f, common_name: pn.name }))
+    showToast(`"${pn.name}" agora é o nome principal!`, 'success')
+    startTransition(() => router.refresh())
+  }
+
   function handleToggleActive(item: Species) {
     const acao = item.active ? 'desativar' : 'ativar'
     if (!window.confirm(`Deseja ${acao} "${item.common_name}"?`)) return
@@ -199,9 +270,78 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
             />
           </div>
 
+          {/* Outros nomes populares (sinonimos) — salvos na hora, fora do submit */}
+          <div className="flex flex-col gap-2">
+            <label className="label">Outros nomes populares</label>
+            {editingItem ? (
+              <>
+                {popularNames.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {popularNames.map((pn) => (
+                      <span
+                        key={pn.id}
+                        className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm font-medium pl-3 pr-1.5 py-1.5 rounded-full"
+                      >
+                        {pn.name}
+                        <button
+                          type="button"
+                          onClick={() => handleSetMainPopularName(pn)}
+                          title="Tornar nome principal"
+                          aria-label={`Tornar "${pn.name}" o nome principal`}
+                          className="text-amber-500 hover:text-amber-600 px-1"
+                        >
+                          ★
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePopularName(pn)}
+                          aria-label={`Remover o nome "${pn.name}"`}
+                          className="text-gray-400 hover:text-red-500 px-1"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newPopularName}
+                    onChange={(e) => setNewPopularName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleAddPopularName()
+                      }
+                    }}
+                    placeholder="Ex: Caroba"
+                    className="input flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddPopularName}
+                    disabled={savingName || newPopularName.trim() === ''}
+                    className="px-4 rounded-xl bg-green-50 text-green-700 font-semibold text-sm disabled:opacity-50"
+                  >
+                    {savingName ? '…' : 'Adicionar'}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  ★ torna o nome principal · ✕ remove. A busca de pedidos encontra a espécie por
+                  qualquer um destes nomes.
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-gray-400">
+                Salve a espécie para poder adicionar outros nomes populares.
+              </p>
+            )}
+          </div>
+
           {/* Nome científico */}
           <div className="flex flex-col gap-1">
-            <label className="label">Nome científico</label>
+            <label className="label">Nome científico (nome principal da espécie)</label>
             <input
               type="text"
               value={form.scientific_name}
@@ -423,6 +563,11 @@ export default function EspeciesManager({ initialSpecies }: { initialSpecies: Sp
                 <p className="font-bold text-gray-900 truncate">{item.common_name}</p>
                 {item.scientific_name && (
                   <p className="text-sm text-gray-500 italic truncate">{item.scientific_name}</p>
+                )}
+                {(item.popular_names?.length ?? 0) > 0 && (
+                  <p className="text-xs text-gray-400 truncate">
+                    também: {item.popular_names.map((pn) => pn.name).join(', ')}
+                  </p>
                 )}
                 <SpeciesTags tags={item.tags} className="mt-1" />
               </div>

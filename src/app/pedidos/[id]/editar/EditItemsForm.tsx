@@ -12,7 +12,10 @@ import { buildAvailabilityNote, type ReviewItemInput } from '@/lib/orders'
 interface Species {
   id: string
   common_name: string
+  scientific_name?: string | null
   tags?: string[] | null
+  /** Sinonimos — a busca tambem encontra a especie por eles. */
+  popular_names?: string[]
 }
 interface Container {
   id: string
@@ -122,6 +125,10 @@ export default function EditItemsForm({
     id: s.id,
     label: s.common_name,
     tags: s.tags ?? undefined,
+    keywords: [
+      ...(s.popular_names ?? []),
+      ...(s.scientific_name ? [s.scientific_name] : []),
+    ],
   }))
 
   function showToast(message: string, type: ToastType) {
@@ -133,6 +140,15 @@ export default function EditItemsForm({
     const trimmed = name.trim()
     if (!trimmed) return
     const result = await createSpeciesQuick(trimmed)
+    // Nome ja cadastrado (principal ou sinonimo): usa a especie existente.
+    if (result.existing) {
+      updateRow(key, {
+        species_id: result.existing.id,
+        species_label: result.existing.common_name,
+      })
+      showToast(`"${trimmed}" já existia — usei ${result.existing.common_name}.`, 'success')
+      return
+    }
     if (result.error || !result.id) {
       showToast(result.error ?? 'Erro ao criar espécie.', 'error')
       return
