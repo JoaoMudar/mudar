@@ -118,6 +118,68 @@ describe('matchSpecies', () => {
   it('nome vazio = none', () => {
     expect(matchSpecies('', SPECIES).status).toBe('none')
   })
+
+  it('match pelo principal nao preenche matchedVia', () => {
+    expect(matchSpecies('ipe amarelo', SPECIES).matchedVia).toBeNull()
+  })
+})
+
+describe('matchSpecies — sinônimos e nome científico', () => {
+  const WITH_NAMES: SpeciesOption[] = [
+    {
+      id: 's1',
+      common_name: 'Ipê-amarelo',
+      scientific_name: 'Handroanthus albus',
+      popular_names: ['Ipê-da-serra'],
+    },
+    { id: 's2', common_name: 'Jacarandá', popular_names: ['Caroba', 'Carobinha'] },
+    { id: 's3', common_name: 'Pitanga' },
+  ]
+
+  it('casa exato por sinônimo, retornando a espécie dona e matchedVia', () => {
+    const m = matchSpecies('caroba', WITH_NAMES)
+    expect(m.status).toBe('exact')
+    expect(m.speciesId).toBe('s2')
+    expect(m.speciesName).toBe('Jacarandá')
+    expect(m.matchedVia).toBe('Caroba')
+  })
+
+  it('casa exato pelo nome científico', () => {
+    const m = matchSpecies('handroanthus albus', WITH_NAMES)
+    expect(m.status).toBe('exact')
+    expect(m.speciesId).toBe('s1')
+    expect(m.matchedVia).toBe('Handroanthus albus')
+  })
+
+  it('fuzzy em sinônimo vira provável com matchedVia', () => {
+    const m = matchSpecies('carobinia', WITH_NAMES) // typo de "Carobinha"
+    expect(m.status).toBe('likely')
+    expect(m.speciesId).toBe('s2')
+    expect(m.matchedVia).toBe('Carobinha')
+  })
+
+  it('plural de sinônimo casa exato', () => {
+    const m = matchSpecies('carobas', WITH_NAMES)
+    expect(m.status).toBe('exact')
+    expect(m.speciesId).toBe('s2')
+  })
+
+  it('principal exato vence sinônimo fuzzy de outra espécie', () => {
+    const species: SpeciesOption[] = [
+      { id: 'a', common_name: 'Pitanga' },
+      { id: 'b', common_name: 'Goiaba', popular_names: ['Pitangao'] },
+    ]
+    const m = matchSpecies('pitanga', species)
+    expect(m.speciesId).toBe('a')
+    expect(m.status).toBe('exact')
+    expect(m.matchedVia).toBeNull()
+  })
+
+  it('retrocompatível: SpeciesOption sem os campos novos segue funcionando', () => {
+    const m = matchSpecies('pitanga', WITH_NAMES)
+    expect(m.speciesId).toBe('s3')
+    expect(m.status).toBe('exact')
+  })
 })
 
 describe('buildPasteRows', () => {

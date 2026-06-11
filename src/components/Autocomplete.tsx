@@ -10,6 +10,11 @@ export interface AutocompleteItem {
   sublabel?: string
   /** Caracteristicas (badges) exibidas ao lado do label — ex: especie. */
   tags?: string[]
+  /**
+   * Nomes alternativos que tambem casam na busca (ex: sinonimos e nome
+   * cientifico de especie). Item achado so por keyword mostra de onde veio.
+   */
+  keywords?: string[]
 }
 
 interface Props {
@@ -61,13 +66,28 @@ export default function Autocomplete({
   }, [])
 
   // Busca tolerante: ignora acento, caixa e espacos nas pontas.
+  // Alem do label, os keywords (sinonimos/nome cientifico) tambem casam.
   const q = normalizeText(debounced)
   const filtered = q
-    ? items.filter((i) => matchesSearch(i.label, debounced))
+    ? items.filter(
+        (i) =>
+          matchesSearch(i.label, debounced) ||
+          (i.keywords ?? []).some((k) => matchesSearch(k, debounced)),
+      )
     : items
   const visible = filtered.slice(0, 50)
 
-  const exactMatch = items.some((i) => normalizeText(i.label) === q)
+  /** Keyword que casou quando o label nao casa — para mostrar "encontrado por". */
+  function matchedKeyword(item: AutocompleteItem): string | null {
+    if (!q || matchesSearch(item.label, debounced)) return null
+    return (item.keywords ?? []).find((k) => matchesSearch(k, debounced)) ?? null
+  }
+
+  const exactMatch = items.some(
+    (i) =>
+      normalizeText(i.label) === q ||
+      (i.keywords ?? []).some((k) => normalizeText(k) === q),
+  )
   const showCreate = allowCreate && q.length > 0 && !exactMatch
 
   function choose(item: AutocompleteItem) {
@@ -133,6 +153,11 @@ export default function Autocomplete({
                 </span>
                 {item.sublabel && (
                   <span className="block text-sm text-gray-500">{item.sublabel}</span>
+                )}
+                {matchedKeyword(item) && (
+                  <span className="block text-sm text-gray-400">
+                    encontrado por: “{matchedKeyword(item)}”
+                  </span>
                 )}
               </button>
             </li>

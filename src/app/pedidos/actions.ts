@@ -39,9 +39,15 @@ const LIST_PATH = '/pedidos'
 
 export async function getSpeciesForSelect() {
   await requireAuth()
+  // popular_names: sinonimos da especie — a busca/colagem encontra por qualquer nome.
   const { rows } = await pool.query(
-    `SELECT id, common_name, photo_url, tags
-     FROM species WHERE active = true ORDER BY common_name`,
+    `SELECT s.id, s.common_name, s.scientific_name, s.photo_url, s.tags,
+            COALESCE(array_agg(pn.name) FILTER (WHERE pn.id IS NOT NULL), '{}') AS popular_names
+     FROM species s
+     LEFT JOIN species_popular_names pn ON pn.species_id = s.id
+     WHERE s.active = true
+     GROUP BY s.id
+     ORDER BY s.common_name`,
   )
   return rows
 }

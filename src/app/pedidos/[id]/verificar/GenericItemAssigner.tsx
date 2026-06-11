@@ -14,6 +14,9 @@ import { assignSpeciesToGenericItem } from '../../actions'
 interface Species {
   id: string
   common_name: string
+  scientific_name?: string | null
+  /** Sinonimos — a busca tambem encontra a especie por eles. */
+  popular_names?: string[]
 }
 interface Container {
   id: string
@@ -88,6 +91,10 @@ export default function GenericItemAssigner({
   const speciesItems: AutocompleteItem[] = species.map((s) => ({
     id: s.id,
     label: s.common_name,
+    keywords: [
+      ...(s.popular_names ?? []),
+      ...(s.scientific_name ? [s.scientific_name] : []),
+    ],
   }))
 
   const assigned = sumQuantities(rows.map((r) => ({ quantity: Number(r.quantity) || 0 })))

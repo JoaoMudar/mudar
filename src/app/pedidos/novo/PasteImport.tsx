@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { buildPasteRows, type MatchStatus, type SpeciesOption } from '@/lib/order-paste'
-import { createSpeciesQuick } from '@/app/admin/especies/actions'
+import { normalizePopularName } from '@/lib/species-names'
+import { createSpeciesQuick, addPopularName } from '@/app/admin/especies/actions'
 
 interface Container {
   id: string
@@ -30,7 +31,15 @@ interface Props {
 interface ReviewRow {
   key: string
   raw: string
+  /** Nome da especie como veio na linha colada (para oferecer salvar como sinonimo). */
+  pasted_name: string
   status: MatchStatus
+  /** Nome (sinonimo/cientifico) pelo qual a linha foi reconhecida, se nao o principal. */
+  matched_via: string | null
+  /** true quando o usuario escolheu a especie manualmente no autocomplete. */
+  resolved_manually: boolean
+  /** true depois que o nome colado foi salvo como sinonimo da especie. */
+  name_saved: boolean
   is_generic: boolean
   species_id: string
   species_label: string
@@ -54,11 +63,29 @@ export default function PasteImport({ species, containers, onImport, onClose }: 
   const [rows, setRows] = useState<ReviewRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [creatingKey, setCreatingKey] = useState<string | null>(null)
+  const [savingNameKey, setSavingNameKey] = useState<string | null>(null)
 
   const speciesItems: AutocompleteItem[] = localSpecies.map((s) => ({
     id: s.id,
     label: s.common_name,
+    keywords: [
+      ...(s.popular_names ?? []),
+      ...(s.scientific_name ? [s.scientific_name] : []),
+    ],
   }))
+
+  /** true se a especie ja conhece este nome (principal, sinonimo ou cientifico). */
+  function speciesHasName(speciesId: string, name: string): boolean {
+    const sp = localSpecies.find((s) => s.id === speciesId)
+    if (!sp) return true // especie fora da lista local: nao oferece salvar
+    const target = normalizePopularName(name)
+    if (!target) return true
+    return [
+      sp.common_name,
+      ...(sp.popular_names ?? []),
+      ...(sp.scientific_name ? [sp.scientific_name] : []),
+    ].some((n) => normalizePopularName(n) === target)
+  }
 
   function handleRecognize() {
     if (!defaultContainerId) {
@@ -77,7 +104,11 @@ export default function PasteImport({ species, containers, onImport, onClose }: 
         return {
           key: `p${pasteSeq}`,
           raw: r.raw,
+          pasted_name: r.name,
           status: r.match.status,
+          matched_via: r.match.matchedVia ?? null,
+          resolved_manually: false,
+          name_saved: false,
           is_generic: false,
           species_id: r.match.speciesId ?? '',
           species_label: r.match.speciesName ?? '',
@@ -124,6 +155,17 @@ export default function PasteImport({ species, containers, onImport, onClose }: 
     setCreatingKey(key)
     const result = await createSpeciesQuick(trimmed)
     setCreatingKey(null)
+    // Nome ja cadastrado (principal ou sinonimo): usa a especie existente.
+    if (result.existing) {
+      patchRow(key, {
+        species_id: result.existing.id,
+        species_label: result.existing.common_name,
+        status: 'exact',
+        resolved_manually: true,
+      })
+      setError(null)
+      return
+    }
     if (result.error || !result.id) {
       setError(result.error ?? 'Erro ao criar espécie.')
       return
@@ -134,6 +176,28 @@ export default function PasteImport({ species, containers, onImport, onClose }: 
       species_label: trimmed,
       status: 'exact',
     })
+  }
+
+  /** Salva o nome colado como sinonimo da especie escolhida manualmente. */
+  async function handleSavePastedName(row: ReviewRow) {
+    if (savingNameKey) return
+    setSavingNameKey(row.key)
+    const result = await addPopularName(row.species_id, row.pasted_name)
+    setSavingNameKey(null)
+    if (result.error) {
+      setError(result.error)
+      return
+    }
+    setError(null)
+    // Atualiza a lista local: o proximo "colar" ja reconhece este nome.
+    setLocalSpecies((sp) =>
+      sp.map((s) =>
+        s.id === row.species_id
+          ? { ...s, popular_names: [...(s.popular_names ?? []), row.pasted_name] }
+          : s,
+      ),
+    )
+    patchRow(row.key, { name_saved: true })
   }
 
   const list = rows ?? []
@@ -263,20 +327,50 @@ export default function PasteImport({ species, containers, onImport, onClose }: 
                         Gerência escolhe a espécie
                       </div>
                     ) : (
-                      <Autocomplete
-                        items={speciesItems}
-                        placeholder={creatingKey === r.key ? 'Criando…' : 'Buscar espécie…'}
-                        initialValue={r.species_label}
-                        allowCreate
-                        onSelect={(item) =>
-                          patchRow(r.key, {
-                            species_id: item.id,
-                            species_label: item.label,
-                            status: 'exact',
-                          })
-                        }
-                        onCreateNew={(q) => handleCreateSpecies(r.key, q)}
-                      />
+                      <>
+                        <Autocomplete
+                          items={speciesItems}
+                          placeholder={creatingKey === r.key ? 'Criando…' : 'Buscar espécie…'}
+                          initialValue={r.species_label}
+                          allowCreate
+                          onSelect={(item) =>
+                            patchRow(r.key, {
+                              species_id: item.id,
+                              species_label: item.label,
+                              status: 'exact',
+                              matched_via: null,
+                              resolved_manually: true,
+                            })
+                          }
+                          onCreateNew={(q) => handleCreateSpecies(r.key, q)}
+                        />
+                        {r.species_id && r.matched_via && (
+                          <p className="mt-1 text-xs text-gray-400">
+                            reconhecido por “{r.matched_via}”
+                          </p>
+                        )}
+                        {/* Nome novo: oferece guardar como sinonimo para reconhecer da proxima vez */}
+                        {r.species_id &&
+                          r.resolved_manually &&
+                          !r.name_saved &&
+                          !speciesHasName(r.species_id, r.pasted_name) && (
+                            <button
+                              type="button"
+                              onClick={() => handleSavePastedName(r)}
+                              disabled={savingNameKey === r.key}
+                              className="mt-1 text-xs font-semibold text-green-700 disabled:opacity-50"
+                            >
+                              {savingNameKey === r.key
+                                ? 'Salvando…'
+                                : `+ Salvar “${r.pasted_name}” como outro nome de ${r.species_label}`}
+                            </button>
+                          )}
+                        {r.name_saved && (
+                          <p className="mt-1 text-xs font-semibold text-green-700">
+                            ✓ “{r.pasted_name}” salvo como outro nome
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                   <div className="sm:col-span-4">

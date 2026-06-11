@@ -6,7 +6,7 @@
 //                  -> matchSpecies (casa cada nome com o cadastro)
 //                  -> buildPasteRows (junta tudo para a tela de revisao)
 
-import { normalizeText } from './text'
+import { normalizePopularName } from './species-names'
 
 export interface ParsedLine {
   /** Linha original, exatamente como colada (para exibir na revisao). */
@@ -20,6 +20,10 @@ export interface ParsedLine {
 export interface SpeciesOption {
   id: string
   common_name: string
+  /** Nome cientifico — tambem casa no reconhecimento. Opcional (retrocompat). */
+  scientific_name?: string | null
+  /** Sinonimos (outros nomes populares) — tambem casam. Opcional (retrocompat). */
+  popular_names?: string[]
 }
 
 export type MatchStatus = 'exact' | 'likely' | 'none'
@@ -31,6 +35,8 @@ export interface SpeciesMatch {
   speciesName: string | null
   /** Confianca 0..1 (1 = casamento exato). */
   score: number
+  /** Nome pelo qual a especie foi reconhecida, quando NAO foi o principal. */
+  matchedVia?: string | null
 }
 
 export interface PasteRow {
@@ -120,9 +126,9 @@ export function parseOrderLines(text: string): ParsedLine[] {
 // Casamento com o cadastro de especies
 // ============================================================
 
-/** Forma canonica para comparar: sem acento, hifen/barra viram espaco, minusculo. */
+/** Forma canonica para comparar: a mesma normalizacao da unicidade de nomes. */
 function canonical(s: string): string {
-  return normalizeText(s).replace(/[-_/]+/g, ' ').replace(/\s+/g, ' ').trim()
+  return normalizePopularName(s)
 }
 
 /** Remove plural simples ('s' final) de cada palavra com mais de 3 letras. */
@@ -159,9 +165,17 @@ export function diceCoefficient(a: string, b: string): number {
   return (2 * overlap) / (na.length - 1 + (nb.length - 1))
 }
 
+/** Todos os nomes pelos quais uma especie pode ser reconhecida. */
+function allNames(sp: SpeciesOption): string[] {
+  const names = [sp.common_name, ...(sp.popular_names ?? [])]
+  if (sp.scientific_name) names.push(sp.scientific_name)
+  return names
+}
+
 /**
- * Casa um nome livre com a melhor especie do cadastro.
- * - 'exact'  → igualdade normalizada (ou plural)
+ * Casa um nome livre com a melhor especie do cadastro, considerando o nome
+ * principal, os sinonimos e o nome cientifico de cada especie.
+ * - 'exact'  → igualdade normalizada (ou plural) com qualquer um dos nomes
  * - 'likely' → um contem o outro, ou semelhanca >= limiar (pre-seleciona o palpite)
  * - 'none'   → nada parecido (sem especie sugerida)
  */
@@ -170,28 +184,30 @@ export function matchSpecies(name: string, species: SpeciesOption[]): SpeciesMat
   if (!target) return { status: 'none', speciesId: null, speciesName: null, score: 0 }
   const targetSing = singularize(target)
 
-  let best: { sp: SpeciesOption; score: number; exact: boolean } | null = null
-  for (const sp of species) {
-    const cand = canonical(sp.common_name)
-    if (!cand) continue
-    const candSing = singularize(cand)
+  let best: { sp: SpeciesOption; score: number; exact: boolean; via: string } | null = null
+  outer: for (const sp of species) {
+    for (const candidateName of allNames(sp)) {
+      const cand = canonical(candidateName)
+      if (!cand) continue
+      const candSing = singularize(cand)
 
-    const exact = cand === target || candSing === targetSing
-    let score: number
-    if (exact) {
-      score = 1
-    } else {
-      const contains =
-        cand.includes(target) ||
-        target.includes(cand) ||
-        candSing.includes(targetSing) ||
-        targetSing.includes(candSing)
-      const dice = Math.max(diceCoefficient(target, cand), diceCoefficient(targetSing, candSing))
-      score = contains ? Math.max(dice, CONTAINS_SCORE) : dice
+      const exact = cand === target || candSing === targetSing
+      let score: number
+      if (exact) {
+        score = 1
+      } else {
+        const contains =
+          cand.includes(target) ||
+          target.includes(cand) ||
+          candSing.includes(targetSing) ||
+          targetSing.includes(candSing)
+        const dice = Math.max(diceCoefficient(target, cand), diceCoefficient(targetSing, candSing))
+        score = contains ? Math.max(dice, CONTAINS_SCORE) : dice
+      }
+
+      if (!best || score > best.score) best = { sp, score, exact, via: candidateName }
+      if (exact) break outer
     }
-
-    if (!best || score > best.score) best = { sp, score, exact }
-    if (exact) break
   }
 
   if (!best) return { status: 'none', speciesId: null, speciesName: null, score: 0 }
@@ -209,6 +225,7 @@ export function matchSpecies(name: string, species: SpeciesOption[]): SpeciesMat
     speciesId: best.sp.id,
     speciesName: best.sp.common_name,
     score: best.score,
+    matchedVia: best.via === best.sp.common_name ? null : best.via,
   }
 }
 
