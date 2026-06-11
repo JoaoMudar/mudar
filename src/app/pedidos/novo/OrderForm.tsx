@@ -36,6 +36,10 @@ interface Props {
   containers: Container[]
 }
 
+interface ScopeSpecies {
+  id: string
+  label: string
+}
 interface ItemRow {
   key: string
   is_generic: boolean
@@ -43,6 +47,10 @@ interface ItemRow {
   species_label: string
   container_id: string
   quantity: string
+  /** Especificacao do item generico (exigencia de qualidade do cliente). */
+  specification: string
+  /** Escopo: especies permitidas no item generico. Vazio = aberto. */
+  allowed_species: ScopeSpecies[]
 }
 
 interface ToastState {
@@ -65,6 +73,8 @@ function newRow(template?: Pick<ItemRow, 'container_id' | 'quantity'>): ItemRow 
     species_label: '',
     container_id: template?.container_id ?? '',
     quantity: template?.quantity ?? '',
+    specification: '',
+    allowed_species: [],
   }
 }
 
@@ -136,6 +146,8 @@ export default function OrderForm({ customers, species, containers }: Props) {
         species_label: it.species_label,
         container_id: it.container_id,
         quantity: it.quantity,
+        specification: '',
+        allowed_species: [],
       }
     })
     setItems((rows) => {
@@ -156,7 +168,34 @@ export default function OrderForm({ customers, species, containers }: Props) {
     setItems((rows) =>
       rows.map((r) =>
         r.key === key
-          ? { ...r, is_generic: !r.is_generic, species_id: '', species_label: '' }
+          ? {
+              ...r,
+              is_generic: !r.is_generic,
+              species_id: '',
+              species_label: '',
+              specification: '',
+              allowed_species: [],
+            }
+          : r,
+      ),
+    )
+  }
+
+  // Escopo do item generico: adiciona/remove especie permitida (sem duplicar).
+  function addScopeSpecies(key: string, sp: ScopeSpecies) {
+    setItems((rows) =>
+      rows.map((r) =>
+        r.key === key && !r.allowed_species.some((s) => s.id === sp.id)
+          ? { ...r, allowed_species: [...r.allowed_species, sp] }
+          : r,
+      ),
+    )
+  }
+  function removeScopeSpecies(key: string, id: string) {
+    setItems((rows) =>
+      rows.map((r) =>
+        r.key === key
+          ? { ...r, allowed_species: r.allowed_species.filter((s) => s.id !== id) }
           : r,
       ),
     )
@@ -237,6 +276,8 @@ export default function OrderForm({ customers, species, containers }: Props) {
           species_id: it.is_generic ? null : it.species_id,
           container_id: it.container_id,
           quantity: Number(it.quantity),
+          specification: it.is_generic ? it.specification : null,
+          allowed_species_ids: it.is_generic ? it.allowed_species.map((s) => s.id) : [],
         })),
       })
       if (result.error) {
@@ -465,6 +506,62 @@ export default function OrderForm({ customers, species, containers }: Props) {
                     />
                   </div>
                 </div>
+
+                {/* Item generico: especificacao + escopo de especies permitidas */}
+                {it.is_generic && (
+                  <div className="space-y-3 pt-1">
+                    <div>
+                      <label className="block text-xs font-semibold text-blue-800 mb-1">
+                        Especificação (opcional)
+                      </label>
+                      <input
+                        type="text"
+                        value={it.specification}
+                        onChange={(e) => updateItem(it.key, { specification: e.target.value })}
+                        placeholder="Ex.: altura mín 80cm, fuste retilíneo 0,05m"
+                        className="input py-2 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-blue-800 mb-1">
+                        Escopo de espécies (opcional)
+                      </label>
+                      <p className="text-xs text-gray-500 mb-2">
+                        Vazio = a gerência escolhe qualquer espécie. Com itens = só estas.
+                      </p>
+                      {it.allowed_species.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {it.allowed_species.map((s) => (
+                            <span
+                              key={s.id}
+                              className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full pl-2.5 pr-1 py-1"
+                            >
+                              {s.label}
+                              <button
+                                type="button"
+                                onClick={() => removeScopeSpecies(it.key, s.id)}
+                                className="text-blue-500 hover:text-blue-800 font-bold leading-none px-1"
+                                aria-label={`Remover ${s.label}`}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <Autocomplete
+                        key={`scope-${it.key}-${it.allowed_species.length}`}
+                        items={speciesItems.filter(
+                          (s) => !it.allowed_species.some((a) => a.id === s.id),
+                        )}
+                        placeholder="Adicionar espécie ao escopo…"
+                        onSelect={(item) =>
+                          addScopeSpecies(it.key, { id: item.id, label: item.label })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

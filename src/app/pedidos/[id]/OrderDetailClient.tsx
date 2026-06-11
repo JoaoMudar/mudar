@@ -34,6 +34,8 @@ interface Item {
   available_quantity: number | null
   available_container_name: string | null
   availability_notes: string | null
+  specification: string | null
+  allowed_species: { id: string; common_name: string }[]
   children: Child[]
 }
 interface Order {
@@ -349,6 +351,30 @@ function FragmentRow({ it }: { it: Item }) {
           })()}
         </td>
       </tr>
+      {it.is_generic && (it.specification || it.allowed_species.length > 0) && (
+        <tr className="bg-blue-50/40">
+          <td colSpan={5} className="px-4 py-2 pl-8 text-xs space-y-1">
+            {it.specification && (
+              <p className="text-amber-800">
+                <span className="font-semibold">📋 Especificação:</span> {it.specification}
+              </p>
+            )}
+            {it.allowed_species.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-semibold text-gray-500">Escopo:</span>
+                {it.allowed_species.map((s) => (
+                  <span
+                    key={s.id}
+                    className="bg-blue-100 text-blue-800 font-semibold rounded-full px-2 py-0.5"
+                  >
+                    {s.common_name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
       {it.children.map((c) => (
         <tr key={c.id} className="bg-blue-50/30 text-gray-600">
           <td className="px-4 py-1.5 pl-8">

@@ -72,6 +72,13 @@ export interface OrderItemInput {
   container_id: string
   quantity: number
   is_generic: boolean
+  /**
+   * Escopo do item generico: especies permitidas que a gerencia pode atribuir.
+   * Vazio/undefined = aberto (qualquer especie). So faz sentido em item generico.
+   */
+  allowed_species_ids?: string[]
+  /** Exigencia de qualidade do item generico (ex.: "altura min 80cm, fuste retilineo"). */
+  specification?: string | null
 }
 
 export interface CreateOrderInput {
@@ -137,15 +144,23 @@ export function sumQuantities(items: { quantity: number }[]): number {
 export function validateGenericAssignment(
   parentQuantity: number,
   assignments: SpeciesAssignment[],
+  allowedSpeciesIds?: string[],
 ): string | null {
   if (!assignments || assignments.length === 0) {
     return 'Atribua pelo menos uma espécie.'
   }
+  // Escopo do pedido: quando ha lista de especies permitidas, toda atribuicao
+  // precisa pertencer a ela (limite rigido — especificacao do cliente).
+  const scope =
+    allowedSpeciesIds && allowedSpeciesIds.length > 0 ? new Set(allowedSpeciesIds) : null
   for (const a of assignments) {
     if (!a.species_id) return 'Selecione a espécie de cada linha.'
     if (!a.container_id) return 'Selecione o recipiente de cada linha.'
     if (!Number.isFinite(a.quantity) || a.quantity <= 0) {
       return 'A quantidade de cada espécie deve ser maior que zero.'
+    }
+    if (scope && !scope.has(a.species_id)) {
+      return 'Espécie fora do escopo do pedido.'
     }
   }
   const total = sumQuantities(assignments)

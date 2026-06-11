@@ -26,6 +26,25 @@ function fmtDateBR(value: string | Date | null): string {
 
 const LIST_PATH = '/pedidos'
 
+// Grava o escopo de especies permitidas de um item generico. Aceita o client da
+// transacao em andamento. Lista vazia/ausente => item aberto (nenhuma linha).
+async function insertGenericScope(
+  client: { query: (sql: string, params?: unknown[]) => Promise<unknown> },
+  itemId: string,
+  allowedSpeciesIds?: string[],
+): Promise<void> {
+  if (!allowedSpeciesIds || allowedSpeciesIds.length === 0) return
+  // Dedup defensivo (a PK ja impede duplicata, mas evita erro na mesma chamada).
+  const unique = Array.from(new Set(allowedSpeciesIds.filter(Boolean)))
+  for (const speciesId of unique) {
+    await client.query(
+      `INSERT INTO order_item_allowed_species (order_item_id, species_id)
+       VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [itemId, speciesId],
+    )
+  }
+}
+
 // ============================================================
 // Clientes — casa canonica: src/app/clientes/actions.ts
 // (getCustomers / searchCustomers / createCustomer / updateCustomer / etc.)
@@ -148,7 +167,7 @@ export async function getOrderById(id: string) {
   const { rows: itemRows } = await pool.query(
     `SELECT oi.id, oi.order_id, oi.species_id, oi.container_id, oi.quantity,
             oi.is_generic, oi.parent_item_id, oi.is_available, oi.availability_notes,
-            oi.available_quantity, oi.available_container_id,
+            oi.available_quantity, oi.available_container_id, oi.specification,
             s.common_name AS species_name, s.photo_url AS species_photo, s.tags AS species_tags,
             ct.name AS container_name, ct.volume_liters AS container_volume,
             act.name AS available_container_name
@@ -161,6 +180,27 @@ export async function getOrderById(id: string) {
     [id],
   )
 
+  // Escopo de especies dos itens genericos de topo (lista fechada do pedido).
+  const genericIds = itemRows
+    .filter((i) => i.is_generic && !i.parent_item_id)
+    .map((i) => i.id)
+  const allowedByItem = new Map<string, { id: string; common_name: string }[]>()
+  if (genericIds.length > 0) {
+    const { rows: scopeRows } = await pool.query(
+      `SELECT oas.order_item_id, s.id, s.common_name
+       FROM order_item_allowed_species oas
+       JOIN species s ON s.id = oas.species_id
+       WHERE oas.order_item_id = ANY($1::uuid[])
+       ORDER BY s.common_name`,
+      [genericIds],
+    )
+    for (const r of scopeRows) {
+      const list = allowedByItem.get(r.order_item_id) ?? []
+      list.push({ id: r.id, common_name: r.common_name })
+      allowedByItem.set(r.order_item_id, list)
+    }
+  }
+
   // Monta arvore: itens de topo + filhos (de genericos).
   // Filhos recebem parent_container_name p/ destacar troca de recipiente vs. minimo.
   const children = itemRows.filter((i) => i.parent_item_id)
@@ -169,6 +209,7 @@ export async function getOrderById(id: string) {
     .filter((i) => !i.parent_item_id)
     .map((i) => ({
       ...i,
+      allowed_species: allowedByItem.get(i.id) ?? [],
       children: children
         .filter((c) => c.parent_item_id === i.id)
         .map((c) => ({
@@ -222,17 +263,22 @@ export async function createOrder(
     const order = rows[0]
 
     for (const item of data.items) {
-      await client.query(
-        `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic)
-         VALUES ($1, $2, $3, $4, $5)`,
+      const { rows: itemRows } = await client.query(
+        `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic, specification)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id`,
         [
           order.id,
           item.is_generic ? null : item.species_id,
           item.container_id,
           item.quantity,
           item.is_generic,
+          item.is_generic ? item.specification?.trim() || null : null,
         ],
       )
+      if (item.is_generic) {
+        await insertGenericScope(client, itemRows[0].id, item.allowed_species_ids)
+      }
     }
 
     await client.query(
@@ -287,17 +333,22 @@ export async function updateOrderItems(
       [orderId],
     )
     for (const item of items) {
-      await client.query(
-        `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic)
-         VALUES ($1, $2, $3, $4, $5)`,
+      const { rows: itemRows } = await client.query(
+        `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic, specification)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id`,
         [
           orderId,
           item.is_generic ? null : item.species_id,
           item.container_id,
           item.quantity,
           item.is_generic,
+          item.is_generic ? item.specification?.trim() || null : null,
         ],
       )
+      if (item.is_generic) {
+        await insertGenericScope(client, itemRows[0].id, item.allowed_species_ids)
+      }
     }
     await client.query('COMMIT')
     revalidatePath(`${LIST_PATH}/${orderId}`)
@@ -504,7 +555,19 @@ export async function assignSpeciesToGenericItem(
   if (parentRows.length === 0) return { error: 'Item genérico não encontrado.' }
   const parent = parentRows[0]
 
-  const err = validateGenericAssignment(Number(parent.quantity), assignments)
+  // Escopo do pedido (limite rigido): se houver especies permitidas, a atribuicao
+  // so pode usar especies dessa lista.
+  const { rows: scopeRows } = await pool.query(
+    `SELECT species_id FROM order_item_allowed_species WHERE order_item_id = $1`,
+    [parentItemId],
+  )
+  const allowedSpeciesIds = scopeRows.map((r) => r.species_id as string)
+
+  const err = validateGenericAssignment(
+    Number(parent.quantity),
+    assignments,
+    allowedSpeciesIds,
+  )
   if (err) return { error: err }
 
   const client = await pool.connect()
@@ -863,13 +926,35 @@ export async function updateOrderAfterReview(
 
     // Itens de topo atuais
     const { rows: current } = await client.query(
-      `SELECT id, species_id, container_id, quantity, is_generic
+      `SELECT id, species_id, container_id, quantity, is_generic, specification
        FROM order_items WHERE order_id = $1 AND parent_item_id IS NULL`,
       [orderId],
     )
     const currentById = new Map<string, (typeof current)[number]>(
       current.map((c) => [c.id, c]),
     )
+    // Escopo atual de cada item generico (para detectar mudanca de escopo).
+    const currentScopeById = new Map<string, Set<string>>()
+    const genericCurrentIds = current.filter((c) => c.is_generic).map((c) => c.id)
+    if (genericCurrentIds.length > 0) {
+      const { rows: curScope } = await client.query(
+        `SELECT order_item_id, species_id FROM order_item_allowed_species
+         WHERE order_item_id = ANY($1::uuid[])`,
+        [genericCurrentIds],
+      )
+      for (const r of curScope) {
+        const set = currentScopeById.get(r.order_item_id) ?? new Set<string>()
+        set.add(r.species_id)
+        currentScopeById.set(r.order_item_id, set)
+      }
+    }
+    // Compara dois conjuntos de ids de especie (escopo) — true se diferem.
+    const scopeChanged = (a: Set<string>, b: string[]): boolean => {
+      const bSet = new Set(b)
+      if (a.size !== bSet.size) return true
+      for (const id of a) if (!bSet.has(id)) return true
+      return false
+    }
     const keptIds = new Set(items.filter((i) => i.id).map((i) => i.id as string))
 
     // Remove itens que sairam (cascade nos filhos)
@@ -881,35 +966,53 @@ export async function updateOrderAfterReview(
 
     for (const item of items) {
       const speciesId = item.is_generic ? null : item.species_id
+      const specification = item.is_generic ? item.specification?.trim() || null : null
+      const allowedIds = item.is_generic ? item.allowed_species_ids ?? [] : []
       if (item.id && currentById.has(item.id)) {
         const cur = currentById.get(item.id)!
+        const curScope = currentScopeById.get(item.id) ?? new Set<string>()
         const changed =
           (cur.species_id ?? null) !== (speciesId ?? null) ||
           cur.container_id !== item.container_id ||
           Number(cur.quantity) !== Number(item.quantity) ||
-          cur.is_generic !== item.is_generic
+          cur.is_generic !== item.is_generic ||
+          (cur.specification ?? null) !== specification ||
+          scopeChanged(curScope, allowedIds)
         if (changed) {
           await client.query(
             `UPDATE order_items
              SET species_id = $1, container_id = $2, quantity = $3, is_generic = $4,
+                 specification = $5,
                  is_available = NULL, availability_notes = NULL,
                  available_quantity = NULL, available_container_id = NULL
-             WHERE id = $5`,
-            [speciesId, item.container_id, item.quantity, item.is_generic, item.id],
+             WHERE id = $6`,
+            [speciesId, item.container_id, item.quantity, item.is_generic, specification, item.id],
           )
           // Composicao de generico invalidada — remove filhos
           await client.query(
             `DELETE FROM order_items WHERE parent_item_id = $1`,
             [item.id],
           )
+          // Re-sincroniza o escopo (limpa o antigo e regrava o novo).
+          await client.query(
+            `DELETE FROM order_item_allowed_species WHERE order_item_id = $1`,
+            [item.id],
+          )
+          if (item.is_generic) {
+            await insertGenericScope(client, item.id, allowedIds)
+          }
         }
       } else {
         // Novo item
-        await client.query(
-          `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [orderId, speciesId, item.container_id, item.quantity, item.is_generic],
+        const { rows: newRows } = await client.query(
+          `INSERT INTO order_items (order_id, species_id, container_id, quantity, is_generic, specification)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING id`,
+          [orderId, speciesId, item.container_id, item.quantity, item.is_generic, specification],
         )
+        if (item.is_generic) {
+          await insertGenericScope(client, newRows[0].id, allowedIds)
+        }
       }
     }
 

@@ -241,14 +241,18 @@ describe('assignSpeciesToGenericItem', () => {
 
   it('rejeita quando a soma nao bate com o total', async () => {
     mockedGetSession.mockResolvedValueOnce(gerencia)
-    mockedQuery.mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 999 }] }) // SELECT parent
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 999 }] }) // SELECT parent
+      .mockResolvedValueOnce({ rows: [] }) // SELECT escopo (sem restricao)
     const result = await assignSpeciesToGenericItem('p1', assignments)
     expect(result.error).toMatch(/soma/i)
   })
 
   it('aceita recipiente diferente do minimo (sem bloqueio por volume)', async () => {
     mockedGetSession.mockResolvedValueOnce(gerencia)
-    mockedQuery.mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 500 }] }) // SELECT parent
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 500 }] }) // SELECT parent
+      .mockResolvedValueOnce({ rows: [] }) // SELECT escopo (sem restricao)
     const clientQuery = vi.fn().mockResolvedValue({})
     const release = vi.fn()
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release })
@@ -257,6 +261,16 @@ describe('assignSpeciesToGenericItem', () => {
     expect(result.error).toBeUndefined()
     expect(clientQuery).toHaveBeenCalledWith('COMMIT')
     expect(release).toHaveBeenCalled()
+  })
+
+  it('rejeita especie fora do escopo do pedido (limite rigido)', async () => {
+    mockedGetSession.mockResolvedValueOnce(gerencia)
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ order_id: 'o1', quantity: 500 }] }) // SELECT parent
+      .mockResolvedValueOnce({ rows: [{ species_id: 's1' }] }) // SELECT escopo: so s1 permitida
+    // assignments inclui s2, que esta fora do escopo
+    const result = await assignSpeciesToGenericItem('p1', assignments)
+    expect(result.error).toMatch(/fora do escopo/i)
   })
 })
 

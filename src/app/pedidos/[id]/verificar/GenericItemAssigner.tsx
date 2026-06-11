@@ -38,6 +38,10 @@ export interface GenericItem {
   container_volume: number | null
   is_available: boolean | null
   children: Child[]
+  /** Exigencia de qualidade do pedido (texto livre). */
+  specification?: string | null
+  /** Escopo: especies permitidas. Vazio = aberto (qualquer especie). */
+  allowed_species?: { id: string; common_name: string }[]
 }
 
 interface Props {
@@ -88,7 +92,14 @@ export default function GenericItemAssigner({
   const [saved, setSaved] = useState(item.is_available === true)
   const [isPending, startTransition] = useTransition()
 
-  const speciesItems: AutocompleteItem[] = species.map((s) => ({
+  // Escopo do pedido (limite rigido): quando ha especies permitidas, a busca so
+  // oferece essas especies. Vazio => qualquer especie ativa.
+  const scopeIds = item.allowed_species?.length
+    ? new Set(item.allowed_species.map((s) => s.id))
+    : null
+  const scopedSpecies = scopeIds ? species.filter((s) => scopeIds.has(s.id)) : species
+
+  const speciesItems: AutocompleteItem[] = scopedSpecies.map((s) => ({
     id: s.id,
     label: s.common_name,
     keywords: [
@@ -155,6 +166,34 @@ export default function GenericItemAssigner({
         Mín: <span className="font-semibold">{item.container_name}</span> — total{' '}
         <span className="font-semibold">{item.quantity} un</span>
       </p>
+
+      {/* Especificacao + escopo do pedido: deixa claro que a restricao vem do cliente */}
+      {(item.specification || (item.allowed_species?.length ?? 0) > 0) && (
+        <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-3 space-y-2">
+          {item.specification && (
+            <p className="text-sm text-amber-900">
+              <span className="font-bold">📋 Especificação do pedido:</span> {item.specification}
+            </p>
+          )}
+          {(item.allowed_species?.length ?? 0) > 0 && (
+            <div>
+              <p className="text-xs font-bold text-amber-800">
+                Só estas espécies podem ser escolhidas (especificação do cliente):
+              </p>
+              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                {item.allowed_species!.map((s) => (
+                  <span
+                    key={s.id}
+                    className="bg-amber-200 text-amber-900 text-xs font-semibold rounded-full px-2.5 py-1"
+                  >
+                    {s.common_name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Status do restante */}
       <p
