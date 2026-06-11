@@ -94,6 +94,19 @@ describe('validateGenericAssignment', () => {
     const assign = [{ species_id: 's1', container_id: '', quantity: 500 }]
     expect(validateGenericAssignment(500, assign)).toMatch(/recipiente/i)
   })
+
+  it('sem escopo (lista vazia/undefined) mantem comportamento atual', () => {
+    expect(validateGenericAssignment(500, base, [])).toBeNull()
+    expect(validateGenericAssignment(500, base, undefined)).toBeNull()
+  })
+
+  it('aceita atribuicao dentro do escopo', () => {
+    expect(validateGenericAssignment(500, base, ['s1', 's2', 's3'])).toBeNull()
+  })
+
+  it('rejeita especie fora do escopo do pedido', () => {
+    expect(validateGenericAssignment(500, base, ['s1'])).toMatch(/fora do escopo/i)
+  })
 })
 
 describe('resolveAvailability', () => {

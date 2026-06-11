@@ -30,6 +30,8 @@ interface Item {
   available_quantity: number | null
   available_container_id: string | null
   availability_notes: string | null
+  specification: string | null
+  allowed_species: { id: string; common_name: string }[]
   children: GenericItem['children']
 }
 interface Species {
@@ -367,6 +369,8 @@ export default function VerificationChecklist({
               container_name: it.container_name,
               container_volume: it.container_volume,
               is_available: it.is_available,
+              specification: it.specification,
+              allowed_species: it.allowed_species,
               children: it.children,
             }}
             species={species}
