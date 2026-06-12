@@ -158,6 +158,14 @@ export default function QuotesList({ initialQuotes }: Props) {
                     .map((i) => `${i.quantity}x ${i.common_name}${i.size ? ` (${i.size})` : ''}`)
                     .join(' · ')}
                 </p>
+                {group.some((q) => q.status === 'responded') && (
+                  <Link
+                    href={`/fornecedores/cotacoes/${first.request_group_id}`}
+                    className="inline-block mt-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-600 text-white"
+                  >
+                    ⚖ Comparar preços
+                  </Link>
+                )}
               </div>
 
               <div className="divide-y divide-gray-100">

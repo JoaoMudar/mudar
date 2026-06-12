@@ -1,9 +1,11 @@
-// Utilitarios de WhatsApp para cotacao com fornecedores (P11 Fase 2).
+// Utilitarios de WhatsApp para cotacao com fornecedores (P11 Fases 2 e 3).
 // Funcoes puras, sem DB nem React — rodam no client e sao testadas isoladamente.
 //
 // Regra do projeto: outreach 100% semi-automatico e honesto. Este modulo so
 // GERA a mensagem e o link wa.me; abrir o link e enviar e sempre uma acao
 // manual do usuario (nada de automacao que viole os termos do WhatsApp).
+
+import { formatPriceBR } from './suppliers'
 
 export interface QuoteMessageItem {
   speciesName: string
@@ -84,5 +86,61 @@ export function buildQuoteRequestMessage(input: QuoteMessageInput): string {
   }
   lines.push('')
   lines.push('Desde já, obrigado! 🌱')
+  return lines.join('\n')
+}
+
+export interface CustomerQuoteItem {
+  speciesName: string
+  quantity: number
+  /** Tamanho (texto livre), ou null. */
+  size?: string | null
+  /** Preco unitario de VENDA ao cliente (ja com margem aplicada). */
+  saleUnitPrice: number
+}
+
+export interface CustomerQuoteMessageInput {
+  customerName?: string | null
+  /** Nome de quem assina a mensagem (usuario logado). */
+  senderName: string
+  items: CustomerQuoteItem[]
+  /** Observacao livre opcional (prazo, frete, retirada etc.). */
+  extraNote?: string | null
+}
+
+/**
+ * Resumo de orcamento para o CLIENTE (P11 Fase 3 — fechamento da cotacao).
+ * Mostra apenas quantidade, especie, tamanho e preco de venda: NUNCA inclui
+ * fornecedor nem custo — sao informacao interna do viveiro. O texto e um
+ * ponto de partida; a UI permite editar antes de copiar/abrir o wa.me.
+ */
+export function buildCustomerQuoteMessage(input: CustomerQuoteMessageInput): string {
+  const lines: string[] = []
+  const name = input.customerName?.trim()
+  lines.push(name ? `Olá, ${name}! Tudo bem?` : 'Olá! Tudo bem?')
+  lines.push('')
+  lines.push(
+    `Aqui é ${input.senderName.trim()}, do Viveiro Mudar. ` +
+      'Consegui as mudas que você procurava. Segue o orçamento:',
+  )
+  lines.push('')
+  let total = 0
+  for (const item of input.items) {
+    const size = item.size?.trim() ? ` (${item.size.trim()})` : ''
+    const subtotal = Math.round(item.quantity * item.saleUnitPrice * 100) / 100
+    total = Math.round((total + subtotal) * 100) / 100
+    lines.push(
+      `• ${item.quantity}x ${item.speciesName.trim()}${size} — ` +
+        `${formatPriceBR(item.saleUnitPrice)}/muda = ${formatPriceBR(subtotal)}`,
+    )
+  }
+  lines.push('')
+  lines.push(`Total: ${formatPriceBR(total)}`)
+  const extra = input.extraNote?.trim()
+  if (extra) {
+    lines.push('')
+    lines.push(extra)
+  }
+  lines.push('')
+  lines.push('Qualquer ajuste de quantidade ou espécie, é só me avisar! 🌱')
   return lines.join('\n')
 }

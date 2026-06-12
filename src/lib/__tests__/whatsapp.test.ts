@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  buildCustomerQuoteMessage,
   buildQuoteRequestMessage,
   buildWaLink,
   normalizeBrazilPhone,
@@ -88,5 +89,41 @@ describe('buildQuoteRequestMessage', () => {
   it('observacao extra entra no final quando informada', () => {
     const msg = buildQuoteRequestMessage({ ...base, extraNote: 'Entrega em Ituporanga.' })
     expect(msg).toContain('Entrega em Ituporanga.')
+  })
+})
+
+describe('buildCustomerQuoteMessage', () => {
+  const base = {
+    customerName: 'Prefeitura de Rio do Sul',
+    senderName: 'Joao',
+    items: [
+      { speciesName: 'Ipê-amarelo', quantity: 100, size: '30-50cm', saleUnitPrice: 8.5 },
+      { speciesName: 'Araucária', quantity: 10, saleUnitPrice: 12 },
+    ],
+  }
+
+  it('lista itens com preco unitario, subtotal e total', () => {
+    const msg = buildCustomerQuoteMessage(base)
+    expect(msg).toContain('• 100x Ipê-amarelo (30-50cm)')
+    expect(msg).toContain('8,50')
+    expect(msg).toContain('850,00') // subtotal 100 x 8,50
+    expect(msg).toContain('• 10x Araucária')
+    expect(msg).toMatch(/Total: R\$\s?970,00/)
+  })
+
+  it('saudacao usa o nome do cliente quando houver', () => {
+    expect(buildCustomerQuoteMessage(base)).toContain('Olá, Prefeitura de Rio do Sul!')
+    expect(buildCustomerQuoteMessage({ ...base, customerName: null })).toContain('Olá! Tudo bem?')
+  })
+
+  it('resumo limpo: nao menciona fornecedor nem custo', () => {
+    const msg = buildCustomerQuoteMessage(base)
+    expect(msg).not.toMatch(/fornecedor/i)
+    expect(msg).not.toMatch(/custo/i)
+  })
+
+  it('observacao extra entra antes da despedida', () => {
+    const msg = buildCustomerQuoteMessage({ ...base, extraNote: 'Frete a combinar.' })
+    expect(msg).toContain('Frete a combinar.')
   })
 })
