@@ -89,6 +89,19 @@ export default async function Home() {
                   </div>
                 </Link>
               )}
+              {/* Fornecedores — rede de revenda (P11); so admin/chefia */}
+              {showAdmin && (
+                <Link
+                  href="/fornecedores"
+                  className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+                >
+                  <span className="text-3xl">🤝</span>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-base">Fornecedores</p>
+                    <p className="text-sm text-gray-500">Rede de fornecedores e espécies que cada um oferece</p>
+                  </div>
+                </Link>
+              )}
             </div>
           </section>
         )}
