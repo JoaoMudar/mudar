@@ -15,18 +15,17 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ## 📌 STATUS (atualizado em 2026-06-11) — como retomar em qualquer sessão nova
 
-- **Fase 1 CONCLUÍDA** na branch `feat/fornecedores`, commit `b5ff5fd`, já com push.
-  PR para abrir/mergear: https://github.com/JoaoMudar/mudar/pull/new/feat/fornecedores
-- Validação feita: 290/290 testes, `npm run build` OK, migrações `20260611000003/4`
-  aplicadas **só no Postgres local** (Neon pendente, como as demais rotinas).
-- **Próximo passo**: após o Joao revisar/mergear a F1 na main →
-  `git checkout main && git pull && git checkout -b feat/fornecedores-cotacao`
-  e implementar a Fase 2 (T2.1–T2.8 abaixo), marcando `[x]` a cada task.
-- Detalhes de modelagem da F2 (SQL das tabelas, assinatura das funções de
-  `src/lib/whatsapp.ts`, comportamento das actions e do wizard) estão na seção
-  "Fase 2" e em "Decisões registradas" deste arquivo — seguir à risca.
+- **Fase 1 CONCLUÍDA e mergeada na main** (PR #15).
+- **Fase 2 CONCLUÍDA** na branch `feat/fornecedores-cotacao` (T2.1–T2.8 todas [x]):
+  cotação semi-automática com wizard de 3 passos, wa.me, acompanhamento e
+  registro de respostas. Validação: 321/321 testes, `npm run build` OK,
+  migração `20260611000005` aplicada **só no Postgres local** (Neon pendente,
+  como as demais rotinas). Aguardando revisão/merge do Joao via GitHub.
+- **Próximo passo**: após o merge da F2 → Fase 3 (comparação de preços e
+  fechamento, T3.1–T3.3) em branch nova `feat/fornecedores-comparacao`,
+  partindo da main atualizada.
 - Instrução de retomada para o Claude: ler este arquivo + a memória
-  `project_fornecedores.md`; **não** começar a F2 sem a F1 mergeada na main.
+  `project_fornecedores.md`; não começar uma fase sem a anterior mergeada.
 
 ---
 
@@ -45,14 +44,14 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ## Fase 2 — Cotação / outreach semi-automático (branch `feat/fornecedores-cotacao`)
 
-- [ ] T2.1 Migração `supplier_quotes` (request_group_id agrupa disparo; order_id nullable = avulsa) + `supplier_quote_items`
-- [ ] T2.2 `src/lib/whatsapp.ts` — `normalizeBrazilPhone`, `buildWaLink`, `buildQuoteRequestMessage` (puro)
-- [ ] T2.3 Actions de cotação: `findSuppliersForSpecies` (exclui do_not_contact), `createQuoteRequests` (revalida no servidor), `markQuoteSent` (atualiza last_contacted_at), `recordQuoteResponse` (upsert supplier_species), `markQuoteNoReply`, `getQuotes`
-- [ ] T2.4 `QuoteWizard.tsx` (3 passos: itens → fornecedores → mensagens editáveis + wa.me)
-- [ ] T2.5 Fluxo A: `/pedidos/[id]/cotar` (itens indisponíveis pré-marcados) + botão em `OrderDetailClient.tsx`
-- [ ] T2.6 Fluxo B: `/fornecedores/cotar` (cotação avulsa)
-- [ ] T2.7 Acompanhamento: `/fornecedores/cotacoes` + `RecordResponseForm` (anotar resposta/preços)
-- [ ] T2.8 Testes (whatsapp puro; actions com bloqueio do_not_contact e upsert)
+- [x] T2.1 Migração `supplier_quotes` (request_group_id agrupa disparo; order_id nullable = avulsa) + `supplier_quote_items`
+- [x] T2.2 `src/lib/whatsapp.ts` — `normalizeBrazilPhone`, `buildWaLink`, `buildQuoteRequestMessage` (puro)
+- [x] T2.3 Actions de cotação: `findSuppliersForSpecies` (exclui do_not_contact), `createQuoteRequests` (revalida no servidor), `markQuoteSent` (atualiza last_contacted_at), `recordQuoteResponse` (upsert supplier_species), `markQuoteNoReply`, `getQuotes`
+- [x] T2.4 `QuoteWizard.tsx` (3 passos: itens → fornecedores → mensagens editáveis + wa.me)
+- [x] T2.5 Fluxo A: `/pedidos/[id]/cotar` (itens indisponíveis pré-marcados) + botão em `OrderDetailClient.tsx`
+- [x] T2.6 Fluxo B: `/fornecedores/cotar` (cotação avulsa)
+- [x] T2.7 Acompanhamento: `/fornecedores/cotacoes` + `RecordResponseForm` (anotar resposta/preços)
+- [x] T2.8 Testes (whatsapp puro; actions com bloqueio do_not_contact e upsert)
 
 ## Fase 3 — Comparação e fechamento
 
