@@ -265,6 +265,16 @@ export default function OrderDetailClient({ order, items, history, role }: Props
             )
           )}
 
+          {/* P11: cotar itens com fornecedores externos (itens em falta pre-marcados) */}
+          {isChefia && order.status !== 'cancelado' && (
+            <Link
+              href={`/pedidos/${order.id}/cotar`}
+              className="w-full block text-center text-green-700 font-semibold py-3 rounded-xl border-2 border-green-200 active:scale-95 transition-transform"
+            >
+              🤝 Cotar com fornecedores
+            </Link>
+          )}
+
           {isChefia &&
             order.status !== 'cancelado' &&
             order.status !== 'pronto_envio' && (
