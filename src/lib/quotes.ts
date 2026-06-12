@@ -45,3 +45,13 @@ export function validateQuoteItems(items: QuoteItemInput[] | null | undefined): 
   }
   return null
 }
+
+/**
+ * Taxa de resposta (%) do outreach: respondidas sobre tudo que saiu
+ * (sent + responded + no_reply). Sem outreach ainda → null (nao ha taxa).
+ * P11 Fase 5 (dashboard).
+ */
+export function responseRatePct(responded: number, outreach: number): number | null {
+  if (!Number.isFinite(responded) || !Number.isFinite(outreach) || outreach <= 0) return null
+  return Math.round((responded / outreach) * 100)
+}

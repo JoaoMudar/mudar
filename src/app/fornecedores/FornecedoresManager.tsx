@@ -93,8 +93,8 @@ export default function FornecedoresManager({
       </header>
 
       <div className="max-w-2xl mx-auto p-4 space-y-4">
-        {/* P11 F2/F4: atalhos de cotacao e mapa */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* P11 F2/F4/F5: atalhos de cotacao, mapa e painel */}
+        <div className="grid grid-cols-2 gap-2">
           <Link
             href="/fornecedores/cotar"
             className="text-center font-semibold py-3 rounded-xl bg-green-600 text-white active:scale-95 transition-transform"
@@ -112,6 +112,12 @@ export default function FornecedoresManager({
             className="text-center font-semibold py-3 rounded-xl border-2 border-green-600 text-green-700 active:scale-95 transition-transform"
           >
             🗺️ Mapa
+          </Link>
+          <Link
+            href="/fornecedores/dashboard"
+            className="text-center font-semibold py-3 rounded-xl border-2 border-green-600 text-green-700 active:scale-95 transition-transform"
+          >
+            📊 Painel
           </Link>
         </div>
 

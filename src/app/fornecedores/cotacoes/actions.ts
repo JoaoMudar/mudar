@@ -438,6 +438,72 @@ export async function saveQuoteChoices(
 }
 
 /**
+ * Dados do painel de cotacoes (P11 Fase 5), em 4 blocos:
+ * - kanban: cotacoes recentes por status (cancelled fica de fora do quadro);
+ * - totals: respondidas vs. outreach total (taxa de resposta geral);
+ * - topSuppliers: fornecedores mais cotados, com taxa de resposta individual;
+ * - networkGaps: especies ja COTADAS que nenhum fornecedor contatavel oferece
+ *   (gap de rede — onde vale recrutar fornecedor novo).
+ */
+export async function getQuotesDashboard() {
+  await requireRole('admin', 'chefia')
+  const [kanban, totals, topSuppliers, networkGaps] = await Promise.all([
+    pool.query(
+      `SELECT q.id, q.request_group_id, q.status, q.created_at, q.sent_at, q.responded_at,
+              s.name AS supplier_name, o.order_number, c.name AS customer_name,
+              (SELECT COUNT(*)::int FROM supplier_quote_items qi
+               WHERE qi.quote_id = q.id) AS item_count
+       FROM supplier_quotes q
+       JOIN suppliers s ON s.id = q.supplier_id
+       LEFT JOIN orders o ON o.id = q.order_id
+       LEFT JOIN customers c ON c.id = o.customer_id
+       WHERE q.status IN ('queued', 'sent', 'responded', 'no_reply')
+       ORDER BY q.created_at DESC
+       LIMIT 120`,
+    ),
+    pool.query(
+      `SELECT COUNT(*) FILTER (WHERE status = 'responded')::int AS responded,
+              COUNT(*) FILTER (WHERE status IN ('sent', 'responded', 'no_reply'))::int AS outreach,
+              COUNT(*) FILTER (WHERE status IN ('queued', 'sent'))::int AS open_count
+       FROM supplier_quotes`,
+    ),
+    pool.query(
+      `SELECT s.id, s.name, s.city, s.state,
+              COUNT(*)::int AS total_quotes,
+              COUNT(*) FILTER (WHERE q.status = 'responded')::int AS responded_count,
+              COUNT(*) FILTER (WHERE q.status IN ('sent', 'responded', 'no_reply'))::int
+                AS outreach_count
+       FROM supplier_quotes q
+       JOIN suppliers s ON s.id = q.supplier_id
+       GROUP BY s.id
+       ORDER BY total_quotes DESC, s.name
+       LIMIT 8`,
+    ),
+    pool.query(
+      `SELECT sp.id, sp.common_name,
+              COUNT(DISTINCT qi.quote_id)::int AS quote_count
+       FROM supplier_quote_items qi
+       JOIN species sp ON sp.id = qi.species_id
+       WHERE NOT EXISTS (
+         SELECT 1 FROM supplier_species ss
+         JOIN suppliers s ON s.id = ss.supplier_id
+         WHERE ss.species_id = qi.species_id
+           AND s.active = true AND s.status <> 'do_not_contact'
+       )
+       GROUP BY sp.id
+       ORDER BY quote_count DESC, sp.common_name
+       LIMIT 20`,
+    ),
+  ])
+  return {
+    kanban: kanban.rows,
+    totals: totals.rows[0],
+    topSuppliers: topSuppliers.rows,
+    networkGaps: networkGaps.rows,
+  }
+}
+
+/**
  * Cotacoes para a tela de acompanhamento, mais recentes primeiro, com itens
  * agregados (o client agrupa por request_group_id).
  */

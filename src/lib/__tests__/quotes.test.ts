@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeQuoteChannel, validateQuoteItems } from '../quotes'
+import { normalizeQuoteChannel, responseRatePct, validateQuoteItems } from '../quotes'
 
 describe('normalizeQuoteChannel', () => {
   it('aceita canais validos', () => {
@@ -32,5 +32,20 @@ describe('validateQuoteItems', () => {
     expect(validateQuoteItems([{ species_id: 'sp1', quantity: 0 }])).toMatch(/quantidade/i)
     expect(validateQuoteItems([{ species_id: 'sp1', quantity: -2 }])).toMatch(/quantidade/i)
     expect(validateQuoteItems([{ species_id: 'sp1', quantity: NaN }])).toMatch(/quantidade/i)
+  })
+})
+
+describe('responseRatePct', () => {
+  it('respondidas sobre o outreach total, arredondado', () => {
+    expect(responseRatePct(3, 10)).toBe(30)
+    expect(responseRatePct(2, 3)).toBe(67)
+    expect(responseRatePct(0, 5)).toBe(0)
+    expect(responseRatePct(5, 5)).toBe(100)
+  })
+
+  it('sem outreach ainda nao ha taxa (null, nao 0)', () => {
+    expect(responseRatePct(0, 0)).toBeNull()
+    expect(responseRatePct(1, -1)).toBeNull()
+    expect(responseRatePct(NaN, 10)).toBeNull()
   })
 })
