@@ -156,7 +156,7 @@ describe('importSupplierSpeciesRows', () => {
       { species_id: 'sp-arau', unit_price: null },
     ])
     expect(result.inserted).toBe(2)
-    const sqls = client.query.mock.calls.map((c: unknown[]) => c[0])
+    const sqls = client.query.mock.calls.map((c: unknown[]) => String(c[0]))
     expect(sqls[0]).toBe('BEGIN')
     expect(sqls[sqls.length - 1]).toBe('COMMIT')
     expect(sqls.filter((s: string) => s.includes('INSERT INTO supplier_species'))).toHaveLength(2)
@@ -175,7 +175,7 @@ describe('importSupplierSpeciesRows', () => {
     mockedConnect.mockResolvedValue(client)
     const result = await importSupplierSpeciesRows('s1', [{ species_id: 'sp-ipe' }])
     expect(result.error).toBeTruthy()
-    const sqls = client.query.mock.calls.map((c: unknown[]) => c[0])
+    const sqls = client.query.mock.calls.map((c: unknown[]) => String(c[0]))
     expect(sqls).toContain('ROLLBACK')
     expect(client.release).toHaveBeenCalled()
   })
