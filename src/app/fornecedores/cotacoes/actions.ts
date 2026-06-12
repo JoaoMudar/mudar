@@ -11,6 +11,8 @@ import {
   type QuoteChannel,
   type QuoteItemInput,
 } from '@/lib/quotes'
+import { applyMarkup, isBelowMinMargin, parseMarginPct } from '@/lib/pricing'
+import { formatPriceBR } from '@/lib/suppliers'
 
 const PATH = '/fornecedores/cotacoes'
 
@@ -278,6 +280,146 @@ export async function recordQuoteResponse(
     revalidatePath(PATH)
     revalidatePath('/fornecedores')
     revalidatePath(`/fornecedores/${supplierId}`)
+    return {}
+  } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: safeErrorMessage(e) }
+  } finally {
+    client.release()
+  }
+}
+
+/**
+ * Cotacoes de UM disparo (request_group_id) para a tela de comparacao,
+ * com itens (incl. escolha/preco de venda) e contato do cliente do pedido
+ * (para gerar a mensagem de fechamento via wa.me).
+ */
+export async function getQuoteGroup(groupId: string) {
+  await requireRole('admin', 'chefia')
+  const { rows } = await pool.query(
+    `SELECT q.id, q.request_group_id, q.supplier_id, q.order_id, q.channel,
+            q.status, q.sent_at, q.responded_at, q.notes, q.created_at,
+            s.name AS supplier_name, s.contact_name, s.whatsapp, s.city, s.state,
+            o.order_number, c.name AS customer_name, c.phone AS customer_phone,
+            COALESCE(json_agg(json_build_object(
+              'id', qi.id,
+              'species_id', qi.species_id,
+              'common_name', sp.common_name,
+              'quantity', qi.quantity,
+              'size', qi.size,
+              'quoted_unit_price', qi.quoted_unit_price,
+              'response_notes', qi.response_notes,
+              'is_chosen', qi.is_chosen,
+              'sale_unit_price', qi.sale_unit_price
+            ) ORDER BY sp.common_name) FILTER (WHERE qi.id IS NOT NULL), '[]') AS items
+     FROM supplier_quotes q
+     JOIN suppliers s ON s.id = q.supplier_id
+     LEFT JOIN orders o ON o.id = q.order_id
+     LEFT JOIN customers c ON c.id = o.customer_id
+     LEFT JOIN supplier_quote_items qi ON qi.quote_id = q.id
+     LEFT JOIN species sp ON sp.id = qi.species_id
+     WHERE q.request_group_id = $1
+     GROUP BY q.id, s.id, o.id, c.id
+     ORDER BY s.name`,
+    [groupId],
+  )
+  return rows
+}
+
+export interface QuoteChoiceInput {
+  quote_item_id: string
+  /** Preco unitario de venda ao cliente (obrigatorio na escolha). */
+  sale_unit_price: number
+}
+
+/**
+ * Fechamento da comparacao: marca a oferta escolhida por especie do grupo e
+ * grava o preco de venda. Regras validadas NO SERVIDOR:
+ * - todo item escolhido pertence ao grupo e tem preco cotado (custo);
+ * - no maximo uma escolha por especie;
+ * - preco de venda respeita o piso minimo de seguranca
+ *   (custo + QUOTE_MIN_MARGIN_PCT% — default em DEFAULT_MIN_MARGIN_PCT).
+ * Escolhas anteriores do grupo sao substituidas (salvar = estado completo).
+ */
+export async function saveQuoteChoices(
+  groupId: string,
+  choices: QuoteChoiceInput[],
+): Promise<{ error?: string }> {
+  await requireRole('admin', 'chefia')
+  const minMarginPct = parseMarginPct(process.env.QUOTE_MIN_MARGIN_PCT)
+  for (const choice of choices ?? []) {
+    if (!choice.quote_item_id) return { error: 'Item inválido na escolha.' }
+    if (!Number.isFinite(choice.sale_unit_price) || choice.sale_unit_price < 0) {
+      return { error: 'Informe o preço de venda de cada item escolhido.' }
+    }
+  }
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const { rows: groupItems } = await client.query(
+      `SELECT qi.id, qi.species_id, qi.quoted_unit_price, sp.common_name
+       FROM supplier_quote_items qi
+       JOIN supplier_quotes q ON q.id = qi.quote_id
+       JOIN species sp ON sp.id = qi.species_id
+       WHERE q.request_group_id = $1`,
+      [groupId],
+    )
+    if (groupItems.length === 0) {
+      await client.query('ROLLBACK')
+      return { error: 'Cotação não encontrada.' }
+    }
+
+    const itemById = new Map<
+      string,
+      { species_id: string; quoted_unit_price: string | number | null; common_name: string }
+    >(groupItems.map((row) => [row.id as string, row]))
+    const chosenSpecies = new Set<string>()
+    for (const choice of choices ?? []) {
+      const item = itemById.get(choice.quote_item_id)
+      if (!item) {
+        await client.query('ROLLBACK')
+        return { error: 'Item não pertence a esta cotação.' }
+      }
+      if (item.quoted_unit_price == null) {
+        await client.query('ROLLBACK')
+        return { error: `"${item.common_name}" ainda não tem preço cotado pelo fornecedor.` }
+      }
+      if (chosenSpecies.has(item.species_id)) {
+        await client.query('ROLLBACK')
+        return { error: 'Escolha apenas um fornecedor por espécie.' }
+      }
+      chosenSpecies.add(item.species_id)
+
+      const cost = Number(item.quoted_unit_price)
+      if (isBelowMinMargin(choice.sale_unit_price, cost, minMarginPct)) {
+        await client.query('ROLLBACK')
+        const floor = formatPriceBR(applyMarkup(cost, minMarginPct))
+        return {
+          error:
+            `Preço de venda de "${item.common_name}" abaixo do piso mínimo de segurança ` +
+            `(${minMarginPct}% sobre o custo = ${floor}).`,
+        }
+      }
+    }
+
+    await client.query(
+      `UPDATE supplier_quote_items qi
+       SET is_chosen = false, sale_unit_price = NULL
+       FROM supplier_quotes q
+       WHERE q.id = qi.quote_id AND q.request_group_id = $1`,
+      [groupId],
+    )
+    for (const choice of choices ?? []) {
+      await client.query(
+        `UPDATE supplier_quote_items
+         SET is_chosen = true, sale_unit_price = $1
+         WHERE id = $2`,
+        [choice.sale_unit_price, choice.quote_item_id],
+      )
+    }
+    await client.query('COMMIT')
+    revalidatePath(PATH)
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})

@@ -12,6 +12,7 @@ import {
   markQuoteSent,
   markQuoteNoReply,
   recordQuoteResponse,
+  saveQuoteChoices,
 } from '../actions'
 
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
@@ -236,6 +237,123 @@ describe('recordQuoteResponse', () => {
       items: [{ quote_item_id: 'qi1', quoted_unit_price: -1 }],
     })
     expect(result.error).toMatch(/negativo/i)
+    expect(mockedConnect).not.toHaveBeenCalled()
+  })
+})
+
+describe('saveQuoteChoices', () => {
+  // Itens do grupo: duas ofertas do mesmo Ipê (fornecedores diferentes) e
+  // uma Araucária ainda sem preço cotado.
+  const GROUP_ITEMS = [
+    { id: 'qi1', species_id: 'sp-ipe', quoted_unit_price: '10.00', common_name: 'Ipê' },
+    { id: 'qi2', species_id: 'sp-ipe', quoted_unit_price: '12.00', common_name: 'Ipê' },
+    { id: 'qi3', species_id: 'sp-arau', quoted_unit_price: null, common_name: 'Araucária' },
+  ]
+
+  function mockClient(items: unknown[] = GROUP_ITEMS) {
+    const client = {
+      query: vi.fn().mockImplementation((sql: string) => {
+        if (sql.includes('FROM supplier_quote_items qi')) {
+          return Promise.resolve({ rows: items })
+        }
+        return Promise.resolve({ rows: [] })
+      }),
+      release: vi.fn(),
+    }
+    mockedConnect.mockResolvedValue(client)
+    return client
+  }
+
+  beforeEach(() => {
+    delete process.env.QUOTE_MIN_MARGIN_PCT
+  })
+
+  it('limpa as escolhas do grupo e marca as novas com preco de venda, em transacao', async () => {
+    const client = mockClient()
+    const result = await saveQuoteChoices('g1', [{ quote_item_id: 'qi1', sale_unit_price: 13 }])
+    expect(result.error).toBeUndefined()
+
+    const calls = client.query.mock.calls
+    const sqls = calls.map((c: unknown[]) => String(c[0]))
+    expect(sqls[0]).toBe('BEGIN')
+    expect(sqls[sqls.length - 1]).toBe('COMMIT')
+    const clearIdx = sqls.findIndex((s) => s.includes('is_chosen = false'))
+    const setIdx = sqls.findIndex((s) => s.includes('is_chosen = true'))
+    expect(clearIdx).toBeGreaterThan(-1)
+    expect(setIdx).toBeGreaterThan(clearIdx)
+    expect(calls[setIdx][1]).toEqual([13, 'qi1'])
+  })
+
+  it('salvar sem escolhas apenas limpa o grupo (desfazer fechamento)', async () => {
+    const client = mockClient()
+    const result = await saveQuoteChoices('g1', [])
+    expect(result.error).toBeUndefined()
+    const sqls = client.query.mock.calls.map((c: unknown[]) => String(c[0]))
+    expect(sqls.some((s) => s.includes('is_chosen = false'))).toBe(true)
+    expect(sqls.some((s) => s.includes('is_chosen = true'))).toBe(false)
+  })
+
+  it('BLOQUEIA venda abaixo do piso minimo (default 30% sobre o custo)', async () => {
+    const client = mockClient()
+    // custo 10 → piso 13,00; 12,99 fica abaixo.
+    const result = await saveQuoteChoices('g1', [
+      { quote_item_id: 'qi1', sale_unit_price: 12.99 },
+    ])
+    expect(result.error).toMatch(/piso mínimo/i)
+    const sqls = client.query.mock.calls.map((c: unknown[]) => String(c[0]))
+    expect(sqls).toContain('ROLLBACK')
+    expect(sqls.some((s) => s.includes('is_chosen = true'))).toBe(false)
+  })
+
+  it('margem minima vem da env QUOTE_MIN_MARGIN_PCT quando definida', async () => {
+    process.env.QUOTE_MIN_MARGIN_PCT = '20'
+    mockClient()
+    // Com 20%, piso = 12,00: 12 passa (falharia com o default 30%).
+    const ok = await saveQuoteChoices('g1', [{ quote_item_id: 'qi1', sale_unit_price: 12 }])
+    expect(ok.error).toBeUndefined()
+    mockClient()
+    const below = await saveQuoteChoices('g1', [{ quote_item_id: 'qi1', sale_unit_price: 11.99 }])
+    expect(below.error).toMatch(/piso mínimo/i)
+  })
+
+  it('item sem preco cotado nao pode ser escolhido', async () => {
+    mockClient()
+    const result = await saveQuoteChoices('g1', [{ quote_item_id: 'qi3', sale_unit_price: 10 }])
+    expect(result.error).toMatch(/preço cotado/i)
+  })
+
+  it('bloqueia duas escolhas para a mesma especie', async () => {
+    mockClient()
+    const result = await saveQuoteChoices('g1', [
+      { quote_item_id: 'qi1', sale_unit_price: 13 },
+      { quote_item_id: 'qi2', sale_unit_price: 16 },
+    ])
+    expect(result.error).toMatch(/um fornecedor por espécie/i)
+  })
+
+  it('item de outro grupo e rejeitado', async () => {
+    mockClient()
+    const result = await saveQuoteChoices('g1', [
+      { quote_item_id: 'qi-de-outro-grupo', sale_unit_price: 13 },
+    ])
+    expect(result.error).toMatch(/não pertence/i)
+  })
+
+  it('grupo inexistente retorna erro com ROLLBACK', async () => {
+    const client = mockClient([])
+    const result = await saveQuoteChoices('g-nope', [
+      { quote_item_id: 'qi1', sale_unit_price: 13 },
+    ])
+    expect(result.error).toMatch(/não encontrada/i)
+    const sqls = client.query.mock.calls.map((c: unknown[]) => String(c[0]))
+    expect(sqls).toContain('ROLLBACK')
+  })
+
+  it('preco de venda invalido e rejeitado antes de abrir transacao', async () => {
+    const result = await saveQuoteChoices('g1', [
+      { quote_item_id: 'qi1', sale_unit_price: -1 },
+    ])
+    expect(result.error).toMatch(/preço de venda/i)
     expect(mockedConnect).not.toHaveBeenCalled()
   })
 })
