@@ -15,24 +15,26 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ## 📌 STATUS (atualizado em 2026-06-12) — como retomar em qualquer sessão nova
 
-- **Fase 1 CONCLUÍDA e mergeada na main** (PR #15).
-- **Fase 2 CONCLUÍDA e mergeada na main** (PR #16, merge autorizado pelo Joao).
-- **Fase 3 CONCLUÍDA** na branch `feat/fornecedores-comparacao` (T3.1–T3.3 todas [x]):
-  `src/lib/pricing.ts` (margem % sobre custo, piso mínimo via env
-  `QUOTE_MIN_MARGIN_PCT`, default 30%), migração `20260612000001`
-  (`is_chosen`/`sale_unit_price` em supplier_quote_items), tela
-  `/fornecedores/cotacoes/[groupId]` (matriz espécie × fornecedor, menor preço
-  destacado, escolha por toque, fechamento com preço de venda validado contra o
-  piso) + `buildCustomerQuoteMessage` (resumo limpo p/ cliente, copiar/wa.me).
-  Link "Comparar preços" no acompanhamento quando há resposta. Validação:
-  343/343 testes, `npm run build` OK, migração aplicada **só no Postgres local**
-  (Neon pendente p/ 20260611000001–5 e 20260612000001). Aguardando
-  revisão/merge do Joao via GitHub.
-- **Seed de teste** (mesma branch): `npm run db:seed-suppliers` popula o Postgres
-  **local** com 14 fornecedores `[TESTE]` e ~275 ofertas em 50 espécies
-  (idempotente; guard impede rodar contra Neon).
-- **Próximo passo**: após o merge da F3 → Fase 4 (distância e mapa, T4.1–T4.3)
-  em branch nova `feat/fornecedores-mapa`, partindo da main atualizada.
+- **Fases 1, 2 e 3 CONCLUÍDAS e mergeadas na main** (PRs #15, #16 e #17).
+- **Fase 4 CONCLUÍDA** na branch `feat/fornecedores-mapa` (T4.1–T4.3 todas [x]):
+  migração `20260612000002` (lat/lng/geocoded_at em suppliers; editar cidade/UF
+  zera a geo via CASE no update), `src/lib/geo.ts` (haversine, distância da sede
+  via envs `VIVEIRO_LAT`/`VIVEIRO_LNG` com fallback Ituporanga/SC, ordenação de
+  candidatos) e `src/lib/geocode.ts` (helpers puros do Nominatim).
+  `findSuppliersForSpecies` agora ordena cobertura → distância → contato mais
+  antigo e devolve `distance_km` (exibida no passo 2 do QuoteWizard). Página
+  `/fornecedores/mapa` (Leaflet via dynamic ssr:false, CircleMarker por status,
+  popup com distância) + botão "Localizar agora" que geocodifica até 5 pendentes
+  por clique (1 req/s, cache no banco; falha de rede re-tenta, "não achei" não
+  insiste). CSP: img-src liberada p/ tile.openstreetmap.org. Deps novas:
+  leaflet, react-leaflet, @types/leaflet. Validação: 368/368 testes,
+  `npm run build` OK, migração **só no Postgres local** (Neon pendente p/
+  20260611000001–5, 20260612000001 e 20260612000002). Aguardando revisão/merge.
+- **Seed de teste**: `npm run db:seed-suppliers` popula o Postgres **local** com
+  14 fornecedores `[TESTE]` e ~275 ofertas em 50 espécies (idempotente; guard
+  impede rodar contra Neon).
+- **Próximo passo**: após o merge da F4 → Fase 5 (dashboard, T5.1) em branch
+  nova `feat/fornecedores-dashboard`, partindo da main atualizada.
 - Instrução de retomada para o Claude: ler este arquivo + a memória
   `project_fornecedores.md`; não começar uma fase sem a anterior mergeada.
 
@@ -70,9 +72,9 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ## Fase 4 — Distância e mapa
 
-- [ ] T4.1 lat/lng em suppliers + geocoding Nominatim sob demanda com cache no banco
-- [ ] T4.2 `src/lib/geo.ts` (`haversineKm`) + ordenação por distância em findSuppliersForSpecies
-- [ ] T4.3 Mapa Leaflet opcional (client dinâmico, ssr: false)
+- [x] T4.1 lat/lng em suppliers + geocoding Nominatim sob demanda com cache no banco
+- [x] T4.2 `src/lib/geo.ts` (`haversineKm`) + ordenação por distância em findSuppliersForSpecies
+- [x] T4.3 Mapa Leaflet opcional (client dinâmico, ssr: false)
 
 ## Fase 5 — Dashboard
 

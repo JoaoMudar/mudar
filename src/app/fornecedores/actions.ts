@@ -14,6 +14,12 @@ import {
   type SupplierInput,
   type SupplierSpeciesInput,
 } from '@/lib/suppliers'
+import {
+  NOMINATIM_DELAY_MS,
+  NOMINATIM_USER_AGENT,
+  buildNominatimUrl,
+  parseNominatimResponse,
+} from '@/lib/geocode'
 
 const PATH = '/fornecedores'
 
@@ -121,11 +127,19 @@ export async function updateSupplier(
   if (error) return { error }
   const v = supplierValues(data)
   try {
+    // Cidade/UF mudou → zera lat/lng/geocoded_at (CASE le os valores ANTIGOS
+    // da linha), forcando nova geocodificacao sob demanda (P11 F4).
     await pool.query(
       `UPDATE suppliers SET
          name = $1, contact_name = $2, whatsapp = $3, phone = $4, email = $5,
          instagram = $6, city = $7, state = $8, notes = $9,
-         reliability_score = $10, status = $11
+         reliability_score = $10, status = $11,
+         lat = CASE WHEN city IS DISTINCT FROM $7 OR state IS DISTINCT FROM $8
+                    THEN NULL ELSE lat END,
+         lng = CASE WHEN city IS DISTINCT FROM $7 OR state IS DISTINCT FROM $8
+                    THEN NULL ELSE lng END,
+         geocoded_at = CASE WHEN city IS DISTINCT FROM $7 OR state IS DISTINCT FROM $8
+                            THEN NULL ELSE geocoded_at END
        WHERE id = $12`,
       [
         v.name, v.contact_name, v.whatsapp, v.phone, v.email, v.instagram,
@@ -150,6 +164,89 @@ export async function toggleSupplierActive(
     await pool.query(`UPDATE suppliers SET active = $1 WHERE id = $2`, [active, id])
     revalidatePath(PATH)
     return {}
+  } catch (e: unknown) {
+    return { error: safeErrorMessage(e) }
+  }
+}
+
+// ============================================================
+// Geocoding e mapa (P11 Fase 4)
+// ============================================================
+
+/** Fornecedores ativos para o mapa: so quem ja tem lat/lng + contagem de pendentes. */
+export async function getSuppliersForMap() {
+  await requireRole('admin', 'chefia')
+  const { rows: suppliers } = await pool.query(
+    `SELECT s.id, s.name, s.city, s.state, s.status, s.lat, s.lng,
+            COUNT(DISTINCT ss.species_id)::int AS species_count
+     FROM suppliers s
+     LEFT JOIN supplier_species ss ON ss.supplier_id = s.id
+     WHERE s.active = true AND s.lat IS NOT NULL AND s.lng IS NOT NULL
+     GROUP BY s.id
+     ORDER BY s.name`,
+  )
+  const { rows: pendingRows } = await pool.query(
+    `SELECT COUNT(*)::int AS pending
+     FROM suppliers
+     WHERE active = true AND city IS NOT NULL AND geocoded_at IS NULL`,
+  )
+  return { suppliers, pending: pendingRows[0].pending as number }
+}
+
+/**
+ * Geocodifica SOB DEMANDA (clique do usuario) um lote pequeno de fornecedores
+ * ainda sem tentativa (geocoded_at IS NULL), respeitando a politica do
+ * Nominatim (1 req/s, User-Agent identificado, resultado cacheado no banco).
+ * Falha de rede deixa geocoded_at NULL (tenta de novo no proximo clique);
+ * "nao achei" grava geocoded_at com lat/lng NULL (nao insiste sozinho).
+ */
+export async function geocodePendingSuppliers(): Promise<{
+  updated?: number
+  pending?: number
+  error?: string
+}> {
+  await requireRole('admin', 'chefia')
+  const BATCH = 5
+  try {
+    const { rows: targets } = await pool.query(
+      `SELECT id, city, state FROM suppliers
+       WHERE active = true AND city IS NOT NULL AND geocoded_at IS NULL
+       ORDER BY name
+       LIMIT $1`,
+      [BATCH],
+    )
+
+    let updated = 0
+    for (const [index, target] of targets.entries()) {
+      if (index > 0) {
+        await new Promise((resolve) => setTimeout(resolve, NOMINATIM_DELAY_MS))
+      }
+      const url = buildNominatimUrl(target)
+      if (!url) continue
+      try {
+        const response = await fetch(url, {
+          headers: { 'User-Agent': NOMINATIM_USER_AGENT },
+        })
+        if (!response.ok) continue
+        const coords = parseNominatimResponse(await response.json())
+        await pool.query(
+          `UPDATE suppliers SET lat = $1, lng = $2, geocoded_at = now() WHERE id = $3`,
+          [coords?.lat ?? null, coords?.lng ?? null, target.id],
+        )
+        if (coords) updated += 1
+      } catch {
+        // Rede/Nominatim fora: segue para o proximo; este fica para re-tentar.
+      }
+    }
+
+    const { rows: pendingRows } = await pool.query(
+      `SELECT COUNT(*)::int AS pending
+       FROM suppliers
+       WHERE active = true AND city IS NOT NULL AND geocoded_at IS NULL`,
+    )
+    revalidatePath(PATH)
+    revalidatePath(`${PATH}/mapa`)
+    return { updated, pending: pendingRows[0].pending as number }
   } catch (e: unknown) {
     return { error: safeErrorMessage(e) }
   }

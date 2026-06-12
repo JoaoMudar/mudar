@@ -11,7 +11,8 @@ const csp = [
   // nao ha dangerouslySetInnerHTML nem script inline proprio, e o React escapa tudo.
   `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  // tile.openstreetmap.org: tiles do mapa de fornecedores (P11 F4, Leaflet).
+  "img-src 'self' data: blob: https://tile.openstreetmap.org",
   "font-src 'self'",
   `connect-src 'self'${isProd ? '' : ' ws:'}`,
   "manifest-src 'self'",

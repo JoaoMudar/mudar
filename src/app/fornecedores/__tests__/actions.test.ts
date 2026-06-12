@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
@@ -11,6 +11,7 @@ import {
   toggleSupplierActive,
   addSupplierSpecies,
   importSupplierSpeciesRows,
+  geocodePendingSuppliers,
 } from '../actions'
 
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
@@ -193,5 +194,76 @@ describe('importSupplierSpeciesRows', () => {
     const result = await importSupplierSpeciesRows('s1', [])
     expect(result.error).toMatch(/nenhuma linha/i)
     expect(mockedConnect).not.toHaveBeenCalled()
+  })
+})
+
+describe('updateSupplier (reset de geo)', () => {
+  it('zera lat/lng/geocoded_at quando cidade/UF muda (CASE com IS DISTINCT FROM)', async () => {
+    mockedQuery.mockResolvedValue({ rows: [] })
+    await updateSupplier('s1', { name: 'Viveiro do Vale', city: 'Outra Cidade' })
+    const sql = String(mockedQuery.mock.calls[0][0])
+    expect(sql).toContain('IS DISTINCT FROM')
+    expect(sql).toContain('geocoded_at = CASE')
+  })
+})
+
+describe('geocodePendingSuppliers', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function mockDb(targets: unknown[], pendingAfter: number) {
+    mockedQuery.mockImplementation((sql: string) => {
+      if (sql.includes('LIMIT')) return Promise.resolve({ rows: targets })
+      if (sql.includes('COUNT(*)')) return Promise.resolve({ rows: [{ pending: pendingAfter }] })
+      return Promise.resolve({ rows: [] })
+    })
+  }
+
+  it('geocodifica pendentes via Nominatim (User-Agent identificado) e cacheia lat/lng', async () => {
+    mockDb([{ id: 's1', city: 'Ituporanga', state: 'SC' }], 0)
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [{ lat: '-27.4144', lon: '-49.6028' }],
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await geocodePendingSuppliers()
+    expect(result.error).toBeUndefined()
+    expect(result.updated).toBe(1)
+    expect(result.pending).toBe(0)
+
+    expect(fetchMock.mock.calls[0][0]).toContain('nominatim.openstreetmap.org')
+    expect(fetchMock.mock.calls[0][1].headers['User-Agent']).toContain('viveiro-mudar')
+    const update = mockedQuery.mock.calls.find((c: unknown[]) =>
+      String(c[0]).includes('SET lat'),
+    )
+    expect(update![1]).toEqual([-27.4144, -49.6028, 's1'])
+  })
+
+  it('cidade nao encontrada grava geocoded_at com lat/lng NULL (nao insiste sozinho)', async () => {
+    mockDb([{ id: 's1', city: 'Cidade Inexistente', state: null }], 2)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => [] }))
+
+    const result = await geocodePendingSuppliers()
+    expect(result.updated).toBe(0)
+    expect(result.pending).toBe(2)
+    const update = mockedQuery.mock.calls.find((c: unknown[]) =>
+      String(c[0]).includes('SET lat'),
+    )
+    expect(update![1]).toEqual([null, null, 's1'])
+  })
+
+  it('falha de rede nao grava nada — o fornecedor fica para o proximo clique', async () => {
+    mockDb([{ id: 's1', city: 'Ituporanga', state: 'SC' }], 1)
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+
+    const result = await geocodePendingSuppliers()
+    expect(result.error).toBeUndefined()
+    expect(result.updated).toBe(0)
+    const update = mockedQuery.mock.calls.find((c: unknown[]) =>
+      String(c[0]).includes('SET lat'),
+    )
+    expect(update).toBeUndefined()
   })
 })

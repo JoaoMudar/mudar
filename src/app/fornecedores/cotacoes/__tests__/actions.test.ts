@@ -9,6 +9,7 @@ vi.mock('@/lib/auth', () => ({
 import pool from '@/lib/db'
 import {
   createQuoteRequests,
+  findSuppliersForSpecies,
   markQuoteSent,
   markQuoteNoReply,
   recordQuoteResponse,
@@ -125,6 +126,37 @@ describe('createQuoteRequests', () => {
       ).error,
     ).toMatch(/mensagem/i)
     expect(mockedConnect).not.toHaveBeenCalled()
+  })
+})
+
+describe('findSuppliersForSpecies', () => {
+  it('ordena por cobertura DESC e, no empate, distancia do viveiro ASC (P11 F4)', async () => {
+    delete process.env.VIVEIRO_LAT
+    delete process.env.VIVEIRO_LNG
+    const base = { coverage_count: 2, last_contacted_at: null, offers: [] }
+    mockedQuery.mockResolvedValue({
+      rows: [
+        // Curitiba (~230 km), sede (0 km), sem geo e um com cobertura maior.
+        { ...base, id: 'longe', name: 'Longe', lat: '-25.4284', lng: '-49.2733' },
+        { ...base, id: 'perto', name: 'Perto', lat: '-27.4144', lng: '-49.6028' },
+        { ...base, id: 'semgeo', name: 'Sem geo', lat: null, lng: null },
+        { ...base, id: 'top', name: 'Cobre mais', coverage_count: 3, lat: null, lng: null },
+      ],
+    })
+
+    const rows = await findSuppliersForSpecies(['sp1'])
+    expect(rows.map((r: { id: string }) => r.id)).toEqual(['top', 'perto', 'longe', 'semgeo'])
+    const perto = rows.find((r: { id: string }) => r.id === 'perto') as { distance_km: number }
+    expect(perto.distance_km).toBe(0)
+    const semgeo = rows.find((r: { id: string }) => r.id === 'semgeo') as {
+      distance_km: number | null
+    }
+    expect(semgeo.distance_km).toBeNull()
+  })
+
+  it('lista vazia de especies nem consulta o banco', async () => {
+    expect(await findSuppliersForSpecies([])).toEqual([])
+    expect(mockedQuery).not.toHaveBeenCalled()
   })
 })
 
