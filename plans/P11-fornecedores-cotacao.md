@@ -13,17 +13,22 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ---
 
-## 📌 STATUS (atualizado em 2026-06-11) — como retomar em qualquer sessão nova
+## 📌 STATUS (atualizado em 2026-06-12) — como retomar em qualquer sessão nova
 
 - **Fase 1 CONCLUÍDA e mergeada na main** (PR #15).
 - **Fase 2 CONCLUÍDA** na branch `feat/fornecedores-cotacao` (T2.1–T2.8 todas [x]):
   cotação semi-automática com wizard de 3 passos, wa.me, acompanhamento e
   registro de respostas. Validação: 321/321 testes, `npm run build` OK,
   migração `20260611000005` aplicada **só no Postgres local** (Neon pendente,
-  como as demais rotinas). Aguardando revisão/merge do Joao via GitHub.
-- **Próximo passo**: após o merge da F2 → Fase 3 (comparação de preços e
-  fechamento, T3.1–T3.3) em branch nova `feat/fornecedores-comparacao`,
-  partindo da main atualizada.
+  como as demais rotinas). **Aguardando o Joao abrir o PR e mergear via GitHub.**
+- **Seed de teste pronto** (branch `feat/fornecedores-comparacao`, criada a partir
+  da F2): `npm run db:seed-suppliers` → `scripts/seed-supplier-network.ts` popula o
+  Postgres **local** com 14 fornecedores `[TESTE]` (statuses variados, incl.
+  do_not_contact e active=false) e ~275 ofertas em 50 espécies, para exercitar a
+  comparação da Fase 3. Guard impede rodar contra Neon; re-rodar é idempotente.
+- **Próximo passo**: após o merge da F2 → implementar Fase 3 (comparação de preços
+  e fechamento, T3.1–T3.3) nesta mesma branch `feat/fornecedores-comparacao`
+  (rebase/merge da main atualizada antes).
 - Instrução de retomada para o Claude: ler este arquivo + a memória
   `project_fornecedores.md`; não começar uma fase sem a anterior mergeada.
 
