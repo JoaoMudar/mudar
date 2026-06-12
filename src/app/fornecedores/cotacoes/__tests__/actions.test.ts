@@ -10,6 +10,7 @@ import pool from '@/lib/db'
 import {
   createQuoteRequests,
   findSuppliersForSpecies,
+  getQuotesDashboard,
   markQuoteSent,
   markQuoteNoReply,
   recordQuoteResponse,
@@ -126,6 +127,41 @@ describe('createQuoteRequests', () => {
       ).error,
     ).toMatch(/mensagem/i)
     expect(mockedConnect).not.toHaveBeenCalled()
+  })
+})
+
+describe('getQuotesDashboard', () => {
+  it('monta os 4 blocos do painel a partir das consultas', async () => {
+    mockedQuery.mockImplementation((sql: string) => {
+      if (sql.includes('item_count')) {
+        return Promise.resolve({ rows: [{ id: 'q1', status: 'sent' }] })
+      }
+      if (sql.includes('open_count')) {
+        return Promise.resolve({ rows: [{ responded: 3, outreach: 10, open_count: 4 }] })
+      }
+      if (sql.includes('total_quotes')) {
+        return Promise.resolve({ rows: [{ id: 's1', name: 'Viveiro A', total_quotes: 7 }] })
+      }
+      if (sql.includes('NOT EXISTS')) {
+        return Promise.resolve({ rows: [{ id: 'sp1', common_name: 'Ipê', quote_count: 2 }] })
+      }
+      return Promise.resolve({ rows: [] })
+    })
+
+    const result = await getQuotesDashboard()
+    expect(result.kanban).toEqual([{ id: 'q1', status: 'sent' }])
+    expect(result.totals).toEqual({ responded: 3, outreach: 10, open_count: 4 })
+    expect(result.topSuppliers[0].name).toBe('Viveiro A')
+    expect(result.networkGaps[0].common_name).toBe('Ipê')
+
+    const sqls = mockedQuery.mock.calls.map((c: unknown[]) => String(c[0]))
+    // Kanban nao mostra canceladas; gap so conta fornecedor contatavel.
+    expect(sqls.some((s) => s.includes(`IN ('queued', 'sent', 'responded', 'no_reply')`))).toBe(
+      true,
+    )
+    const gapSql = sqls.find((s) => s.includes('NOT EXISTS'))
+    expect(gapSql).toContain(`s.status <> 'do_not_contact'`)
+    expect(gapSql).toContain('s.active = true')
   })
 })
 
