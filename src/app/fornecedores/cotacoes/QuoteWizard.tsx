@@ -6,6 +6,7 @@ import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import Toast, { ToastType } from '@/components/Toast'
 import { type SpeciesOption } from '@/lib/order-paste'
 import { formatPriceBR } from '@/lib/suppliers'
+import { formatDistanceKm } from '@/lib/geo'
 import { buildQuoteRequestMessage, buildWaLink } from '@/lib/whatsapp'
 import { createQuoteRequests, findSuppliersForSpecies, markQuoteSent } from './actions'
 
@@ -34,6 +35,8 @@ interface CandidateSupplier {
   state: string | null
   reliability_score: number | null
   coverage_count: number
+  /** Distancia em linha reta ate o viveiro; null = fornecedor sem lat/lng. */
+  distance_km: number | null
   offers: SupplierOffer[]
 }
 
@@ -389,7 +392,11 @@ export default function QuoteWizard({
                             </span>
                           </div>
                           <p className="text-xs text-gray-500">
-                            {[s.contact_name, s.city && `${s.city}${s.state ? `/${s.state}` : ''}`]
+                            {[
+                              s.contact_name,
+                              s.city && `${s.city}${s.state ? `/${s.state}` : ''}`,
+                              formatDistanceKm(s.distance_km),
+                            ]
                               .filter(Boolean)
                               .join(' · ') || '—'}
                             {s.reliability_score != null && ` · ${'★'.repeat(s.reliability_score)}`}

@@ -13,6 +13,7 @@ import {
 } from '@/lib/quotes'
 import { applyMarkup, isBelowMinMargin, parseMarginPct } from '@/lib/pricing'
 import { formatPriceBR } from '@/lib/suppliers'
+import { compareQuoteCandidates, distanceFromViveiroKm, viveiroCoords } from '@/lib/geo'
 
 const PATH = '/fornecedores/cotacoes'
 
@@ -20,15 +21,16 @@ const PATH = '/fornecedores/cotacoes'
  * Fornecedores candidatos para cotar as especies dadas, com as ofertas que
  * cada um ja tem cadastradas (preco/tamanho quando conhecidos).
  * NUNCA retorna fornecedor arquivado ou marcado "não contatar".
- * Ordena por cobertura DESC e, no empate, quem foi contatado ha mais tempo
- * primeiro (distribui o outreach na rede).
+ * Ordena por cobertura DESC; no empate, mais perto do viveiro primeiro
+ * (frete menor; sem lat/lng vai para o fim) e, por fim, quem foi contatado
+ * ha mais tempo primeiro (distribui o outreach na rede). P11 F4.
  */
 export async function findSuppliersForSpecies(speciesIds: string[]) {
   await requireRole('admin', 'chefia')
   if (!speciesIds || speciesIds.length === 0) return []
   const { rows } = await pool.query(
     `SELECT s.id, s.name, s.contact_name, s.whatsapp, s.phone, s.email, s.instagram,
-            s.city, s.state, s.reliability_score, s.last_contacted_at,
+            s.city, s.state, s.reliability_score, s.last_contacted_at, s.lat, s.lng,
             COUNT(DISTINCT ss.species_id)::int AS coverage_count,
             json_agg(json_build_object(
               'species_id', ss.species_id,
@@ -45,7 +47,13 @@ export async function findSuppliersForSpecies(speciesIds: string[]) {
      ORDER BY coverage_count DESC, s.last_contacted_at ASC NULLS FIRST, s.name`,
     [speciesIds],
   )
-  return rows
+  const viveiro = viveiroCoords(process.env.VIVEIRO_LAT, process.env.VIVEIRO_LNG)
+  const withDistance = rows.map((row) => ({
+    ...row,
+    distance_km: distanceFromViveiroKm(row.lat, row.lng, viveiro),
+  }))
+  withDistance.sort(compareQuoteCandidates)
+  return withDistance
 }
 
 export interface QuoteSupplierMessage {
