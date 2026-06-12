@@ -13,6 +13,23 @@ Manager. Um PR por fase; merge na main feito pelo Joao via GitHub.
 
 ---
 
+## 📌 STATUS (atualizado em 2026-06-11) — como retomar em qualquer sessão nova
+
+- **Fase 1 CONCLUÍDA** na branch `feat/fornecedores`, commit `b5ff5fd`, já com push.
+  PR para abrir/mergear: https://github.com/JoaoMudar/mudar/pull/new/feat/fornecedores
+- Validação feita: 290/290 testes, `npm run build` OK, migrações `20260611000003/4`
+  aplicadas **só no Postgres local** (Neon pendente, como as demais rotinas).
+- **Próximo passo**: após o Joao revisar/mergear a F1 na main →
+  `git checkout main && git pull && git checkout -b feat/fornecedores-cotacao`
+  e implementar a Fase 2 (T2.1–T2.8 abaixo), marcando `[x]` a cada task.
+- Detalhes de modelagem da F2 (SQL das tabelas, assinatura das funções de
+  `src/lib/whatsapp.ts`, comportamento das actions e do wizard) estão na seção
+  "Fase 2" e em "Decisões registradas" deste arquivo — seguir à risca.
+- Instrução de retomada para o Claude: ler este arquivo + a memória
+  `project_fornecedores.md`; **não** começar a F2 sem a F1 mergeada na main.
+
+---
+
 ## Fase 1 — Fundação: fornecedores + espécies por fornecedor (branch `feat/fornecedores`)
 
 - [x] T1.1 Migração `suppliers` (status lead/active/inactive/do_not_contact, cidade/UF texto, reliability_score 0–5, soft-delete `active`)
