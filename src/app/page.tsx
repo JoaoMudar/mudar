@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
 import LogoutButton from './LogoutButton'
 import NotificationBell from '@/components/NotificationBell'
+import { getCobertura } from './financeiro/queries'
+import { resumirPendencias, type ResumoPendencia } from '@/lib/bi-periodo'
 
 const WORKER_LINKS = [
   {
@@ -34,6 +36,17 @@ export default async function Home() {
   const showAdmin = user.role === 'admin' || user.role === 'chefia'
   const showPedidos =
     user.role === 'admin' || user.role === 'chefia' || user.role === 'gerencia'
+
+  // Meses de despesa em falta. Sai de vw_bi_cobertura, entao o alerta se corrige
+  // sozinho conforme os lancamentos entram — nada aqui e fixo no codigo.
+  let pendencias: ResumoPendencia | null = null
+  if (showAdmin) {
+    try {
+      pendencias = resumirPendencias(await getCobertura())
+    } catch {
+      // Banco/schema financeiro indisponivel — a home nao pode quebrar por isso.
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -102,7 +115,42 @@ export default async function Home() {
                   </div>
                 </Link>
               )}
+              {/* Financeiro — BI de receita/despesa (P12); so admin/chefia */}
+              {showAdmin && (
+                <Link
+                  href="/financeiro"
+                  className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+                >
+                  <span className="text-3xl">📊</span>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-base">Financeiro</p>
+                    <p className="text-sm text-gray-500">Receita, despesa, margem e lançamento de gastos</p>
+                  </div>
+                </Link>
+              )}
             </div>
+          </section>
+        )}
+
+        {/* Alerta de meses por lancar: so aparece enquanto houver buraco, e
+            some sozinho conforme os meses sao preenchidos. Fica no topo das
+            secoes porque despesa faltando distorce todo o resto do painel. */}
+        {showAdmin && pendencias && (
+          <section>
+            <Link
+              href="/financeiro/preenchimento"
+              className="flex items-center gap-4 bg-red-50 rounded-xl border border-red-200 px-5 py-4 active:bg-red-100"
+            >
+              <span className="text-3xl" aria-hidden="true">🔴</span>
+              <div>
+                <p className="font-semibold text-red-900 text-base">
+                  {pendencias.totalMeses} {pendencias.totalMeses === 1 ? 'mês' : 'meses'} de despesa por lançar
+                </p>
+                <p className="text-sm text-red-700">
+                  {pendencias.descricao} — o painel está subestimando o custo
+                </p>
+              </div>
+            </Link>
           </section>
         )}
 

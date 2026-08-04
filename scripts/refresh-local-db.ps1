@@ -11,7 +11,16 @@
     npm run db:refresh-local
     # ou direto:
     powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1
+
+.PARAMETER SkipFinanceiroCheck
+  Ignora a trava que impede apagar o schema `financeiro` (BI) quando ele existe
+  no local mas ainda nao existe no Neon. Use so se for reimportar depois com
+  scripts/import-financeiro.ps1.
 #>
+
+param(
+    [switch]$SkipFinanceiroCheck
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -61,6 +70,32 @@ $adminUrl = "$base/postgres"   # conecta no banco padrao para poder dropar/criar
 $dumpFile = Join-Path $env:TEMP 'viveiro_neon.dump'
 
 Write-Host "==> Banco alvo local: $localDb" -ForegroundColor Cyan
+
+# --- 4b. Proteger o schema `financeiro` (BI) ---
+# Este script recria o banco local do zero a partir do Neon. Enquanto o historico
+# financeiro (schema `financeiro`, importado por scripts/import-financeiro.ps1) nao
+# estiver no Neon, um refresh o apagaria sem aviso. Detectamos isso e paramos.
+if ($SkipFinanceiroCheck) {
+    Write-Host "    (-SkipFinanceiroCheck: trava do schema financeiro desativada)" -ForegroundColor Yellow
+}
+$temFinanceiroLocal = & $psql $target -Atc "SELECT count(*) FROM pg_namespace WHERE nspname='financeiro';"
+if ($LASTEXITCODE -ne 0) { $temFinanceiroLocal = '0' }   # banco local pode nem existir ainda
+$temFinanceiroNeon = & $psql $source -Atc "SELECT count(*) FROM pg_namespace WHERE nspname='financeiro';"
+if ($LASTEXITCODE -ne 0) { throw "Nao consegui consultar o Neon para checar o schema financeiro" }
+
+if (-not $SkipFinanceiroCheck -and [int]$temFinanceiroLocal -gt 0 -and [int]$temFinanceiroNeon -eq 0) {
+    throw @"
+ABORTADO: o banco local tem o schema 'financeiro' (BI) e o Neon NAO tem.
+Recriar o local do zero apagaria todo o historico financeiro importado.
+
+Saidas possiveis:
+  1. Subir o BI para o Neon antes:
+       powershell -File scripts/import-financeiro.ps1 -Target neon -AllowRemote
+  2. Ou reimportar depois do refresh, a partir do banco notas_despesas:
+       powershell -File scripts/refresh-local-db.ps1 -SkipFinanceiroCheck
+       powershell -File scripts/import-financeiro.ps1
+"@
+}
 
 # --- 5. Dump do Neon (somente leitura na producao) ---
 Write-Host "==> [1/3] Baixando dump do Neon..." -ForegroundColor Cyan

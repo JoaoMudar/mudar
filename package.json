@@ -15,7 +15,9 @@
     "db:migrate:mark": "tsx scripts/migrate.ts --mark-applied",
     "db:seed-admin": "tsx scripts/seed-admin.ts",
     "db:seed-suppliers": "tsx scripts/seed-supplier-network.ts",
-    "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1"
+    "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1",
+    "db:import-financeiro": "powershell -ExecutionPolicy Bypass -File scripts/import-financeiro.ps1",
+    "bi:sanity": "tsx scripts/bi-sanity.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -24,7 +26,8 @@
     "pg": "^8.20.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.21",

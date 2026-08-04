@@ -51,6 +51,7 @@ Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
 | Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
 | Financeiro | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) |
+| **Financeiro / BI** (painel + lançamento de despesas) | [`rotinas/financeiro-bi.md`](rotinas/financeiro-bi.md) |
 | Produção | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) |
 
 A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/):

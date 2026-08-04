@@ -3,6 +3,19 @@
 > Como trazer os dados de produção (Neon) para um Postgres local, para testar à
 > vontade **sem nunca tocar no banco real**.
 
+> ⚠️ **Atenção ao schema `financeiro` (BI).** Ele ainda não existe no Neon: entra
+> localmente por `npm run db:import-financeiro`. Como este refresh recria o banco
+> local do zero, ele apagaria todo o histórico financeiro importado. O script
+> detecta essa situação e **aborta antes de destruir**. Para seguir mesmo assim,
+> reimportando depois:
+>
+> ```bash
+> npm run db:refresh-local -- -SkipFinanceiroCheck
+> npm run db:import-financeiro
+> ```
+>
+> Ver `docs/rotinas/financeiro-bi.md`.
+
 ## Por que isso existe
 
 O `CLAUDE.md` diz que dev e produção compartilham o mesmo banco no Neon. Para

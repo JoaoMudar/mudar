@@ -23,6 +23,12 @@ Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10
 ## Banco de dados (schema compartilhado entre projetos)
 Toda alteração no banco: (1) arquivo `.sql` em `migrations/` (psql puro), (2) manter compatibilidade retroativa, (3) documentar no CHANGELOG. Tabelas: snake_case, plural (`species`, `batches`, `loss_events`).
 
+**Dois schemas no mesmo banco:**
+- `public` — tabelas do app (`orders`, `customers`, `species`, `suppliers`…)
+- `financeiro` — histórico fiscal-financeiro do BI (`despesas`, `notas_fiscais`, views `vw_bi_*`)
+
+**Sempre qualifique o schema em SQL** (`financeiro.vw_bi_dre_anual`). O pool é o mesmo para as duas metades, então mexer no `search_path` afetaria o app inteiro. O schema `financeiro` entra por `npm run db:import-financeiro` (dump de ~60k linhas), não por migração — as migrações que o alteram têm guarda `IF to_regnamespace('financeiro') IS NULL THEN RETURN` para não quebrar o build onde ele ainda não existe. Detalhes em `docs/rotinas/financeiro-bi.md`.
+
 ## Convenções de código
 - Arquivos/código em inglês; comentários podem ser em português.
 - Componentes React PascalCase (1 por arquivo); hooks `useNome.ts`; utils camelCase; rotas API kebab-case.
