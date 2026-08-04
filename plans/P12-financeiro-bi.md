@@ -1,6 +1,6 @@
 # P12 — BI Financeiro
 
-## Status: EM ANDAMENTO (base pronta, telas parciais)
+## Status: CÓDIGO COMPLETO — falta preencher dados, verificar visualmente e subir ao Neon
 ## Branch: `feat/financeiro-bi`
 ## Documentação da rotina: `docs/rotinas/financeiro-bi.md`
 
@@ -16,10 +16,8 @@ dentro do banco do app.
 
 ## 🔴 Bug conhecido — corrigir antes de usar de verdade
 
-- [ ] **Link quebrado para `/financeiro/config/rateio`.**
-  `src/app/financeiro/despesas/nova/DespesaForm.tsx` mostra "ajustar rateio" com
-  link para uma tela que **não existe** → 404. Ou criar a tela (ver abaixo) ou
-  remover o link enquanto isso.
+- [x] **Link quebrado para `/financeiro/config/rateio`.** Resolvido criando a
+  tela. Cruzamento entre `href` e páginas agora dá **zero** links quebrados.
 
 ---
 
@@ -57,19 +55,18 @@ não é possível logar sem sua senha.
 
 ---
 
-## Telas que faltam
+## Telas — todas feitas
 
-- [ ] **`/financeiro/config/rateio`** (admin) — grade das 15 categorias `misto` ×
-      7 centros de custo, editável 0–100. Prévia ao vivo do efeito na despesa do
-      ano. É o que fecha o bug do link quebrado. *Maior prioridade das três.*
-- [ ] **`/financeiro/vendas`** — top espécies por receita, mix por recipiente
-      (quantidade de `controle_notas`, receita de `itens_nota` — fontes diferentes,
-      rotular cada gráfico), e o **mapa Leaflet** (100% da receita tem coordenada;
-      reusar `src/app/fornecedores/mapa/`). Views prontas:
-      `vw_bi_vendas_especie_ano`, `vw_bi_vendas_geo`.
-- [ ] **`/financeiro/clientes`** — curva ABC, top 20, recência.
-      ⚠️ **Falta criar a view**: existe só a `vw_ranking_clientes` legada, sem o
-      corte de 2020 e sem dimensão de ano.
+- [x] **`/financeiro/config/rateio`** — grade 15 categorias × 7 centros, prévia
+      ao vivo e aviso de retroatividade. A prévia roda a própria view dentro de
+      uma transação com `ROLLBACK`, então o número mostrado é exatamente o que
+      vai aparecer depois de salvar — não uma reimplementação da regra.
+- [x] **`/financeiro/vendas`** — top 15 espécies, dois gráficos de recipiente
+      (quantidade e receita, de fontes diferentes e rotulados como tal), mapa
+      Leaflet, barras por UF e tabela de municípios.
+- [x] **`/financeiro/clientes`** — curva ABC em gráfico próprio, top 20 e
+      recência com ícone + rótulo. Inclui a view nova `vw_bi_clientes`
+      (migração `20260805000005`), cuja receita reconcilia exatamente com as notas.
 
 ---
 
@@ -87,12 +84,15 @@ Hoje o BI só funciona local. Ordem importa:
 
 ---
 
-## Testes que faltam
+## Testes — feitos
 
-- [ ] Actions de `/financeiro/pendencias` (`categorizar`, `getFila`) — as de
-      despesas já têm 16 testes, essas não têm nenhum
-- [ ] Caso de borda da normalização: regra com acento casando com descrição sem
-      acento e vice-versa (`financeiro.bi_normaliza`)
+- [x] Actions de `/financeiro/pendencias` — 19 testes. **Pegaram um bug real**:
+      `categorizar` validava `categoria_id > 0` mas não `id > 0`, então `id=0`
+      chegava ao banco. Corrigido.
+- [x] Actions de `/financeiro/config/rateio` — 11 testes, com foco em garantir
+      que a prévia **sempre** faz `ROLLBACK` e nunca `COMMIT`.
+- [x] Normalização de acento — verificada no `bi:sanity` contra o banco real
+      (é uma função SQL; mock não provaria nada).
 
 ---
 
@@ -100,12 +100,11 @@ Hoje o BI só funciona local. Ordem importa:
 
 - [ ] **Depreciar as views `vw_*` legadas.** Convivem com as `vw_bi_*` para não
       quebrar Metabase/Power BI. Definir uma data e avisar quem usa.
-- [ ] **Centralizar formatação.** `src/lib/format.ts` existe e está testado, mas
-      ~8 arquivos ainda têm `formatPriceBR`/`fmtDate` próprios
-      (`src/lib/suppliers.ts:114`, `PedidosList`, `QuotesList`, `OrderDetailClient`,
-      os managers do admin). Migrar aos poucos, sem pressa.
-- [ ] **"Não classificado" visível nos gráficos de custo.** Hoje some. Melhor
-      mostrar como fatia explícita do que fingir 100% de cobertura — decidir.
+- [x] **Centralizar formatação.** Zero `fmtDate` locais e zero moeda inline
+      restantes no projeto. `formatPriceBR` virou alias de `formatBRL`, então há
+      um nome a mais mas uma implementação só.
+- [x] **"Não classificado" visível nos gráficos de custo.** Fixado como fatia
+      própria em cinza, nunca dobrado em "Outros", com link para a fila.
 - [ ] **Rateio retroativo.** A configuração de hoje vale para todos os anos. A
       coluna `vigencia_inicio` já existe para rateio por período, sem uso. Só
       implementar se incomodar.

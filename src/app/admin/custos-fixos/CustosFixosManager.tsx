@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import { formatBRL } from '@/lib/format'
 import {
   createCustoFixo,
   deleteCustoFixo,
@@ -169,7 +170,7 @@ export default function CustosFixosManager({ initialCosts }: { initialCosts: Fix
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-gray-700 capitalize">{label}</h3>
                   <span className="text-sm font-bold text-green-800">
-                    Total: {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    Total: {formatBRL(total)}
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -182,7 +183,7 @@ export default function CustosFixosManager({ initialCosts }: { initialCosts: Fix
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="font-bold text-gray-900">
-                          {Number(item.monthly_amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          {formatBRL(item.monthly_amount)}
                         </span>
                         <button
                           onClick={() => handleDelete(item.id)}

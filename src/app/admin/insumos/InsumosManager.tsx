@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import { formatBRL, formatDateBR } from '@/lib/format'
 import {
   createInsumo,
   updateInsumo,
@@ -179,7 +180,7 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
               <div className="flex flex-col gap-1">
                 <label className="label">Total (R$)</label>
                 <p className="input bg-gray-50 text-gray-700 font-semibold">
-                  {(form.cost_per_unit * form.quantity_purchased).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  {formatBRL(form.cost_per_unit * form.quantity_purchased)}
                 </p>
               </div>
             )}
@@ -244,7 +245,7 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
                       <span className="text-xs text-gray-500">{item.unit_of_measure}</span>
                       {item.cost_per_unit != null && (
                         <span className="text-xs font-semibold text-gray-700">
-                          {Number(item.cost_per_unit).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}/{item.unit_of_measure}
+                          {formatBRL(item.cost_per_unit)}/{item.unit_of_measure}
                         </span>
                       )}
                       {item.quantity_purchased != null && (
@@ -254,7 +255,7 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
                       )}
                       {item.cost_per_unit != null && item.quantity_purchased != null && (
                         <span className="text-xs font-semibold text-green-700">
-                          Total: {(Number(item.cost_per_unit) * Number(item.quantity_purchased)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          Total: {formatBRL(Number(item.cost_per_unit) * Number(item.quantity_purchased))}
                         </span>
                       )}
                     </div>
@@ -285,8 +286,8 @@ export default function InsumosManager({ initialInputs }: { initialInputs: Input
                     <div className="mt-2 space-y-1">
                       {history.map((h, i) => (
                         <div key={i} className="flex justify-between text-xs text-gray-500">
-                          <span>{new Date(h.changed_at).toLocaleDateString('pt-BR')}</span>
-                          <span>{Number(h.cost_per_unit).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                          <span>{formatDateBR(h.changed_at)}</span>
+                          <span>{formatBRL(h.cost_per_unit)}</span>
                         </div>
                       ))}
                     </div>

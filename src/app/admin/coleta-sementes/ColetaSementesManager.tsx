@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import { formatBRL } from '@/lib/format'
 import { createColeta, deleteColeta, type SeedCollectionPayload } from './actions'
 
 interface Collection {
@@ -189,9 +190,7 @@ export default function ColetaSementesManager({
           {form.total_cost > 0 && form.seeds_collected_qty && form.seeds_collected_qty > 0 && (
             <div className="bg-green-50 rounded-xl px-4 py-3 text-sm text-green-800 font-semibold">
               Custo estimado por semente:{' '}
-              {(form.total_cost / form.seeds_collected_qty).toLocaleString('pt-BR', {
-                style: 'currency', currency: 'BRL', minimumFractionDigits: 4,
-              })}
+              {formatBRL(form.total_cost / form.seeds_collected_qty, 4)}
             </div>
           )}
 
@@ -233,16 +232,14 @@ export default function ColetaSementesManager({
                   </p>
                   <div className="flex flex-wrap gap-3 mt-2 text-sm">
                     <span className="font-bold text-gray-900">
-                      {Number(item.total_cost).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      {formatBRL(item.total_cost)}
                     </span>
                     {item.seeds_collected_qty != null && (
                       <span className="text-gray-500">{item.seeds_collected_qty} sementes</span>
                     )}
                     {item.cost_per_seed != null && (
                       <span className="text-green-700 font-semibold">
-                        {Number(item.cost_per_seed).toLocaleString('pt-BR', {
-                          style: 'currency', currency: 'BRL', minimumFractionDigits: 4,
-                        })}/semente
+                        {formatBRL(item.cost_per_seed, 4)}/semente
                       </span>
                     )}
                   </div>

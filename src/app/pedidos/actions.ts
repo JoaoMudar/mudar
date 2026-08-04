@@ -16,13 +16,11 @@ import {
   type ReviewItemInput,
   type SpeciesAssignment,
 } from '@/lib/orders'
+import { formatDayMonthBR } from '@/lib/format'
 
-function fmtDateBR(value: string | Date | null): string {
-  if (!value) return 'sem data'
-  const d = typeof value === 'string' ? new Date(value) : value
-  if (Number.isNaN(d.getTime())) return 'sem data'
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-}
+/** Data curta para o texto da notificacao. */
+const fmtDataNotificacao = (value: string | Date | null) =>
+  formatDayMonthBR(value, 'sem data')
 
 const LIST_PATH = '/pedidos'
 
@@ -731,7 +729,7 @@ export async function approveOrder(
       'gerencia',
       'pedido_aprovado',
       `Pedido #${rows[0].order_number} aprovado`,
-      `Separar até ${fmtDateBR(rows[0].delivery_date)}`,
+      `Separar até ${fmtDataNotificacao(rows[0].delivery_date)}`,
       `/pedidos/${orderId}`,
     )
     revalidatePath(`${LIST_PATH}/${orderId}`)

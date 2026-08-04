@@ -6,6 +6,8 @@ import {
   formatPct,
   parseValorBR,
   formatDateBR,
+  formatDayMonthBR,
+  formatDateTimeBR,
   formatMonthYearBR,
   formatListaMeses,
 } from '../format'
@@ -156,6 +158,42 @@ describe('formatDateBR', () => {
     expect(formatDateBR('')).toBe('')
     expect(formatDateBR('14/05/2026')).toBe('')
     expect(formatDateBR(new Date('lixo'))).toBe('')
+  })
+})
+
+describe('formatDateBR — fallback configuravel', () => {
+  it('aceita um texto para o caso vazio (as telas usam travessao)', () => {
+    expect(formatDateBR(null, '—')).toBe('—')
+    expect(formatDateBR('', '—')).toBe('—')
+    expect(formatDateBR('lixo', '—')).toBe('—')
+    expect(formatDateBR(new Date('lixo'), '—')).toBe('—')
+  })
+
+  it('data valida ignora o fallback', () => {
+    expect(formatDateBR('2026-05-14', '—')).toBe('14/05/2026')
+  })
+})
+
+describe('formatDayMonthBR', () => {
+  it('corta o ano', () => {
+    expect(formatDayMonthBR('2026-05-14')).toBe('14/05')
+  })
+
+  it('respeita o fallback', () => {
+    expect(formatDayMonthBR(null, '—')).toBe('—')
+  })
+})
+
+describe('formatDateTimeBR', () => {
+  it('inclui hora e minuto', () => {
+    const s = formatDateTimeBR(new Date(2026, 4, 14, 13, 45))
+    expect(s).toContain('14/05')
+    expect(s).toContain('13:45')
+  })
+
+  it('respeita o fallback', () => {
+    expect(formatDateTimeBR(null, '—')).toBe('—')
+    expect(formatDateTimeBR('lixo', '—')).toBe('—')
   })
 })
 

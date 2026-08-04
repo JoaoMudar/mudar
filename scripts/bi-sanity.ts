@@ -260,6 +260,49 @@ const CHECKS: Check[] = [
     nota: 'cobertura 100% — se subir, o mapa passa a omitir venda',
   },
 
+  // --- Normalizacao de texto (contrato entre JS e SQL) ---
+  // `unaccent` nao esta instalado; src/lib/text.ts grava o padrao sem acento e
+  // financeiro.bi_normaliza() precisa produzir exatamente a mesma forma. Se
+  // divergir, as regras de categorizacao param de casar em silencio.
+  {
+    nome: 'bi_normaliza tira acento e minusculiza',
+    sql: `SELECT financeiro.bi_normaliza('Combustível ÁÇÃO Ñ')`,
+    esperado: 'combustivel acao n',
+    modo: 'exato',
+  },
+  {
+    nome: 'regra sem acento casa com descricao acentuada',
+    sql: `SELECT (financeiro.bi_normaliza('Combustível Posto') LIKE '%combustivel%')`,
+    esperado: true,
+    modo: 'exato',
+    nota: 'se falhar, a categorizacao em lote nao pega nada',
+  },
+  {
+    nome: 'bi_normaliza aguenta NULL',
+    sql: `SELECT financeiro.bi_normaliza(NULL) = ''`,
+    esperado: true,
+    modo: 'exato',
+  },
+
+  // --- Clientes ---
+  {
+    nome: 'clientes distintos na janela',
+    sql: 'SELECT COUNT(DISTINCT cliente_id)::int FROM financeiro.vw_bi_clientes',
+    esperado: 791,
+    modo: 'exato',
+  },
+  {
+    nome: 'receita de clientes bate com a das notas',
+    sql: `SELECT ROUND(
+            (SELECT COALESCE(SUM(receita), 0) FROM financeiro.vw_bi_clientes)
+            - (SELECT COALESCE(SUM(nf.valor_total), 0) FROM financeiro.notas_fiscais nf
+                WHERE nf.ano::int >= financeiro.bi_ano_minimo()
+                  AND nf.destinatario_id IS NOT NULL), 2)::float`,
+    esperado: 0,
+    modo: 'exato',
+    nota: 'a view de clientes nao pode perder nem inventar receita',
+  },
+
   // --- Informativos (mudam com o uso, nao falham) ---
   {
     nome: 'lancamentos feitos pelo app',

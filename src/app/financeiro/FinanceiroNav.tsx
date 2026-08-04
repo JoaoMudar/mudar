@@ -7,6 +7,8 @@ const NAV = [
   { href: '/financeiro',                label: 'Visão geral', exato: true },
   { href: '/financeiro/mensal',         label: 'Mês a mês' },
   { href: '/financeiro/custos',         label: 'Custos' },
+  { href: '/financeiro/vendas',         label: 'Vendas' },
+  { href: '/financeiro/clientes',       label: 'Clientes' },
   { href: '/financeiro/despesas',       label: 'Lançar' },
   { href: '/financeiro/preenchimento',  label: 'Preenchimento' },
   { href: '/financeiro/pendencias',     label: 'Pendências' },

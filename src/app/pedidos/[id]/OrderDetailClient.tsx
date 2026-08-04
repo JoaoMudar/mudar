@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import SpeciesTags from '@/components/SpeciesTags'
 import OrderAnalysis from './OrderAnalysis'
+import { formatDateBR, formatDateTimeBR } from '@/lib/format'
 import { cancelOrder } from '../actions'
 import {
   ORDER_STATUS_META,
@@ -68,22 +69,8 @@ interface Props {
   role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
 }
 
-function fmtDate(value: string | Date | null): string {
-  if (!value) return '—'
-  const d = typeof value === 'string' ? new Date(value) : value
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
-function fmtDateTime(value: string | Date): string {
-  const d = typeof value === 'string' ? new Date(value) : value
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+const fmtDate = (value: string | Date | null) => formatDateBR(value, '—')
+const fmtDateTime = (value: string | Date) => formatDateTimeBR(value, '—')
 
 function AvailabilityIcon({ item }: { item: Item }) {
   if (item.is_available === true) return <span className="text-green-600 font-bold">✓</span>

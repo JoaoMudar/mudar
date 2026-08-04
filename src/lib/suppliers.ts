@@ -106,10 +106,11 @@ export function validateSupplierSpecies(data: SupplierSpeciesInput): string | nu
   return null
 }
 
-/** Preco BR para exibicao: 4.5 -> "R$ 4,50". */
-export function formatPriceBR(value: number | string | null | undefined): string {
-  if (value == null || value === '') return ''
-  const n = typeof value === 'string' ? Number(value) : value
-  if (!Number.isFinite(n)) return ''
-  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+/**
+ * Preco BR para exibicao: 4.5 -> "R$ 4,50".
+ *
+ * @deprecated Use `formatBRL` de `@/lib/format`. Mantido como alias porque e
+ * usado em 5 telas de fornecedores/cotacoes; a implementacao ja e a de la, entao
+ * nao existem mais duas formatacoes de moeda no projeto — so dois nomes.
+ */
+export { formatBRL as formatPriceBR } from './format'

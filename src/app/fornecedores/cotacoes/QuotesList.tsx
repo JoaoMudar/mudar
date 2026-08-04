@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import { formatDateTimeBR } from '@/lib/format'
 import { formatPriceBR } from '@/lib/suppliers'
 import {
   QUOTE_CHANNEL_LABEL,
@@ -55,16 +56,7 @@ interface ToastState {
   type: ToastType
 }
 
-function fmtDateTime(value: string): string {
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+const fmtDateTime = (value: string) => formatDateTimeBR(value, '—')
 
 /**
  * Acompanhamento das cotacoes, agrupadas por disparo (request_group_id):

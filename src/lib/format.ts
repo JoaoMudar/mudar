@@ -13,11 +13,23 @@ function toNumber(value: number | string | null | undefined): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-/** 1234.5 -> "R$ 1.234,50". Vazio para valor ausente/invalido. */
-export function formatBRL(value: number | string | null | undefined): string {
+/**
+ * 1234.5 -> "R$ 1.234,50". Vazio para valor ausente/invalido.
+ *
+ * `casas` existe para valores unitarios muito pequenos (custo por semente, por
+ * muda), onde 2 casas arredondariam tudo para R$ 0,00.
+ */
+export function formatBRL(
+  value: number | string | null | undefined,
+  casas = 2,
+): string {
   const n = toNumber(value)
   if (n === null) return ''
-  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return n.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: casas,
+  })
 }
 
 /** Como formatBRL, mas sem centavos: 1234.5 -> "R$ 1.235". Para tabelas densas. */
@@ -117,17 +129,49 @@ export const MESES_NOME = [
  * construtor interpreta como UTC e, em fuso negativo (Brasil), a data exibida
  * volta um dia. Esse bug ja apareceu em datas de pedido.
  */
-export function formatDateBR(value: string | Date | null | undefined): string {
-  if (!value) return ''
+export function formatDateBR(
+  value: string | Date | null | undefined,
+  vazio = '',
+): string {
+  if (!value) return vazio
   if (value instanceof Date) {
-    if (Number.isNaN(value.getTime())) return ''
+    if (Number.isNaN(value.getTime())) return vazio
     const d = String(value.getDate()).padStart(2, '0')
     const m = String(value.getMonth() + 1).padStart(2, '0')
     return `${d}/${m}/${value.getFullYear()}`
   }
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
-  if (!m) return ''
+  if (!m) return vazio
   return `${m[3]}/${m[2]}/${m[1]}`
+}
+
+/** Só dia e mês: "14/05". Para listas onde o ano é redundante. */
+export function formatDayMonthBR(
+  value: string | Date | null | undefined,
+  vazio = '',
+): string {
+  const completo = formatDateBR(value, '')
+  return completo ? completo.slice(0, 5) : vazio
+}
+
+/**
+ * Data e hora: "14/05 13:45".
+ *
+ * Ao contrário de formatDateBR, aqui `new Date()` é seguro e correto: um
+ * timestamp carrega fuso, então não existe o deslocamento de um dia que afeta
+ * strings de data pura.
+ */
+export function formatDateTimeBR(
+  value: string | Date | null | undefined,
+  vazio = '',
+): string {
+  if (!value) return vazio
+  const d = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(d.getTime())) return vazio
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  })
 }
 
 /** 2026, 5 -> "mai/2026". Aceita tambem "2026-05". */

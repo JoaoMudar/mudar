@@ -168,7 +168,10 @@ export async function categorizar(
 ): Promise<ResultadoCategorizacao> {
   const user = await requireRole('admin', 'chefia')
 
-  if (!Number.isInteger(id) || !Number.isInteger(categoriaId) || categoriaId <= 0) {
+  // Os dois precisam do `> 0`: `Number.isInteger(0)` e true, entao checar so o
+  // tipo deixaria id=0 chegar ao banco.
+  if (!Number.isInteger(id) || id <= 0 ||
+      !Number.isInteger(categoriaId) || categoriaId <= 0) {
     return { erro: 'Lançamento ou categoria inválidos.' }
   }
 

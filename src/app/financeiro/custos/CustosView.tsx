@@ -21,6 +21,16 @@ const VISOES: { chave: Visao; rotulo: string }[] = [
 /** Acima de 7 fatias as cores adjacentes borram: o resto vira "Outros". */
 const MAX_GRUPOS = 7
 
+/**
+ * Grupo dos lancamentos sem categoria. Sai assim de vw_bi_estrutura_custo
+ * (COALESCE(grupo, 'Sem categoria')).
+ */
+const SEM_CATEGORIA = 'Sem categoria'
+
+/** Cinza neutro: e ausencia de dado, nao mais uma serie. */
+const COR_SEM_CATEGORIA = '#b8b7b1'
+const COR_OUTROS = '#cfcfca'
+
 export default function CustosView({ data }: { data: CustosData }) {
   const router = useRouter()
   const [visao, setVisao] = useState<Visao>('negocio')
@@ -37,12 +47,27 @@ export default function CustosView({ data }: { data: CustosData }) {
       .filter((g) => g.valor > 0)
       .sort((a, b) => b.valor - a.valor)
 
-    if (ordenados.length <= MAX_GRUPOS) return ordenados
-    const principais = ordenados.slice(0, MAX_GRUPOS)
-    const resto = ordenados.slice(MAX_GRUPOS).reduce((s, g) => s + g.valor, 0)
-    return resto > 0 ? [...principais, { nome: 'Outros', valor: resto }] : principais
+    // "Sem categoria" e sempre visivel, nunca dobrado em "Outros".
+    // Ele e pequeno (cai fora do top 7) mas e justamente o que o painel NAO
+    // sabe classificar — esconde-lo faria a soma dos grupos parecer o total real.
+    const semCategoria = ordenados.find((g) => g.nome === SEM_CATEGORIA)
+    const demais = ordenados.filter((g) => g.nome !== SEM_CATEGORIA)
+
+    const limite = semCategoria ? MAX_GRUPOS - 1 : MAX_GRUPOS
+    const principais = demais.slice(0, limite)
+    const resto = demais.slice(limite).reduce((s, g) => s + g.valor, 0)
+
+    const saida = [...principais]
+    if (resto > 0) saida.push({ nome: 'Outros', valor: resto })
+    if (semCategoria) saida.push(semCategoria) // sempre por ultimo, para nao competir
+    return saida
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.grupos, visao])
+
+  const valorSemCategoria = useMemo(
+    () => grupos.find((g) => g.nome === SEM_CATEGORIA)?.valor ?? 0,
+    [grupos],
+  )
 
   const total = useMemo(() => grupos.reduce((s, g) => s + g.valor, 0), [grupos])
 
@@ -100,6 +125,18 @@ export default function CustosView({ data }: { data: CustosData }) {
       <ChartCard
         titulo={`Custo por grupo — ${data.ano}`}
         subtitulo={`${VISOES.find((v) => v.chave === visao)!.rotulo} · total ${formatBRLInteiro(total)}`}
+        aviso={
+          valorSemCategoria > 0 ? (
+            <>
+              <strong>{formatBRLInteiro(valorSemCategoria)}</strong> ainda estão sem
+              categoria e aparecem como barra cinza — não dá para saber em que grupo
+              entram.{' '}
+              <a href="/financeiro/pendencias" className="underline font-semibold">
+                classificar
+              </a>
+            </>
+          ) : undefined
+        }
         tabela={{
           colunas: [
             { chave: 'grupo', rotulo: 'Grupo' },
@@ -140,8 +177,21 @@ export default function CustosView({ data }: { data: CustosData }) {
                 }}
               />
               {/* Categoria nominal => UMA cor. Escurecer por valor duplicaria
-                  o que o comprimento da barra ja diz. */}
-              <Bar dataKey="valor" fill={COR.padrao} radius={[0, 4, 4, 0]} />
+                  o que o comprimento da barra ja diz. As duas excecoes sao
+                  cinza porque nao sao grupos de verdade: "Outros" e agregacao,
+                  "Sem categoria" e ausencia de dado. */}
+              <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
+                {grupos.map((g) => (
+                  <Cell
+                    key={g.nome}
+                    fill={
+                      g.nome === SEM_CATEGORIA ? COR_SEM_CATEGORIA
+                      : g.nome === 'Outros' ? COR_OUTROS
+                      : COR.padrao
+                    }
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

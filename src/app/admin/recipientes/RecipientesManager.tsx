@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
+import { formatBRL } from '@/lib/format'
 import {
   createRecipiente,
   updateRecipiente,
@@ -193,7 +194,7 @@ export default function RecipientesManager({ initialContainers }: { initialConta
                     {item.volume_liters != null && <span>Vol: {item.volume_liters} L</span>}
                     {item.substrate_per_unit_liters != null && <span>Substrato: {item.substrate_per_unit_liters} L</span>}
                     {item.unit_cost != null && (
-                      <span>Custo: {item.unit_cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      <span>Custo: {formatBRL(item.unit_cost)}</span>
                     )}
                   </div>
                 </div>

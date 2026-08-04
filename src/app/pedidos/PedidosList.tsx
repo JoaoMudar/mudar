@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import DeliveryCalendar from './DeliveryCalendar'
+import { formatDateBR } from '@/lib/format'
 import { getOrdersSignal } from './actions'
 import {
   ORDER_STATUS_META,
@@ -30,12 +31,7 @@ interface Props {
   role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
 }
 
-function fmtDate(value: string | Date | null): string {
-  if (!value) return '—'
-  const d = typeof value === 'string' ? new Date(value) : value
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
+const fmtDate = (value: string | Date | null) => formatDateBR(value, '—')
 
 // Tag de acao pendente para a gerencia, conforme o status do pedido.
 function gerenciaTag(status: OrderStatus): { text: string; cls: string } | null {

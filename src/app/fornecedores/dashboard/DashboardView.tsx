@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { formatDayMonthBR } from '@/lib/format'
 import { QUOTE_STATUS_META, responseRatePct, type QuoteStatus } from '@/lib/quotes'
 
 export interface KanbanQuote {
@@ -49,11 +50,7 @@ interface Props {
 
 const KANBAN_COLUMNS: QuoteStatus[] = ['queued', 'sent', 'responded', 'no_reply']
 
-function fmtDate(value: string): string {
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-}
+const fmtDate = (value: string) => formatDayMonthBR(value, '—')
 
 /**
  * Painel de cotacoes (P11 F5): visao geral do funil de outreach, fornecedores
