@@ -115,6 +115,19 @@ você ter mudado de propósito, algo quebrou em silêncio. Ao mudar um número
 intencionalmente (reconfigurar rateio, por exemplo), atualize o valor esperado em
 `scripts/bi-sanity.ts` no mesmo commit.
 
+### Ao escrever uma view nova: nada de subquery correlacionada
+
+As `vw_bi_*` são views empilhadas sobre `vw_bi_despesas`, que varre ~60k linhas
+com três `LEFT JOIN` de rateio. Uma subquery escalar por linha
+(`(SELECT SUM(...) FROM vw_bi_despesa_mensal WHERE ano = c.ano)`) **não tem
+índice para se apoiar** — view não é tabela — então cada uma re-varre a base
+inteira e joga fora o que não é do ano. Foi assim que `vw_bi_dre_anual` chegou a
+levar 11 s para devolver 7 linhas: 13 subqueries × 7 anos ≈ 150 varreduras
+completas (corrigido na migração `20260805000006`, que a deixou em ~130 ms).
+
+O padrão certo: agregar uma vez em CTE (`GROUP BY ano, mes` → dezenas de linhas)
+e recortar as janelas com `FILTER` em cima desse resultado já pequeno.
+
 ### ⚠️ Cuidado com `npm run db:refresh-local`
 
 Esse script recria o banco local do zero a partir do Neon. Enquanto o schema
