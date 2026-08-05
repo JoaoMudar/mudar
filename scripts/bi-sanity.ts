@@ -168,6 +168,38 @@ const CHECKS: Check[] = [
     modo: 'exato',
   },
 
+  // --- Muda comprada de terceiro (migracao 20260805000007) ---
+  {
+    nome: 'categoria Mudas de terceiros existe',
+    sql: `SELECT count(*)::int FROM financeiro.categorias_despesa
+          WHERE nome = 'Mudas de terceiros'
+            AND grupo = 'Operacional produção' AND natureza = 'negocio'`,
+    esperado: 1,
+    modo: 'exato',
+    nota: 'se sumir, revenda volta a se confundir com insumo de producao',
+  },
+  {
+    nome: 'compra de muda saiu de Insumos/Producao',
+    sql: `SELECT count(*)::int FROM financeiro.vw_bi_despesas v
+          JOIN financeiro.categorias_despesa c ON c.id = v.categoria_id
+          WHERE c.nome = 'Insumos/Produção'
+            AND financeiro.bi_normaliza(v.descricao) ~ '\\ymudas?\\y'
+            AND financeiro.bi_normaliza(v.descricao) !~
+                '(saco|saquinho|tubete|substrato|bandeja|vaso|adubo|frete|transporte)'`,
+    esperado: 0,
+    modo: 'exato',
+    nota: 'sobe se alguem categorizar compra de muda como insumo de novo',
+  },
+  {
+    nome: 'Mudas de terceiros e 100% negocio (sem rateio)',
+    sql: `SELECT count(*)::int FROM financeiro.vw_bi_despesas v
+          JOIN financeiro.categorias_despesa c ON c.id = v.categoria_id
+          WHERE c.nome = 'Mudas de terceiros' AND v.pct_negocio <> 100`,
+    esperado: 0,
+    modo: 'exato',
+    nota: 'a separacao nao pode mover dinheiro entre negocio e pessoal',
+  },
+
   // --- Receita: a guarda de regressao mais importante ---
   {
     nome: 'receita 2025 (NAO pode mudar nunca)',

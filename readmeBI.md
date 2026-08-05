@@ -83,7 +83,7 @@ na mesma pasta (já incluído).
 |---|---|
 | `pessoas` | Clientes/emitentes (dedup por documento). |
 | `enderecos` | Endereços; com `regiao`, `cod_municipio_ibge`, `latitude`, `longitude`. |
-| `categorias_despesa` | 27 categorias (`nome`, `grupo`, `natureza`). |
+| `categorias_despesa` | 28 categorias (`nome`, `grupo`, `natureza`). |
 | `centros_custo` | Centro (Viveiro, Campo, Floricultura, Casa, Sítio, Clínica) + natureza. |
 | `especies` | 118 espécies (`nome_comum`, `nome_cientifico`, `grupo`). |
 | `unidades` | Unidades canônicas (MD, UN, SC, CX, KG, G, M, M2, MIL). |

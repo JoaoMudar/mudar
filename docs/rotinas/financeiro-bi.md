@@ -96,6 +96,40 @@ A regra nova: a natureza da **categoria** manda. Categorias `misto` (combustíve
 energia, água…) entram por percentual de rateio configurável por centro de custo.
 Regra completa e testada em `src/lib/bi-rateio.ts`.
 
+### Muda comprada de terceiro é categoria própria
+
+Quando falta espécie no viveiro, a muda é comprada de outro produtor (Márcio
+Kuhar, Sávio Giacomozzi, Artêmio, Guilherme Ponticelli…) e revendida. Isso não é
+insumo de produção — é custo de mercadoria, com margem diferente. Até a migração
+`20260805000007` caía tudo em **Insumos/Produção** e sumia no agregado: em 2025
+eram R$28,9k de R$52,5k, ou seja **55% do "insumo" não era insumo**.
+
+A categoria **`Mudas de terceiros`** (grupo `Operacional produção`, natureza
+`negocio`) separa os dois. A migração reclassificou **215 lançamentos /
+R$111.726,50** dentro da janela do BI, casando `muda`/`mudas` como palavra
+inteira — `\y` no POSIX do Postgres, porque lá `\b` é backspace. Isso pega tanto
+`Mudas Márcio Kuhar` quanto `Márcio Kuhar mudas`, e deixa de fora
+`Certificado digital Mudar` e `Conserto Mudança 1215`. Um segundo filtro tira o
+insumo que só cita muda no nome (`Saco para mudas 10x18`, `Saquinhos para mudas`).
+
+Três coisas que a migração **não** faz, de propósito:
+
+- **Não mexe em nenhum total.** As duas categorias são `negocio` a 100%, então a
+  despesa de negócio, o DRE e a margem ficam idênticos — conferido movendo as 215
+  linhas de volta dentro de uma transação com `ROLLBACK`. Só a quebra por
+  categoria muda.
+- **Não toca em linha sem categoria.** As 17 linhas de muda sem categoria em
+  2020+ (R$8.642,50) continuam na fila de `/financeiro/pendencias`, onde a decisão
+  é humana — agora com a categoria nova na lista.
+- **Não roda duas vezes.** Se a categoria já existe, a reclassificação é pulada.
+  Sem isso, apagar `_migrations` para recriar as views no Neon desfaria na marra
+  qualquer linha devolvida para Insumos/Produção na mão.
+
+As duas regras aprendidas que apontavam para Insumos/Produção (`mudas toninho`,
+`mudas guilherme ponticelli`) foram redirecionadas — senão a mistura voltaria a
+se formar sozinha na próxima compra que caísse na fila. Regra só **sugere**, então
+redirecionar não reclassifica nada retroativamente.
+
 ### Comparação entre períodos
 
 Comparar 2026 (ano em curso) com o ano cheio de 2025 daria uma variação
