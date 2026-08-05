@@ -353,61 +353,166 @@ def confere(dir_planilhas, ano=None):
         for a in sorted(abas_excel - abas_banco):
             avisos.append(f'{fonte}: aba "{a}" existe no arquivo e nao no banco')
 
-        iguais = divergentes = 0
+        contagem = defaultdict(int)
         dif_total = Decimal(0)
 
-        for chave in sorted(set(linhas_excel) | set(linhas_banco)):
-            aba, ln = chave
-            ex, bd = linhas_excel.get(chave), linhas_banco.get(chave)
-
-            if ex is not None and bd is None:
-                total = sum((ex[c] for c in CAMPOS_DINHEIRO if isinstance(ex[c], Decimal)), Decimal(0))
-                dif_total += total
-                achados.append(dict(fonte=fonte, aba=aba, linha_excel=ln, tipo='faltando_no_banco',
-                                    campo='', motivo='', valor_excel=_fmt(ex), valor_banco=''))
-                continue
-            if bd is not None and ex is None:
-                total = sum((bd[c] for c in CAMPOS_DINHEIRO if isinstance(bd[c], Decimal)), Decimal(0))
-                dif_total -= total
-                achados.append(dict(fonte=fonte, aba=aba, linha_excel=ln, tipo='sobrando_no_banco',
-                                    campo='', motivo='', valor_excel='', valor_banco=_fmt(bd)))
-                continue
-
-            diffs = []
-            for campo in CAMPOS:
-                ok, motivo = valores_batem(campo, ex[campo], bd[campo])
-                if not ok:
-                    diffs.append((campo, motivo))
-                    if campo in CAMPOS_DINHEIRO:
-                        a = ex[campo] if isinstance(ex[campo], Decimal) else Decimal(0)
-                        b = bd[campo] if isinstance(bd[campo], Decimal) else Decimal(0)
-                        dif_total += a - b
-
-            tot_esperado = eh_totalizador_derivado(ex)
-            if tot_esperado != bd['_totalizador']:
-                diffs.append(('eh_totalizador', 'classificacao'))
-
-            if diffs:
-                divergentes += 1
-                for campo, motivo in diffs:
-                    if campo == 'eh_totalizador':
-                        ve, vb = str(tot_esperado), str(bd['_totalizador'])
-                    else:
-                        ve, vb = _v(ex[campo]), _v(bd[campo])
-                    achados.append(dict(fonte=fonte, aba=aba, linha_excel=ln, tipo='divergente',
-                                        campo=campo, motivo=motivo, valor_excel=ve, valor_banco=vb))
-            else:
-                iguais += 1
+        for aba in sorted({a for a, _ in linhas_excel} | {a for a, _ in linhas_banco}):
+            ex_aba = {ln: v for (a, ln), v in linhas_excel.items() if a == aba}
+            bd_aba = {ln: v for (a, ln), v in linhas_banco.items() if a == aba}
+            dif_total += confere_aba(fonte, aba, ex_aba, bd_aba, achados, contagem)
 
         resumo[fonte] = dict(
-            excel=len(linhas_excel), banco=len(linhas_banco), iguais=iguais,
-            divergentes=divergentes,
-            faltando=len(set(linhas_excel) - set(linhas_banco)),
-            sobrando=len(set(linhas_banco) - set(linhas_excel)),
-            dif=dif_total, sem_arquivo=False,
+            excel=len(linhas_excel), banco=len(linhas_banco),
+            iguais=contagem['iguais'], deslocadas=contagem['deslocadas'],
+            divergentes=contagem['divergentes'], faltando=contagem['faltando'],
+            sobrando=contagem['sobrando'], dif=dif_total, sem_arquivo=False,
         )
 
     return resumo, achados, avisos
+
+
+def confere_aba(fonte, aba, ex_aba, bd_aba, achados, contagem):
+    """Compara uma aba em duas passadas e devolve a diferenca em R$ da aba.
+
+    1a passada, por `linha_excel`: e a conferencia que interessa, porque o
+       import gravou o numero da linha. So pareia se as descricoes conferirem
+       (ou se as duas forem vazias, caso dos rodapes) — sem isso, uma planilha
+       que ganhou uma linha no meio faria o script comparar lancamentos que nao
+       tem nada a ver um com o outro.
+    2a passada, por CONTEUDO (data + descricao + local): o que sobrou da 1a e
+       pareado de novo ignorando a posicao. Sem isso, uma unica linha inserida
+       na planilha depois do import desalinha tudo abaixo dela e vira centenas
+       de falsas divergencias — foi o que aconteceu em Jan26. O que casa aqui
+       so mudou de lugar; o que NAO casa e perda ou sobra de verdade.
+    """
+    dif = Decimal(0)
+    resto_ex, resto_bd = dict(ex_aba), dict(bd_aba)
+    pares = []
+
+    for ln in sorted(set(ex_aba) & set(bd_aba)):
+        ex, bd = ex_aba[ln], bd_aba[ln]
+        if not _mesma_identidade(ex, bd):
+            continue
+        del resto_ex[ln], resto_bd[ln]
+        if _diferencas(ex, bd):
+            pares.append((ln, ln))
+        else:
+            contagem['iguais'] += 1
+
+    novos, resto_ex, resto_bd = casa_por_conteudo(resto_ex, resto_bd)
+    pares.extend(novos)
+
+    for ln_ex, ln_bd in sorted(pares):
+        ex, bd = ex_aba[ln_ex], bd_aba[ln_bd]
+        diffs = _diferencas(ex, bd)
+        if not diffs:
+            contagem['deslocadas'] += 1
+            achados.append(_achado(fonte, aba, ln_ex, 'deslocada', ex,
+                                   motivo=f'banco na linha {ln_bd}',
+                                   valor_excel=_fmt(ex)))
+            continue
+        contagem['divergentes'] += 1
+        posicao = '' if ln_ex == ln_bd else f'banco na linha {ln_bd}'
+        for campo, motivo in diffs:
+            if campo == 'eh_totalizador':
+                ve, vb = str(eh_totalizador_derivado(ex)), str(bd['_totalizador'])
+            else:
+                ve, vb = _v(ex[campo]), _v(bd[campo])
+                if campo in CAMPOS_DINHEIRO:
+                    dif += _num(ex[campo]) - _num(bd[campo])
+            achados.append(_achado(fonte, aba, ln_ex, 'divergente', ex, campo=campo,
+                                   motivo=(motivo + ' ' + posicao).strip(),
+                                   valor_excel=ve, valor_banco=vb))
+
+    for ln in sorted(resto_ex):
+        ex = resto_ex[ln]
+        dif += sum((_num(ex[c]) for c in CAMPOS_DINHEIRO), Decimal(0))
+        contagem['faltando'] += 1
+        achados.append(_achado(fonte, aba, ln, 'faltando_no_banco', ex,
+                               valor_excel=_fmt(ex)))
+
+    for ln in sorted(resto_bd):
+        bd = resto_bd[ln]
+        dif -= sum((_num(bd[c]) for c in CAMPOS_DINHEIRO), Decimal(0))
+        contagem['sobrando'] += 1
+        achados.append(_achado(fonte, aba, ln, 'sobrando_no_banco', bd,
+                               valor_banco=_fmt(bd)))
+
+    return dif
+
+
+def _achado(fonte, aba, linha, tipo, linha_origem, campo='', motivo='',
+            valor_excel='', valor_banco=''):
+    """Um achado do relatorio. `descricao` e `rodape` viajam junto porque sao o
+    que permite separar, depois, lancamento de verdade de linha de subtotal."""
+    return dict(fonte=fonte, aba=aba, linha_excel=linha, tipo=tipo, campo=campo,
+                motivo=motivo, descricao=_v(linha_origem['descricao']),
+                rodape='sim' if linha_origem['descricao'] is None else '',
+                valor_excel=valor_excel, valor_banco=valor_banco)
+
+
+def _mesma_identidade(ex, bd):
+    """As duas linhas descrevem o mesmo lancamento? A descricao e o que
+    identifica; rodape (sem descricao dos dois lados) tambem casa."""
+    de, db = ex['descricao'], bd['descricao']
+    if de is None and db is None:
+        return True
+    if de is None or db is None:
+        return False
+    return de.lower() == db.lower()
+
+
+def _diferencas(ex, bd):
+    """Lista de (campo, motivo) em que as duas linhas nao batem."""
+    diffs = []
+    for campo in CAMPOS:
+        ok, motivo = valores_batem(campo, ex[campo], bd[campo])
+        if not ok:
+            diffs.append((campo, motivo))
+    if eh_totalizador_derivado(ex) != bd['_totalizador']:
+        diffs.append(('eh_totalizador', 'classificacao'))
+    return diffs
+
+
+def chaves_conteudo(linha):
+    """Chaves de identidade da linha, da mais estrita para a mais frouxa.
+    Linha sem descricao (rodape) nao tem identidade — nao entra no pareamento."""
+    desc = linha['descricao']
+    if desc is None:
+        return []
+    desc = desc.lower()
+    local = (linha['local'] or '').lower()
+    return [(linha['data'], desc, local), (desc, local), (desc,)]
+
+
+def casa_por_conteudo(resto_ex, resto_bd):
+    """Pareia as sobras por conteudo, aceitando criterios cada vez mais frouxos.
+    Devolve (pares, sobra_excel, sobra_banco)."""
+    pares = []
+    ex, bd = dict(resto_ex), dict(resto_bd)
+    for nivel in range(3):
+        indice = defaultdict(list)
+        for ln, linha in sorted(bd.items()):
+            chaves = chaves_conteudo(linha)
+            if chaves:
+                indice[chaves[nivel]].append(ln)
+        for ln_ex, linha in sorted(ex.items()):
+            chaves = chaves_conteudo(linha)
+            if not chaves:
+                continue
+            fila = indice.get(chaves[nivel], [])
+            while fila:
+                ln_bd = fila.pop(0)
+                if ln_bd in bd:
+                    pares.append((ln_ex, ln_bd))
+                    del ex[ln_ex]
+                    del bd[ln_bd]
+                    break
+    return pares, ex, bd
+
+
+def _num(x):
+    return x if isinstance(x, Decimal) else Decimal(0)
 
 
 def _v(x):
@@ -426,37 +531,45 @@ def imprime(resumo, achados, avisos, csv_path):
     print()
     print('CONFERENCIA financeiro.despesas x planilhas DESPESAS 20xx')
     print('=' * 100)
-    cab = f'{"arquivo":<26}{"excel":>7}{"banco":>7}{"iguais":>8}{"diverg":>8}{"faltam":>8}{"sobram":>8}{"dif R$":>14}'
-    print(cab)
+    print(f'{"arquivo":<26}{"excel":>7}{"banco":>7}{"iguais":>8}{"desloc":>8}'
+          f'{"diverg":>8}{"faltam":>8}{"sobram":>8}{"dif R$":>14}')
     print('-' * 100)
 
     tot = defaultdict(int)
     dif_geral = Decimal(0)
+    campos = ('excel', 'banco', 'iguais', 'deslocadas', 'divergentes', 'faltando', 'sobrando')
     for fonte in sorted(resumo):
         r = resumo[fonte]
         if r['sem_arquivo']:
             print(f'{fonte:<26}{"— arquivo nao encontrado —":>60}')
             continue
-        print(f'{fonte:<26}{r["excel"]:>7}{r["banco"]:>7}{r["iguais"]:>8}'
+        print(f'{fonte:<26}{r["excel"]:>7}{r["banco"]:>7}{r["iguais"]:>8}{r["deslocadas"]:>8}'
               f'{r["divergentes"]:>8}{r["faltando"]:>8}{r["sobrando"]:>8}{r["dif"]:>14,.2f}')
-        for k in ('excel', 'banco', 'iguais', 'divergentes', 'faltando', 'sobrando'):
+        for k in campos:
             tot[k] += r[k]
         dif_geral += r['dif']
 
     print('-' * 100)
-    print(f'{"TOTAL":<26}{tot["excel"]:>7}{tot["banco"]:>7}{tot["iguais"]:>8}'
+    print(f'{"TOTAL":<26}{tot["excel"]:>7}{tot["banco"]:>7}{tot["iguais"]:>8}{tot["deslocadas"]:>8}'
           f'{tot["divergentes"]:>8}{tot["faltando"]:>8}{tot["sobrando"]:>8}{dif_geral:>14,.2f}')
+    print()
+    print('"desloc" = linha identica, so mudou de posicao porque a planilha foi editada')
+    print('depois do import. Nao e perda de dado.')
     print()
 
     if achados:
         motivos = defaultdict(int)
         for a in achados:
-            motivos[(a['tipo'], a['campo'], a['motivo'])] += 1
+            if a['tipo'] == 'deslocada':
+                continue
+            base = a['motivo'].split(' banco na linha')[0]
+            motivos[(a['tipo'], a['campo'], base)] += 1
         print('Divergencias por tipo:')
         for (tipo, campo, motivo), n in sorted(motivos.items(), key=lambda x: -x[1]):
             rot = tipo if not campo else f'{tipo}: {campo} ({motivo})'
             print(f'  {n:>7}  {rot}')
         print()
+        imprime_dinheiro_faltante(achados)
 
     if avisos:
         print('Avisos:')
@@ -466,14 +579,69 @@ def imprime(resumo, achados, avisos, csv_path):
 
     problemas = tot['divergentes'] + tot['faltando'] + tot['sobrando']
     if problemas == 0:
-        print(f'OK — as {tot["iguais"]} linhas do banco batem com o Excel campo a campo.')
+        casadas = tot['iguais'] + tot['deslocadas']
+        print(f'OK — as {casadas} linhas do banco batem com o Excel campo a campo.')
     else:
         print(f'{problemas} linha(s) com problema. Detalhe em: {csv_path}')
     return problemas
 
 
+def imprime_dinheiro_faltante(achados):
+    """A pergunta que importa: quanto dinheiro esta na planilha e nao no banco?
+
+    Duas formas de perder valor, e as duas contam aqui:
+      - a linha inteira nao entrou (`faltando_no_banco`);
+      - a linha entrou mas com o valor vazio. E o caso dos lancamentos fixos,
+        que o Gilberto deixa pre-digitados em vermelho no comeco do mes e so
+        preenche o valor quando a conta chega. Se o import passou no meio, a
+        descricao veio e o valor nao.
+    """
+    por_aba = defaultdict(lambda: [0, Decimal(0), 0, Decimal(0)])
+    for a in achados:
+        # Rodape (subtotal por centro + total geral) e o mesmo dinheiro do
+        # detalhe contado de novo — somar isso multiplicaria o mes por 3.
+        if a['rodape']:
+            continue
+        chave = (a['fonte'], a['aba'])
+        if a['tipo'] == 'faltando_no_banco':
+            valor = Decimal(0)
+            for parte in a['valor_excel'].split(' | '):
+                campo, _, bruto = parte.partition('=')
+                if campo in CAMPOS_DINHEIRO:
+                    try:
+                        valor += Decimal(bruto)
+                    except Exception:
+                        pass
+            if valor:
+                por_aba[chave][0] += 1
+                por_aba[chave][1] += valor
+        elif a['tipo'] == 'divergente' and a['campo'] in CAMPOS_DINHEIRO:
+            try:
+                ex = Decimal(a['valor_excel'])
+            except Exception:
+                continue
+            vazio_no_banco = a['valor_banco'] in ('', '0', '0.00')
+            if ex > 0 and vazio_no_banco:
+                por_aba[chave][2] += 1
+                por_aba[chave][3] += ex
+
+    if not por_aba:
+        return
+    print('DINHEIRO QUE ESTA NA PLANILHA E NAO ESTA NO BANCO')
+    print(f'  {"aba":<28}{"linhas fora":>12}{"R$":>14}{"valor vazio":>13}{"R$":>14}')
+    tot = [0, Decimal(0), 0, Decimal(0)]
+    for (fonte, aba), v in sorted(por_aba.items(), key=lambda x: -(x[1][1] + x[1][3])):
+        print(f'  {fonte[9:13] + " " + aba:<28}{v[0]:>12}{v[1]:>14,.2f}{v[2]:>13}{v[3]:>14,.2f}')
+        for i in range(4):
+            tot[i] += v[i]
+    print(f'  {"TOTAL":<28}{tot[0]:>12}{tot[1]:>14,.2f}{tot[2]:>13}{tot[3]:>14,.2f}')
+    print(f'  Somando as duas colunas: R$ {tot[1] + tot[3]:,.2f}')
+    print()
+
+
 def grava_csv(achados, caminho):
-    campos = ['fonte', 'aba', 'linha_excel', 'tipo', 'campo', 'motivo', 'valor_excel', 'valor_banco']
+    campos = ['fonte', 'aba', 'linha_excel', 'tipo', 'campo', 'motivo', 'descricao',
+              'rodape', 'valor_excel', 'valor_banco']
     with open(caminho, 'w', newline='', encoding='utf-8-sig') as fh:
         w = csv.DictWriter(fh, fieldnames=campos, delimiter=';')
         w.writeheader()
@@ -534,6 +702,35 @@ def self_test():
     ok('rodape sem descricao e totalizador', eh_totalizador_derivado(com_valor), True)
     lancamento = dict(vazia, descricao='Luz viveiro', valor_mc=Decimal('321.41'))
     ok('lancamento normal nao e totalizador', eh_totalizador_derivado(lancamento), False)
+
+    # Pareamento por conteudo — o que salva o relatorio quando a planilha ganha
+    # uma linha nova depois do import e tudo abaixo desce uma posicao.
+    def lin(desc, data=None, local='casa', mc=None):
+        return dict({c: None for c in CAMPOS}, descricao=desc, data=data, local=local,
+                    valor_mc=mc, _totalizador=False)
+
+    ex = {10: lin('Estacionamento'), 11: lin('Super Kiko'), 12: lin('Diesel RAM')}
+    bd = {10: lin('Super Kiko'), 11: lin('Diesel RAM')}
+    pares, sobra_ex, sobra_bd = casa_por_conteudo(ex, bd)
+    ok('linha inserida: pareia os deslocados', sorted(pares), [(11, 10), (12, 11)])
+    ok('linha inserida: sobra so a nova', list(sobra_ex), [10])
+    ok('linha inserida: nada sobra no banco', list(sobra_bd), [])
+
+    ex = {5: lin('Condomínio Saint Patrick', dt.date(2026, 4, 10), 'casa', Decimal('1432'))}
+    bd = {5: lin('Condomínio Saint Patrick', dt.date(2026, 4, 10), 'casa', None)}
+    pares, _, _ = casa_por_conteudo(ex, bd)
+    ok('valor preenchido depois: mesma linha, ainda pareia', pares, [(5, 5)])
+    ok('valor preenchido depois: acusa a diferenca',
+       [c for c, _ in _diferencas(ex[5], bd[5])], ['valor_mc'])
+
+    ok('rodape sem descricao nao entra no pareamento por conteudo',
+       casa_por_conteudo({9: lin(None, mc=Decimal('100'))},
+                         {9: lin(None, mc=Decimal('100'))})[0], [])
+    ok('mas rodape casa pela linha', _mesma_identidade(lin(None), lin(None)), True)
+    ok('descricao diferente na mesma linha nao e o mesmo lancamento',
+       _mesma_identidade(lin('Super Kiko'), lin('Diesel RAM')), False)
+    ok('caixa nao separa lancamento',
+       _mesma_identidade(lin('Super Kiko'), lin('super kiko')), True)
 
     falhas = [c for c in casos if not c[1]]
     for nome, passou, obtido, esperado in casos:
