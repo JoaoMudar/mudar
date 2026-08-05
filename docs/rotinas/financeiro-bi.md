@@ -128,6 +128,31 @@ completas (corrigido na migração `20260805000006`, que a deixou em ~130 ms).
 O padrão certo: agregar uma vez em CTE (`GROUP BY ano, mes` → dezenas de linhas)
 e recortar as janelas com `FILTER` em cima desse resultado já pequeno.
 
+### ⚠️ As migrations do BI já constam como aplicadas no Neon — sem terem rodado
+
+Todo push dispara deploy na Vercel, e `npm run build` é
+`tsx scripts/migrate.ts && next build`: **as migrations rodam contra o Neon a
+cada deploy**. Como o schema `financeiro` ainda não existe lá, as migrations
+`20260805000001`, `…02`, `…03`, `…05` e `…06` caíram todas na guarda
+`IF to_regnamespace('financeiro') IS NULL THEN RETURN` — não fizeram nada, mas
+foram gravadas em `_migrations` como aplicadas.
+
+Consequência: no dia em que o schema `financeiro` for importado para o Neon,
+`npm run db:migrate` vai responder *"Nenhuma migração pendente"* e **nenhuma view
+`vw_bi_*` será criada** — o dump traz só as tabelas. O módulo `/financeiro`
+quebraria em produção com `relation ... does not exist`.
+
+Ao importar o financeiro no Neon, desmarque as migrations do BI antes de migrar:
+
+```sql
+DELETE FROM _migrations WHERE filename LIKE '202608050000%';
+```
+
+```bash
+npm run db:migrate   # agora recria as views de verdade
+npm run bi:sanity
+```
+
 ### ⚠️ Cuidado com `npm run db:refresh-local`
 
 Esse script recria o banco local do zero a partir do Neon. Enquanto o schema
