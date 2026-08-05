@@ -17,7 +17,8 @@
     "db:seed-suppliers": "tsx scripts/seed-supplier-network.ts",
     "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1",
     "db:import-financeiro": "powershell -ExecutionPolicy Bypass -File scripts/import-financeiro.ps1",
-    "bi:sanity": "tsx scripts/bi-sanity.ts"
+    "bi:sanity": "tsx scripts/bi-sanity.ts",
+    "db:conferir-despesas": "python scripts/conferir-despesas-excel.py"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

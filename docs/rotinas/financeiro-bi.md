@@ -107,7 +107,56 @@ jan–ago, e não com o 2024 "cheio" que tem a despesa faltando.
 npm run db:import-financeiro   # importa/reimporta o schema financeiro
 npm run db:migrate             # cria/atualiza as views vw_bi_*
 npm run bi:sanity              # confere os números contra os valores de referência
+npm run db:conferir-despesas   # confere o banco contra as planilhas DESPESAS 20xx.xls
 ```
+
+### As duas conferências, e o que cada uma responde
+
+Elas parecem a mesma coisa e não são:
+
+| | Pergunta que responde | Limite |
+|---|---|---|
+| `financeiro.vw_bi_conferencia_mensal` (tela `/financeiro/qualidade`) | O total que a planilha calculava bate com a soma do detalhe importado? | Os dois lados vieram do **mesmo** import — não enxerga valor trocado nem mês faltando |
+| `npm run db:conferir-despesas` | Cada linha do banco é igual à linha do `.xls` original, campo a campo? | Precisa dos `.xls` em `../migracao/dados/despesas` e do Postgres local |
+
+O script casa `despesas.fonte` + `aba` + `linha_excel` com a linha do arquivo, compara os
+9 campos (tolerância de R$0,01), classifica em igual / divergente / faltando / sobrando e
+grava o detalhe num CSV. Sai com código ≠ 0 se achar qualquer coisa. Flags úteis:
+`--ano 2016`, `--out caminho.csv`, `--self-test` (testa as normalizações sem banco).
+
+Duas normalizações que o import fez e o script reproduz de propósito, para não virarem
+falso positivo: `*` inicial da descrição removido e `local`/`unidade` em minúsculas.
+Algumas abas (Out08–Dez08, Out09–Dez10) não têm as linhas de título e o cabeçalho está na
+linha 1 — por isso a primeira linha de dados é **detectada**, não fixa.
+
+### O resultado da conferência de 05/08/2026
+
+Rodada completa nos 24 arquivos: **das 42.666 linhas, 41.844 batem campo a campo.** O que
+sobrou está concentrado e explicado:
+
+- **A planilha de 2026 andou desde o import** — não é erro de importação. Mai/jun/jul de
+  2026 têm **557 lançamentos na planilha e nenhum no banco** (589 linhas, das quais 32 são
+  rodapé — é a pendência do topo deste documento, agora com número); jan–abr foram
+  editados depois (linhas inseridas empurram
+  tudo para baixo, daí as centenas de "divergências" de uma linha só de deslocamento); e
+  as abas `Mai25..Dez25`, que existiam no arquivo na hora do import, foram renomeadas para
+  `…26`. As abas set–dez/26 só têm o gabarito herdado de 2025, sem valor.
+- **Dentro da janela do BI (2020+), o import perdeu R$402,71** — uma única linha,
+  `Abr25` L111, 16/04/2025, DESL. R$402,71 sem descrição. É o padrão de falha do
+  importador: linha **sem descrição** cujo valor está só em M.O./EQUIP./DESL. é descartada.
+- **Fora da janela, o mesmo bug custou caro em 2008**: 79 lançamentos de deslocamento e
+  mão de obra (R$13.712,16) em fev–mai/2008 não entraram. E em 2003–2008 lançamentos reais
+  sem descrição foram marcados `eh_totalizador = TRUE`, ou seja, ficam de fora de qualquer
+  soma. Nenhum dos dois afeta o painel enquanto `bi_ano_minimo()` for 2020.
+- **Os 35 meses divergentes de `/financeiro/qualidade` não são erro de importação.** Em
+  ago/2020, por exemplo, o banco reproduz o Excel com 100% de acerto e mesmo assim o total
+  da planilha (R$45.916,89) não fecha com a soma do próprio detalhe dela (R$45.970,28). A
+  diferença de −R$53,39 se repete em vários meses: é a fórmula `SUM` do Excel deixando
+  linha de fora. **Nesses meses o banco está mais certo que a planilha.**
+- O resto (≈100 achados em 2003–2025) é ruído de rótulo, não dado: a palavra `TOTAL` na
+  coluna DATA do rodapé, um `%` na coluna EQUIP., datas impossíveis digitadas no Excel
+  (`30/2`, `31/04`), `1000.0` vs `1000` na coluna UNID. Em todos, o import fez a coisa
+  certa ao ignorar.
 
 `npm run bi:sanity` é a rede de segurança: fixa 27 valores medidos (contagens,
 receita de 2025, invariante do rateio, vazamentos zerados). Se um deles mudar sem
