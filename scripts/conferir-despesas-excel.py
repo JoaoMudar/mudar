@@ -78,6 +78,9 @@ PRIMEIRA_LINHA_DADOS = 4
 LINHAS_BUSCA_CABECALHO = 6
 MESES_RE = re.compile(r'^(Jan|Fev|Mar|Abr|Mai|Jun|Jul|Ago|Set|Out|Nov|Dez)\s*\d{0,2}$', re.I)
 
+# Descricao que e so numero — ver norm_descricao().
+NUMERO_PURO = re.compile(r'^\d+(?:[.,]\d+)?$')
+
 TOL_DINHEIRO = Decimal('0.01')
 TOL_QUANTIDADE = Decimal('0.001')
 
@@ -100,7 +103,17 @@ def norm_texto(valor):
 
 def norm_numero(valor, casas=2):
     """Numero da planilha -> Decimal arredondado. O Excel guarda 12191.659999999998
-    onde o banco tem 12191.66, entao arredondar e obrigatorio."""
+    onde o banco tem 12191.66, entao arredondar e obrigatorio.
+
+    Texto que nao e numero vira None, nao divergencia: sao 72 celulas em toda a
+    base, todas rotulos decorativos nos blocos de rodape (`% ` ao lado do
+    percentual de combustivel, `Folha ` acima do bloco de veiculos). Devolver o
+    texto faria o reimport tentar gravar '%' numa coluna numeric.
+
+    So o rotulo cai — a linha fica. O import original guardou essas linhas
+    (Jun25 L166 esta no banco com o subtotal do bloco em M.C. e o percentual
+    18,74 em M.O.), entao descartar a linha inteira criaria 61 divergencias
+    artificiais de 2021 a 2025."""
     if valor is None or valor == '':
         return None
     if isinstance(valor, str):
@@ -110,8 +123,27 @@ def norm_numero(valor, casas=2):
         try:
             valor = float(s)
         except ValueError:
-            return s  # texto numa coluna numerica: reporta como divergencia
+            return None
     return Decimal(str(round(float(valor), casas)))
+
+
+def norm_descricao(valor, data):
+    """DESCRICAO da planilha -> texto, ou None quando e so numeracao de rodape.
+
+    O bloco de combustivel por veiculo fica abaixo do total do mes. Ate 2025 ele
+    vinha sem a coluna DESCRICAO preenchida, entao `eh_totalizador_derivado` o
+    reconhecia pela descricao vazia. Em Jun26/Jul26 o Gilberto numerou os
+    veiculos de 1 a 11 nessa coluna — se a numeracao contar como descricao, o
+    bloco vira 22 lancamentos de verdade e soma R$12.875,11 de combustivel que
+    ja esta contado no detalhe do mes.
+
+    O discriminador e a data: lancamento de verdade tem data. As sete linhas
+    historicas de descricao numerica ('1.99', '2.99', '3.99', '0') todas tem
+    data e local, e continuam sendo lancamento."""
+    texto = norm_texto(valor)
+    if texto is not None and data is None and NUMERO_PURO.match(texto):
+        return None
+    return texto
 
 
 def norm_data(valor, datemode=0):
@@ -238,11 +270,12 @@ def ler_xlsx(caminho):
 
 
 def _monta_linha(celulas, datemode):
+    data = norm_data(celulas[0], datemode)
     return {
-        'data':         norm_data(celulas[0], datemode),
+        'data':         data,
         'quantidade':   norm_numero(celulas[1], 3),
         'unidade':      norm_texto(celulas[2]),
-        'descricao':    norm_texto(celulas[3]),
+        'descricao':    norm_descricao(celulas[3], data),
         'local':        norm_texto(celulas[4]),
         'valor_mc':     norm_numero(celulas[5]),
         'mao_obra':     norm_numero(celulas[6]),
@@ -674,6 +707,32 @@ def self_test():
     ok('numero vazio -> None', norm_numero(''), None)
     ok('zero e zero', norm_numero(0.0), Decimal('0.0'))
     ok('quantidade 3 casas', norm_numero(20.0004, 3), Decimal('20.0'))
+    ok('rotulo "% " em coluna de dinheiro -> None', norm_numero('% '), None)
+    ok('rotulo "Folha " em coluna de dinheiro -> None', norm_numero('Folha '), None)
+    ok('numero em texto ainda e numero', norm_numero('1.432,00'), Decimal('1432.0'))
+
+    # Jun26 L171: so o rotulo `Folha ` na coluna DESL.
+    so_rotulo = _monta_linha(['', '', '', '', '', '', '', '', 'Folha '], 0)
+    ok('linha so com rotulo e descartada', linha_vazia(so_rotulo), True)
+    # Jun25 L166: o rotulo `%` cai, mas o subtotal do bloco fica — e assim que
+    # essa linha esta no banco desde o import original.
+    percentual = _monta_linha(['', '', '', '', '', 6861.38, 18.737, '%', ''], 0)
+    ok('rotulo % nao derruba a linha', linha_vazia(percentual), False)
+    ok('subtotal do bloco preservado', percentual['valor_mc'], Decimal('6861.38'))
+    ok('rotulo % vira None', percentual['equipamento'], None)
+    # Numero escrito como texto numa coluna de dinheiro continua sendo valor.
+    real = _monta_linha([42394.0, '', '', 'Luz viveiro', 'casa', '1.432,00', '', '', ''], 0)
+    ok('numero em texto nao derruba a linha', real['valor_mc'], Decimal('1432.0'))
+
+    # Bloco de veiculos numerado (Jun26 L176): sem data, a numeracao nao e
+    # descricao e a linha volta a ser rodape, como era ate 2025.
+    veiculo = _monta_linha(['', '', '', 5.0, 'MB 1215', 1468.71, '', '', ''], 0)
+    ok('numeracao de veiculo nao vira descricao', veiculo['descricao'], None)
+    ok('bloco de veiculo numerado e rodape', eh_totalizador_derivado(veiculo), True)
+    # As sete linhas historicas de descricao numerica tem data e sao lancamento.
+    compra = _monta_linha([42394.0, '', '', 1.99, 'casa', 6.0, '', '', ''], 0)
+    ok('descricao numerica com data continua descricao', compra['descricao'], '1.99')
+    ok('descricao numerica com data nao e rodape', eh_totalizador_derivado(compra), False)
 
     ok('tolerancia de 1 centavo',
        valores_batem('valor_mc', Decimal('321.41'), Decimal('321.42'))[0], True)

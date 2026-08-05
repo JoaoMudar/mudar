@@ -60,7 +60,7 @@ const CHECKS: Check[] = [
   {
     nome: 'despesas importadas (todas)',
     sql: 'SELECT count(*)::int FROM financeiro.despesas',
-    esperado: 42666,
+    esperado: 43415,
     modo: 'exato',
   },
   {
@@ -86,7 +86,7 @@ const CHECKS: Check[] = [
   {
     nome: 'totalizadores existem na tabela',
     sql: 'SELECT count(*)::int FROM financeiro.despesas WHERE eh_totalizador',
-    esperado: 2554,
+    esperado: 2663,
     modo: 'exato',
     nota: 'R$21,5M que NAO podem aparecer em nenhuma vw_bi_*',
   },
@@ -103,19 +103,19 @@ const CHECKS: Check[] = [
   {
     nome: 'linhas no fato base',
     sql: 'SELECT count(*)::int FROM financeiro.vw_bi_despesas',
-    esperado: 11651,
+    esperado: 12225,
     modo: 'exato',
   },
   {
     nome: 'valor total no fato base',
     sql: 'SELECT sum(valor)::float FROM financeiro.vw_bi_despesas',
-    esperado: 2720094.41,
+    esperado: 3005988.41,
     modo: 'exato',
   },
   {
     nome: 'despesa de negocio (rateada)',
     sql: 'SELECT sum(valor_negocio)::float FROM financeiro.vw_bi_despesas',
-    esperado: 1193014.01,
+    esperado: 1318274.01,
     modo: 'exato',
   },
   {
@@ -186,12 +186,12 @@ const CHECKS: Check[] = [
 
   // --- Cobertura: os buracos conhecidos ---
   {
-    nome: 'meses de despesa por lancar (2024 + 2026)',
+    nome: 'meses de despesa por lancar (2024)',
     sql: `SELECT COALESCE(sum(cardinality(meses_faltantes)), 0)::int
           FROM financeiro.vw_bi_cobertura`,
-    esperado: 7,
+    esperado: 4,
     modo: 'exato',
-    nota: 'set-dez/2024 e mai-jul/2026 — cai conforme voce lanca',
+    nota: 'set-dez/2024 — mai-jul/2026 entraram na sincronizacao de 05/08/2026',
   },
   {
     nome: '2024 marcado incompleto',
@@ -218,20 +218,20 @@ const CHECKS: Check[] = [
   {
     nome: 'pendencias sem categoria',
     sql: 'SELECT count(*)::int FROM financeiro.vw_bi_pendencias',
-    esperado: 2160,
+    esperado: 2764,
     modo: 'exato',
     nota: 'cai conforme a fila e trabalhada',
   },
   {
     nome: 'valor pendente',
     sql: 'SELECT sum(valor)::float FROM financeiro.vw_bi_pendencias',
-    esperado: 184129.17,
+    esperado: 407138.09,
     modo: 'exato',
   },
   {
     nome: 'fatia >= R$100 (o alvo da triagem)',
     sql: 'SELECT count(*)::int FROM financeiro.vw_bi_pendencias WHERE valor >= 100',
-    esperado: 497,
+    esperado: 827,
     modo: 'exato',
     nota: '65% do valor pendente em 23% das linhas',
   },
@@ -246,7 +246,7 @@ const CHECKS: Check[] = [
   {
     nome: 'abas que batem com a planilha',
     sql: 'SELECT count(*)::int FROM financeiro.vw_bi_conferencia_mensal WHERE confere',
-    esperado: 49,
+    esperado: 47,
     modo: 'exato',
   },
 

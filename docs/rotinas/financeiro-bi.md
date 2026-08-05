@@ -15,7 +15,11 @@ está completa:
 | Ano | Despesa lançada até | Meses faltando | Efeito no painel |
 |-----|--------------------|----------------|------------------|
 | 2024 | **ago/2024** | set, out, nov, dez | margem aparecia como 74,1% |
-| 2026 | **abr/2026** | mai, jun, jul | margem aparecia como 79,2% |
+| ~~2026~~ | ~~abr/2026~~ | — | resolvido em 05/08/2026 |
+
+**2026 saiu da lista.** Mai, jun e jul estavam lançados no Excel e não no banco;
+entraram pela sincronização descrita em *[Sincronizar um ano com a planilha](#sincronizar-um-ano-com-a-planilha)*.
+Sobrou só 2024.
 
 Enquanto esses meses não forem lançados, o painel **suprime a margem anual desses
 anos** (mostra `—` em vez de número) e marca os anos como *parciais*. É proposital:
@@ -94,7 +98,7 @@ Regra completa e testada em `src/lib/bi-rateio.ts`.
 
 ### Comparação entre períodos
 
-Comparar 2026 (despesa até abril) com o ano cheio de 2025 daria uma variação
+Comparar 2026 (ano em curso) com o ano cheio de 2025 daria uma variação
 inventada. As views recortam **os dois anos na mesma janela** (`janela_comp`), que
 é a interseção do que existe nos dois. Por isso 2025 é comparado com 2024 em
 jan–ago, e não com o 2024 "cheio" que tem a despesa faltando.
@@ -108,6 +112,9 @@ npm run db:import-financeiro   # importa/reimporta o schema financeiro
 npm run db:migrate             # cria/atualiza as views vw_bi_*
 npm run bi:sanity              # confere os números contra os valores de referência
 npm run db:conferir-despesas   # confere o banco contra as planilhas DESPESAS 20xx.xls
+
+python scripts/reimportar-despesas-ano.py --ano 2026          # simula a sincronizacao
+python scripts/reimportar-despesas-ano.py --ano 2026 --apply  # grava
 ```
 
 ### As duas conferências, e o que cada uma responde
@@ -122,7 +129,7 @@ Elas parecem a mesma coisa e não são:
 O script casa `despesas.fonte` + `aba` + `linha_excel` com a linha do arquivo, compara os
 9 campos (tolerância de R$0,01) e classifica em igual / **deslocada** / divergente /
 faltando / sobrando. Sai com código ≠ 0 se achar qualquer coisa. Flags úteis: `--ano 2016`,
-`--out caminho.csv`, `--self-test` (36 verificações das normalizações, sem banco).
+`--out caminho.csv`, `--self-test` (48 verificações das normalizações, sem banco).
 
 **Por que "deslocada" existe.** A conferência é em duas passadas. A primeira usa o número
 da linha, mas só pareia se as descrições conferirem; a segunda repesca o que sobrou
@@ -140,11 +147,31 @@ abas (Out08–Dez08, Out09–Dez10) não têm as linhas de título e o cabeçalh
 (subtotal por centro + total geral) ficam de fora de qualquer soma em R$: são o mesmo
 dinheiro do detalhe contado de novo, e incluí-las multiplicaria o mês por ~3.
 
+Duas armadilhas do rodapé que o leitor trata explicitamente, porque as duas já produziram
+lixo no banco:
+
+- **Rótulo em coluna de dinheiro.** São 72 células em toda a base: `% ` ao lado do
+  percentual de combustível e `Folha ` acima do bloco de veículos. Viram `NULL` — mas a
+  **linha fica**, porque o import original a guardou (Jun25 L166 está no banco com o
+  subtotal do bloco em M.C. e o percentual 18,74 em M.O.). Descartar a linha inteira
+  criava 61 divergências artificiais de 2021 a 2025.
+- **Numeração no lugar da descrição.** Em `Jun26`/`Jul26` o Gilberto numerou os veículos
+  de 1 a 11 na coluna DESCRIÇÃO. Se a numeração contar como descrição, o bloco deixa de
+  ser rodapé e vira 22 lançamentos que somam R$12.875,11 de combustível **já contado no
+  detalhe do mês** — e quebra o invariante `negócio + pessoal = total`. O discriminador é
+  a data: lançamento de verdade tem data; numeração de rodapé, não. As sete linhas
+  históricas de descrição numérica (`1.99`, `2.99`, `3.99`, `0`) têm data e continuam
+  sendo lançamento.
+
 ### O resultado da conferência de 05/08/2026
 
 Rodada completa nos 24 arquivos: **das 42.666 linhas, 41.844 batem campo a campo** e outras
 179 batem depois de descontado o deslocamento. Sobra **R$299.047,85 que está na planilha e
 não está no banco — e 100% disso é 2026.** De 2003 a 2025 o banco reproduz a planilha.
+
+> **Achado 1 já corrigido** — 2026 foi sincronizado no mesmo dia, ver
+> *[Sincronizar um ano com a planilha](#sincronizar-um-ano-com-a-planilha)*. Os achados 2, 3
+> e 4 continuam abertos e são deliberadamente aceitos (os motivos estão abaixo).
 
 **1. A planilha de 2026 andou desde o import.** Não é erro de importação, é defasagem — e
 tem duas formas:
@@ -161,9 +188,11 @@ Mesada…) e só preenche o valor quando a conta chega. O import passou no meio:
 descrição, não veio o valor. Exemplo — `despesas.id = 42181`, `Abr26` L14, "Condomínio
 Saint Patrick": R$1.432,00 na planilha, `valor_mc` nulo no banco.
 
-**Consequência prática:** abr/2026 aparece **verde** em `/financeiro/preenchimento` (tem
-lançamento no mês) e mesmo assim está subestimado em R$8.798,18. A grade de cobertura
-responde "tem linha nesse mês?", não "as linhas têm valor?".
+**Consequência prática:** abr/2026 aparecia **verde** em `/financeiro/preenchimento` (tem
+lançamento no mês) e mesmo assim estava subestimado em R$8.798,18. A grade de cobertura
+responde "tem linha nesse mês?", não "as linhas têm valor?". **O buraco de 2026 foi
+fechado; a limitação da grade continua** — é o que ainda pode esconder um mês pela metade
+em 2027.
 
 As abas `Mai25..Dez25` existiam no arquivo quando o import rodou e depois foram renomeadas
 para `…26` — por isso 448 linhas aparecem como sobrando. As abas set–dez/26 só têm o
@@ -189,11 +218,60 @@ coluna DATA do rodapé, um `%` na coluna EQUIP., datas impossíveis digitadas no
 (`30/2`, `31/04`), `1000.0` vs `1000` na coluna UNID. Em todos, o import fez a coisa certa
 ao ignorar.
 
-`npm run bi:sanity` é a rede de segurança: fixa 27 valores medidos (contagens,
+`npm run bi:sanity` é a rede de segurança: fixa 32 valores medidos (contagens,
 receita de 2025, invariante do rateio, vazamentos zerados). Se um deles mudar sem
 você ter mudado de propósito, algo quebrou em silêncio. Ao mudar um número
 intencionalmente (reconfigurar rateio, por exemplo), atualize o valor esperado em
 `scripts/bi-sanity.ts` no mesmo commit.
+
+### Sincronizar um ano com a planilha
+
+`scripts/reimportar-despesas-ano.py` traz um ano inteiro do `.xls` para o banco. **Simula
+por padrão; só grava com `--apply`.** Usado em 05/08/2026 para fechar 2026.
+
+**Por que não é DELETE + INSERT.** 761 das 1.046 linhas de 2026 já tinham `categoria_id` e
+859 tinham `centro_custo` — curadoria feita no app, que não vem da planilha. Recriar o ano
+jogaria isso fora. A sincronização é por linha:
+
+| Situação | O que faz |
+|---|---|
+| Linha casada | `UPDATE` dos 9 campos da planilha; **categoria, centro e natureza ficam** |
+| Só no Excel | `INSERT` sem categoria — cai na fila de `/financeiro/pendencias` |
+| Só no banco | `excluido_em` (soft delete). Livro-caixa não faz `DELETE` |
+
+O casamento é **por mês, não por nome de aba**: quando o import rodou, as abas dos meses
+que ainda não tinham começado se chamavam `Mai25..Dez25` e depois viraram `Mai26..Dez26`.
+Casar por mês faz a linha pré-digitada de maio reencontrar a dela e manter a categoria —
+sem isso, 448 linhas apareceriam como "sobrando". Dentro do mês vale o mesmo pareamento em
+duas passadas da conferência (linha, depois conteúdo), e o leitor de planilha é literalmente
+o mesmo módulo, para não existirem duas versões de "como se lê esse Excel".
+
+Antes de qualquer escrita ele grava o ano inteiro em `%TEMP%\backup-despesas-AAAA.csv`, e
+tudo roda numa transação só, com rollback em erro.
+
+**O que a sincronização de 2026 fez:**
+
+| | Linhas | Valor |
+|---|---|---|
+| `UPDATE` (categoria preservada em 458) | 596 | +R$60.187,61 |
+| `INSERT` | 715 | +R$238.634,24 |
+| Soft delete | 129 | R$0,00 — **nenhuma linha com valor** |
+
+As 129 baixadas são 86 rodapés e 43 fixos de valor zero que o Gilberto tirou das abas de
+2026 (COC, Academia, Netflix, Seguro BB, Mesada, Dentista…). Despesa de 2026: **R$182.387,86
+→ R$481.209,71**. `npm run db:conferir-despesas -- --ano 2026` passou a fechar ao centavo,
+1.632 de 1.632 linhas, e nenhum outro ano se moveu.
+
+**Efeitos colaterais esperados no painel**, todos já refletidos no `bi:sanity`:
+
+- mai, jun e jul/2026 deixaram de ser meses faltantes — 2026 saiu da pendência aberta.
+- A fila de `/financeiro/pendencias` subiu de 2.160 para 2.764 linhas (R$407.138,09): as
+  linhas novas nascem sem categoria, de propósito.
+- As abas que conferem em `/financeiro/qualidade` foram de 49 para 47. Jun e jul/26
+  passaram a conferir; set–dez/26 pararam. Não é regressão: essas abas agora têm o
+  lançamento real que existia na planilha (R$53,39 de gasolina em set/26, por exemplo) e
+  não têm total de mês — o único rodapé é o bloco de percentual. É a planilha que não
+  fecha, não o banco.
 
 ### Ao escrever uma view nova: nada de subquery correlacionada
 
