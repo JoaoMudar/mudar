@@ -10,6 +10,41 @@ clientes e geografia.
 
 ---
 
+> ## 🔄 ESTE DOCUMENTO É HISTÓRICO (P12, ago/2026)
+>
+> O que mudou desde que ele foi escrito:
+>
+> 1. **O banco não é mais separado.** O schema `viveiro` de `notas_despesas` foi
+>    importado para dentro do banco do app como o schema **`financeiro`**
+>    (`scripts/import-financeiro.ps1`). Onde este documento diz `viveiro.tabela`,
+>    hoje é `financeiro.tabela`. `SET search_path` não é usado — a aplicação
+>    qualifica o schema em toda query, porque o pool é compartilhado com o app.
+> 2. **As views `vw_*` desta seção 4 são LEGADO.** O BI da aplicação usa a família
+>    **`vw_bi_*`**, que corrige defeitos que estas não tratam. As antigas seguem
+>    de pé para não quebrar Metabase/Power BI, mas não devem receber consumidor novo.
+> 3. **A regra de natureza da seção 3 está errada** — ver a correção abaixo.
+> 4. **A janela do BI começa em 2020.** Antes disso o dado não tem qualidade.
+>
+> ### Correções de fato apuradas contra o banco
+>
+> | Este documento diz | O banco tem |
+> |---|---|
+> | `natureza IN ('negocio','misto')` basta para o DRE | **Não basta.** A coluna está furada nos dois sentidos: R$48.793 de gasto pessoal marcado `negocio` (entra sem dever) e R$63.311 de gasto de negócio marcado `pessoal` (fica de fora). Quem manda agora é a natureza da **categoria**, mais rateio por centro de custo para as 15 categorias `misto`. Ver `src/lib/bi-rateio.ts`. |
+> | Período detalhado confiável 2003→2026 | A **despesa de 2024 para em ago** e a **de 2026 em abr**, enquanto a receita segue até o fim. Isso produz margem falsa de 74,1% (2024) e 79,2% (2026). O painel suprime a margem desses anos. Ver `docs/rotinas/financeiro-bi.md`. |
+> | Receita começa em 2003 | `notas_fiscais` começa em **jun/2011**. O prejuízo de 2003–2010 no `vw_dre_anual` é receita ausente, não prejuízo real. |
+> | `municipios_ibge` com 5.570 municípios | Ficou 29 linhas na primeira carga; **corrigido** — hoje são 5.571 e a receita está 100% geolocalizada. |
+> | 27 categorias | Confere. Dessas, **15 são `misto`** (não 12). |
+>
+> ### Uso extra dos totalizadores
+>
+> A seção 3 manda filtrar `eh_totalizador = FALSE` — continua valendo. Mas eles
+> também servem de **auditoria**: o maior totalizador de cada aba é o total que a
+> própria planilha calculava naquele mês. Comparado com a soma do detalhe, aponta
+> onde a importação não bateu (2020–2026: 84 abas, 49 conferem ao centavo, 35
+> divergem, R$15.319 no total). É a view `financeiro.vw_bi_conferencia_mensal`.
+
+---
+
 ## 1. Como subir e conectar
 
 PostgreSQL 14+. Todos os objetos vivem no schema **`viveiro`**.
@@ -48,7 +83,7 @@ na mesma pasta (já incluído).
 |---|---|
 | `pessoas` | Clientes/emitentes (dedup por documento). |
 | `enderecos` | Endereços; com `regiao`, `cod_municipio_ibge`, `latitude`, `longitude`. |
-| `categorias_despesa` | 27 categorias (`nome`, `grupo`, `natureza`). |
+| `categorias_despesa` | 28 categorias (`nome`, `grupo`, `natureza`). |
 | `centros_custo` | Centro (Viveiro, Campo, Floricultura, Casa, Sítio, Clínica) + natureza. |
 | `especies` | 118 espécies (`nome_comum`, `nome_cientifico`, `grupo`). |
 | `unidades` | Unidades canônicas (MD, UN, SC, CX, KG, G, M, M2, MIL). |
