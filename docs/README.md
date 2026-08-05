@@ -39,6 +39,11 @@
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
+> **Financeiro:** a abordagem nova (extrato bancário como fonte da verdade) está em
+> [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) e em
+> [`plans/P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md).
+> Leia o post-mortem acima **antes** de qualquer linha de código financeiro.
+
 ### Domínio — rotinas de negócio (`docs/rotinas/`)
 Cada rotina descreve um processo do viveiro e quais perfis executam cada etapa.
 Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
@@ -51,7 +56,7 @@ Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 | Tarefas diárias | [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) |
 | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
 | Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
-| Financeiro | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) |
+| Financeiro (visão geral + detalhamento) | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) e a pasta [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) |
 | Produção | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) |
 
 A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/):
@@ -60,6 +65,10 @@ banco de dados, notificações, cadastro, verificação de disponibilidade, aná
 A rotina de **Clientes** tem detalhamento por fase em [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/):
 banco de dados (campos fiscais), validações, área `/clientes`, integração com NF no fechamento de pedido,
 testes e o futuro de emissão de nota fiscal via API.
+
+A rotina de **Financeiro** tem detalhamento por fase em [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/):
+visão geral do modelo (extrato como fonte da verdade), o cadastro único (`cadastro.parties`), o schema
+`financeiro` com suas listas fechadas e regras invioláveis, e a relação com pedidos, fornecedores e custeio.
 
 ## Roadmap de implementação (`plans/`)
 

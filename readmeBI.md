@@ -12,25 +12,36 @@ clientes e geografia.
 
 > ## 🔄 ESTE DOCUMENTO É HISTÓRICO (P12, ago/2026)
 >
-> O que mudou desde que ele foi escrito:
+> ### ⚠️ Desambiguação obrigatória: dois `financeiro` diferentes
 >
-> 1. **O banco não é mais separado.** O schema `viveiro` de `notas_despesas` foi
->    importado para dentro do banco do app como o schema **`financeiro`**
->    (`scripts/import-financeiro.ps1`). Onde este documento diz `viveiro.tabela`,
->    hoje é `financeiro.tabela`. `SET search_path` não é usado — a aplicação
->    qualifica o schema em toda query, porque o pool é compartilhado com o app.
-> 2. **As views `vw_*` desta seção 4 são LEGADO.** O BI da aplicação usa a família
->    **`vw_bi_*`**, que corrige defeitos que estas não tratam. As antigas seguem
->    de pé para não quebrar Metabase/Power BI, mas não devem receber consumidor novo.
-> 3. **A regra de natureza da seção 3 está errada** — ver a correção abaixo.
-> 4. **A janela do BI começa em 2020.** Antes disso o dado não tem qualidade.
+> Houve uma tentativa (abandonada em 05/08/2026) de importar o schema `viveiro` deste
+> banco para dentro do banco do app como um schema chamado `financeiro`, via
+> `scripts/import-financeiro.ps1`. **Isso foi desfeito** (`DROP SCHEMA financeiro
+> CASCADE`), e tanto o script quanto as views `vw_bi_*` só existem na branch
+> arquivada `feat/financeiro-bi`.
+>
+> O schema **`financeiro` que existe hoje no app é outra coisa**: são as transações
+> importadas dos extratos bancários (P12 nova abordagem), nada a ver com esta
+> planilha. Ver [`docs/rotinas/rotina-financeiro/02-schema-financeiro.md`](docs/rotinas/rotina-financeiro/02-schema-financeiro.md).
+>
+> **Este banco (`notas_despesas`, schema `viveiro`) segue separado e intacto**, como
+> descrito no resto do documento. Onde se lê `viveiro.tabela`, é `viveiro.tabela` mesmo.
+> Ele serve para **tendência histórica**, não para conciliação — o marco zero do
+> financeiro novo é 01/01/2026.
+>
+> ### Outras correções
+>
+> 1. **As views `vw_*` da seção 4 continuam válidas neste banco.** A família `vw_bi_*`
+>    que existiu por cima delas foi descartada junto com a abordagem — não procure por ela.
+> 2. **A regra de natureza da seção 3 está errada** — ver a correção abaixo.
+> 3. **A janela confiável começa em 2020.** Antes disso o dado não tem qualidade.
 >
 > ### Correções de fato apuradas contra o banco
 >
 > | Este documento diz | O banco tem |
 > |---|---|
-> | `natureza IN ('negocio','misto')` basta para o DRE | **Não basta.** A coluna está furada nos dois sentidos: R$48.793 de gasto pessoal marcado `negocio` (entra sem dever) e R$63.311 de gasto de negócio marcado `pessoal` (fica de fora). Quem manda agora é a natureza da **categoria**, mais rateio por centro de custo para as 15 categorias `misto`. Ver `src/lib/bi-rateio.ts`. |
-> | Período detalhado confiável 2003→2026 | A **despesa de 2024 para em ago** e a **de 2026 em abr**, enquanto a receita segue até o fim. Isso produz margem falsa de 74,1% (2024) e 79,2% (2026). O painel suprime a margem desses anos. Ver `docs/rotinas/financeiro-bi.md`. |
+> | `natureza IN ('negocio','misto')` basta para o DRE | **Não basta.** A coluna está furada nos dois sentidos: R$48.793 de gasto pessoal marcado `negocio` (entra sem dever) e R$63.311 de gasto de negócio marcado `pessoal` (fica de fora). A natureza confiável é a da **categoria**, mais rateio por centro de custo para as 15 categorias `misto`. |
+> | Período detalhado confiável 2003→2026 | A **despesa de 2024 para em ago** e a **de 2026 em abr**, enquanto a receita segue até o fim. Isso produz margem falsa de 74,1% (2024) e 79,2% (2026) — suprima a margem desses anos. |
 > | Receita começa em 2003 | `notas_fiscais` começa em **jun/2011**. O prejuízo de 2003–2010 no `vw_dre_anual` é receita ausente, não prejuízo real. |
 > | `municipios_ibge` com 5.570 municípios | Ficou 29 linhas na primeira carga; **corrigido** — hoje são 5.571 e a receita está 100% geolocalizada. |
 > | 27 categorias | Confere. Dessas, **15 são `misto`** (não 12). |
@@ -41,7 +52,7 @@ clientes e geografia.
 > também servem de **auditoria**: o maior totalizador de cada aba é o total que a
 > própria planilha calculava naquele mês. Comparado com a soma do detalhe, aponta
 > onde a importação não bateu (2020–2026: 84 abas, 49 conferem ao centavo, 35
-> divergem, R$15.319 no total). É a view `financeiro.vw_bi_conferencia_mensal`.
+> divergem, R$15.319 no total).
 
 ---
 

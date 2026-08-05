@@ -55,13 +55,18 @@
 | Carregamento físico | Colaborador |
 | Confirmação de entrega | Chefia |
 
-## 6. Financeiro (`rotina-financeiro.md`)
+## 6. Financeiro (`rotina-financeiro.md` + pasta `rotina-financeiro/`)
+
+O acesso a `/financeiro` é **exclusivo de chefia/admin** — a base mistura gasto do viveiro
+com gasto pessoal da família e da clínica.
 
 | Etapa | Perfil |
 |-------|--------|
-| Emissão de nota fiscal | Chefia |
-| Visão de faturamento | Chefia |
-| Registro de custos operacionais | Chefia |
+| Importar extrato bancário (mensal, dia 1) | Chefia |
+| Classificar a fila de lançamentos (centro, categoria, contraparte) | Chefia |
+| Fechar o mês (conferir saldo × extrato e travar) | Chefia |
+| Emissão de nota fiscal (sistema do Sebrae; app registra o número) | Chefia |
+| Visão de faturamento (só sobre mês fechado) | Chefia |
 | Consulta de preço por espécie/canal | Gerência |
 
 ## 7. Produção (`rotina-producao.md`)
