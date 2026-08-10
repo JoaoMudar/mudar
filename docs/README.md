@@ -70,16 +70,22 @@ Comece por [`engenharia/README.md`](engenharia/README.md) — explica a estrutur
 Cada rotina descreve um processo do viveiro e quais perfis executam cada etapa.
 Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 
+O mapa traz também o **diagrama de como todas as rotinas se relacionam** no sistema inteiro.
+
 | Rotina | Arquivo |
 |--------|---------|
+| **Cadastros** (cadastro único — agrupador) | [`rotinas/rotina-cadastros.md`](rotinas/rotina-cadastros.md) |
+| Produção (visão geral + subrotinas) | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) e a pasta [`rotinas/rotina-producao/`](rotinas/rotina-producao/) |
 | Pedidos (visão geral + detalhamento) | [`rotinas/rotina-pedidos.md`](rotinas/rotina-pedidos.md) e a pasta [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/) |
 | Clientes (visão geral + detalhamento) | [`rotinas/rotina-clientes.md`](rotinas/rotina-clientes.md) e a pasta [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/) |
 | Estoque | [`rotinas/rotina-estoque.md`](rotinas/rotina-estoque.md) |
-| Tarefas diárias | [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) |
 | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
 | Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
 | Financeiro (visão geral + detalhamento) | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) e a pasta [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) |
-| Produção | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) |
+| ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) fica como histórico |
+
+A rotina de **Produção** tem detalhamento em [`rotinas/rotina-producao/`](rotinas/rotina-producao/):
+visão geral e a **agenda de pessoal** (grade semanal de quem faz o quê, base do custo de mão de obra).
 
 A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/):
 banco de dados, notificações, cadastro, verificação de disponibilidade, análise/fechamento e separação.
@@ -107,3 +113,15 @@ P8 (Instagram) ← independente
 ```
 
 Planos: `plans/P1-custeio-por-especie.md` … `plans/P10-ecommerce-kits-tematicos.md`.
+
+Fora do encadeamento original:
+
+| Plano | Assunto | Status |
+|---|---|---|
+| [`P11-fornecedores-cotacao.md`](../plans/P11-fornecedores-cotacao.md) | Rede de fornecedores e cotação | ✅ concluído |
+| [`P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md) | Financeiro sobre extratos | Fase 0 concluída |
+| [`P13-producao-agenda-cadastros.md`](../plans/P13-producao-agenda-cadastros.md) | Cadastro único + agenda de pessoal (destrava o custo de mão de obra do P1) | desenho fechado |
+
+> **P13 e P12 compartilham a Fase 1** (schema `cadastro`, tabela `parties`). Implementar uma vez.
+> O P13 lista também as **incongruências encontradas nos documentos de engenharia** que
+> precisam de revisão antes da entrega do Cap. 4.
