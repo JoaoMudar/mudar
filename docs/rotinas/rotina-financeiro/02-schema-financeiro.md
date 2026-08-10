@@ -35,8 +35,11 @@ financeiro.periods               fechamento mensal (trava)
 | `id` | UUID PK |
 | `account_id` | FK `financeiro.accounts` — **nada existe sem conta** |
 | `import_id` | FK `statement_imports`; NULL se lançado à mão |
-| `posted_at` | DATE — data do movimento no banco |
+| `posted_at` | DATE — **quando o banco moveu**. Vem do extrato, imutável (regime de caixa) |
+| `competence_date` | DATE NOT NULL — **a que mês o gasto pertence**. Default `posted_at` (regime de competência) |
 | `amount` | NUMERIC(14,2) — **negativo = saída, positivo = entrada** |
+| `installment_number` / `installment_total` | SMALLINT — `3` de `12`, quando parcelado |
+| `installment_total_amount` | NUMERIC(14,2) — o valor cheio da compra parcelada |
 | `description_raw` | TEXT — o que o banco escreveu. **Nunca editado.** É a prova. |
 | `fitid` | TEXT — identificador único do movimento no OFX, quando houver |
 | `dedupe_key` | TEXT — fallback p/ CSV: hash de conta+data+valor+descrição+ordinal |
@@ -54,6 +57,40 @@ financeiro.periods               fechamento mensal (trava)
 **Por que o sinal no valor, e não uma coluna de direção:** é como o OFX entrega, e faz
 `SUM(amount)` ser o saldo do período direto, sem `CASE`.
 
+### Por que duas datas (`posted_at` × `competence_date`)
+
+O extrato só sabe regime de caixa: quando o dinheiro se moveu. Mas substrato comprado em
+fevereiro, com nota vencendo em março e pago em abril, é **custo de fevereiro** — e num
+viveiro, onde o custo se concentra na semeadura e a receita vem meses depois, tratar isso
+como abril inventa e apaga meses inteiros de custo.
+
+- `posted_at` — do banco. Nunca editado, como `description_raw`.
+- `competence_date` — default `posted_at`; só se mexe quando diverge. **99% das linhas ficam
+  no default**, então não pesa na classificação.
+
+**É irreversível se não nascer agora.** Daqui a dois anos, com milhares de linhas
+conciliadas, ninguém reconstrói a que mês cada uma pertencia — o dado se perde no instante
+da classificação, não depois.
+
+Regra de uso nas queries:
+
+| Pergunta | Data | Quem consome |
+|---|---|---|
+| "Quanto saiu do caixa em março?" | `posted_at` | Saldo, fluxo, fechamento, conferência com o extrato |
+| "Quanto custou produzir em março?" | `competence_date` | DRE, estrutura de custo, custeio (P1), margem (P3) |
+
+**O fechamento mensal (`periods`) sempre usa `posted_at`** — é ele que precisa bater com o
+saldo do banco. Competência não fecha caixa.
+
+### Parcelamento
+
+`installment_number` / `installment_total` / `installment_total_amount` existem porque uma
+parcela isolada é 1/12 de uma decisão: o extrato mostra R$780 de IPVA em março e o BI conclui
+que março foi caro, sem saber que existem mais onze. Com o total registrado, dá para ver a
+compra inteira sem inventar uma tabela de contratos.
+
+Preenchido à mão na classificação, só quando é parcelado. Fora isso, NULL.
+
 **Anti-duplicata — a trava que faz reimportar ser seguro:**
 
 ```sql
@@ -64,7 +101,8 @@ UNIQUE (account_id, dedupe_key)
 Rodar o mesmo arquivo duas vezes não cria nada — `statement_imports` só registra
 `rows_duplicated`. Sem isso, a primeira reimportação por engano dobra o mês inteiro em silêncio.
 
-**Índices:** `(account_id, posted_at)`, `(status)`, `(category_id)`, `(cost_center_id)`, `(party_id)`.
+**Índices:** `(account_id, posted_at)`, `(competence_date)`, `(status)`, `(category_id)`,
+`(cost_center_id)`, `(party_id)`.
 
 ---
 
@@ -220,18 +258,21 @@ completo", e comparar um período parcial com um período cheio inventa variaç�
 
 ---
 
-## As 7 regras invioláveis
+## As 8 regras invioláveis
 
-1. **`description_raw` nunca é editado** — é a prova de que a linha veio do banco.
-2. **Zero campo de texto livre** em classificação. Dropdown ou não existe. *(Campo de texto
+1. **`description_raw` e `posted_at` nunca são editados** — são a prova de que a linha veio
+   do banco.
+2. **Saldo se apura por `posted_at`; custo se apura por `competence_date`.** Trocar as duas
+   produz um número que parece certo e não é.
+3. **Zero campo de texto livre** em classificação. Dropdown ou não existe. *(Campo de texto
    livre é dívida: categoria digitada à mão sempre vira categoria errada em escala.)*
-3. **Transferência entre contas próprias não é despesa.** Sem `transfer_pair_id`, o R$ que
+4. **Transferência entre contas próprias não é despesa.** Sem `transfer_pair_id`, o R$ que
    saiu do BB e entrou no Cresol conta duas vezes.
-4. **Nenhum lançamento sem conta.** Dinheiro em espécie entra pela conta `CAIXA`.
-5. **Período aberto não vira indicador.** Mês incompleto mostra travessão.
-6. **Agregação em CTE** (`GROUP BY ano, mes` uma vez, recorte com `FILTER`), nunca subquery
+5. **Nenhum lançamento sem conta.** Dinheiro em espécie entra pela conta `CAIXA`.
+6. **Período aberto não vira indicador.** Mês incompleto mostra travessão.
+7. **Agregação em CTE** (`GROUP BY ano, mes` uma vez, recorte com `FILTER`), nunca subquery
    escalar correlacionada sobre view empilhada — lição nº 6: 11 s → 130 ms.
-7. **Migration sem guarda condicional.** `IF ... THEN RETURN` roda como no-op e mesmo assim é
+8. **Migration sem guarda condicional.** `IF ... THEN RETURN` roda como no-op e mesmo assim é
    marcada como aplicada — foi o que deixou 6 migrations registradas no Neon sem terem criado
    nada. Migration falha alto ou não existe.
 

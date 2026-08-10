@@ -62,8 +62,8 @@ com gasto pessoal da família e da clínica.
 
 | Etapa | Perfil |
 |-------|--------|
+| Classificar a fila de lançamentos (semanal, sexta — centro, categoria, contraparte) | Chefia |
 | Importar extrato bancário (mensal, dia 1) | Chefia |
-| Classificar a fila de lançamentos (centro, categoria, contraparte) | Chefia |
 | Fechar o mês (conferir saldo × extrato e travar) | Chefia |
 | Emissão de nota fiscal (sistema do Sebrae; app registra o número) | Chefia |
 | Visão de faturamento (só sobre mês fechado) | Chefia |

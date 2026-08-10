@@ -76,12 +76,20 @@ extrato → transaction (centro=viveiro, categoria=Energia) → soma mensal por 
         → alimenta fixed_costs → species_unit_cost → preço por canal (P3)
 ```
 
-**Dois cuidados:**
+**Três cuidados:**
 
+- **Agrega por `competence_date`, não por `posted_at`.** Custo é competência. O substrato
+  comprado em fevereiro e pago em abril é custo de fevereiro — foi em fevereiro que ele virou
+  muda. Somar pelo caixa faz o mês de semeadura parecer barato e o mês do pagamento parecer
+  caro, e o custo por muda sai errado nos dois.
 - Só entra **mês fechado**. Custo fixo alimentado por mês aberto produz um custo por muda que
   muda todo dia.
 - Só entram **centros de negócio** (`viveiro`, `sitio`). A energia da casa não pode encostar
   no custo da muda — foi exatamente esse o furo que o post-mortem mediu.
+
+**Gasto parcelado** (maquinário, financiamento) tem cuidado próprio: os campos de parcela
+guardam o valor cheio da compra, então o custeio pode escolher entre olhar a parcela do mês
+ou a decisão inteira — sem precisar de tabela de contratos.
 
 ## 6. Rotina financeiro (`rotina-financeiro.md`)
 

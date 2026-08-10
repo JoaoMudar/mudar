@@ -24,7 +24,9 @@ calculado precisa fechar com o saldo do banco. Nada existe sem passar por uma co
 - **Marco zero:** 01/01/2026 (jan–jul/2026 primeiro, depois retrocedendo).
 - **5 centros de custo:** viveiro, sítio, clínica, casa, floricultura (extinta).
 - **35 categorias em 14 grupos**, mais as de entrada.
-- **Rotina:** dia 1 de cada mês, 15 minutos.
+- **Rotina:** sexta-feira, 5 min para classificar; dia 1, 15 min para fechar o mês.
+- **Duas datas por lançamento:** quando o dinheiro saiu (caixa) e a que mês pertence
+  (competência) — é a segunda que alimenta o custo por muda.
 
 ## Telas por perfil
 

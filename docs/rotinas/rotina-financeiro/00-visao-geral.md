@@ -27,14 +27,23 @@ ficou de fora. Se não bate, o sistema aponta onde.
 
 ## O que você faz, na prática
 
-### Uma vez por mês, dia 1, 15 minutos
+### Toda sexta-feira, 5 minutos
+
+Classificar o que entrou na semana.
+
+**Por que semanal e não só no fim do mês:** é memória, não preciosismo. Um PIX de R$1.200
+para "JOSE M SILVA" você sabe o que foi na terça. No dia 32 você não sabe — vai chutar, ou
+jogar em `Outros/Extraordinário`, que é onde a informação morre. A carga total é a mesma; a
+qualidade da classificação não é.
+
+### Dia 1 de cada mês, 15 minutos — o fechamento
 
 1. **Baixa o extrato** de cada conta no app do banco (arquivo OFX, de preferência).
 2. **Importa** no sistema. O arquivo entra inteiro — você não digita nada.
 3. **O sistema classifica o que já conhece.** "CELESC" ele já sabe que é Energia da casa,
    porque você ensinou no mês passado.
-4. **Sobra uma fila** com o que ele não reconheceu. Cada linha: três toques —
-   centro de custo, categoria, com quem foi.
+4. **Sobra uma fila** com o que ele não reconheceu — pouca coisa, se a rotina de sexta rodou.
+   Cada linha: três toques — centro de custo, categoria, com quem foi.
 5. **Zerou a fila?** Confere o saldo contra o extrato e **fecha o mês**. Trava.
 
 A fila **encolhe todo mês**, porque cada classificação vira uma regra. É o contrário da
@@ -43,6 +52,34 @@ planilha, onde a fila de coisas sem categoria crescia sozinha e nunca zerava.
 ### No dia a dia
 
 Nada. O financeiro não pede lançamento diário. Ele lê o que o banco já registrou.
+
+## Por que não digitar cada gasto na hora
+
+Empresa organizada faz as duas coisas: lança a nota quando ela chega (vira "contas a pagar")
+e usa o extrato como **conferência**. Aqui a ordem se inverte de propósito.
+
+O motivo é que a origem manual já foi testada — a planilha *era* isso — e o resultado está
+medido: faltavam R$299 mil só em 2026, com meses inteiros que nunca entraram e linhas
+pré-digitadas esperando um valor que nunca chegou.
+
+**Lançamento manual falha por esquecimento, e esquecimento é invisível. Extrato falha por
+falta de contexto, e isso é visível** — a linha está lá na tela, pedindo classificação. Entre
+um erro que você vê e um que você não vê, escolhe-se o que você vê.
+
+Digitar na origem fica reservado a três casos, onde a falta faz diferença de verdade:
+**nota de compra de insumo** (o extrato diz "R$3.400 Agro Comercial", a nota diz 40 sacos a
+R$85 — é o que vira custo por muda), **gasto parcelado** (uma parcela é 1/12 de uma decisão),
+e **pagamento que atravessa o mês**.
+
+## As duas datas de cada gasto
+
+Todo lançamento tem **quando o dinheiro saiu** e **a que mês ele pertence**. Quase sempre é
+a mesma coisa, e o sistema preenche sozinho. Mas o substrato comprado em fevereiro, com nota
+vencendo em março e pago em abril, é custo de *fevereiro* — foi em fevereiro que ele virou
+muda.
+
+Você só mexe nessa segunda data quando ela diverge. Serve para o custo por muda não mentir:
+sem isso, um mês de semeadura pesada aparece barato e o mês do pagamento aparece caro.
 
 ## As três perguntas que ele responde
 
