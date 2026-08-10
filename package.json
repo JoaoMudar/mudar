@@ -15,7 +15,8 @@
     "db:migrate:mark": "tsx scripts/migrate.ts --mark-applied",
     "db:seed-admin": "tsx scripts/seed-admin.ts",
     "db:seed-suppliers": "tsx scripts/seed-supplier-network.ts",
-    "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1"
+    "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1",
+    "docs:tcc": "node scripts/build-docs-tcc.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

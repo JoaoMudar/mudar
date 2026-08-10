@@ -1,10 +1,7 @@
-# C8 — Dicionário de dados
+# Apêndice B — Dicionário de dados
 
-> **Artefato:** Dicionário de dados · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.4 (amostra de duas ou três entidades) e Apêndice (integral)
-> **Fundamentação:** Elmasri e Navathe (2011) situam a definição dos tipos de dados, estruturas e
-> restrições como primeiro passo da criação de um banco de dados. Este documento é o registro dessa
-> definição, entidade por entidade.
+> Gerado a partir de `C-modelagem/C8-dicionario-de-dados.md`.
+> **Não edite este arquivo** — edite o artefato de origem e rode `npm run docs:tcc`.
 
 ---
 
@@ -688,3 +685,4 @@ ausência de sobreposição entre períodos de vigência.
 | Fornecedores | 4 | |
 | Financeiro | 10 | esquema separado |
 | **Total** | **39** | |
+

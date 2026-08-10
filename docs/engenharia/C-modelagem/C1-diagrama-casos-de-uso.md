@@ -70,9 +70,7 @@ graph LR
   GE --- S2
   GE --- S3
   GE --- S4
-  GE --- S6
   GE --- S7
-  GE --- S9
   GE --- S11
 
   CO --- S1
@@ -101,9 +99,18 @@ Duas leituras que o diagrama torna imediatas:
 graph LR
   CH(("Chefia"))
 
+  subgraph Catálogo
+    UC05(["UC-05 · Manter catálogo de espécies"])
+    UC06(["UC-06 · Manter recipientes"])
+    UC07(["UC-07 · Manter insumos"])
+    UC08(["UC-08 · Registrar custos fixos"])
+    UC09(["UC-09 · Registrar coleta de sementes"])
+  end
+
   subgraph Comercial
     UC21(["UC-21 · Cadastrar cliente rápido"])
-    UC22(["UC-22 · Manter cadastro completo de cliente"])
+    UC22(["UC-22 · Manter cadastro de cliente"])
+    UC23(["UC-23 · Consultar cliente"])
     UC24(["UC-24 · Cadastrar pedido"])
     UC26(["UC-26 · Fechar pedido"])
     UC28(["UC-28 · Acompanhar pedidos"])
@@ -115,10 +122,11 @@ graph LR
     UC11(["UC-11 · Consultar custo unitário"])
   end
 
-  subgraph Custeio
-    UC07(["UC-07 · Manter insumos"])
-    UC08(["UC-08 · Registrar custos fixos"])
-    UC09(["UC-09 · Registrar coleta de sementes"])
+  subgraph Fornecedores
+    UC31(["UC-31 · Manter fornecedor"])
+    UC32(["UC-32 · Emitir cotação"])
+    UC33(["UC-33 · Escolher proposta"])
+    UC34(["UC-34 · Consultar mapa"])
   end
 
   subgraph Entrega
@@ -137,17 +145,24 @@ graph LR
     UC39(["UC-39 · Acompanhar indicadores"])
   end
 
+  CH --- UC05
+  CH --- UC06
+  CH --- UC07
+  CH --- UC08
+  CH --- UC09
   CH --- UC21
   CH --- UC22
+  CH --- UC23
   CH --- UC24
   CH --- UC26
   CH --- UC28
   CH --- UC19
   CH --- UC20
   CH --- UC11
-  CH --- UC07
-  CH --- UC08
-  CH --- UC09
+  CH --- UC31
+  CH --- UC32
+  CH --- UC33
+  CH --- UC34
   CH --- UC29
   CH --- UC30
   CH --- UC35
@@ -157,16 +172,16 @@ graph LR
   CH --- UC39
 ```
 
+A concentração é acentuada: **vinte e cinco dos quarenta casos de uso pertencem à chefia.** Não é
+falha de distribuição — é o retrato de uma microempresa em que uma única pessoa responde por venda,
+preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
+verificável a que já existe.
+
 ### 3.2 Gerência
 
 ```mermaid
 graph LR
   GE(("Gerência"))
-
-  subgraph Catálogo
-    UC05(["UC-05 · Manter catálogo de espécies"])
-    UC06(["UC-06 · Manter recipientes"])
-  end
 
   subgraph Operação
     UC13(["UC-13 · Planejar e atribuir produção"])
@@ -178,14 +193,6 @@ graph LR
   subgraph Pedido
     UC25(["UC-25 · Verificar disponibilidade"])
     UC28b(["UC-28 · Acompanhar pedidos"])
-    UC23(["UC-23 · Consultar cliente"])
-  end
-
-  subgraph Fornecedores
-    UC31(["UC-31 · Manter fornecedor"])
-    UC32(["UC-32 · Emitir cotação"])
-    UC33(["UC-33 · Escolher proposta"])
-    UC34(["UC-34 · Consultar mapa de fornecedores"])
   end
 
   subgraph Análise
@@ -194,23 +201,21 @@ graph LR
     UC11b(["UC-11 · Consultar custo unitário"])
   end
 
-  GE --- UC05
-  GE --- UC06
   GE --- UC13
   GE --- UC14
   GE --- UC15
   GE --- UC16
   GE --- UC25
   GE --- UC28b
-  GE --- UC23
-  GE --- UC31
-  GE --- UC32
-  GE --- UC33
-  GE --- UC34
   GE --- UC18b
   GE --- UC39b
   GE --- UC11b
 ```
+
+A gerência concentra-se no que **só é possível estando no viveiro**: contar estoque, planejar
+produção e verificar disponibilidade. Nenhuma dessas tarefas pode ser executada à distância sem
+virar adivinhação registrada como fato — que é precisamente o problema que o sistema existe para
+eliminar.
 
 ### 3.3 Colaborador
 
@@ -264,8 +269,8 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-02** | Trocar senha | Todos | RF-02 | — |
 | **UC-03** | Gerenciar usuários e perfis | Administrador | RF-05, RF-06 | — |
 | **UC-04** | Gerenciar sessões ativas | Todos | RF-03, RF-04, RF-07 | — |
-| **UC-05** | Manter catálogo de espécies | Gerência | RF-08, RF-09 | — |
-| **UC-06** | Manter recipientes | Gerência | RF-10 | — |
+| **UC-05** | Manter catálogo de espécies | Chefia | RF-08, RF-09 | — |
+| **UC-06** | Manter recipientes | Chefia | RF-10 | — |
 | **UC-07** | Manter insumos | Chefia | RF-11 | — |
 | **UC-08** | Registrar custos fixos | Chefia | RF-12 | — |
 | **UC-09** | Registrar coleta de sementes | Chefia | RF-13 | — |
@@ -281,8 +286,8 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-19** | Definir margem por canal | Chefia | RF-31 | — |
 | **UC-20** | Consultar preço por canal | Chefia, Gerência | RF-32, RF-33, RF-34, RF-35 | — |
 | **UC-21** | Cadastrar cliente rápido | Chefia | RF-36 | — |
-| **UC-22** | Manter cadastro completo de cliente | Chefia, Gerência | RF-37, RF-38, RF-40 | — |
-| **UC-23** | Consultar cliente | Chefia, Gerência | RF-39 | — |
+| **UC-22** | Manter cadastro completo de cliente | Chefia | RF-37, RF-38, RF-40 | — |
+| **UC-23** | Consultar cliente | Chefia | RF-39 | — |
 | **UC-24** | Cadastrar pedido | Chefia | RF-41, RF-66, RF-67 | **✔ sim** |
 | **UC-25** | Verificar disponibilidade | Gerência | RF-42, RF-43, RF-68 | **✔ sim** |
 | **UC-26** | Fechar pedido | Chefia | RF-44, RF-45, RF-46 | **✔ sim** |
@@ -290,10 +295,10 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-28** | Acompanhar pedidos | Chefia, Gerência | RF-48, RF-49 | — |
 | **UC-29** | Organizar agenda de entregas | Chefia | RF-50 | — |
 | **UC-30** | Confirmar entrega | Chefia | RF-51 | — |
-| **UC-31** | Manter fornecedor | Gerência | RF-52 | — |
-| **UC-32** | Emitir cotação | Gerência | RF-53 | **✔ sim** |
-| **UC-33** | Escolher proposta | Chefia, Gerência | RF-54 | **✔ sim** |
-| **UC-34** | Consultar mapa de fornecedores | Gerência | RF-55 | — |
+| **UC-31** | Manter fornecedor | Chefia | RF-52 | — |
+| **UC-32** | Emitir cotação | Chefia | RF-53 | **✔ sim** |
+| **UC-33** | Escolher proposta | Chefia | RF-54 | **✔ sim** |
+| **UC-34** | Consultar mapa de fornecedores | Chefia | RF-55 | — |
 | **UC-35** | Importar extrato bancário | Chefia | RF-56 | — |
 | **UC-36** | Classificar lançamentos | Chefia | RF-57, RF-58, RF-59 | **✔ sim** |
 | **UC-37** | Fechar o mês | Chefia | RF-60, RF-61 | — |

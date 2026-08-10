@@ -36,8 +36,8 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 
 | Recurso | Chefia | Gerência | Colaborador | Administrador |
 |---|:--:|:--:|:--:|:--:|
-| **Espécies** | C L A E | C L A | L | C L A E |
-| **Recipientes** | C L A E | C L A | L | C L A E |
+| **Espécies** | C L A E | L | L | C L A E |
+| **Recipientes** | C L A E | L | L | C L A E |
 | **Insumos** | C L A E | L | L | C L A E |
 | **Consumo de insumo** | L | L | **C L** | L |
 | **Custos fixos** | C L A E | — | — | C L A E |
@@ -49,7 +49,7 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 | **Análise de perdas** | L | L | — | L |
 | **Margem por canal** | C L A | L | **—** | L |
 | **Preço de venda** | C L A | L | **—** | L |
-| **Clientes** | C L A E | C L A | — | C L A E |
+| **Clientes** | C L A E | L | — | C L A E |
 | **Dados fiscais de cliente** | C L A | L | — | C L A |
 | **Pedidos** | C L A E | L A | L | C L A E |
 | **Aprovação de pedido** | **A** | — | — | A |
@@ -57,9 +57,9 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 | **Cargas** | L | C L A | L | L |
 | **Separação de carga** | L | L A | **A** | L |
 | **Entregas** | C L A | L | — | C L A |
-| **Fornecedores** | C L A E | C L A | — | C L A E |
-| **Cotações** | C L A | C L A | — | C L A |
-| **Escolha de proposta** | **A** | A | — | A |
+| **Fornecedores** | C L A E | — | — | C L A E |
+| **Cotações** | C L A | — | — | C L A |
+| **Escolha de proposta** | **A** | — | — | A |
 | **Financeiro — todos os recursos** | **C L A E** | **—** | **—** | C L A E |
 | **Indicadores** | L | L (parcial) | — | L |
 | **Usuários e perfis** | — | — | — | **C L A E** |
@@ -68,9 +68,9 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 
 ---
 
-## 3. As sete regras de exceção
+## 3. As oito regras de exceção
 
-A matriz não se explica sozinha. Sete decisões merecem justificativa, porque em cada uma a permissão
+A matriz não se explica sozinha. Oito decisões merecem justificativa, porque em cada uma a permissão
 restringe alguém que aparentemente deveria ter acesso.
 
 ### 3.1 O colaborador não vê custo nem preço
@@ -119,6 +119,35 @@ existe para eliminar.
 Nenhum perfil de negócio cria usuário ou altera perfil, inclusive a chefia. A separação entre
 autoridade de negócio e autoridade de sistema impede que a escalada de privilégio seja um caminho de
 uso normal.
+
+### 3.8 Os cadastros pertencem à chefia, não à gerência
+
+Catálogo de espécies, recipientes, insumos, clientes e fornecedores são criados e alterados pela
+chefia. À gerência resta a leitura.
+
+A razão é que todos esses cadastros **alimentam o custeio ou o comercial**, e não a operação diária:
+o preço de um insumo altera o custo de todas as espécies que o utilizam; um cliente cadastrado com
+documento errado impede a emissão da nota. São dados de baixa frequência de alteração e alto custo de
+erro, e quem responde pela consequência é quem os mantém.
+
+A gerência lê tudo o que precisa para operar — para verificar disponibilidade é necessário conhecer
+espécies e recipientes, e para acompanhar um pedido é necessário saber de quem ele é.
+
+---
+
+## 3.9 Nota sobre o alcance atual do perfil colaborador
+
+A matriz especifica as permissões do colaborador em sua forma completa, mas o **uso do sistema em
+campo pelos colaboradores está previsto para iteração posterior**. Na primeira etapa de implantação,
+os usuários efetivos são a chefia e a gerência — três pessoas.
+
+A decisão tem consequência direta sobre a avaliação de usabilidade: os sujeitos do instrumento
+descrito em [`F3`](../F-ux/F3-plano-avaliacao-usabilidade.md) são chefia e gerência. A condição do
+§3.6 da metodologia — usuários reconhecidamente sem formação técnica — permanece atendida, já que
+nenhum dos três a possui.
+
+Os requisitos e casos de uso do colaborador permanecem especificados, e não removidos: são projeto,
+e o projeto antecede a implantação.
 
 ---
 

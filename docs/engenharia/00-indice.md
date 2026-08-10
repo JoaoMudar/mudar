@@ -28,7 +28,7 @@ São documentos de projeto, não relatórios de código.
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
 | [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 68 RF, 26 RNF |
-| [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.9 + Apêndice | ⏳ pendente |
+| [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.9 + Apêndice | ✅ escrito — revelou 25 lacunas |
 
 ### C — Modelagem UML e de dados
 
@@ -36,8 +36,8 @@ São documentos de projeto, não relatórios de código.
 |---|---|---|---|
 | [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.3 Modelagem do sistema | ✅ escrito — 40 casos de uso |
 | [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.3 + Apêndice | ✅ escrito — 8 casos detalhados |
-| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ✅ escrito — 34 entidades em 5 áreas |
-| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ✅ escrito — 34 entidades |
+| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ✅ escrito — 39 entidades em 7 áreas |
+| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ✅ escrito — 39 entidades |
 
 ### D — Arquitetura e decisões técnicas
 
@@ -51,23 +51,23 @@ São documentos de projeto, não relatórios de código.
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [E2](E-qualidade/E2-casos-de-teste-de-aceite.md) | Casos de teste de aceite | 4.7 + Apêndice | ⏳ pendente |
-| [E3](E-qualidade/E3-analise-de-riscos.md) | Análise de riscos do projeto | **Capítulo 3** (metodologia) | ⏳ pendente |
-| [E4](E-qualidade/E4-modelagem-de-ameacas.md) | Modelagem de ameaças e controles | 4.6 Segurança e controle de acesso | ⏳ pendente |
-| [E5](E-qualidade/E5-mapeamento-lgpd.md) | Mapeamento LGPD | 4.6 + parágrafos novos no Cap. 2.5 | ⏳ pendente |
-| [E6](E-qualidade/E6-plano-backup-recuperacao.md) | Plano de backup e recuperação | 4.6 + parágrafo novo no Cap. 2.5 | ⏳ pendente |
+| [E2](E-qualidade/E2-casos-de-teste-de-aceite.md) | Casos de teste de aceite | 4.7 + Apêndice | ✅ escrito — 55 casos |
+| [E3](E-qualidade/E3-analise-de-riscos.md) | Análise de riscos do projeto | **Capítulo 3** (metodologia) | ✅ escrito — 10 riscos |
+| [E4](E-qualidade/E4-modelagem-de-ameacas.md) | Modelagem de ameaças e controles | 4.6 Segurança e controle de acesso | ✅ escrito — 11 ameaças |
+| [E5](E-qualidade/E5-mapeamento-lgpd.md) | Mapeamento LGPD | 4.6 + parágrafos novos no Cap. 2.5 | ✅ escrito |
+| [E6](E-qualidade/E6-plano-backup-recuperacao.md) | Plano de backup e recuperação | 4.6 + parágrafo novo no Cap. 2.5 | ✅ escrito |
 
 ### F — Usabilidade e experiência do usuário
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [F3](F-ux/F3-plano-avaliacao-usabilidade.md) | Plano de avaliação de usabilidade | 4.7 Verificação e validação | ⏳ pendente |
+| [F3](F-ux/F3-plano-avaliacao-usabilidade.md) | Plano de avaliação de usabilidade | 4.7 Verificação e validação | ✅ escrito |
 
 ### G — Gestão do projeto e Business Intelligence
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [G2](G-gestao/G2-fichas-de-indicadores.md) | Fichas de indicador (KPI) | 4.8 Indicadores de desempenho | ⏳ pendente |
+| [G2](G-gestao/G2-fichas-de-indicadores.md) | Fichas de indicador (KPI) | 4.8 Indicadores de desempenho | ✅ escrito — 9 indicadores |
 
 ---
 

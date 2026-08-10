@@ -44,6 +44,27 @@
 > [`plans/P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md).
 > Leia o post-mortem acima **antes** de qualquer linha de código financeiro.
 
+### Engenharia de software (`docs/engenharia/`)
+
+Documentação **formal de engenharia**, produzida como base do **Capítulo 4 (Resultados)** do TCC.
+Distinta de `docs/rotinas/`, que é documentação de domínio em linguagem de negócio.
+
+Índice completo em [`engenharia/00-indice.md`](engenharia/00-indice.md).
+
+| Bloco | Artefatos |
+|-------|-----------|
+| A — Fundação | Documento de Visão, Glossário do domínio |
+| B — Requisitos | Especificação de Requisitos (68 RF, 26 RNF), Matriz de rastreabilidade |
+| C — Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (39 entidades), Dicionário de dados |
+| D — Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
+| E — Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
+| F — Usabilidade | Plano de avaliação (5 atributos de Nielsen) |
+| G — Gestão | Fichas de indicadores (KPI) |
+
+> **Entrega para o TCC:** `npm run docs:tcc` regenera [`engenharia/word/`](engenharia/word/) — os
+> arquivos na ordem do Capítulo 4, com os diagramas exportados em PNG. A pasta é **gerada**: editar
+> lá não adianta, edite o artefato de origem.
+
 ### Domínio — rotinas de negócio (`docs/rotinas/`)
 Cada rotina descreve um processo do viveiro e quais perfis executam cada etapa.
 Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).

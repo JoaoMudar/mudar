@@ -5,7 +5,7 @@
 > histórico do sistema antigo) em `docs/contexto-projeto.md`. Rotinas de negócio em `docs/rotinas/`.
 
 ## Projeto
-Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10.000 m², 7 pessoas, venda atacado via WhatsApp.
+Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10.000 m², 9 pessoas, venda atacado via WhatsApp.
 
 **Contexto que molda decisões:**
 - Usuários (Gilberto, Débora, funcionários) **não são técnicos** → interfaces extremamente simples.
