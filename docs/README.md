@@ -49,7 +49,8 @@
 Documentação **formal de engenharia**, produzida como base do **Capítulo 4 (Resultados)** do TCC.
 Distinta de `docs/rotinas/`, que é documentação de domínio em linguagem de negócio.
 
-Índice completo em [`engenharia/00-indice.md`](engenharia/00-indice.md).
+Comece por [`engenharia/README.md`](engenharia/README.md) — explica a estrutura de pastas.
+Índice completo, com status de cada artefato, em [`engenharia/00-indice.md`](engenharia/00-indice.md).
 
 | Bloco | Artefatos |
 |-------|-----------|
