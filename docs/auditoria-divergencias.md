@@ -70,9 +70,12 @@ defesa própria e escrever uma Server Action sem checar perfil.
 | Plano | Cabeçalho diz | Caixas marcadas | Realidade |
 |---|---|---|---|
 | **P1** | `## Status: NÃO INICIADO` | 16 de 32 | tabelas, view e todos os CRUDs prontos; falta o motor de cálculo |
-| **P11** | *(sem cabeçalho de status)* | 25 de 25 | concluído e em produção |
 | **P12** | Fase 0 concluída | 1 de 7 | correto |
+| **P11** | bloco `📌 STATUS`, datado e detalhado | 25 de 25 | correto — só não usa o formato `## Status:` dos demais |
 | P2…P10 | NÃO INICIADO | 0 | correto |
+
+Só o **P1** afirma algo falso. O P11 usa um formato próprio de status, mais rico que o dos
+outros; a inconsistência é de forma, não de conteúdo.
 
 ## D — `colaborador` nos docs × `funcionario` no banco
 
@@ -162,11 +165,29 @@ correspondem a P2, P3, P12 e P13 — projetos especificados e não implementados
 
 ---
 
-## Ordem de correção sugerida
+## Correções aplicadas — 10/08/2026
 
-1. **B e C** — um minuto cada, e são afirmações falsas dentro dos planos.
-2. **A** — reescrever as tarefas de infraestrutura dos 6 planos para a stack real.
-3. **D** — decidir o nome do perfil e aplicar em toda a linha.
-4. **G** — `P6` passa a apontar para `G2` em vez de redefinir os indicadores.
-5. **E e F** — roadmap único e guia de execução refeito ou aposentado.
-6. **H** — junto da implementação do P13.
+| # | Decisão | O que mudou |
+|---|---|---|
+| **A** | Marcar, não reescrever | Bloco de alerta no topo de P1, P2, P3, P5, P6, P7 e P9, com a tabela de tradução (Edge Function → Server Action, RLS → checagem de perfil, Storage → `public/uploads/`, Realtime → `revalidatePath`, webhook → chamada HTTP na própria action) |
+| **B** | Desmarcar | `P1 T1.8` voltou a `[ ]`, riscado, apontando para a migration que removeu RLS e para a `D4` como controle real |
+| **C** | Corrigir | `P1` passou a `Status: PARCIAL — 16 de 32`, com o que está feito e o que falta |
+| **D** | Renomear o banco | Migration `20260810000001` — `ALTER TYPE user_role RENAME VALUE 'funcionario' TO 'colaborador'`; 13 referências no código; `C8` e o apêndice B do TCC. **Aplicada no Postgres local; falta aplicar no Neon antes do próximo deploy.** |
+| **E** | Roadmap único | `contexto-projeto.md` passou a ser a fonte, com estado real por projeto e P13 antes do P1; `CLAUDE.md` e `docs/README.md` apontam para lá |
+| **F** | Reescrever | `EXECUTION-GUIDE.md` refeito a partir de onde o projeto está, com a ordem nova, os comandos reais e a distinção Neon × Supabase |
+| **G** | `G2` é a fonte | Alerta no topo do `P6`: implementar pelas 9 fichas do `G2`; as listas de KPI do plano ficam como histórico |
+| **H** | Junto do P13 | Permanece pendente, na Fase 6 do `P13` |
+
+### Por que "marcar" e não "reescrever" nos planos Supabase
+
+Reescrever as tarefas de infraestrutura de sete planos não implementados produziria muito
+texto novo sobre decisões que ainda não foram tomadas — e que serão tomadas melhor no momento
+de implementar, com o código na frente. O alerta no topo resolve o risco real, que é alguém
+implementar sem perceber a troca de stack.
+
+### Decisão de fundo sobre o roadmap
+
+**P13 passou na frente do P1.** O custo unitário depende da mão de obra, e a mão de obra só
+existe quando a agenda de pessoal registrar horas. Enquanto isso não acontecer, o motor de
+cálculo do P1 (T1.18–T1.20) só sabe somar insumo e custo fixo — devolveria um custo
+sistematicamente subestimado, que é exatamente o erro que o projeto existe para corrigir.

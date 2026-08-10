@@ -17,7 +17,7 @@ export interface User {
   id: string
   username: string
   display_name: string
-  role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
+  role: 'admin' | 'chefia' | 'gerencia' | 'colaborador'
   must_change_password: boolean
 }
 

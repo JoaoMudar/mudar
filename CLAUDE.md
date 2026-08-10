@@ -1,8 +1,10 @@
 # Viveiro Mudar — Ecossistema de Gestão
 
 > 📂 **Mapa de toda a documentação em [`docs/README.md`](docs/README.md)** — comece por aí para se situar.
-> Contexto completo (arquitetura dos projetos P1→P10, princípios de formulário de campo,
+> Contexto completo (arquitetura dos projetos P1→P13, princípios de formulário de campo,
 > histórico do sistema antigo) em `docs/contexto-projeto.md`. Rotinas de negócio em `docs/rotinas/`.
+> **Divergências conhecidas entre planos e código** em `docs/auditoria-divergencias.md` — ler
+> antes de implementar por um plan file antigo (vários foram escritos para Supabase, que não é a stack).
 
 ## Projeto
 Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10.000 m², 9 pessoas, venda atacado via WhatsApp.

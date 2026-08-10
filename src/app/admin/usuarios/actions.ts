@@ -11,7 +11,7 @@ export interface UserPayload {
   username: string
   display_name: string
   password?: string
-  role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
+  role: 'admin' | 'chefia' | 'gerencia' | 'colaborador'
 }
 
 export async function createUsuario(data: UserPayload): Promise<{ error?: string }> {

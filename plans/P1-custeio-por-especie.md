@@ -1,8 +1,19 @@
 # P1 — Custeio por Espécie
 
-## Status: NÃO INICIADO
+> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
+> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
+> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**. O banco é PostgreSQL
+> puro (local no dev, Neon em produção) — o Neon é só o banco, não tem nada da plataforma
+> Supabase. Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
+
+## Status: PARCIAL — 16 de 32 tarefas
+**Feito:** todas as tabelas, a view `species_unit_cost`, os 5 CRUDs administrativos e o
+formulário mobile de insumos com fila offline.
+**Falta:** o motor de cálculo (T1.18–T1.20) — que depende da mão de obra vinda do
+[P13 · agenda de pessoal](P13-producao-agenda-cadastros.md).
+
 ## Prioridade: CRÍTICA
-## Dependências: Nenhuma (projeto fundacional)
+## Dependências: P13 Fase 5 (custo de mão de obra), para o custo ficar completo
 ## Bloqueia: P3 (Precificação), P4 (WhatsApp), P6 (Dashboard)
 
 ---
@@ -73,7 +84,11 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
   ```
   custo_unitário = custo_variável + (custo_fixo_mensal_rateado / produção_mensal_estimada)
   ```
-- [x] **T1.8** Criar RLS policies: apenas usuários autenticados leem/escrevem. Admin full access.
+- [ ] **T1.8** ~~Criar RLS policies~~ → **não se aplica.** A migration `20260413000002_p1_rls.sql`
+  removeu o conceito: *"RLS removido — projeto usa PostgreSQL local sem autenticação Supabase.
+  Controle de acesso será feito na camada de aplicação (Next.js)"*. O controle real é a checagem
+  de perfil dentro de cada Server Action, especificada na
+  [Matriz RBAC (D4)](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md).
 - [ ] **T1.9** Criar seed data com as espécies e recipientes levantados pela equipe de campo.
 
 ### Fase 2: Formulário Mobile de Registro de Insumos

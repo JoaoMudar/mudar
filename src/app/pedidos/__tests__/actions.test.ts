@@ -50,7 +50,7 @@ beforeEach(() => {
 
 describe('getOrdersSignal', () => {
   it('nega acesso sem permissao (sem tocar o banco)', async () => {
-    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
     const sig = await getOrdersSignal()
     expect(sig).toEqual({ count: 0, latest: null })
     expect(mockedQuery).not.toHaveBeenCalled()
@@ -82,7 +82,7 @@ describe('createOrder — guards', () => {
   })
 
   it('rejeita role sem permissao', async () => {
-    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
     const result = await createOrder(validOrder())
     expect(result.error).toMatch(/permissão/i)
   })
@@ -156,7 +156,7 @@ describe('createOrder — caminho feliz', () => {
 
 describe('toggleItemAvailability', () => {
   it('rejeita role sem permissao', async () => {
-    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
     const result = await toggleItemAvailability('item1', 'disponivel')
     expect(result.error).toMatch(/permissão/i)
   })
@@ -196,7 +196,7 @@ describe('toggleItemAvailability', () => {
 
 describe('saveVerificationNotes', () => {
   it('nega sem permissao sem tocar o banco', async () => {
-    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'funcionario' })
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
     const result = await saveVerificationNotes('o1', [{ itemId: 'i1', notes: 'x' }])
     expect(result.error).toMatch(/permissão/i)
     expect(mockedConnect).not.toHaveBeenCalled()

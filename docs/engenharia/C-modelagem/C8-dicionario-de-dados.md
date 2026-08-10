@@ -42,7 +42,7 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 | `username` | text | ● | UK | Identificador de acesso, único |
 | `display_name` | text | ● | | Nome exibido na interface |
 | `password_hash` | text | ● | | Resumo criptográfico da senha. **A senha em si nunca é armazenada** (RNF-09) |
-| `role` | enum | ● | | Perfil de acesso: `admin`, `chefia`, `gerencia`, `funcionario` |
+| `role` | enum | ● | | Perfil de acesso: `admin`, `chefia`, `gerencia`, `colaborador` |
 | `must_change_password` | boolean | ● | | Obriga a definir senha própria no próximo acesso (RF-02) |
 | `active` | boolean | ● | | Usuário habilitado |
 | `failed_login_attempts` | integer | ● | | Tentativas malsucedidas consecutivas |

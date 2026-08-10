@@ -1,5 +1,20 @@
 # P6 — Dashboard de Gestão
 
+> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
+> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
+> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
+> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
+> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
+
+> 📊 **Os indicadores deste painel estão especificados em
+> [`G2 — Fichas de indicadores`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md),
+> que é a fonte da verdade.** São 9 (IND-01 a IND-09), cada um com fórmula, fonte, janela, meta,
+> faixas e responsável, mais o painel por perfil e a regra de que mês não fechado exibe travessão
+> e nunca zero (RF-61). As listas de KPI deste plano são anteriores ao G2 e ficam como histórico —
+> **não implemente por elas.** Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md),
+> achado G.
+
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (custeio), P2 (mortalidade), P3 (preços/orçamentos)

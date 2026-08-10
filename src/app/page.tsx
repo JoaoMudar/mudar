@@ -25,7 +25,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
   chefia: 'Chefia',
   gerencia: 'Gerência',
-  funcionario: 'Funcionário',
+  colaborador: 'Colaborador',
 }
 
 export default async function Home() {

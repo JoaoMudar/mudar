@@ -1,156 +1,107 @@
-# Viveiro Mudar — Guia de Execução com Claude Code
+# Guia de Execução
 
-## Estrutura dos Arquivos
+> Reescrito em **10/08/2026**. A versão anterior descrevia um cronograma de 4 meses (P1→P10,
+> sessão por sessão) que a realidade não seguiu — o que se construiu primeiro foi
+> Pedidos/Clientes/Fornecedores, que nem constava do roadmap. Este guia parte de onde o projeto
+> **está**, não de onde se planejou que estivesse.
+>
+> O planejamento original está preservado no histórico do git, caso sirva ao TCC como material
+> sobre a diferença entre planejado e executado.
+
+## Estrutura real do repositório
 
 ```
 viveiro-mudar/
-├── CLAUDE.md                              ← Contexto global (carregado em toda sessão)
+├── CLAUDE.md                  ← regras, carregado em toda sessão
 ├── docs/
-│   ├── README.md                          ← Mapa da documentação (ponto de entrada)
-│   └── EXECUTION-GUIDE.md                  ← Este arquivo
-├── plans/
-│   ├── P1-custeio-por-especie.md          ← CRÍTICO (sem dependências)
-│   ├── P2-controle-mortalidade-perdas.md  ← CRÍTICO (depende de P1)
-│   ├── P3-precificacao-inteligente.md     ← CRÍTICO (depende de P1+P2)
-│   ├── P4-agente-whatsapp.md             ← ALTO (depende de P1+P3)
-│   ├── P5-automacao-pedidos-n8n.md       ← ALTO (depende de P3+P4)
-│   ├── P6-dashboard-gestao.md            ← CRÍTICO (depende de P1+P2+P3)
-│   ├── P7-catalogo-digital.md            ← MÉDIO (depende de P1+P3)
-│   ├── P8-instagram-presenca-digital.md  ← MÉDIO (sem deps técnicas)
-│   ├── P9-site-institucional.md          ← MÉDIO (depende de P7+P8)
-│   └── P10-ecommerce-kits-tematicos.md   ← BAIXO (depende de tudo)
-└── src/                                   ← Código gerado aqui
+│   ├── README.md              ← mapa da documentação (entrada)
+│   ├── auditoria-divergencias.md  ← divergências conhecidas (ler antes de implementar)
+│   ├── contexto-projeto.md    ← roadmap e estado de cada projeto
+│   ├── rotinas/               ← domínio, em linguagem de negócio
+│   └── engenharia/            ← artefatos formais (base do Cap. 4 do TCC)
+├── plans/                     ← P1…P13, roadmaps de implementação
+├── migrations/                ← SQL puro, ordem cronológica
+├── data/seeds/                ← cargas iniciais
+├── scripts/                   ← migrate, seeds, refresh do banco local, build do TCC
+└── src/                       ← Next.js App Router
 ```
 
-## Mapa de Dependências
+## Onde o projeto está
+
+| | Projeto | Estado |
+|---|---|---|
+| ✅ | **P11** Fornecedores e cotação | concluído, em produção |
+| ✅ | Pedidos, Clientes, Acesso | concluídos (fora do roadmap original) |
+| 🟡 | **P1** Custeio | cadastros e view prontos; falta o motor de cálculo |
+| 🟡 | **P12** Financeiro sobre extratos | Fase 0 (decisões) fechada |
+| 📐 | **P13** Cadastro único + agenda de pessoal | desenhado, não implementado |
+| ⬜ | P2, P3, P4, P5, P6, P7, P8, P9, P10 | não iniciados |
+
+## Ordem recomendada a partir daqui
+
+A ordem mudou por um motivo concreto: **o custo unitário depende da mão de obra, e a mão de
+obra só existe quando a agenda de pessoal estiver registrando horas.** P1 deixou de ser o
+primeiro da fila.
 
 ```
-P1 ──────────────────┐
-  ↓                  │
-P2 (usa species)     ├──→ P6 (Dashboard)
-  ↓                  │
-P3 (usa P1+P2)  ─────┘
-  ↓
-P4 (usa P1+P3) ──→ P5 (usa P3+P4)
-  
-P7 (usa P1+P3) ──→ P9 (usa P7) ──→ P10 (usa tudo)
-P8 (independente)
+1. P13 Fase 1  ─ schema cadastro + parties        ← compartilhada com P12; fazer uma vez só
+2. P13 Fases 2-4  ─ /cadastros, agenda, execução
+3. P13 Fase 5  ─ custo de mão de obra
+4. P1  T1.18-T1.20  ─ motor de cálculo de custo   ← agora tem todos os insumos do cálculo
+5. P12 Fases 1-6  ─ financeiro sobre extratos
+6. P3  ─ precificação                              ← só faz sentido com custo real
+7. P2  ─ perdas          |  8. P6 ─ dashboard (pelas fichas do G2)
 ```
 
-## Como Usar no Claude Code
+P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
+[`contexto-projeto.md`](contexto-projeto.md).
 
-### Iniciando uma Sessão de Desenvolvimento
+## Como conduzir uma sessão
 
-```bash
-# Entrar no diretório do projeto
-cd viveiro-mudar
+1. **Confirmar a branch.** `git branch --show-current`. Se estiver em `main`, parar e criar
+   `git checkout -b feat/nome-da-tarefa`. Nunca editar direto na main.
+2. **Ler o plan file da fase** e a rotina de domínio correspondente em `docs/rotinas/`.
+3. **Conferir a auditoria.** Vários planos foram escritos para Supabase — traduzir antes de
+   implementar. Ver [`auditoria-divergencias.md`](auditoria-divergencias.md).
+4. **Uma task por vez**, marcando `[x]` no plan file ao concluir. O plan file é o checkpoint
+   entre sessões.
+5. **Testes junto com o código.** Vitest em `__tests__/` ao lado do arquivo. Server Action que
+   depende do banco: mockar com `vi.mock`.
+6. **`npm test` antes de commitar** — o hook de pre-commit roda lint + testes e bloqueia se falhar.
+7. **Fechar com resumo**: o que foi feito, arquivos alterados, decisões técnicas e pendências.
 
-# Iniciar Claude Code
-claude
+## Comandos
 
-# Na primeira sessão de cada projeto, dizer:
-> Leia o arquivo CLAUDE.md e o plan file plans/P1-custeio-por-especie.md. 
-> Vamos implementar as tarefas da Fase 1. Crie os tasks para cada item.
-```
+| Comando | Para quê |
+|---|---|
+| `npm run dev` | sobe a aplicação |
+| `npm test` | roda os testes (obrigatório antes do commit) |
+| `npm run db:migrate` | aplica as migrations pendentes |
+| `npm run db:migrate:status` | mostra o que está pendente |
+| `npm run db:refresh-local` | espelha o Neon num Postgres local descartável |
+| `npm run db:seed-admin` | cria o usuário administrador |
+| `npm run docs:tcc` | regenera `docs/engenharia/word/` com os diagramas em PNG |
 
-### Fluxo Recomendado por Sessão
+## Bancos
 
-1. **Uma sessão = Uma fase de um projeto**
-   - Não misture projetos na mesma sessão
-   - Exemplo: "Sessão 1: P1 Fase 1 — Schema do Banco"
+**São dois, e o driver é escolhido pelo host da `DATABASE_URL`** — não pelo `NODE_ENV`:
 
-2. **Iniciar sessão com contexto**
-   ```
-   > Leia plans/P1-custeio-por-especie.md. Estamos na Fase 2.
-   > As tasks T1.1 a T1.9 já foram concluídas. Implemente T1.10 a T1.12.
-   ```
+| Ambiente | Banco | Driver |
+|---|---|---|
+| Desenvolvimento | Postgres local (`localhost:5432`) | `pg`, pool TCP |
+| Produção (Vercel) | Neon, `sa-east-1` | `@neondatabase/serverless` |
 
-3. **Marcar progresso no plan file**
-   - Após completar uma task, marcar `[x]` no plan file
-   - Isso serve como checkpoint entre sessões
+> **Neon é só o banco.** Não tem Edge Functions, Storage, Realtime nem RLS ligado a
+> autenticação — nada da plataforma Supabase, que o projeto chegou a considerar e abandonou.
+> Controle de acesso é checagem de perfil dentro da Server Action, conforme a
+> [Matriz RBAC (D4)](engenharia/D-arquitetura/D4-matriz-rbac.md).
 
-4. **Usar Plan Mode para decisões arquiteturais**
-   - Apertar Shift+Tab 2x antes de começar algo complexo
-   - Ex: antes de modelar o banco, entrar em plan mode
+Toda migration aplicada no local precisa ser aplicada também no Neon antes do deploy.
 
-### Ordem de Execução Recomendada
+## Trabalho de campo em paralelo
 
-#### Sprint 1 (Semanas 1-2): Fundação
-```
-Sessão 1: P1 Fase 1 — Criar todas as tabelas do schema
-Sessão 2: P2 Fase 1 — Criar tabelas de lotes e perdas
-Sessão 3: P1 Fase 3 — CRUDs administrativos (espécies, recipientes, insumos)
-Sessão 4: P1 Fase 2 — Formulário mobile de registro de insumos
-```
-
-#### Sprint 2 (Semanas 3-4): Dados Entrando
-```
-Sessão 5: P2 Fase 2 — Formulário de registro de lote
-Sessão 6: P2 Fase 3 — Formulário de contagem e perda
-Sessão 7: P1 Fase 4 — Motor de cálculo de custo
-Sessão 8: P2 Fase 4 — Alertas de mortalidade
-```
-
-#### Sprint 3 (Semanas 5-6): Precificação
-```
-Sessão 9:  P3 Fase 1 — Schema de precificação
-Sessão 10: P3 Fase 2 — Motor de precificação
-Sessão 11: P3 Fase 3 — Interface tabela de preços
-Sessão 12: P3 Fase 4 — Simulador de orçamento
-```
-
-#### Sprint 4 (Semanas 7-8): Dashboard
-```
-Sessão 13: P6 Fase 1 — Views de agregação
-Sessão 14: P6 Fase 2 — Interface do dashboard (KPIs + gráficos)
-Sessão 15: P6 Fase 3 — Projeção e alertas
-Sessão 16: P2 Fase 5 + P3 Fase 5 — Relatórios e integração
-```
-
-#### Sprint 5-6 (Mês 3): WhatsApp + Automação
-```
-Sessão 17: P4 Fase 1 — Infraestrutura WhatsApp (Evolution API)
-Sessão 18: P4 Fase 2 — Agente de IA
-Sessão 19: P4 Fase 3 — Fluxo de orçamento
-Sessão 20: P4 Fase 4 — Painel de atendimento
-Sessão 21: P5 Fase 1+2 — Schema e interface de pedidos
-Sessão 22: P5 Fase 3 — Workflows n8n
-```
-
-#### Sprint 7-8 (Mês 4): Catálogo + Site
-```
-Sessão 23: P7 Fase 1+2 — Catálogo público
-Sessão 24: P7 Fase 3 — Admin do catálogo
-Sessão 25: P8 Tasks dev — Identidade visual + templates
-Sessão 26: P9 Fase 1+2 — Páginas do site
-Sessão 27: P9 Fase 3+4 — SEO + componentes
-```
-
-#### Sprint 9+ (Mês 6+): E-commerce
-```
-Sessão 28+: P10 — Somente após validar logística com 5-10 pedidos manuais
-```
-
-### Dicas para Sessões Produtivas
-
-- **Antes de codar**: sempre entrar em Plan Mode e pedir para ler o plan file
-- **Contexto é rei**: começar a sessão dizendo exatamente onde parou
-- **Uma task por vez**: não pedir para implementar fase inteira de uma vez
-- **Testar durante**: pedir para rodar/testar cada task antes de avançar
-- **Commitar frequente**: um commit por task completada
-- **Compactar quando necessário**: `/compact Foco no P1 Fase 2, tasks T1.10-T1.12`
-
-### Paralelismo: O Que a Equipe Faz Enquanto Você Coda
-
-Enquanto você executa as sessões acima, a equipe de campo executa as tarefas marcadas em cada plan file na seção "Dados que a Equipe de Campo Precisa Levantar". Essas tarefas NÃO dependem de código.
-
-```
-VOCÊ (dev)                    EQUIPE (campo)
-─────────────                 ──────────────
-Sprint 1: Schema + CRUDs  ←→  P1: Levantar espécies, custos, insumos
-Sprint 2: Formulários      ←→  P2: Montar plaquinhas, contar lotes
-Sprint 3: Precificação     ←→  P3: Registrar preços, pesquisar concorrentes
-Sprint 4: Dashboard         ←→  P8: Criar Instagram, começar a postar
-Sprint 5: WhatsApp          ←→  P4: Mapear perguntas, contratar API
-Sprint 7: Site              ←→  P9: Textos, fotos, domínio, depoimentos
-```
+Parte de cada plano não depende de código — é levantamento que a equipe faz no viveiro, na
+seção "Dados que a Equipe de Campo Precisa Levantar" de cada plan file. O levantamento de
+custos do P1 é o mais crítico de todos: é a dependência-raiz do indicador IND-02 e, por
+tabela, de toda a análise de margem
+([`E3`, risco R-01](engenharia/E-qualidade/E3-analise-de-riscos.md)).
