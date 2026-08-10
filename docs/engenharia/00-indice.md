@@ -27,25 +27,25 @@ São documentos de projeto, não relatórios de código.
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 65 RF, 26 RNF |
+| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 68 RF, 26 RNF |
 | [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.9 + Apêndice | ⏳ pendente |
 
 ### C — Modelagem UML e de dados
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.3 Modelagem do sistema | ⏳ pendente |
-| [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.3 + Apêndice | ⏳ pendente |
-| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ⏳ pendente |
-| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ⏳ pendente |
+| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.3 Modelagem do sistema | ✅ escrito — 40 casos de uso |
+| [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.3 + Apêndice | ✅ escrito — 8 casos detalhados |
+| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ✅ escrito — 34 entidades em 5 áreas |
+| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ✅ escrito — 34 entidades |
 
 ### D — Arquitetura e decisões técnicas
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [D1](D-arquitetura/D1-arquitetura-c4.md) | Documento de arquitetura (C4) | 4.5 Arquitetura da solução | ⏳ pendente |
-| [D3](D-arquitetura/D3-diagrama-implantacao.md) | Diagrama de implantação | 4.5 Arquitetura da solução | ⏳ pendente |
-| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.6 Segurança e controle de acesso | ⏳ pendente |
+| [D1](D-arquitetura/D1-arquitetura-c4.md) | Documento de arquitetura (C4) | 4.5 Arquitetura da solução | ✅ escrito — 3 níveis C4 |
+| [D3](D-arquitetura/D3-diagrama-implantacao.md) | Diagrama de implantação | 4.5 Arquitetura da solução | ✅ escrito |
+| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.6 Segurança e controle de acesso | ✅ escrito — 28 recursos |
 
 ### E — Qualidade, riscos e segurança
 

@@ -131,6 +131,9 @@ Os termos empregados são os do [glossário](../A-fundacao/A2-glossario-dominio.
 | **RF-47** | O sistema deve permitir ao colaborador registrar a separação física item a item | Colaborador | D | OP | Separação concluída marca a carga como separada |
 | **RF-48** | O sistema deve manter o histórico das mudanças de estado do pedido, com autor e momento | — | DV | ORG | Consulta exibe a sequência de estados percorrida |
 | **RF-49** | O sistema deve notificar o responsável pela etapa seguinte a cada transição relevante do pedido | Todos | DV | OP | Transição gera notificação ao perfil responsável |
+| **RF-66** | O sistema deve permitir registrar **item genérico** — quantidade e recipiente sem espécie definida —, atendido posteriormente por uma ou mais espécies | Chefia | D | OP | Pedido de "500 mudas nativas" é registrado sem exigir a escolha das espécies |
+| **RF-67** | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida | Chefia | D | OP, EN | Item genérico com lista definida não admite espécie fora dela |
+| **RF-68** | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual | Gerência | DV | OP | Item verificado registra a quantidade disponível e o recipiente efetivamente ofertado |
 
 ### 2.9 Entregas
 
@@ -233,11 +236,11 @@ Impostos por fatores legais, regulatórios ou pelo ambiente em que o sistema ope
 
 | Prioridade | Funcionais | Não funcionais | Total |
 |---:|---:|---:|---:|
-| **D** — Deve ter | 49 | 26 | 75 |
-| **DV** — Deveria ter | 14 | — | 14 |
+| **D** — Deve ter | 51 | 26 | 77 |
+| **DV** — Deveria ter | 15 | — | 15 |
 | **P** — Poderia ter | 2 | — | 2 |
 | **N** — Não agora | — | — | — |
-| **Total** | **65** | **26** | **91** |
+| **Total** | **68** | **26** | **94** |
 
 Nenhum requisito não funcional foi classificado abaixo de *deve ter*: todos decorrem de restrição do
 ambiente, de política do projeto ou de exigência legal — nenhum é preferência negociável.

@@ -1,0 +1,601 @@
+# C8 — Dicionário de dados
+
+> **Artefato:** Dicionário de dados · **Bloco:** C — Modelagem
+> **Destino no TCC:** Capítulo 4, seção 4.4 (amostra de duas ou três entidades) e Apêndice (integral)
+> **Fundamentação:** Elmasri e Navathe (2011) situam a definição dos tipos de dados, estruturas e
+> restrições como primeiro passo da criação de um banco de dados. Este documento é o registro dessa
+> definição, entidade por entidade.
+
+---
+
+## Como ler
+
+Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-relacionamento.md).
+
+| Coluna do dicionário | Significado |
+|---|---|
+| **Atributo** | Nome do campo no banco (inglês, conforme RNF-15) |
+| **Tipo** | Tipo de dado e precisão |
+| **Ob.** | ● obrigatório · ○ opcional |
+| **Chave** | PK primária · FK estrangeira · UK única |
+| **Descrição** | Significado em português, no vocabulário do [glossário](../A-fundacao/A2-glossario-dominio.md) |
+
+**Convenções gerais**, aplicadas a todas as entidades e não repetidas em cada tabela:
+
+- `id` — identificador universal, chave primária, gerado pelo próprio banco. A escolha por
+  identificador universal em vez de sequencial permite gerar a chave no dispositivo antes da
+  gravação, requisito do funcionamento sem conexão (RNF-05).
+- `created_at` — momento da criação, preenchido automaticamente.
+- `updated_at` — momento da última alteração, mantido automaticamente pelo banco.
+- `active` — indicador de arquivamento. Registro inativo desaparece das listagens sem ser removido,
+  preservando a integridade das referências históricas.
+
+---
+
+# Área 1 — Acesso
+
+## `users` — usuário do sistema
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `username` | text | ● | UK | Identificador de acesso, único |
+| `display_name` | text | ● | | Nome exibido na interface |
+| `password_hash` | text | ● | | Resumo criptográfico da senha. **A senha em si nunca é armazenada** (RNF-09) |
+| `role` | enum | ● | | Perfil de acesso: `admin`, `chefia`, `gerencia`, `funcionario` |
+| `must_change_password` | boolean | ● | | Obriga a definir senha própria no próximo acesso (RF-02) |
+| `active` | boolean | ● | | Usuário habilitado |
+| `failed_login_attempts` | integer | ● | | Tentativas malsucedidas consecutivas |
+| `locked_until` | timestamptz | ○ | | Bloqueio temporário após tentativas sucessivas |
+
+## `sessions` — sessão ativa
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `user_id` | uuid | ● | FK → `users` | Usuário da sessão |
+| `token_hash` | text | ● | UK | Resumo do identificador de sessão. O valor original só existe no dispositivo (RNF-10) |
+| `expires_at` | timestamptz | ● | | Expiração |
+| `last_seen_at` | timestamptz | ● | | Último uso, para ordenar a lista de sessões |
+| `ip` | text | ○ | | Endereço de origem, para identificar o aparelho |
+| `user_agent` | text | ○ | | Descrição do dispositivo e navegador |
+
+## `login_events` — auditoria de acesso
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `user_id` | uuid | ○ | FK → `users` | Usuário, quando o identificador informado existe |
+| `username_attempted` | text | ● | | Identificador tentado. **Texto e não referência**, porque a tentativa contra usuário inexistente também precisa ser registrada |
+| `success` | boolean | ● | | Resultado da tentativa |
+| `ip` | text | ○ | | Endereço de origem |
+| `user_agent` | text | ○ | | Dispositivo e navegador |
+
+## `notifications` — notificação interna
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `user_id` | uuid | ● | FK → `users` | Destinatário |
+| `type` | varchar(30) | ● | | Natureza do evento notificado |
+| `title` | varchar(255) | ● | | Título |
+| `message` | text | ○ | | Corpo |
+| `link` | varchar(255) | ○ | | Destino ao acionar a notificação |
+| `read` | boolean | ● | | Marcada como lida |
+
+---
+
+# Área 2 — Núcleo e custeio
+
+## `species` — espécie *(entidade central)*
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `common_name` | text | ● | | Nome popular principal |
+| `scientific_name` | text | ○ | | Nome científico binomial, exigido em projetos de compensação ambiental (RNF-25) |
+| `tags` | text[] | ● | | Características da espécie: nativa, exótica, frutífera, ornamental, madeireira, forrageira. **Múltiplas por espécie** |
+| `germination_time_days` | integer | ○ | | Dias da semeadura à emergência |
+| `growth_time_months` | integer | ○ | | Meses da plântula à muda pronta. Base da previsão de disponibilidade |
+| `notes` | text | ○ | | Observações de manejo |
+| `photo_url` | text | ○ | | Caminho da fotografia |
+| `active` | boolean | ● | | Espécie em catálogo |
+
+## `species_popular_names` — nome popular adicional
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `species_id` | uuid | ● | FK → `species` | Espécie designada |
+| `name` | text | ● | | Nome tal como escrito |
+| `name_normalized` | text | ● | UK | Forma normalizada — sem acentos, minúscula, espaços colapsados. A unicidade garante que **um nome popular aponta para uma única espécie** |
+
+## `containers` — recipiente
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | UK | Designação: tubete, 10x18, 17x22, 20x26, 28x32, balde |
+| `volume_liters` | numeric(6,3) | ○ | | Volume do recipiente |
+| `substrate_per_unit_liters` | numeric(6,3) | ○ | | Substrato consumido por unidade. Entrada direta do custeio |
+| `unit_cost` | numeric(10,2) | ○ | | Custo do recipiente vazio |
+| `active` | boolean | ● | | Em uso |
+
+## `inputs` — insumo
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Designação comercial |
+| `category` | enum | ● | | `substrato`, `adubo`, `defensivo`, `recipiente`, `outros` |
+| `unit_of_measure` | text | ● | | Unidade de medida: kg, L, saco, unidade |
+| `cost_per_unit` | numeric(10,2) | ○ | | Custo unitário vigente |
+| `quantity_purchased` | numeric(10,2) | ○ | | Quantidade da última compra |
+| `supplier` | text | ○ | | Fornecedor do insumo, em texto livre |
+| `last_purchase_date` | date | ○ | | Data da última compra |
+| `active` | boolean | ● | | Em uso |
+
+## `input_price_history` — histórico de preço de insumo
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `input_id` | uuid | ● | FK → `inputs` | Insumo |
+| `cost_per_unit` | numeric(10,2) | ● | | Custo vigente à época |
+| `changed_at` | timestamptz | ● | | Momento da alteração |
+| `notes` | text | ○ | | Motivo |
+
+> Existe para impedir que a atualização de preço reescreva retroativamente o custo já apurado —
+> anomalia de atualização que a normalização busca evitar.
+
+## `input_usages` — consumo de insumo
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `input_id` | uuid | ● | FK → `inputs` | Insumo aplicado |
+| `species_id` | uuid | ● | FK → `species` | Espécie que o recebeu |
+| `container_id` | uuid | ● | FK → `containers` | Recipiente em que foi aplicado |
+| `quantity` | numeric(10,3) | ● | | Quantidade consumida. Restrição: maior que zero |
+| `usage_date` | date | ● | | Data do consumo |
+| `notes` | text | ○ | | Observação |
+
+> Alimentado pelo formulário de campo do colaborador (RF-14). É a entidade de maior volume de
+> escrita do sistema e a que mais depende do funcionamento sem conexão.
+
+## `fixed_costs` — custo fixo mensal
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `category` | enum | ● | | `salarios`, `energia`, `agua`, `manutencao`, `combustivel`, `depreciacao`, `outros` |
+| `monthly_amount` | numeric(12,2) | ● | | Valor do mês |
+| `reference_month` | date | ● | | Mês de referência, sempre o primeiro dia |
+| `notes` | text | ○ | | Observação |
+
+## `seed_collection_costs` — custo de coleta de sementes
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `species_id` | uuid | ● | FK → `species` | Espécie coletada |
+| `collection_region` | text | ○ | | Região da coleta |
+| `distance_km` | numeric(8,2) | ○ | | Distância percorrida |
+| `fuel_cost` | numeric(10,2) | ○ | | Combustível |
+| `labor_hours` | numeric(8,2) | ○ | | Horas empregadas |
+| `labor_cost_per_hour` | numeric(10,2) | ○ | | Custo da hora |
+| `total_cost` | numeric(12,2) | ● | | Custo total da coleta |
+| `seeds_collected_qty` | integer | ○ | | Sementes obtidas |
+| `cost_per_seed` | numeric(10,4) | ○ | | **Derivado** — custo total dividido pelas sementes obtidas. Mantido pelo banco |
+| `collection_date` | date | ● | | Data da coleta |
+
+## `production_costs` — custo variável por espécie e recipiente
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `species_id` | uuid | ● | FK → `species` | Espécie |
+| `container_id` | uuid | ● | FK → `containers` | Recipiente |
+| `substrate_cost` | numeric(10,2) | ● | | Custo do substrato |
+| `seed_cost` | numeric(10,2) | ● | | Custo da semente |
+| `input_costs_json` | jsonb | ● | | Demais insumos aplicados, com quantidade e custo por insumo |
+| `labor_minutes` | numeric(8,2) | ● | | Minutos de mão de obra |
+| `labor_cost` | numeric(10,2) | ● | | Custo da mão de obra |
+| `total_variable_cost` | numeric(12,2) | ● | | **Derivado** — soma de substrato, semente e mão de obra |
+| `calculated_at` | timestamptz | ● | | Momento do último cálculo |
+
+**Restrição de unicidade:** uma única linha por combinação de espécie e recipiente.
+
+## `species_unit_cost` — visão de custo unitário *(não é tabela)*
+
+Visão que compõe o custo variável apurado com o rateio do custo fixo mensal, entregando o **custo
+unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17). Não armazena dados:
+é derivação sobre `production_costs`, `species`, `containers` e `fixed_costs`.
+
+| Atributo exposto | Origem |
+|---|---|
+| `species_id`, `common_name`, `scientific_name` | `species` |
+| `container_id`, `container_name` | `containers` |
+| `substrate_cost`, `seed_cost`, `labor_cost`, `total_variable_cost` | `production_costs` |
+| `total_fixed_cost_month` | soma de `fixed_costs` do mês corrente |
+| `fixed_cost_allocated` | rateio do custo fixo sobre as combinações ativas |
+| `unit_cost_estimated` | custo variável somado ao rateio |
+
+---
+
+# Área 3 — Comercial
+
+## `customers` — cliente
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | varchar(255) | ● | | Nome de tratamento. **Único campo exigido no cadastro rápido**, junto ao telefone |
+| `phone` | varchar(20) | ○ | | Telefone, canal principal de contato |
+| `person_type` | varchar(2) | ○ | | `pf` ou `pj`. Nulo indica cadastro simples ainda não completado |
+| `document` | varchar(14) | ○ | UK parcial | CPF ou CNPJ, apenas dígitos. Único **quando informado** |
+| `email` | varchar(255) | ○ | | Correio eletrônico |
+| `legal_name` | varchar(255) | ○ | | Razão social, quando pessoa jurídica |
+| `trade_name` | varchar(255) | ○ | | Nome fantasia |
+| `state_registration` | varchar(20) | ○ | | Inscrição estadual |
+| `ie_exempt` | boolean | ○ | | Isento de inscrição estadual |
+| `zip_code` | varchar(8) | ○ | | Código postal |
+| `street` | varchar(255) | ○ | | Logradouro |
+| `address_number` | varchar(20) | ○ | | Número |
+| `complement` | varchar(255) | ○ | | Complemento |
+| `neighborhood` | varchar(100) | ○ | | Bairro |
+| `city` | varchar(100) | ○ | | Município |
+| `state` | varchar(2) | ○ | | Unidade federativa |
+| `notes` | text | ○ | | Observações |
+| `active` | boolean | ○ | | Cliente ativo |
+
+> **Todos os campos fiscais são opcionais.** É decisão de projeto, não omissão: exigi-los no cadastro
+> rápido interromperia o registro do pedido durante a negociação. A complementação ocorre no
+> fechamento, e apenas quando há nota fiscal a emitir (RF-40).
+
+## `orders` — pedido
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `order_number` | serial | ● | | Número sequencial legível, usado na comunicação com o cliente |
+| `customer_id` | uuid | ● | FK → `customers` | Cliente |
+| `sale_channel` | varchar(50) | ● | | Canal de venda. Determina a margem aplicada |
+| `status` | varchar(30) | ● | | Estado no ciclo. Lista fechada — ver abaixo |
+| `needs_invoice` | boolean | ● | | Exige nota fiscal. Definido no fechamento |
+| `delivery_date` | date | ○ | | Data prevista de entrega |
+| `notes` | text | ○ | | Observações |
+| `created_by` | uuid | ● | FK → `users` | Autor do registro |
+
+**Estados admitidos:** `cadastrado`, `verificando_disponibilidade`, `verificado`,
+`pendente_alteracao`, `aprovado`, `separando`, `pronto_envio`, `cancelado`.
+
+## `order_items` — item de pedido
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `order_id` | uuid | ● | FK → `orders` | Pedido |
+| `species_id` | uuid | ○ | FK → `species` | Espécie. **Nulo em item genérico** |
+| `container_id` | uuid | ● | FK → `containers` | Recipiente solicitado |
+| `quantity` | integer | ● | | Quantidade pedida. Restrição: maior que zero |
+| `is_generic` | boolean | ● | | Item sem espécie definida |
+| `parent_item_id` | uuid | ○ | FK → `order_items` | Item genérico que este especializa |
+| `specification` | text | ○ | | Exigência de qualidade do cliente. Único texto livre do fluxo de pedido |
+| `is_available` | boolean | ○ | | Resultado da verificação. **Nulo significa não verificado** |
+| `available_quantity` | integer | ○ | | Quantidade efetivamente disponível, quando parcial |
+| `available_container_id` | uuid | ○ | FK → `containers` | Recipiente realmente disponível, quando difere do solicitado |
+
+**Restrições de integridade:**
+
+- Item genérico não pode ter espécie.
+- Item específico precisa ter espécie, salvo quando é filho de um genérico.
+
+**Os quatro estados de disponibilidade**, e como se distinguem:
+
+| Estado | `is_available` | `available_quantity` | `available_container_id` |
+|---|:--:|:--:|:--:|
+| Não verificado | nulo | nulo | nulo |
+| Disponível | verdadeiro | nulo | nulo |
+| Parcial | falso | 1 até a quantidade pedida | recipiente real |
+| Indisponível | falso | 0 | nulo |
+
+## `order_item_allowed_species` — espécies aceitas em item genérico
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `order_item_id` | uuid | ● | PK, FK → `order_items` | Item genérico |
+| `species_id` | uuid | ● | PK, FK → `species` | Espécie aceita pelo cliente |
+
+> Tabela associativa de chave composta. **Ausência de linhas significa aberto** — qualquer espécie
+> atende o item.
+
+## `order_loads` — carga
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `order_id` | uuid | ● | FK → `orders` | Pedido |
+| `load_number` | integer | ● | | Número da carga dentro do pedido |
+| `status` | varchar(20) | ● | | `pendente`, `separando`, `pronto` |
+| `notes` | text | ○ | | Observações |
+
+**Restrição de unicidade:** número de carga único dentro do pedido.
+
+## `order_load_items` — item de carga
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `load_id` | uuid | ● | FK → `order_loads` | Carga |
+| `order_item_id` | uuid | ● | FK → `order_items` | Item do pedido |
+| `quantity` | integer | ● | | Quantidade nesta carga. Permite dividir um item entre viagens |
+| `is_separated` | boolean | ● | | Separação física concluída |
+
+## `order_status_history` — histórico de estados
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `order_id` | uuid | ● | FK → `orders` | Pedido |
+| `from_status` | varchar(30) | ○ | | Estado anterior. Nulo no primeiro registro |
+| `to_status` | varchar(30) | ● | | Estado novo |
+| `changed_by` | uuid | ● | FK → `users` | Autor da transição |
+| `notes` | text | ○ | | Justificativa |
+
+---
+
+# Área 4 — Fornecedores
+
+## `suppliers` — fornecedor
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Nome do viveiro ou produtor |
+| `contact_name` | text | ○ | | Pessoa de contato |
+| `whatsapp` | varchar(20) | ○ | | Número de mensageria, apenas dígitos |
+| `phone` | varchar(20) | ○ | | Telefone secundário |
+| `email` | text | ○ | | Correio eletrônico |
+| `instagram` | text | ○ | | Perfil em rede social |
+| `city` | text | ○ | | Município |
+| `state` | varchar(2) | ○ | | Unidade federativa. **Sem valor padrão** — fornecedor é de qualquer estado |
+| `reliability_score` | smallint | ○ | | Grau de confiabilidade, de 0 a 5 |
+| `status` | varchar(20) | ● | | `lead`, `active`, `inactive`, `do_not_contact` |
+| `last_contacted_at` | timestamptz | ○ | | Último contato |
+| `lat` | numeric(9,6) | ○ | | Latitude, obtida por geocodificação sob demanda |
+| `lng` | numeric(9,6) | ○ | | Longitude |
+| `geocoded_at` | timestamptz | ○ | | Momento da tentativa de geocodificação. Preenchido com coordenadas nulas significa **não localizado**, e evita nova tentativa automática |
+| `active` | boolean | ● | | Registro arquivado por exclusão lógica |
+| `notes` | text | ○ | | Observações |
+
+> **`active` e `status` são informações distintas**, não redundância acidental: `active` falso é
+> arquivamento do registro; `status` inativo é fornecedor que parou de vender, mas cujo histórico
+> interessa. `do_not_contact` registra **oposição do titular** ao contato comercial e o exclui de
+> qualquer cotação — ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
+
+## `supplier_species` — oferta do fornecedor
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `supplier_id` | uuid | ● | FK → `suppliers` | Fornecedor |
+| `species_id` | uuid | ● | FK → `species` | Espécie ofertada, do catálogo canônico |
+| `size` | text | ○ | | Porte ofertado, em texto livre |
+| `container` | text | ○ | | Embalagem do fornecedor, em **texto livre** — raiz nua, lata, saco de um metro |
+| `unit_price` | numeric(10,2) | ○ | | Preço unitário informado |
+| `min_quantity` | integer | ○ | | Quantidade mínima de compra |
+| `availability` | varchar(15) | ● | | `in_stock`, `on_order`, `unknown` |
+| `source` | varchar(15) | ● | | Origem do dado: `manual`, `paste`, `quote` |
+
+> **Sem restrição de unicidade por fornecedor e espécie:** o mesmo fornecedor oferece a espécie em
+> portes e preços diferentes, e cada combinação é uma oferta distinta.
+
+## `supplier_quotes` — cotação
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `request_group_id` | uuid | ● | | Agrupa as cotações de uma mesma consulta a vários fornecedores |
+| `supplier_id` | uuid | ● | FK → `suppliers` | Fornecedor consultado |
+| `order_id` | uuid | ○ | FK → `orders` | Pedido de cliente que a originou. Nulo em cotação avulsa |
+| `channel` | varchar(15) | ● | | `whatsapp`, `email`, `instagram`, `manual` |
+| `message_text` | text | ● | | Mensagem exatamente como enviada. Auditoria do contato |
+| `status` | varchar(15) | ● | | `queued`, `sent`, `responded`, `no_reply`, `cancelled` |
+| `sent_at` | timestamptz | ○ | | Momento do envio |
+| `responded_at` | timestamptz | ○ | | Momento da resposta |
+| `raw_response` | text | ○ | | Resposta recebida, como transcrita |
+| `created_by` | uuid | ● | FK → `users` | Autor da cotação |
+
+## `supplier_quote_items` — item de cotação
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `quote_id` | uuid | ● | FK → `supplier_quotes` | Cotação |
+| `species_id` | uuid | ● | FK → `species` | Espécie cotada |
+| `order_item_id` | uuid | ○ | FK → `order_items` | Item do pedido que originou a cotação |
+| `quantity` | integer | ● | | Quantidade solicitada |
+| `size` | text | ○ | | Porte desejado |
+| `quoted_unit_price` | numeric(10,2) | ○ | | Preço unitário informado pelo fornecedor |
+| `is_chosen` | boolean | ● | | Proposta vencedora para a espécie, dentro da consulta |
+| `sale_unit_price` | numeric(10,2) | ○ | | Preço de revenda ao cliente, validado contra o piso mínimo |
+| `response_notes` | text | ○ | | Observações da resposta |
+
+---
+
+# Área 5 — Financeiro
+
+Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, §3.5](C6-modelo-entidade-relacionamento.md)).
+
+## `accounts` — conta
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `code` | text | ● | UK | Código curto da conta |
+| `name` | text | ● | | Designação |
+| `holder` | text | ● | | Titular |
+| `kind` | text | ● | | `corrente`, `pagamento`, `caixa` |
+| `opening_balance` | numeric(14,2) | ● | | Saldo no marco zero |
+| `opening_balance_date` | date | ● | | Data do saldo inicial |
+
+> Inclui uma conta de **dinheiro em espécie**, para que a regra "nenhum lançamento sem conta" não
+> empurre o gasto em dinheiro para fora do sistema.
+
+## `cost_centers` — centro de custo
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `code` | text | ● | UK | Código |
+| `name` | text | ● | | Designação |
+| `nature` | text | ● | | `negocio` ou `pessoal` |
+| `active` | boolean | ● | | Oferecido em novos lançamentos |
+
+> **É o centro de custo que separa negócio de pessoal.** Não há campo de natureza no lançamento —
+> a natureza deriva do centro. Foi a natureza digitada linha a linha que produziu, na planilha
+> anterior, classificação errada nos dois sentidos.
+
+## `category_groups` e `categories` — classificação
+
+| `category_groups` | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Nome do grupo |
+
+| `categories` | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `group_id` | uuid | ● | FK → `category_groups` | Grupo |
+| `name` | text | ● | | Nome da categoria |
+| `direction` | text | ● | | `saida`, `entrada` ou `ambos`. Restringe o que a lista oferece conforme o sinal do valor |
+
+## `parties` — contraparte
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Nome da pessoa ou empresa |
+| `document` | text | ○ | | CPF ou CNPJ |
+| `kind` | text | ● | | Natureza do vínculo: cliente, fornecedor, funcionário, outro |
+
+> Cadastro único: uma identidade por pessoa ou empresa, ainda que ela seja simultaneamente cliente e
+> fornecedor.
+
+## `statement_imports` — importação de extrato
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `account_id` | uuid | ● | FK → `accounts` | Conta do extrato |
+| `source_format` | text | ● | | Formato do arquivo |
+| `file_name` | text | ● | | Nome do arquivo |
+| `file_hash` | text | ● | | Resumo do conteúdo, para detectar reimportação |
+| `period_start` / `period_end` | date | ● | | Intervalo coberto |
+| `rows_total` | integer | ● | | Linhas lidas |
+| `rows_new` | integer | ● | | Linhas inéditas |
+| `rows_duplicated` | integer | ● | | Linhas já existentes, descartadas |
+| `imported_by` | uuid | ● | FK → `users` | Autor da importação |
+
+## `transactions` — lançamento *(entidade central do financeiro)*
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `account_id` | uuid | ● | FK → `accounts` | Conta. **Nada existe sem conta** |
+| `import_id` | uuid | ○ | FK → `statement_imports` | Lote de importação. Nulo se lançado manualmente |
+| `posted_at` | date | ● | | Quando o banco moveu. **Nunca editado** |
+| `competence_date` | date | ● | | Mês a que o gasto pertence. Assume a data de movimentação por padrão |
+| `amount` | numeric(14,2) | ● | | Valor. **Negativo é saída, positivo é entrada** |
+| `description_raw` | text | ● | | Descrição do banco. **Nunca editada — é a prova** |
+| `fitid` | text | ○ | | Identificador do movimento no arquivo do banco |
+| `dedupe_key` | text | ● | | Chave de deduplicação, quando o formato não traz identificador |
+| `balance_after` | numeric(14,2) | ○ | | Saldo após o movimento, quando informado |
+| `kind` | text | ● | | `despesa`, `receita`, `transferencia`, `aporte`, `retirada`, `estorno` |
+| `installment_number` | smallint | ○ | | Número da parcela |
+| `installment_total` | smallint | ○ | | Total de parcelas |
+| `installment_total_amount` | numeric(14,2) | ○ | | Valor cheio da compra parcelada |
+| `category_id` | uuid | ○ | FK → `categories` | Categoria |
+| `cost_center_id` | uuid | ○ | FK → `cost_centers` | Centro de custo. Nulo quando há rateio |
+| `party_id` | uuid | ○ | FK → `parties` | Contraparte |
+| `transfer_pair_id` | uuid | ○ | FK → `transactions` | Perna oposta da transferência entre contas próprias |
+| `order_id` | uuid | ○ | FK → `orders` | Pedido conciliado, quando entrada |
+| `supplier_quote_id` | uuid | ○ | FK → `supplier_quotes` | Cotação conciliada, quando saída |
+| `status` | text | ● | | `a-classificar`, `classificado`, `conciliado`, `ignorado` |
+| `classified_by` | uuid | ○ | FK → `users` | Autor da classificação |
+| `classified_at` | timestamptz | ○ | | Momento da classificação |
+
+**Restrições de unicidade** — o que torna a reimportação segura: identificador do movimento único por
+conta, quando existir; chave de deduplicação única por conta, sempre. Reimportar o mesmo arquivo não
+cria nada.
+
+**Por que o sinal no valor em vez de uma coluna de direção:** é como o extrato entrega, e faz a soma
+dos valores do período ser o saldo diretamente.
+
+## `transaction_splits` — rateio
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `transaction_id` | uuid | ● | FK → `transactions` | Lançamento rateado |
+| `cost_center_id` | uuid | ● | FK → `cost_centers` | Centro que recebe a parte |
+| `category_id` | uuid | ○ | FK → `categories` | Categoria da parte. Nulo herda a do lançamento |
+| `amount` | numeric(14,2) | ● | | Valor da parte |
+
+**Invariante:** havendo rateio, a soma das partes iguala o valor do lançamento. Validada na camada de
+aplicação, onde a mensagem de erro é legível e o comportamento é verificável por teste automatizado.
+
+## `classification_rules` — regra de classificação
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `pattern` | text | ● | | Trecho ou expressão a reconhecer na descrição |
+| `match_type` | text | ● | | `contains` ou `regex` |
+| `account_id` | uuid | ○ | FK → `accounts` | Restringe a regra a uma conta |
+| `category_id` | uuid | ○ | FK → `categories` | Categoria a aplicar |
+| `cost_center_id` | uuid | ○ | FK → `cost_centers` | Centro a aplicar |
+| `party_id` | uuid | ○ | FK → `parties` | Contraparte a aplicar |
+| `priority` | integer | ● | | Ordem de avaliação |
+| `hits` | integer | ● | | Quantas vezes já se aplicou |
+| `active` | boolean | ● | | Regra em uso |
+
+> É a entidade que faz a fila de pendências **encolher** a cada mês, em vez de crescer: cada
+> classificação manual vira regra para as próximas.
+
+## `periods` — fechamento mensal
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `account_id` | uuid | ● | FK → `accounts` | Conta |
+| `year` / `month` | integer | ● | | Período |
+| `status` | text | ● | | `aberto` ou `fechado` |
+| `closing_balance` | numeric(14,2) | ○ | | Saldo conferido no fechamento |
+| `closed_by` | uuid | ○ | FK → `users` | Autor do fechamento |
+| `closed_at` | timestamptz | ○ | | Momento do fechamento |
+
+> Mês fechado não aceita alteração, e **só mês fechado vira indicador** (RF-61). Período incompleto
+> exibe travessão, não número — comparar um mês parcial com um mês cheio inventa variação.
+
+---
+
+## Entidade projetada e ainda não modelada
+
+**`sale_prices`** — preço de venda por espécie, recipiente e canal, com margem aplicada, piso mínimo
+e vigência. Necessária para os requisitos RF-31 a RF-35, sem correspondência no modelo atual. Ver a
+lacuna registrada em [`C6`, §5](C6-modelo-entidade-relacionamento.md).
+
+---
+
+## Resumo
+
+| Área | Entidades | Observação |
+|---|---:|---|
+| Acesso | 4 | |
+| Núcleo e custeio | 9 | mais 1 visão derivada |
+| Comercial | 7 | |
+| Fornecedores | 4 | |
+| Financeiro | 10 | esquema separado |
+| **Total** | **34** | mais 1 entidade projetada (`sale_prices`) |
