@@ -1,0 +1,70 @@
+flowchart TB
+  subgraph CAD["🗂️ &nbsp;&nbsp; 1 · CADASTROS &nbsp;—&nbsp; não consome nada, alimenta tudo"]
+    direction LR
+    PES["<b>Pessoas</b><br/>cliente · fornecedor · funcionário"]
+    ESP["<b>Espécies · Recipientes · Insumos</b>"]
+    TIP["<b>Tipos de tarefa</b>"]
+  end
+
+  subgraph PRO["🌱 &nbsp;&nbsp; 2 · PRODUÇÃO"]
+    direction LR
+    AGE["<b>Agenda de pessoal</b><br/>semana × pessoa"]
+    REG["<b>Registro de atividade</b><br/>o que foi feito"]
+    LOT["<b>Lotes</b><br/>semeado → pronto"]
+    PER["<b>Perdas</b>"]
+    AGE --> REG
+    REG --> LOT
+    REG --> PER
+  end
+
+  subgraph GER["3 · O QUE A PRODUÇÃO GERA"]
+    direction LR
+    EST["📦 <b>Estoque</b><br/><i>derivado: produção − perdas − vendas</i>"]
+    CUS["💰 <b>Custeio</b><br/>insumo + mão de obra + fixo"]
+    PRE["🏷️ <b>Precificação</b><br/>custo + margem por canal"]
+    CUS --> PRE
+  end
+
+  subgraph COM["🤝 &nbsp;&nbsp; 4 · COMERCIAL"]
+    direction LR
+    COT["<b>Cotação /<br/>Fornecedores</b>"]
+    PED["<b>Pedidos</b>"]
+    ENT["<b>Entregas</b>"]
+    PED -.->|falta muda| COT
+    PED --> ENT
+  end
+
+  FIN["🏦 &nbsp; <b>5 · FINANCEIRO</b> &nbsp;— extrato bancário = verdade"]
+  IND["📊 &nbsp; <b>6 · INDICADORES</b>"]
+
+  CAD ==> PRO
+
+  LOT --> EST
+  PER --> EST
+  AGE ==>|horas × valor-hora médio| CUS
+  ESP --> CUS
+
+  EST --> PED
+  PRE -->|"preço"| PED
+  PES --> PED
+
+  PED -->|"vendas e compras"| FIN
+  COT --> FIN
+  ENT --> FIN
+  PES --> FIN
+
+  FIN --> IND
+  EST --> IND
+  PRE --> IND
+
+  classDef ok fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111
+  classDef meio fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#111
+  classDef falta fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#111
+  classDef grupo fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#334155
+
+  class PES,ESP,COT,PED ok
+  class CUS,FIN meio
+  class TIP,AGE,REG,LOT,PER,EST,PRE,ENT,IND falta
+  class CAD,PRO,GER,COM grupo
+
+  linkStyle 3,9,12,14 stroke:#d97706,stroke-width:3px

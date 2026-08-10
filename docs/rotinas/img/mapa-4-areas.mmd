@@ -1,0 +1,19 @@
+flowchart LR
+  C["🗂️ Cadastros<br/><small>espécies, pessoas, tarefas</small>"]
+  P["🤝 Pedidos<br/><small>pedidos, clientes, cotação</small>"]
+  R["🌱 Produção<br/><small>agenda, atividades, estoque, perdas</small>"]
+  F["🏦 Financeiro<br/><small>extratos, custeio, preço</small>"]
+
+  C --> P
+  C --> R
+  C --> F
+  R <--> P
+  P --> F
+  F --> R
+
+  classDef ok fill:#dcfce7,stroke:#16a34a,color:#111
+  classDef meio fill:#fef9c3,stroke:#ca8a04,color:#111
+  classDef falta fill:#fee2e2,stroke:#dc2626,color:#111
+  class P ok
+  class C,F meio
+  class R falta
