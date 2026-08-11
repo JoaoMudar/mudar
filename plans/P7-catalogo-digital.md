@@ -1,5 +1,12 @@
 # P7 — Catálogo Digital de Espécies
 
+> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
+> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
+> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
+> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
+> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
+
 ## Status: NÃO INICIADO
 ## Prioridade: MÉDIA
 ## Dependências: P1 (espécies), P3 (preços), P2 (estoque via lotes)

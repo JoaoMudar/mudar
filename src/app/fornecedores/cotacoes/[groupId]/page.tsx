@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { parseMarginPct } from '@/lib/pricing'
 import { getQuoteGroup } from '../actions'
 import CompareClient, { type GroupQuoteRow } from './CompareClient'
@@ -16,7 +16,7 @@ export default async function CompararCotacaoPage({
 }: {
   params: Promise<{ groupId: string }>
 }) {
-  const user = await requireRole('admin', 'chefia')
+  const user = await requirePermission('cotacao:ler')
   const { groupId } = await params
 
   const quotes = (await getQuoteGroup(groupId)) as GroupQuoteRow[]

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { can } from '@/lib/permissions'
 import {
   getNotifications,
   getUnreadCount,
@@ -9,8 +10,12 @@ import {
 
 export async function GET() {
   const user = await getSession()
-  if (!user) {
-    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  // Unica rota HTTP do sistema, e o middleware exclui /api do matcher — a
+  // guarda tem de estar aqui. `notificacao_propria` vale para todos os papeis;
+  // o recorte de verdade e o `WHERE user_id` em src/lib/notifications.ts.
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  if (!can(user, 'notificacao_propria:ler')) {
+    return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
   }
 
   const [unreadCount, notifications] = await Promise.all([
@@ -23,11 +28,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const user = await getSession()
-  if (!user) {
-    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+  if (!can(user, 'notificacao_propria:atualizar')) {
+    return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
   }
 
-  const body = await request.json()
+  // Corpo invalido virava 500 (e, agora, ruido no Sentry). E erro do cliente.
+  let body: { action?: string; notificationId?: string }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Corpo inválido' }, { status: 400 })
+  }
   const { action, notificationId } = body
 
   if (action === 'markAsRead' && notificationId) {

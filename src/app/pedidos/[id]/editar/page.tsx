@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import {
   getOrderById,
   getSpeciesForSelect,
@@ -18,7 +18,7 @@ export default async function EditarPedidoPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('pedido:atualizar')
   const { id } = await params
 
   const data = await getOrderById(id)

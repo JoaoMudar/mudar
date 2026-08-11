@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import AdminNav from './AdminNav'
-import { requireRole } from '@/lib/auth'
+import { requireAnyPermission } from '@/lib/authz'
 
 export const metadata = { title: 'Admin — Viveiro Mudar' }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireRole('admin', 'chefia')
+  await requireAnyPermission(['especie:criar', 'recipiente:criar', 'insumo:criar', 'custo_fixo:criar', 'coleta_semente:criar', 'usuario:criar'])
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-green-800 text-white px-4 py-4">

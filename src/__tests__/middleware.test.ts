@@ -38,9 +38,12 @@ describe('middleware', () => {
       expect(res.status).toBe(200)
     })
 
-    it('permite acesso a /uploads sem cookie', () => {
+    // /uploads saiu de PUBLIC_PREFIXES junto com o filesystem: a foto de
+    // especie vive no banco e sai por /api/fotos/[id], que o matcher do
+    // middleware ja exclui — a rota se protege (ou nao) sozinha.
+    it('nao trata mais /uploads como rota publica', () => {
       const res = middleware(createRequest('/uploads/especies/foto.jpg'))
-      expect(res.status).toBe(200)
+      expect(res.status).toBe(307)
     })
   })
 

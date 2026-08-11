@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requireAnyPermission } from '@/lib/authz'
 import {
   getOrderById,
   getSpeciesForSelect,
@@ -16,7 +16,7 @@ export default async function VerificarPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireRole('admin', 'gerencia')
+  await requireAnyPermission(['verificacao:ler', 'verificacao:criar'])
   const { id } = await params
 
   const data = await getOrderById(id)

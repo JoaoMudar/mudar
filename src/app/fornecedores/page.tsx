@@ -1,11 +1,11 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getSuppliers } from './actions'
 import FornecedoresManager from './FornecedoresManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function FornecedoresPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:criar')
 
   let suppliers: Awaited<ReturnType<typeof getSuppliers>> = []
   try {

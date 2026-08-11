@@ -27,7 +27,7 @@ export interface OrderRow {
 
 interface Props {
   orders: OrderRow[]
-  role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
+  role: 'admin' | 'chefia' | 'gerencia' | 'colaborador'
 }
 
 function fmtDate(value: string | Date | null): string {

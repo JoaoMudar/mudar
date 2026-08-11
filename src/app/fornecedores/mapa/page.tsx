@@ -1,4 +1,4 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { viveiroCoords } from '@/lib/geo'
 import { getSuppliersForMap } from '../actions'
 import MapClient, { type MapSupplier } from './MapClient'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
  * (import dinamico com ssr: false dentro do MapClient).
  */
 export default async function MapaFornecedoresPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:ler')
 
   let suppliers: MapSupplier[] = []
   let pending = 0

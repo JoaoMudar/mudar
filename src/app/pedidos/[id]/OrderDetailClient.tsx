@@ -65,7 +65,7 @@ interface Props {
   order: Order
   items: Item[]
   history: HistoryEntry[]
-  role: 'admin' | 'chefia' | 'gerencia' | 'funcionario'
+  role: 'admin' | 'chefia' | 'gerencia' | 'colaborador'
 }
 
 function fmtDate(value: string | Date | null): string {

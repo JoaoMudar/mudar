@@ -1,13 +1,12 @@
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import UsuariosManager from './UsuariosManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UsuariosPage() {
-  await requireRole('admin')
+  await requirePermission('usuario:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let users: any[] = []
   try {
     const { rows } = await pool.query(

@@ -1,0 +1,41 @@
+name: CI
+
+# O hook de pre-commit (scripts/pre-commit.sh) roda lint e testes apenas nos
+# arquivos em staging, so existe na maquina de quem rodou `npm install` e e
+# contornavel com `--no-verify`. O build da Vercel (`tsx scripts/migrate.ts &&
+# next build`) nao roda teste nenhum. Este workflow e a unica verificacao que
+# roda sempre, no repositorio inteiro, para todo mundo.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` dispara o script `prepare` (setup-hooks.sh). No runner isso so
+      # copia o hook para .git/hooks e nao tem efeito colateral.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # Nem o pre-commit nem o build da Vercel checam tipo isoladamente:
+      # `next build` so falharia depois de compilar tudo.
+      - name: Checagem de tipos
+        run: npm run typecheck
+
+      # Suite completa, nao `--changed` como no pre-commit.
+      - name: Testes
+        run: npm test

@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
 import {
   normalizeQuoteChannel,
@@ -14,6 +13,7 @@ import {
 import { applyMarkup, isBelowMinMargin, parseMarginPct } from '@/lib/pricing'
 import { formatPriceBR } from '@/lib/suppliers'
 import { compareQuoteCandidates, distanceFromViveiroKm, viveiroCoords } from '@/lib/geo'
+import { authorize, requirePermission } from '@/lib/authz'
 
 const PATH = '/fornecedores/cotacoes'
 
@@ -26,7 +26,7 @@ const PATH = '/fornecedores/cotacoes'
  * ha mais tempo primeiro (distribui o outreach na rede). P11 F4.
  */
 export async function findSuppliersForSpecies(speciesIds: string[]) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
   if (!speciesIds || speciesIds.length === 0) return []
   const { rows } = await pool.query(
     `SELECT s.id, s.name, s.contact_name, s.whatsapp, s.phone, s.email, s.instagram,
@@ -79,7 +79,9 @@ export async function createQuoteRequests(input: {
   quotes?: { id: string; supplier_id: string }[]
   error?: string
 }> {
-  const user = await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao:criar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const itemsError = validateQuoteItems(input.items)
   if (itemsError) return { error: itemsError }
   if (!input.suppliers || input.suppliers.length === 0) {
@@ -155,7 +157,8 @@ export async function createQuoteRequests(input: {
  * last_contacted_at do fornecedor (alimenta a ordenacao do proximo disparo).
  */
 export async function markQuoteSent(quoteId: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `UPDATE supplier_quotes SET status = 'sent', sent_at = now()
@@ -175,7 +178,8 @@ export async function markQuoteSent(quoteId: string): Promise<{ error?: string }
 }
 
 export async function markQuoteNoReply(quoteId: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `UPDATE supplier_quotes SET status = 'no_reply'
@@ -190,7 +194,8 @@ export async function markQuoteNoReply(quoteId: string): Promise<{ error?: strin
 }
 
 export async function cancelQuote(quoteId: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `UPDATE supplier_quotes SET status = 'cancelled'
@@ -224,7 +229,8 @@ export async function recordQuoteResponse(
     items: QuoteResponseItemInput[]
   },
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   for (const item of input.items ?? []) {
     if (item.quoted_unit_price !== null && item.quoted_unit_price !== undefined) {
       if (!Number.isFinite(item.quoted_unit_price) || item.quoted_unit_price < 0) {
@@ -303,7 +309,7 @@ export async function recordQuoteResponse(
  * (para gerar a mensagem de fechamento via wa.me).
  */
 export async function getQuoteGroup(groupId: string) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
   const { rows } = await pool.query(
     `SELECT q.id, q.request_group_id, q.supplier_id, q.order_id, q.channel,
             q.status, q.sent_at, q.responded_at, q.notes, q.created_at,
@@ -353,7 +359,8 @@ export async function saveQuoteChoices(
   groupId: string,
   choices: QuoteChoiceInput[],
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cotacao_escolha:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const minMarginPct = parseMarginPct(process.env.QUOTE_MIN_MARGIN_PCT)
   for (const choice of choices ?? []) {
     if (!choice.quote_item_id) return { error: 'Item inválido na escolha.' }
@@ -446,7 +453,7 @@ export async function saveQuoteChoices(
  *   (gap de rede — onde vale recrutar fornecedor novo).
  */
 export async function getQuotesDashboard() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
   const [kanban, totals, topSuppliers, networkGaps] = await Promise.all([
     pool.query(
       `SELECT q.id, q.request_group_id, q.status, q.created_at, q.sent_at, q.responded_at,
@@ -508,7 +515,7 @@ export async function getQuotesDashboard() {
  * agregados (o client agrupa por request_group_id).
  */
 export async function getQuotes() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
   const { rows } = await pool.query(
     `SELECT q.id, q.request_group_id, q.supplier_id, q.order_id, q.channel,
             q.status, q.message_text, q.sent_at, q.responded_at, q.raw_response,

@@ -1,17 +1,12 @@
 # Rotina: Produção
 
-## Situação atual
-Produção é decidida por Débora/Gilberto conforme demanda. Não há registro de quando cada lote foi semeado, repicado, ou quanto tempo leva para ficar pronto.
+> Esta rotina foi detalhada em subrotinas. **Leia [`rotina-producao/00-visao-geral.md`](rotina-producao/00-visao-geral.md).**
 
-## Telas por perfil
+| Subrotina | Documento |
+|---|---|
+| Agenda de pessoal (o que cada um faz na semana) | [`rotina-producao/01-agenda-de-pessoal.md`](rotina-producao/01-agenda-de-pessoal.md) |
+| Registro de atividade | a fazer |
+| Acompanhamento de lotes | a fazer |
 
-### Chefia
-- **Visão de produção**: o que está sendo produzido, previsão de quando fica pronto, gargalos
-- **Decisão de produção**: quais espécies produzir em maior volume (baseado em vendas e estoque)
-
-### Gerência
-- **Planejamento de produção**: definir o que semear/repicar na semana, atribuir a colaboradores
-- **Acompanhamento de lotes**: status dos lotes em andamento (semeado, germinando, repicado, pronto)
-
-### Colaborador
-- **Registro de atividade**: ao semear, repicar, irrigar ou adubar — informar espécie, recipiente, quantidade, atividade realizada
+A antiga `rotina-tarefas.md` foi absorvida aqui: tarefa diária não é rotina separada, é a
+forma como a produção é executada.

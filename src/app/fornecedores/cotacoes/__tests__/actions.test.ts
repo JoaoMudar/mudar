@@ -2,11 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
-vi.mock('@/lib/auth', () => ({
-  requireRole: vi.fn().mockResolvedValue({ id: 'u1', display_name: 'Joao', role: 'admin' }),
+// Sessao mockada, POLITICA REAL. Antes estes testes faziam
+// `vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))`, o que desligava a
+// guarda: a autorizacao nunca era exercitada. Agora so a sessao e falsa —
+// authz.ts e permissions.ts rodam de verdade.
+vi.mock('@/lib/auth', () => ({ getSession: vi.fn(), requireAuth: vi.fn() }))
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT')
+  }),
 }))
 
 import pool from '@/lib/db'
+import { getSession, requireAuth } from '@/lib/auth'
 import {
   createQuoteRequests,
   findSuppliersForSpecies,
@@ -20,8 +28,28 @@ import {
 const mockedQuery = pool.query as unknown as ReturnType<typeof vi.fn>
 const mockedConnect = pool.connect as unknown as ReturnType<typeof vi.fn>
 
+
+const ADMIN = {
+  id: 'u1',
+  username: 'joao',
+  display_name: 'João',
+  role: 'admin' as const,
+  must_change_password: false,
+}
+const mockedGetSession = getSession as unknown as ReturnType<typeof vi.fn>
+const mockedRequireAuth = requireAuth as unknown as ReturnType<typeof vi.fn>
+
+/** Roda o proximo teste com outro papel, para exercitar a negacao de verdade. */
+function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
+  const u = { ...ADMIN, role }
+  mockedGetSession.mockResolvedValue(u)
+  mockedRequireAuth.mockResolvedValue(u)
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
+  mockedGetSession.mockResolvedValue(ADMIN)
+  mockedRequireAuth.mockResolvedValue(ADMIN)
 })
 
 const ITEMS = [
@@ -423,5 +451,15 @@ describe('saveQuoteChoices', () => {
     ])
     expect(result.error).toMatch(/preço de venda/i)
     expect(mockedConnect).not.toHaveBeenCalled()
+  })
+})
+
+// D4 §2, linha Cotacoes: exclusiva da chefia.
+describe('autorização (política real)', () => {
+  it('gerência não cria pedido de cotação e o banco não é tocado', async () => {
+    comPapel('gerencia')
+    const res = await createQuoteRequests({ items: [], suppliers: [] })
+    expect(res).toMatchObject({ error: expect.stringMatching(/permissão/i) })
+    expect(mockedQuery).not.toHaveBeenCalled()
   })
 })

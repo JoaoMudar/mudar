@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { authorize } from '@/lib/authz'
 
 const PATH = '/admin/coleta-sementes'
 
@@ -20,7 +20,8 @@ export interface SeedCollectionPayload {
 }
 
 export async function createColeta(data: SeedCollectionPayload): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('coleta_semente:criar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `INSERT INTO seed_collection_costs
@@ -38,7 +39,8 @@ export async function createColeta(data: SeedCollectionPayload): Promise<{ error
 }
 
 export async function deleteColeta(id: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('coleta_semente:excluir')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`DELETE FROM seed_collection_costs WHERE id=$1`, [id])
   } catch (e: unknown) {

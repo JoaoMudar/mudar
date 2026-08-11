@@ -1,13 +1,12 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getCustomers } from './actions'
 import ClientesManager from './ClientesManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ClientesPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cliente:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let customers: any[] = []
   try {
     customers = await getCustomers()

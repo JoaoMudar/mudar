@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getOrderById, getSpeciesForSelect } from '@/app/pedidos/actions'
 import QuoteWizard, { type WizardItem } from '@/app/fornecedores/cotacoes/QuoteWizard'
 
@@ -15,7 +15,7 @@ export default async function CotarPedidoPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const user = await requireRole('admin', 'chefia')
+  const user = await requirePermission('cotacao:criar')
   const { id } = await params
 
   const [result, species] = await Promise.all([getOrderById(id), getSpeciesForSelect()])

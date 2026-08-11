@@ -2,8 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { getSession, requireAuth, requireRole } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
+import { authorize, requirePermission } from '@/lib/authz'
+import { can } from '@/lib/permissions'
 import { notifyRole } from '@/lib/notifications'
+import { safeErrorMessage } from '@/lib/action-errors'
 import { getMissingFiscalFields, type FiscalCustomer } from '@/lib/customers'
 import {
   validateOrderItems,
@@ -57,7 +60,7 @@ async function insertGenericScope(
 // ============================================================
 
 export async function getSpeciesForSelect() {
-  await requireAuth()
+  await requirePermission('especie:ler')
   // popular_names: sinonimos da especie — a busca/colagem encontra por qualquer nome.
   const { rows } = await pool.query(
     `SELECT s.id, s.common_name, s.scientific_name, s.photo_url, s.tags,
@@ -72,7 +75,7 @@ export async function getSpeciesForSelect() {
 }
 
 export async function getContainersForSelect() {
-  await requireAuth()
+  await requirePermission('recipiente:ler')
   const { rows } = await pool.query(
     `SELECT id, name, volume_liters
      FROM containers WHERE active = true
@@ -89,7 +92,7 @@ export interface OrderFilters {
 }
 
 export async function getOrders(filters: OrderFilters = {}) {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requirePermission('pedido:ler')
   const where: string[] = []
   const params: unknown[] = []
 
@@ -136,8 +139,13 @@ export async function getOrders(filters: OrderFilters = {}) {
  * mudar, chama router.refresh(). Sem JOINs nem itens — barato de rodar.
  */
 export async function getOrdersSignal(): Promise<{ count: number; latest: string | null }> {
+  // Unico ponto que consulta `can` direto, sem guard: e polling de fundo, com
+  // a aba aberta. Lancar aqui encheria o Sentry de ruido para quem apenas
+  // perdeu permissao no meio da sessao, e a tela ja e protegida por
+  // requirePermission. O sinal neutro faz o poller parar de acusar novidade —
+  // que e o comportamento correto para quem nao pode mais ver a lista.
   const user = await getSession()
-  if (!user || (user.role !== 'admin' && user.role !== 'chefia' && user.role !== 'gerencia')) {
+  if (!can(user, 'pedido:ler')) {
     return { count: 0, latest: null }
   }
   const { rows } = await pool.query(
@@ -151,7 +159,7 @@ export async function getOrdersSignal(): Promise<{ count: number; latest: string
 }
 
 export async function getOrderById(id: string) {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requirePermission('pedido:ler')
   const { rows: orderRows } = await pool.query(
     `SELECT o.*, c.name AS customer_name, c.phone AS customer_phone,
             c.city AS customer_city, u.display_name AS created_by_name
@@ -234,11 +242,9 @@ export async function getOrderById(id: string) {
 export async function createOrder(
   data: CreateOrderInput,
 ): Promise<{ id?: string; order_number?: number; error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão para cadastrar pedidos.' }
-  }
+  const auth = await authorize('pedido:criar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   if (!data.customer_id) return { error: 'Selecione um cliente.' }
 
   const itemsError = validateOrderItems(data.items)
@@ -306,7 +312,7 @@ export async function createOrder(
     return { id: order.id, order_number: order.order_number }
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível cadastrar o pedido. Tente novamente.', 'createOrder') }
   } finally {
     client.release()
   }
@@ -316,11 +322,8 @@ export async function updateOrderItems(
   orderId: string,
   items: OrderItemInput[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão para editar pedidos.' }
-  }
+  const auth = await authorize('pedido:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const itemsError = validateOrderItems(items)
   if (itemsError) return { error: itemsError }
 
@@ -356,7 +359,7 @@ export async function updateOrderItems(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar os itens do pedido. Tente novamente.', 'updateOrderItems') }
   } finally {
     client.release()
   }
@@ -365,11 +368,9 @@ export async function updateOrderItems(
 export async function cancelOrder(
   orderId: string,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão para cancelar pedidos.' }
-  }
+  const auth = await authorize('pedido:excluir')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -396,7 +397,7 @@ export async function cancelOrder(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível cancelar o pedido. Tente novamente.', 'cancelOrder') }
   } finally {
     client.release()
   }
@@ -409,11 +410,9 @@ export async function cancelOrder(
 export async function startVerification(
   orderId: string,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão para verificar pedidos.' }
-  }
+  const auth = await authorize('verificacao:criar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -445,7 +444,7 @@ export async function startVerification(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível iniciar a verificação. Tente novamente.', 'startVerification') }
   } finally {
     client.release()
   }
@@ -460,11 +459,8 @@ export async function toggleItemAvailability(
     notes?: string
   } = {},
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('verificacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     // Quantidade total do item (base p/ validar parcial)
     const { rows } = await pool.query(
@@ -495,7 +491,7 @@ export async function toggleItemAvailability(
     )
     return {}
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar a disponibilidade do item. Tente novamente.', 'toggleItemAvailability') }
   }
 }
 
@@ -510,11 +506,8 @@ export async function saveVerificationNotes(
   orderId: string,
   notes: { itemId: string; notes: string }[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('verificacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -529,7 +522,7 @@ export async function saveVerificationNotes(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar as observações. Tente novamente.', 'saveVerificationNotes') }
   } finally {
     client.release()
   }
@@ -539,11 +532,8 @@ export async function assignSpeciesToGenericItem(
   parentItemId: string,
   assignments: SpeciesAssignment[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('verificacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
 
   // Carrega item pai. O recipiente do pai eh apenas um minimo de referencia:
   // a gerencia pode atribuir recipiente maior ou menor (a troca eh destacada, nao bloqueada).
@@ -592,7 +582,7 @@ export async function assignSpeciesToGenericItem(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível definir a espécie do item. Tente novamente.', 'assignSpeciesToGenericItem') }
   } finally {
     client.release()
   }
@@ -601,11 +591,9 @@ export async function assignSpeciesToGenericItem(
 export async function finishVerification(
   orderId: string,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('verificacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
 
   const { rows: items } = await pool.query(
     `SELECT is_generic, is_available
@@ -662,7 +650,7 @@ export async function finishVerification(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível concluir a verificação. Tente novamente.', 'finishVerification') }
   } finally {
     client.release()
   }
@@ -676,11 +664,9 @@ export async function approveOrder(
   orderId: string,
   needsInvoice: boolean,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão para aprovar pedidos.' }
-  }
+  const auth = await authorize('pedido_aprovacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -739,7 +725,7 @@ export async function approveOrder(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível aprovar o pedido. Tente novamente.', 'approveOrder') }
   } finally {
     client.release()
   }
@@ -749,11 +735,9 @@ export async function requestChanges(
   orderId: string,
   notes?: string,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('pedido_aprovacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -792,7 +776,7 @@ export async function requestChanges(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível solicitar ajustes no pedido. Tente novamente.', 'requestChanges') }
   } finally {
     client.release()
   }
@@ -802,11 +786,9 @@ export async function approvePartial(
   orderId: string,
   keepItemIds: string[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('pedido_aprovacao:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   if (!keepItemIds || keepItemIds.length === 0) {
     return { error: 'Mantenha ao menos um item para aprovar.' }
   }
@@ -869,7 +851,7 @@ export async function approvePartial(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível aprovar o pedido parcialmente. Tente novamente.', 'approvePartial') }
   } finally {
     client.release()
   }
@@ -879,11 +861,9 @@ export async function updateOrderAfterReview(
   orderId: string,
   items: ReviewItemInput[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'chefia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('pedido:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const itemsError = validateOrderItems(items)
   if (itemsError) return { error: itemsError }
 
@@ -1042,7 +1022,7 @@ export async function updateOrderAfterReview(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar a revisão do pedido. Tente novamente.', 'updateOrderAfterReview') }
   } finally {
     client.release()
   }
@@ -1073,11 +1053,9 @@ async function fetchRealItemQuantities(
 export async function createDefaultLoad(
   orderId: string,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('carga:criar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -1128,7 +1106,7 @@ export async function createDefaultLoad(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível criar a carga. Tente novamente.', 'createDefaultLoad') }
   } finally {
     client.release()
   }
@@ -1138,11 +1116,9 @@ export async function createMultipleLoads(
   orderId: string,
   loadsData: LoadInput[],
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('carga:criar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   if (!loadsData || loadsData.length === 0) {
     return { error: 'Crie ao menos uma carga.' }
   }
@@ -1202,7 +1178,7 @@ export async function createMultipleLoads(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível criar as cargas. Tente novamente.', 'createMultipleLoads') }
   } finally {
     client.release()
   }
@@ -1212,11 +1188,8 @@ export async function toggleLoadItemSeparated(
   loadItemId: string,
   isSeparated: boolean,
 ): Promise<{ error?: string }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('separacao_carga:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `UPDATE order_load_items SET is_separated = $1 WHERE id = $2`,
@@ -1224,18 +1197,16 @@ export async function toggleLoadItemSeparated(
     )
     return {}
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível marcar o item como separado. Tente novamente.', 'toggleLoadItemSeparated') }
   }
 }
 
 export async function finishLoad(
   loadId: string,
 ): Promise<{ error?: string; orderReady?: boolean }> {
-  const user = await getSession()
-  if (!user) return { error: 'Sessão expirada. Faça login novamente.' }
-  if (user.role !== 'admin' && user.role !== 'gerencia') {
-    return { error: 'Sem permissão.' }
-  }
+  const auth = await authorize('carga:atualizar')
+  if (!auth.ok) return { error: auth.error }
+  const user = auth.user
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -1305,14 +1276,14 @@ export async function finishLoad(
     return { orderReady }
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível concluir a carga. Tente novamente.', 'finishLoad') }
   } finally {
     client.release()
   }
 }
 
 export async function getOrderLoads(orderId: string) {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requirePermission('carga:ler')
   const { rows: loads } = await pool.query(
     `SELECT id, load_number, status FROM order_loads
      WHERE order_id = $1 ORDER BY load_number`,
@@ -1339,7 +1310,7 @@ export async function getOrderLoads(orderId: string) {
 }
 
 export async function getDeliveryCalendarData(startDate: string, endDate: string) {
-  await requireRole('admin', 'chefia', 'gerencia')
+  await requirePermission('entrega:ler')
   const { rows } = await pool.query(
     `SELECT o.id, o.order_number, o.delivery_date, o.status,
             c.name AS customer_name,

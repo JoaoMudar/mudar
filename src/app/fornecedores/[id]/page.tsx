@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getSpeciesForSelect } from '@/app/pedidos/actions'
 import { getSupplierById } from '../actions'
 import SupplierDetail from './SupplierDetail'
@@ -11,7 +11,7 @@ export default async function FornecedorPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:atualizar')
   const { id } = await params
 
   const [supplier, species] = await Promise.all([

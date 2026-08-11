@@ -11,7 +11,7 @@ import {
   type UserPayload,
 } from './actions'
 
-type Role = 'admin' | 'chefia' | 'gerencia' | 'funcionario'
+type Role = 'admin' | 'chefia' | 'gerencia' | 'colaborador'
 
 interface UserRow {
   id: string
@@ -27,13 +27,13 @@ const ROLE_LABELS: Record<Role, string> = {
   admin: 'Administrador',
   chefia: 'Chefia',
   gerencia: 'Gerência',
-  funcionario: 'Funcionário',
+  colaborador: 'Colaborador',
 }
 
-const ROLE_OPTIONS: Role[] = ['admin', 'chefia', 'gerencia', 'funcionario']
+const ROLE_OPTIONS: Role[] = ['admin', 'chefia', 'gerencia', 'colaborador']
 
 function emptyForm(): UserPayload {
-  return { username: '', display_name: '', password: '', role: 'funcionario' }
+  return { username: '', display_name: '', password: '', role: 'colaborador' }
 }
 
 interface ToastState { message: string; type: ToastType }

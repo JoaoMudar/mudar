@@ -1,4 +1,4 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getSpeciesForSelect, getContainersForSelect } from '../actions'
 import { getCustomers } from '@/app/clientes/actions'
 import OrderForm from './OrderForm'
@@ -6,7 +6,7 @@ import OrderForm from './OrderForm'
 export const dynamic = 'force-dynamic'
 
 export default async function NovoPedidoPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('pedido:criar')
 
   let customers: Awaited<ReturnType<typeof getCustomers>> = []
   let species: Awaited<ReturnType<typeof getSpeciesForSelect>> = []

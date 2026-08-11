@@ -1,4 +1,4 @@
-import { requireAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { listMySessions, type SessionRow } from './actions'
 import SessoesClient from './SessoesClient'
 
@@ -6,7 +6,7 @@ export const metadata = { title: 'Aparelhos conectados — Viveiro Mudar' }
 export const dynamic = 'force-dynamic'
 
 export default async function SessoesPage() {
-  await requireAuth()
+  await requirePermission('sessao_propria:ler')
 
   let sessions: SessionRow[] = []
   try {

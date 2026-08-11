@@ -1,0 +1,21 @@
+flowchart LR
+  AGE["🌱 <b>Agenda de pessoal</b><br/>turnos × 4h = horas"]
+  CUS["💰 <b>Custeio</b><br/>+ mão de obra real"]
+  PRE["🏷️ <b>Precificação</b><br/>custo + margem"]
+  PED["🤝 <b>Pedidos</b><br/>venda pelo preço certo"]
+  FIN["🏦 <b>Financeiro</b><br/>folha ÷ horas = valor-hora"]
+
+  AGE -->|horas por espécie| CUS
+  CUS -->|custo real| PRE
+  PRE -->|preço por canal| PED
+  PED -->|recebimento e folha| FIN
+  FIN -->|valor-hora médio| AGE
+
+  classDef ok fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111
+  classDef meio fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#111
+  classDef falta fill:#fee2e2,stroke:#dc2626,stroke-width:3px,color:#111
+  class PED ok
+  class CUS,FIN meio
+  class AGE,PRE falta
+
+  linkStyle 0,1,2,3,4 stroke:#d97706,stroke-width:3px

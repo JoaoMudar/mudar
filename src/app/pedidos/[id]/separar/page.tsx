@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requireAnyPermission } from '@/lib/authz'
 import { toISODateLocal } from '@/lib/date-utils'
 import { getOrderById, getOrderLoads } from '../../actions'
 import SeparationManager, { type RealItem } from './SeparationManager'
@@ -12,7 +12,7 @@ export default async function SepararPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireRole('admin', 'gerencia')
+  await requireAnyPermission(['separacao_carga:ler', 'separacao_carga:atualizar'])
   const { id } = await params
 
   const data = await getOrderById(id)

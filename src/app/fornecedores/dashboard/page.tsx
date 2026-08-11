@@ -1,4 +1,4 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getQuotesDashboard } from '../cotacoes/actions'
 import DashboardView, { type DashboardData } from './DashboardView'
 
@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 /** Painel de cotacoes da rede de fornecedores (P11 Fase 5). */
 export default async function DashboardFornecedoresPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
 
   let data: DashboardData = {
     kanban: [],
