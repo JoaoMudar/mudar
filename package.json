@@ -14,6 +14,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:migrate:status": "tsx scripts/migrate.ts --status",
     "db:migrate:mark": "tsx scripts/migrate.ts --mark-applied",
+    "sentry:teste": "tsx scripts/sentry-teste.ts",
     "db:seed-admin": "tsx scripts/seed-admin.ts",
     "db:seed-suppliers": "tsx scripts/seed-supplier-network.ts",
     "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1",
