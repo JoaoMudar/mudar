@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { upsertPartyFromSupplier, updateAddressGeo } from '@/lib/parties'
 import { onlyDigits, isValidUF } from '@/lib/customers'
 import {
   normalizeAvailability,
@@ -100,8 +101,10 @@ export async function createSupplier(
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
+  const client = await pool.connect()
   try {
-    const { rows } = await pool.query(
+    await client.query('BEGIN')
+    const { rows } = await client.query(
       `INSERT INTO suppliers
          (name, contact_name, whatsapp, phone, email, instagram,
           city, state, notes, reliability_score, status)
@@ -112,10 +115,32 @@ export async function createSupplier(
         v.city, v.state, v.notes, v.reliability_score, v.status,
       ],
     )
+    const supplierId = rows[0].id as string
+
+    // Identidade em cadastro.parties, no mesmo `client` da transacao. O
+    // fornecedor nao tem documento, entao a identidade dele e nome + contato —
+    // se essa pessoa tambem for cliente, o COALESCE de upsertParty preserva o
+    // documento que o cadastro de cliente preencheu.
+    const partyId = await upsertPartyFromSupplier(client, {
+      id: supplierId,
+      name: v.name,
+      email: v.email,
+      phone: v.phone,
+      whatsapp: v.whatsapp,
+      notes: v.notes,
+      city: v.city,
+      state: v.state,
+    })
+    await client.query(`UPDATE suppliers SET party_id = $1 WHERE id = $2`, [partyId, supplierId])
+
+    await client.query('COMMIT')
     revalidatePath(PATH)
-    return { id: rows[0].id }
+    return { id: supplierId }
   } catch (e: unknown) {
-    return { error: safeErrorMessage(e) }
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: safeErrorMessage(e, 'Não foi possível cadastrar o fornecedor. Tente novamente.', 'createSupplier') }
+  } finally {
+    client.release()
   }
 }
 
@@ -128,10 +153,12 @@ export async function updateSupplier(
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
+  const client = await pool.connect()
   try {
+    await client.query('BEGIN')
     // Cidade/UF mudou → zera lat/lng/geocoded_at (CASE le os valores ANTIGOS
     // da linha), forcando nova geocodificacao sob demanda (P11 F4).
-    await pool.query(
+    await client.query(
       `UPDATE suppliers SET
          name = $1, contact_name = $2, whatsapp = $3, phone = $4, email = $5,
          instagram = $6, city = $7, state = $8, notes = $9,
@@ -148,11 +175,36 @@ export async function updateSupplier(
         v.city, v.state, v.notes, v.reliability_score, v.status, id,
       ],
     )
+    const { rows: cur } = await client.query(
+      `SELECT party_id FROM suppliers WHERE id = $1`,
+      [id],
+    )
+
+    // Identidade em cadastro.parties, no mesmo `client` da transacao. O
+    // fornecedor nao tem documento, entao a identidade dele e nome + contato —
+    // se essa pessoa tambem for cliente, o COALESCE de upsertParty preserva o
+    // documento que o cadastro de cliente preencheu.
+    const partyId = await upsertPartyFromSupplier(client, {
+      id: (cur[0]?.party_id as string | null) ?? id,
+      name: v.name,
+      email: v.email,
+      phone: v.phone,
+      whatsapp: v.whatsapp,
+      notes: v.notes,
+      city: v.city,
+      state: v.state,
+    })
+    await client.query(`UPDATE suppliers SET party_id = $1 WHERE id = $2`, [partyId, id])
+
+    await client.query('COMMIT')
     revalidatePath(PATH)
     revalidatePath(`${PATH}/${id}`)
     return {}
   } catch (e: unknown) {
-    return { error: safeErrorMessage(e) }
+    await client.query('ROLLBACK').catch(() => {})
+    return { error: safeErrorMessage(e, 'Não foi possível salvar o fornecedor. Tente novamente.', 'updateSupplier') }
+  } finally {
+    client.release()
   }
 }
 
@@ -212,7 +264,7 @@ export async function geocodePendingSuppliers(): Promise<{
   const BATCH = 5
   try {
     const { rows: targets } = await pool.query(
-      `SELECT id, city, state FROM suppliers
+      `SELECT id, city, state, party_id FROM suppliers
        WHERE active = true AND city IS NOT NULL AND geocoded_at IS NULL
        ORDER BY name
        LIMIT $1`,
@@ -236,6 +288,12 @@ export async function geocodePendingSuppliers(): Promise<{
           `UPDATE suppliers SET lat = $1, lng = $2, geocoded_at = now() WHERE id = $3`,
           [coords?.lat ?? null, coords?.lng ?? null, target.id],
         )
+        // Espelha no endereco da identidade: o mapa de fornecedores ainda le
+        // suppliers.lat/lng, mas o financeiro e a agenda vao ler o endereco da
+        // party — as duas copias nao podem divergir.
+        if (coords && target.party_id) {
+          await updateAddressGeo(pool, target.party_id as string, coords.lat, coords.lng)
+        }
         if (coords) updated += 1
       } catch {
         // Rede/Nominatim fora: segue para o proximo; este fica para re-tentar.

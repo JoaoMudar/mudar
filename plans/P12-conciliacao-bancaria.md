@@ -187,7 +187,9 @@ Detalhe de cada tabela em
 ## Fases
 
 - [x] **Fase 0 — João:** contas, centros de custo, categorias e marco zero. *(05/08/2026)*
-- [ ] **Fase 1 — schema `cadastro`:** `parties`, `party_roles`, `addresses`, `party_id` em
+- [ ] ✅ **Fase 1 concluída em 11/08/2026** (feita pelo P13 T13.1–T13.2 — era a mesma fase).
+
+**Fase 1 — schema `cadastro`:** `parties`, `party_roles`, `addresses`, `party_id` em
       `customers`/`suppliers` + backfill. `src/lib/parties.ts` + testes.
       **Não depende dos extratos — pode começar já.**
 - [ ] **Fase 2 — schema `financeiro`:** as 9 tabelas + seed das listas fechadas

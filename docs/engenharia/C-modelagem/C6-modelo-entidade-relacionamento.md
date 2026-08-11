@@ -515,9 +515,32 @@ erDiagram
   }
   parties {
     uuid id PK
-    text name
-    text document
     text kind
+    text document
+    text name
+    text legal_name
+    text trade_name
+    text email
+    text phone
+    text whatsapp
+    bool active
+  }
+  party_roles {
+    uuid party_id FK
+    text role
+  }
+  addresses {
+    uuid id PK
+    uuid party_id FK
+    text label
+    text zip_code
+    text street
+    text number
+    text city
+    text state
+    numeric lat
+    numeric lng
+    bool is_primary
   }
   statement_imports {
     uuid id PK

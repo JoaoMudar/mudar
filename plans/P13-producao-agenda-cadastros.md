@@ -64,8 +64,19 @@ Estas incongruências foram encontradas e **precisam de revisão** antes da entr
 
 Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 
-- [ ] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`rotina-financeiro/01-cadastro-unico.md`](../docs/rotinas/rotina-financeiro/01-cadastro-unico.md))
-- [ ] **T13.2** `src/lib/parties.ts` como ponto único de escrita, com testes
+> ✅ **T13.1 e T13.2 concluídas em 11/08/2026** — migration
+> `20260811000004_cadastro_unico_parties.sql` (aditiva; backfill de 10 clientes e 15 fornecedores
+> verificado no Postgres local) e `src/lib/parties.ts` com 27 testes. Nenhuma tela mudou.
+> **T13.3 (`users.party_id`) segue pendente.**
+>
+> Duas coisas divergiram da especificação e ficam registradas: `suppliers` **não tem** coluna
+> `document`, então 100% do casamento cliente↔fornecedor cai em `lower(trim(name))`; e as quatro
+> colunas sem destino declarado — `customers.state_registration`, `customers.ie_exempt`,
+> `suppliers.contact_name`, `suppliers.instagram` — **ficam onde estão**, por serem atributos do
+> papel e não da identidade.
+
+- [x] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`rotina-financeiro/01-cadastro-unico.md`](../docs/rotinas/rotina-financeiro/01-cadastro-unico.md))
+- [x] **T13.2** `src/lib/parties.ts` como ponto único de escrita, com testes
 - [ ] **T13.3** Migration: `users.party_id` UUID NULL → `cadastro.parties`, com backfill dos usuários existentes
 
 ## Fase 2 — Área `/cadastros`

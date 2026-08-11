@@ -59,10 +59,31 @@ function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
   mockedRequireAuth.mockResolvedValue(u)
 }
 
+/**
+ * Client de transacao. As actions de cliente/fornecedor passaram a gravar a
+ * identidade em `cadastro.parties` na mesma transacao, entao deixaram de usar
+ * `pool.query` direto. Este helper responde sozinho por BEGIN/COMMIT e pelas
+ * queries de `cadastro.*` e delega o restante ao `mockedQuery` — assim as
+ * filas de `mockResolvedValueOnce` dos testes existentes continuam valendo.
+ */
+function transacao() {
+  const release = vi.fn()
+  const query = vi.fn(async (sql: string, params?: unknown[]) => {
+    if (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql)) return { rows: [] }
+    if (sql.includes('cadastro.')) return { rows: [{ id: 'party-1' }] }
+    if (/SET party_id/.test(sql)) return { rows: [] }
+    if (/SELECT party_id FROM/.test(sql)) return { rows: [{ party_id: 'party-1' }] }
+    return (mockedQuery as unknown as (s: string, p?: unknown[]) => Promise<{ rows: unknown[] }>)(sql, params)
+  })
+  mockedConnect.mockResolvedValue({ query, release })
+  return { query, release }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   mockedGetSession.mockResolvedValue(ADMIN)
   mockedRequireAuth.mockResolvedValue(ADMIN)
+  transacao()
 })
 
 describe('createCustomer — cadastro simples', () => {

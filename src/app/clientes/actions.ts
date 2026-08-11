@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { upsertPartyFromCustomer } from '@/lib/parties'
 import { authorize, requirePermission } from '@/lib/authz'
 import {
   mapBrasilApi,
@@ -232,8 +233,14 @@ export async function createCustomer(
   if (simpleError) return { error: simpleError }
 
   const f = fiscalValues(data, personType)
+  // Transacao: a identidade em cadastro.parties e o cliente sao gravados
+  // juntos ou nenhum dos dois. Fora da transacao, um erro no INSERT de
+  // customers deixaria uma party orfa — e a party e a fonte de verdade da
+  // identidade, entao lixo ali contamina o financeiro (P12) e a agenda (P13).
+  const client = await pool.connect()
   try {
-    const { rows } = await pool.query(
+    await client.query('BEGIN')
+    const { rows } = await client.query(
       `INSERT INTO customers
          (name, phone, city, state, notes,
           person_type, document, email, legal_name, trade_name,
@@ -264,9 +271,37 @@ export async function createCustomer(
         f.neighborhood,
       ],
     )
+
+    const customerId = rows[0].id as string
+    // Ponto unico de escrita da identidade (src/lib/parties.ts). O party_id
+    // reusa o id do cliente, mesmo criterio do backfill da migration.
+    const partyId = await upsertPartyFromCustomer(client, {
+      id: customerId,
+      kind: personType,
+      document: f.document,
+      name,
+      legal_name: f.legal_name,
+      trade_name: f.trade_name,
+      email: f.email,
+      phone: data.phone?.trim() || null,
+      zip_code: f.zip_code,
+      street: f.street,
+      number: f.address_number,
+      complement: f.complement,
+      neighborhood: f.neighborhood,
+      city: data.city?.trim() || null,
+      state: data.state?.trim() || null,
+    })
+    await client.query(`UPDATE customers SET party_id = $1 WHERE id = $2`, [
+      partyId,
+      customerId,
+    ])
+
+    await client.query('COMMIT')
     revalidatePath(PATH)
-    return { id: rows[0].id }
+    return { id: customerId }
   } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
     if (isDuplicateDocument(e)) {
       const conflict = await findCustomerByDocument(f.document)
       return {
@@ -277,6 +312,8 @@ export async function createCustomer(
       }
     }
     return { error: safeErrorMessage(e, 'Não foi possível cadastrar o cliente. Tente novamente.', 'createCustomer') }
+  } finally {
+    client.release()
   }
 }
 
@@ -294,8 +331,11 @@ export async function updateCustomer(
   if (simpleError) return { error: simpleError }
 
   const f = fiscalValues(data, personType)
+  // Mesma transacao do create: identidade e cliente andam juntos.
+  const client = await pool.connect()
   try {
-    await pool.query(
+    await client.query('BEGIN')
+    await client.query(
       `UPDATE customers SET
          name = $1, phone = $2, city = $3, state = COALESCE($4, 'SC'), notes = $5,
          person_type = $6, document = $7, email = $8, legal_name = $9, trade_name = $10,
@@ -323,9 +363,36 @@ export async function updateCustomer(
         id,
       ],
     )
+    // party_id pode ser nulo em cliente criado antes do cadastro unico; o
+    // upsert cria a identidade com o mesmo id e a UPDATE seguinte a amarra.
+    const { rows: cur } = await client.query(
+      `SELECT party_id FROM customers WHERE id = $1`,
+      [id],
+    )
+    const partyId = await upsertPartyFromCustomer(client, {
+      id: (cur[0]?.party_id as string | null) ?? id,
+      kind: personType,
+      document: f.document,
+      name,
+      legal_name: f.legal_name,
+      trade_name: f.trade_name,
+      email: f.email,
+      phone: data.phone?.trim() || null,
+      zip_code: f.zip_code,
+      street: f.street,
+      number: f.address_number,
+      complement: f.complement,
+      neighborhood: f.neighborhood,
+      city: data.city?.trim() || null,
+      state: data.state?.trim() || null,
+    })
+    await client.query(`UPDATE customers SET party_id = $1 WHERE id = $2`, [partyId, id])
+
+    await client.query('COMMIT')
     revalidatePath(PATH)
     return {}
   } catch (e: unknown) {
+    await client.query('ROLLBACK').catch(() => {})
     if (isDuplicateDocument(e)) {
       const conflict = await findCustomerByDocument(f.document, id)
       return {
@@ -336,6 +403,8 @@ export async function updateCustomer(
       }
     }
     return { error: safeErrorMessage(e, 'Não foi possível salvar o cliente. Tente novamente.', 'updateCustomer') }
+  } finally {
+    client.release()
   }
 }
 

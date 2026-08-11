@@ -527,17 +527,47 @@ Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, 
 | `name` | text | ● | | Nome da categoria |
 | `direction` | text | ● | | `saida`, `entrada` ou `ambos`. Restringe o que a lista oferece conforme o sinal do valor |
 
-## `parties` — contraparte
+## `cadastro.parties` — identidade
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `name` | text | ● | | Nome da pessoa ou empresa |
-| `document` | text | ○ | | CPF ou CNPJ |
-| `kind` | text | ● | | Natureza do vínculo: cliente, fornecedor, funcionário, outro |
+| `kind` | varchar(2) | ○ | | **Natureza da pessoa**: `pf` ou `pj`. NULL quando não informado — o cadastro simples legado não preenchia, e presumir pessoa física para uma prefeitura seria pior que registrar a ausência |
+| `document` | varchar(14) | ○ | | CPF ou CNPJ, só dígitos. UNIQUE parcial `WHERE document IS NOT NULL` |
+| `name` | text | ● | | Nome usual — o que aparece nas listas |
+| `legal_name` | text | ○ | | Razão social (PJ) |
+| `trade_name` | text | ○ | | Nome fantasia (PJ) |
+| `email`, `phone`, `whatsapp` | text/varchar | ○ | | Contato. `whatsapp` só dígitos |
+| `notes` | text | ○ | | Observações |
+| `active` | boolean | ● | | Soft-delete, padrão do sistema |
 
-> Cadastro único: uma identidade por pessoa ou empresa, ainda que ela seja simultaneamente cliente e
-> fornecedor.
+> **Correção de 11/08/2026.** Este dicionário descrevia `kind` como *natureza do vínculo*
+> (cliente, fornecedor, funcionário). Estava errado: um `kind` único não representa o caso que
+> motivou a tabela — a mesma pessoa que vende muda e também compra. O vínculo passou para
+> `party_roles`, que admite N papéis por identidade; `kind` ficou com a natureza da pessoa.
+> Fonte canônica: [`docs/rotinas/rotina-financeiro/01-cadastro-unico.md`](../../rotinas/rotina-financeiro/01-cadastro-unico.md).
+
+## `cadastro.party_roles` — papéis da identidade
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `party_id` | uuid | ● | PK, FK → `cadastro.parties` | Identidade |
+| `role` | varchar(20) | ● | PK | `cliente`, `fornecedor`, `funcionario`, `socio`, `familiar`, `banco`, `governo`, `contador`, `outro` |
+
+> `funcionario` aqui é **vínculo empregatício**, e não nível de acesso. O nível de acesso é
+> `users.role`, cujo valor foi renomeado para `colaborador` na migration `20260810000001`
+> justamente para desfazer essa ambiguidade.
+
+## `cadastro.addresses` — endereços da identidade
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `party_id` | uuid | ● | FK → `cadastro.parties` | Identidade |
+| `label` | varchar(20) | ● | | `principal`, `entrega`, `cobranca` ou `outro` — endereço de cobrança diferente do de entrega não cabia como coluna em `customers` |
+| `zip_code`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `ibge_code` | | ○ | | Endereço. `number` corresponde a `customers.address_number` |
+| `lat`, `lng`, `geocoded_at` | numeric/timestamptz | ○ | | Coordenadas do mapa de fornecedores (P11 F4) |
+| `is_primary` | boolean | ● | | UNIQUE parcial: no máximo um principal por identidade |
 
 ## `statement_imports` — importação de extrato
 
