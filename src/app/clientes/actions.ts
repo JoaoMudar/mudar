@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
 import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
+import { safeErrorMessage } from '@/lib/action-errors'
 import {
   mapBrasilApi,
   mapOpenCnpj,
@@ -273,7 +274,7 @@ export async function createCustomer(
         conflict: conflict ?? undefined,
       }
     }
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível cadastrar o cliente. Tente novamente.', 'createCustomer') }
   }
 }
 
@@ -331,7 +332,7 @@ export async function updateCustomer(
         conflict: conflict ?? undefined,
       }
     }
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar o cliente. Tente novamente.', 'updateCustomer') }
   }
 }
 
@@ -346,7 +347,7 @@ export async function toggleCustomerActive(
     revalidatePath(PATH)
     return {}
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível alterar a situação do cliente. Tente novamente.', 'toggleCustomerActive') }
   }
 }
 
@@ -386,7 +387,7 @@ export async function mergeCustomers(
     return { movedOrders: moved.rowCount ?? 0 }
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível unir os cadastros. Tente novamente.', 'mergeCustomers') }
   } finally {
     client.release()
   }

@@ -1,4 +1,7 @@
-const CACHE_NAME = 'viveiro-mudar-v1'
+// v2: parou de cachear /api. Trocar o nome do cache e o que faz o `activate`
+// abaixo apagar o cache antigo — sem isso, as respostas de API ja gravadas na
+// v1 continuariam sendo servidas.
+const CACHE_NAME = 'viveiro-mudar-v2'
 
 // Arquivos essenciais para cache offline
 const PRECACHE_URLS = [
@@ -30,12 +33,30 @@ self.addEventListener('fetch', (event) => {
   // Ignora requisições não-GET e de API externa
   if (event.request.method !== 'GET') return
 
+  const url = new URL(event.request.url)
+
+  // Nunca cachear /api. Duas razões:
+  //   1. /api/notifications é por usuário — num aparelho compartilhado, o
+  //      cache serviria as notificações de quem entrou antes.
+  //   2. Mesmo com um só usuário, a resposta cacheada é sempre desatualizada,
+  //      e notificação velha é pior que nenhuma.
+  // /api/fotos fica de fora do cache do service worker de propósito: já é
+  // imutável e tem Cache-Control de um ano, então o cache HTTP do navegador
+  // dá conta sem duplicar o armazenamento.
+  if (url.pathname.startsWith('/api/')) return
+
+  // Terceiros (ex.: tiles do OpenStreetMap) não entram no nosso cache.
+  if (url.origin !== self.location.origin) return
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Salva a resposta no cache para uso offline
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        // Só respostas completas e bem-sucedidas. Cachear um 404 ou um 206
+        // (range) deixaria a página quebrada offline, de forma persistente.
+        if (response.ok && response.status === 200) {
+          const clone = response.clone()
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+        }
         return response
       })
       .catch(() => {

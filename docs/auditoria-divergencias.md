@@ -20,6 +20,7 @@
 | [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | 🟡 conhecida |
 | [I](#i--o-que-não-é-divergência) | 39 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
+| [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 
 ---
 
@@ -162,6 +163,43 @@ correspondem a P2, P3, P12 e P13 — projetos especificados e não implementados
 - O limite de mortalidade de 20% bate entre `CLAUDE.md`, `RF-29` e `IND-01`.
 - Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso.
 - Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `rotina-financeiro/` e `C8`.
+
+## J — Migrations marcadas como aplicadas que nunca rodaram
+
+> Achado em **11/08/2026**, fora da rodada anterior: só apareceu ao tentar acrescentar uma
+> coluna a `input_usages`.
+
+`_migrations` registrava como aplicadas:
+
+```
+20260413000003_p1_input_usages.sql
+20260413000004_p1_input_price_history.sql
+```
+
+As duas tabelas **não existiam em nenhum dos dois bancos** — nem no Postgres local (24 tabelas)
+nem no Neon (23). Havia ainda um registro sem arquivo correspondente,
+`20260521100006_pedidos_partial_availability.sql`, confirmando uso de `--mark-applied` no
+passado.
+
+É a **lição nº 7 do post-mortem acontecendo de fato**: migration marcada sem ter sido executada.
+O histórico afirmava um schema que o banco não tinha, e nada acusou — porque migration marcada
+nunca mais é tentada.
+
+**O que estava quebrado em produção, silenciosamente:**
+
+| Tela | Tarefa no P1 | Sintoma |
+|---|---|---|
+| `/insumos/registrar` | T1.10–T1.12 (marcadas `[x]`) | todo envio falhava — tabela de destino inexistente |
+| `/admin/insumos` → histórico de preço | T1.15 (marcada `[x]`) | `getPriceHistory` falhava |
+
+**Correção:** `migrations/20260811000002_repara_tabelas_p1_ausentes.sql` recria as duas com a
+definição original, sem `IF NOT EXISTS` — se algum banco já as tiver, deve falhar alto e parar o
+deploy em vez de passar em silêncio. O registro fantasma foi mantido: apagar linha de
+`_migrations` à mão é o que produz este tipo de problema.
+
+**Prevenção:** o achado só existiu porque alguém foi mexer na tabela. Não há hoje nada que
+compare o schema declarado nas migrations com o schema real. Fica registrado como candidato a
+teste de CI — comparar `CREATE TABLE` das migrations com `pg_tables` do banco alvo.
 
 ---
 

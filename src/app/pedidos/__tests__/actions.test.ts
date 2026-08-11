@@ -148,7 +148,10 @@ describe('createOrder — caminho feliz', () => {
     mockedConnect.mockResolvedValueOnce({ query: clientQuery, release })
 
     const result = await createOrder(validOrder())
-    expect(result.error).toMatch(/falha no insert/i)
+    // A mensagem do banco nao pode chegar ao cliente (information disclosure):
+    // o usuario recebe texto generico e o detalhe vai para o log/Sentry.
+    expect(result.error).not.toMatch(/falha no insert/i)
+    expect(result.error).toMatch(/não foi possível cadastrar o pedido/i)
     expect(clientQuery).toHaveBeenCalledWith('ROLLBACK')
     expect(release).toHaveBeenCalled()
   })

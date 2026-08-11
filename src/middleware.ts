@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const PUBLIC_PATHS = ['/login']
-const PUBLIC_PREFIXES = ['/_next', '/icons', '/sw.js', '/manifest', '/uploads']
+// /uploads saiu da lista: as fotos de especie agora vivem no banco e sao
+// servidas por /api/fotos/[id], que o matcher abaixo ja exclui.
+const PUBLIC_PREFIXES = ['/_next', '/icons', '/sw.js', '/manifest']
 
 // Deve casar com SESSION_COOKIE em src/lib/auth.ts (prefixo __Host- em producao).
 const SESSION_COOKIE =

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { hashPassword, requireRole } from '@/lib/auth'
 import { validatePassword } from '@/lib/password-policy'
+import { safeErrorMessage } from '@/lib/action-errors'
 
 const PATH = '/admin/usuarios'
 
@@ -35,7 +36,7 @@ export async function createUsuario(data: UserPayload): Promise<{ error?: string
     if (msg.includes('unique') || msg.includes('duplicate')) {
       return { error: 'Este nome de usuário já existe.' }
     }
-    return { error: msg }
+    return { error: safeErrorMessage(e, 'Não foi possível criar o usuário. Tente novamente.', 'createUsuario') }
   }
   revalidatePath(PATH)
   return {}
@@ -57,7 +58,7 @@ export async function updateUsuario(
     if (msg.includes('unique') || msg.includes('duplicate')) {
       return { error: 'Este nome de usuário já existe.' }
     }
-    return { error: msg }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar o usuário. Tente novamente.', 'updateUsuario') }
   }
   revalidatePath(PATH)
   return {}
@@ -83,7 +84,7 @@ export async function resetSenha(
     // sessoes do usuario (ele faz novo login e e obrigado a trocar a senha).
     await pool.query(`DELETE FROM sessions WHERE user_id=$1`, [id])
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível redefinir a senha. Tente novamente.', 'resetSenha') }
   }
   revalidatePath(PATH)
   return {}
@@ -102,7 +103,7 @@ export async function toggleUsuarioAtivo(
       await pool.query(`DELETE FROM sessions WHERE user_id=$1`, [id])
     }
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível alterar a situação do usuário. Tente novamente.', 'toggleUsuarioAtivo') }
   }
   revalidatePath(PATH)
   return {}

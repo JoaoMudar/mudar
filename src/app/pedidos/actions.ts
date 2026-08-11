@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { getSession, requireAuth, requireRole } from '@/lib/auth'
 import { notifyRole } from '@/lib/notifications'
+import { safeErrorMessage } from '@/lib/action-errors'
 import { getMissingFiscalFields, type FiscalCustomer } from '@/lib/customers'
 import {
   validateOrderItems,
@@ -306,7 +307,7 @@ export async function createOrder(
     return { id: order.id, order_number: order.order_number }
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível cadastrar o pedido. Tente novamente.', 'createOrder') }
   } finally {
     client.release()
   }
@@ -356,7 +357,7 @@ export async function updateOrderItems(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar os itens do pedido. Tente novamente.', 'updateOrderItems') }
   } finally {
     client.release()
   }
@@ -396,7 +397,7 @@ export async function cancelOrder(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível cancelar o pedido. Tente novamente.', 'cancelOrder') }
   } finally {
     client.release()
   }
@@ -445,7 +446,7 @@ export async function startVerification(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível iniciar a verificação. Tente novamente.', 'startVerification') }
   } finally {
     client.release()
   }
@@ -495,7 +496,7 @@ export async function toggleItemAvailability(
     )
     return {}
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar a disponibilidade do item. Tente novamente.', 'toggleItemAvailability') }
   }
 }
 
@@ -529,7 +530,7 @@ export async function saveVerificationNotes(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar as observações. Tente novamente.', 'saveVerificationNotes') }
   } finally {
     client.release()
   }
@@ -592,7 +593,7 @@ export async function assignSpeciesToGenericItem(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível definir a espécie do item. Tente novamente.', 'assignSpeciesToGenericItem') }
   } finally {
     client.release()
   }
@@ -662,7 +663,7 @@ export async function finishVerification(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível concluir a verificação. Tente novamente.', 'finishVerification') }
   } finally {
     client.release()
   }
@@ -739,7 +740,7 @@ export async function approveOrder(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível aprovar o pedido. Tente novamente.', 'approveOrder') }
   } finally {
     client.release()
   }
@@ -792,7 +793,7 @@ export async function requestChanges(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível solicitar ajustes no pedido. Tente novamente.', 'requestChanges') }
   } finally {
     client.release()
   }
@@ -869,7 +870,7 @@ export async function approvePartial(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível aprovar o pedido parcialmente. Tente novamente.', 'approvePartial') }
   } finally {
     client.release()
   }
@@ -1042,7 +1043,7 @@ export async function updateOrderAfterReview(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível salvar a revisão do pedido. Tente novamente.', 'updateOrderAfterReview') }
   } finally {
     client.release()
   }
@@ -1128,7 +1129,7 @@ export async function createDefaultLoad(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível criar a carga. Tente novamente.', 'createDefaultLoad') }
   } finally {
     client.release()
   }
@@ -1202,7 +1203,7 @@ export async function createMultipleLoads(
     return {}
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível criar as cargas. Tente novamente.', 'createMultipleLoads') }
   } finally {
     client.release()
   }
@@ -1224,7 +1225,7 @@ export async function toggleLoadItemSeparated(
     )
     return {}
   } catch (e: unknown) {
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível marcar o item como separado. Tente novamente.', 'toggleLoadItemSeparated') }
   }
 }
 
@@ -1305,7 +1306,7 @@ export async function finishLoad(
     return { orderReady }
   } catch (e: unknown) {
     await client.query('ROLLBACK').catch(() => {})
-    return { error: (e as Error).message }
+    return { error: safeErrorMessage(e, 'Não foi possível concluir a carga. Tente novamente.', 'finishLoad') }
   } finally {
     client.release()
   }

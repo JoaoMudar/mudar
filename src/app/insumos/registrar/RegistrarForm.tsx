@@ -42,13 +42,17 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
     } catch {}
   }, [])
 
-  // Tenta enviar itens pendentes na queue
+  // Tenta enviar itens pendentes na queue.
+  // O `id` do item vai como `client_id`: o servidor faz ON CONFLICT DO NOTHING,
+  // entao reenviar algo que ja foi gravado e inofensivo. E o que permite
+  // remover da fila so depois da confirmacao, sem risco de duplicar.
   const flushQueue = useCallback(async () => {
     try {
       const queued = await getAll()
       for (const item of queued) {
         try {
           await registrarUso({
+            client_id: item.id,
             input_id: item.input_id,
             species_id: item.species_id,
             container_id: item.container_id,
@@ -65,7 +69,10 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
   }, [refreshPendingCount])
 
   useEffect(() => {
-    refreshPendingCount()
+    // Esvaziar a fila na montagem, e nao so no evento `online`: quem fechou o
+    // app sem conexao e reabriu ja conectado nunca dispara `online`, e os
+    // registros ficariam parados no aparelho indefinidamente.
+    flushQueue()
 
     const handleOnline = () => {
       flushQueue()
@@ -74,7 +81,7 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
 
     window.addEventListener('online', handleOnline)
     return () => window.removeEventListener('online', handleOnline)
-  }, [flushQueue, refreshPendingCount, showToast])
+  }, [flushQueue, showToast])
 
   const isValid = inputId && speciesId && containerId && quantity && Number(quantity) > 0
 
@@ -84,7 +91,12 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
 
     setSubmitting(true)
 
-    const payload = {
+    // Gerado ANTES da primeira tentativa e reusado no enfileiramento. Se o
+    // servidor gravar mas a resposta se perder, o reenvio traz a mesma chave e
+    // o ON CONFLICT descarta — sem isso, consumo duplicado inflaria o custo por
+    // especie, que e justamente o numero que o sistema existe para apurar.
+    const clientId = crypto.randomUUID()
+    const fields = {
       input_id: inputId,
       species_id: speciesId,
       container_id: containerId,
@@ -95,25 +107,38 @@ export default function RegistrarForm({ inputs, species, containers }: Props) {
     try {
       if (!navigator.onLine) throw new Error('offline')
 
-      await registrarUso(payload)
+      await registrarUso({ client_id: clientId, ...fields })
       showToast('Registrado com sucesso!', 'success')
-    } catch (err) {
-      const isOffline = !navigator.onLine || (err as Error).message === 'offline'
-
-      if (isOffline) {
-        await enqueue(payload)
+    } catch {
+      // Enfileira em QUALQUER falha, e nao so quando `navigator.onLine` e
+      // falso. No viveiro o caso comum e ter sinal fraco: a requisicao morre
+      // com o navegador se dizendo online, e a versao anterior descartava o
+      // registro com um toast de erro. Perder dado de campo e pior que
+      // reenviar — e o reenvio agora e idempotente.
+      try {
+        // Mesmo UUID da tentativa de envio: na fila ele e a chave do
+        // IndexedDB e, no reenvio, o `client_id` que o servidor descarta.
+        await enqueue({ id: clientId, ...fields })
         await refreshPendingCount()
-        showToast('Sem internet. Salvo localmente — será enviado ao conectar.', 'offline')
-      } else {
-        showToast('Erro ao registrar. Tente novamente.', 'error')
+        showToast(
+          navigator.onLine
+            ? 'Sem resposta do servidor. Salvo no aparelho — será enviado depois.'
+            : 'Sem internet. Salvo localmente — será enviado ao conectar.',
+          'offline',
+        )
+      } catch {
+        // So chega aqui se o proprio IndexedDB falhar (modo privado, cota).
+        // Nao ha onde guardar: avisar e a unica coisa honesta a fazer.
+        showToast('Não foi possível salvar. Anote e registre de novo.', 'error')
+        return
       }
     } finally {
       setSubmitting(false)
-      // Limpa o formulário em caso de sucesso ou offline (offline = salvo)
-      if (navigator.onLine || !navigator.onLine) {
-        setQuantity('')
-      }
     }
+
+    // Enviado ou enfileirado — nos dois casos o registro esta salvo em algum
+    // lugar, entao libera o campo para o proximo lancamento.
+    setQuantity('')
   }
 
   return (

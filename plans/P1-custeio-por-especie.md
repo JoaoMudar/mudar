@@ -6,6 +6,13 @@
 > puro (local no dev, Neon em produção) — o Neon é só o banco, não tem nada da plataforma
 > Supabase. Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🩹 **Correção de 11/08/2026.** As tabelas `input_usages` e `input_price_history` constavam de
+> `_migrations` como aplicadas, mas **não existiam nem no Postgres local nem no Neon**. Na
+> prática, `/insumos/registrar` (T1.10–T1.12) falhava em todo envio em produção e
+> `getPriceHistory` (T1.15) também — as caixas estavam marcadas, o código existia, e o destino
+> não. Reparado pela migration `20260811000002_repara_tabelas_p1_ausentes.sql`. As tarefas
+> continuam `[x]` porque o código estava certo; o que faltava era o schema.
+
 ## Status: PARCIAL — 16 de 32 tarefas
 **Feito:** todas as tabelas, a view `species_unit_cost`, os 5 CRUDs administrativos e o
 formulário mobile de insumos com fila offline.

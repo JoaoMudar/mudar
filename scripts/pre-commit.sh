@@ -28,6 +28,10 @@ for file in $STAGED_FILES; do
     filename=$(basename "$file")
     lower=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
     case "$lower" in
+        # `.env.example` e o template SEM valores — e o unico `.env.*` que deve
+        # ir para o git. Precisa vir antes do padrao geral: no `case`, o
+        # primeiro padrao que casa vence.
+        .env.example) ;;
         .env|.env.*) SENSITIVE="$SENSITIVE\n  - $file" ;;
         *secret*|*credential*|*token*|*.key|*.pem) SENSITIVE="$SENSITIVE\n  - $file" ;;
     esac

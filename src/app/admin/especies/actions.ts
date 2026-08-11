@@ -1,9 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
-import { randomUUID } from 'crypto'
 import sharp from 'sharp'
 import pool from '@/lib/db'
 import { requireRole } from '@/lib/auth'
@@ -43,11 +40,17 @@ export async function uploadEspecieFoto(formData: FormData): Promise<{ url: stri
       .webp({ quality: 82 })
       .toBuffer()
 
-    // Nome gerado pelo servidor — ignora o nome enviado pelo cliente (mata path traversal).
-    const filename = `${randomUUID()}.webp`
-    await writeFile(join(process.cwd(), 'public', 'uploads', 'especies', filename), webp)
+    // Guardada no banco, nao em disco: o filesystem da Vercel e somente-leitura
+    // fora de /tmp e some a cada deploy. Efeito colateral desejado — a foto
+    // passa a ser coberta pelo backup do banco (plano E6).
+    const { rows } = await pool.query(
+      `INSERT INTO species_photos (bytes, mime, byte_size)
+       VALUES ($1, 'image/webp', $2)
+       RETURNING id`,
+      [webp, webp.length],
+    )
 
-    return { url: `/uploads/especies/${filename}` }
+    return { url: `/api/fotos/${rows[0].id}` }
   } catch {
     return { error: 'Arquivo inválido. Envie uma imagem (JPG, PNG ou WebP).' }
   }

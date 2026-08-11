@@ -6,6 +6,13 @@ const STORE_NAME = 'input_usages_queue'
 const DB_VERSION = 1
 
 export interface QueuedUsage {
+  /**
+   * Chave do registro no IndexedDB e, ao mesmo tempo, o `client_id` enviado ao
+   * servidor. E gerada pelo formulario ANTES da primeira tentativa de envio,
+   * nao aqui: se fosse gerada no `enqueue`, o registro que ja chegou ao
+   * servidor (mas cuja resposta se perdeu) seria reenviado com outra chave e
+   * viraria uma linha duplicada.
+   */
   id: string
   input_id: string
   species_id: string
@@ -29,8 +36,13 @@ function openDB(): Promise<IDBDatabase> {
   })
 }
 
+/**
+ * Guarda o registro para reenvio. Usa `put` e nao `add`: enfileirar duas vezes
+ * o mesmo `id` — o que acontece quando a primeira tentativa falha e o usuario
+ * insiste — deve sobrescrever, nao lancar ConstraintError.
+ */
 export async function enqueue(
-  usage: Omit<QueuedUsage, 'id' | 'queued_at'>
+  usage: Omit<QueuedUsage, 'queued_at'>
 ): Promise<void> {
   const db = await openDB()
   return new Promise((resolve, reject) => {
@@ -38,10 +50,9 @@ export async function enqueue(
     const store = tx.objectStore(STORE_NAME)
     const item: QueuedUsage = {
       ...usage,
-      id: crypto.randomUUID(),
       queued_at: new Date().toISOString(),
     }
-    const req = store.add(item)
+    const req = store.put(item)
     req.onsuccess = () => resolve()
     req.onerror = () => reject(req.error)
   })

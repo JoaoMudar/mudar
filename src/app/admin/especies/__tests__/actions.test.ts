@@ -3,9 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
 vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))
-vi.mock('fs/promises', () => ({ writeFile: vi.fn() }))
-// sharp mockado: a cadeia .rotate().resize().webp().toBuffer() rejeita,
-// simulando "arquivo enviado nao e uma imagem valida".
+// sharp mockado. Por padrao a cadeia .rotate().resize().webp().toBuffer()
+// rejeita, simulando "arquivo enviado nao e uma imagem valida"; um teste pode
+// sobrescrever com mockResolvedValueOnce para exercitar o caminho feliz.
+const { sharpToBuffer } = vi.hoisted(() => ({ sharpToBuffer: vi.fn() }))
 vi.mock('sharp', () => ({
   default: vi.fn(() => ({
     rotate() {
@@ -17,7 +18,7 @@ vi.mock('sharp', () => ({
     webp() {
       return this
     },
-    toBuffer: vi.fn().mockRejectedValue(new Error('unsupported image format')),
+    toBuffer: sharpToBuffer,
   })),
 }))
 
@@ -63,6 +64,7 @@ function queueKnownNames(
 
 beforeEach(() => {
   vi.clearAllMocks()
+  sharpToBuffer.mockRejectedValue(new Error('unsupported image format'))
 })
 
 describe('createEspecie — guarda de autorização', () => {
@@ -313,5 +315,27 @@ describe('uploadEspecieFoto — autorização e validação', () => {
     fd.set('file', new File([new Uint8Array(64)], 'evil.svg', { type: 'image/svg+xml' }))
     const res = await uploadEspecieFoto(fd)
     expect(res).toMatchObject({ error: expect.stringMatching(/inválido|imagem/i) })
+  })
+
+  it('grava a imagem no banco e devolve a URL de /api/fotos', async () => {
+    mockedRequireRole.mockResolvedValueOnce(undefined)
+    const webp = Buffer.from([1, 2, 3])
+    sharpToBuffer.mockResolvedValueOnce(webp)
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: '11111111-2222-3333-4444-555555555555' }],
+    })
+
+    const fd = new FormData()
+    fd.set('file', new File([new Uint8Array(64)], 'muda.jpg', { type: 'image/jpeg' }))
+    const res = await uploadEspecieFoto(fd)
+
+    // O contrato de URL importa: e o valor que vai para species.photo_url e que
+    // os tres pontos de renderizacao passam para <Image>.
+    expect(res).toEqual({ url: '/api/fotos/11111111-2222-3333-4444-555555555555' })
+
+    const [sql, params] = mockedQuery.mock.calls[0]
+    expect(sql).toContain('INSERT INTO species_photos')
+    expect(params[0]).toBe(webp)
+    expect(params[1]).toBe(webp.length)
   })
 })

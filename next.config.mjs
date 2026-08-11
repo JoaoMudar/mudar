@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 
 // Em dev o Next usa eval (HMR) e websocket; HSTS/upgrade-insecure nao podem valer
@@ -14,7 +16,11 @@ const csp = [
   // tile.openstreetmap.org: tiles do mapa de fornecedores (P11 F4, Leaflet).
   "img-src 'self' data: blob: https://tile.openstreetmap.org",
   "font-src 'self'",
-  `connect-src 'self'${isProd ? '' : ' ws:'}`,
+  // *.ingest.sentry.io: destino do SDK do Sentry no browser. Sem liberar, o
+  // navegador bloqueia o envio em silencio e o painel de erros fica vazio.
+  // O sufixo regional (us/de) varia conforme a organizacao — os tres cobrem
+  // qualquer DSN sem precisar mexer aqui de novo.
+  `connect-src 'self' https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io${isProd ? '' : ' ws:'}`,
   "manifest-src 'self'",
   "worker-src 'self'",
   "object-src 'none'",
@@ -54,4 +60,18 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+// Envio de source maps ao Sentry — sem isso o stack trace chega minificado e
+// nao aponta a linha do arquivo original. So e aplicado quando o token existe:
+// em desenvolvimento e no CI o wrapper e dispensado e o build segue igual.
+// Requer SENTRY_AUTH_TOKEN, SENTRY_ORG e SENTRY_PROJECT no painel da Vercel.
+export default process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      // Nao publica os source maps junto do bundle: eles sobem para o Sentry e
+      // sao apagados do output, para nao expor o codigo-fonte no navegador.
+      sourcemaps: { deleteSourcemapsAfterUpload: true },
+    })
+  : nextConfig
