@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { hashPassword, requireRole } from '@/lib/auth'
+import { hashPassword } from '@/lib/auth'
 import { validatePassword } from '@/lib/password-policy'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { authorize } from '@/lib/authz'
 
 const PATH = '/admin/usuarios'
 
@@ -16,7 +17,8 @@ export interface UserPayload {
 }
 
 export async function createUsuario(data: UserPayload): Promise<{ error?: string }> {
-  await requireRole('admin')
+  const auth = await authorize('usuario:criar')
+  if (!auth.ok) return { error: auth.error }
 
   const password = data.password ?? ''
   const pwError = validatePassword(password)
@@ -46,7 +48,8 @@ export async function updateUsuario(
   id: string,
   data: Omit<UserPayload, 'password'>,
 ): Promise<{ error?: string }> {
-  await requireRole('admin')
+  const auth = await authorize('usuario:atualizar')
+  if (!auth.ok) return { error: auth.error }
 
   try {
     await pool.query(
@@ -68,7 +71,8 @@ export async function resetSenha(
   id: string,
   newPassword: string,
 ): Promise<{ error?: string }> {
-  await requireRole('admin')
+  const auth = await authorize('usuario:atualizar')
+  if (!auth.ok) return { error: auth.error }
 
   const pwError = validatePassword(newPassword)
   if (pwError) return { error: pwError }
@@ -94,7 +98,8 @@ export async function toggleUsuarioAtivo(
   id: string,
   active: boolean,
 ): Promise<{ error?: string }> {
-  await requireRole('admin')
+  const auth = await authorize('usuario:excluir')
+  if (!auth.ok) return { error: auth.error }
 
   try {
     await pool.query(`UPDATE users SET active=$1 WHERE id=$2`, [active, id])

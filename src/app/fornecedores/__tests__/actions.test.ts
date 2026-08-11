@@ -2,9 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
-vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))
+// Sessao mockada, POLITICA REAL. Antes estes testes faziam
+// `vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))`, o que desligava a
+// guarda: a autorizacao nunca era exercitada. Agora so a sessao e falsa —
+// authz.ts e permissions.ts rodam de verdade.
+vi.mock('@/lib/auth', () => ({ getSession: vi.fn(), requireAuth: vi.fn() }))
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT')
+  }),
+}))
 
 import pool from '@/lib/db'
+import { getSession, requireAuth } from '@/lib/auth'
 import {
   createSupplier,
   updateSupplier,
@@ -32,8 +42,28 @@ const I = {
   status: 10,
 }
 
+
+const ADMIN = {
+  id: 'u1',
+  username: 'joao',
+  display_name: 'João',
+  role: 'admin' as const,
+  must_change_password: false,
+}
+const mockedGetSession = getSession as unknown as ReturnType<typeof vi.fn>
+const mockedRequireAuth = requireAuth as unknown as ReturnType<typeof vi.fn>
+
+/** Roda o proximo teste com outro papel, para exercitar a negacao de verdade. */
+function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
+  const u = { ...ADMIN, role }
+  mockedGetSession.mockResolvedValue(u)
+  mockedRequireAuth.mockResolvedValue(u)
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
+  mockedGetSession.mockResolvedValue(ADMIN)
+  mockedRequireAuth.mockResolvedValue(ADMIN)
 })
 
 describe('createSupplier', () => {
@@ -265,5 +295,15 @@ describe('geocodePendingSuppliers', () => {
       String(c[0]).includes('SET lat'),
     )
     expect(update).toBeUndefined()
+  })
+})
+
+// D4 §2, linha Fornecedores: a gerencia nao tem acesso nenhum — nem leitura.
+describe('autorização (política real)', () => {
+  it('gerência não cadastra fornecedor e o banco não é tocado', async () => {
+    comPapel('gerencia')
+    const res = await createSupplier({ name: 'Viveiro Vizinho' })
+    expect(res).toMatchObject({ error: expect.stringMatching(/permissão/i) })
+    expect(mockedQuery).not.toHaveBeenCalled()
   })
 })

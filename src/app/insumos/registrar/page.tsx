@@ -1,12 +1,12 @@
 import pool from '@/lib/db'
-import { requireAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import RegistrarForm from './RegistrarForm'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Registrar Insumo — Viveiro Mudar' }
 
 export default async function RegistrarPage() {
-  await requireAuth()
+  await requirePermission('consumo_insumo:criar')
 
   let inputs: { id: string; label: string }[] = []
   let species: { id: string; label: string }[] = []

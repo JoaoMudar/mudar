@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
 import { onlyDigits, isValidUF } from '@/lib/customers'
 import {
@@ -14,6 +13,7 @@ import {
   type SupplierInput,
   type SupplierSpeciesInput,
 } from '@/lib/suppliers'
+import { authorize, requirePermission } from '@/lib/authz'
 import {
   NOMINATIM_DELAY_MS,
   NOMINATIM_USER_AGENT,
@@ -53,7 +53,7 @@ function supplierValues(data: SupplierInput) {
  * "quem tem ipê?" filtra no client sobre esse array, sem ida extra ao banco.
  */
 export async function getSuppliers() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:ler')
   const { rows } = await pool.query(
     `SELECT s.id, s.name, s.contact_name, s.whatsapp, s.phone, s.city, s.state,
             s.status, s.reliability_score, s.last_contacted_at, s.active,
@@ -72,7 +72,7 @@ export async function getSuppliers() {
 
 /** Fornecedor completo + suas especies (com nomes) para a tela de detalhe. */
 export async function getSupplierById(id: string) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:ler')
   const { rows } = await pool.query(
     `SELECT ${SUPPLIER_COLUMNS} FROM suppliers WHERE id = $1`,
     [id],
@@ -95,7 +95,8 @@ export async function getSupplierById(id: string) {
 export async function createSupplier(
   data: SupplierInput,
 ): Promise<{ id?: string; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:criar')
+  if (!auth.ok) return { error: auth.error }
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
@@ -122,7 +123,8 @@ export async function updateSupplier(
   id: string,
   data: SupplierInput,
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
@@ -159,7 +161,8 @@ export async function toggleSupplierActive(
   id: string,
   active: boolean,
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:excluir')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`UPDATE suppliers SET active = $1 WHERE id = $2`, [active, id])
     revalidatePath(PATH)
@@ -175,7 +178,7 @@ export async function toggleSupplierActive(
 
 /** Fornecedores ativos para o mapa: so quem ja tem lat/lng + contagem de pendentes. */
 export async function getSuppliersForMap() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:ler')
   const { rows: suppliers } = await pool.query(
     `SELECT s.id, s.name, s.city, s.state, s.status, s.lat, s.lng,
             COUNT(DISTINCT ss.species_id)::int AS species_count
@@ -205,7 +208,7 @@ export async function geocodePendingSuppliers(): Promise<{
   pending?: number
   error?: string
 }> {
-  await requireRole('admin', 'chefia')
+  await requirePermission('fornecedor:atualizar')
   const BATCH = 5
   try {
     const { rows: targets } = await pool.query(
@@ -274,7 +277,8 @@ export async function addSupplierSpecies(
   supplierId: string,
   data: SupplierSpeciesInput,
 ): Promise<{ id?: string; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const error = validateSupplierSpecies(data)
   if (error) return { error }
   const v = speciesValues(data)
@@ -301,7 +305,8 @@ export async function updateSupplierSpecies(
   id: string,
   data: SupplierSpeciesInput,
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const error = validateSupplierSpecies(data)
   if (error) return { error }
   const v = speciesValues(data)
@@ -325,7 +330,8 @@ export async function updateSupplierSpecies(
 
 /** DELETE fisico: linha de catalogo do fornecedor, nao historico de negocio. */
 export async function removeSupplierSpecies(id: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`DELETE FROM supplier_species WHERE id = $1`, [id])
     revalidatePath(PATH)
@@ -343,7 +349,8 @@ export async function importSupplierSpeciesRows(
   supplierId: string,
   rows: SupplierSpeciesInput[],
 ): Promise<{ inserted?: number; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('fornecedor:atualizar')
+  if (!auth.ok) return { error: auth.error }
   if (!supplierId) return { error: 'Fornecedor inválido.' }
   if (!rows || rows.length === 0) return { error: 'Nenhuma linha para importar.' }
   for (const row of rows) {

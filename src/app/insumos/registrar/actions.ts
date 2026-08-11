@@ -1,7 +1,7 @@
 'use server'
 
 import pool from '@/lib/db'
-import { requireAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 
 export interface UsagePayload {
   /**
@@ -18,7 +18,7 @@ export interface UsagePayload {
 }
 
 export async function registrarUso(payload: UsagePayload): Promise<void> {
-  await requireAuth()
+  await requirePermission('consumo_insumo:criar')
   await pool.query(
     `INSERT INTO input_usages (client_id, input_id, species_id, container_id, quantity, usage_date)
      VALUES ($1, $2, $3, $4, $5, $6)

@@ -1,11 +1,11 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getOrders } from './actions'
 import PedidosList, { type OrderRow } from './PedidosList'
 
 export const dynamic = 'force-dynamic'
 
 export default async function PedidosPage() {
-  const user = await requireRole('admin', 'chefia', 'gerencia')
+  const user = await requirePermission('pedido:ler')
 
   let orders: OrderRow[] = []
   try {

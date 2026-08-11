@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
+import { can, canAny, type Permission } from '@/lib/permissions'
 import LogoutButton from './LogoutButton'
 import NotificationBell from '@/components/NotificationBell'
 
@@ -12,13 +13,15 @@ const WORKER_LINKS = [
   },
 ]
 
-const ADMIN_LINKS = [
-  { href: '/admin/especies',        label: 'Espécies' },
-  { href: '/admin/recipientes',     label: 'Recipientes' },
-  { href: '/admin/insumos',         label: 'Insumos' },
-  { href: '/admin/custos-fixos',    label: 'Custos Fixos' },
-  { href: '/admin/coleta-sementes', label: 'Coleta Sementes' },
-  { href: '/admin/usuarios',        label: 'Usuários' },
+// A permissao de cada link e a MESMA que guarda a pagina de destino, para que
+// o atalho nunca apareca levando a uma tela que devolveria o usuario.
+const ADMIN_LINKS: { href: string; label: string; permission: Permission }[] = [
+  { href: '/admin/especies',        label: 'Espécies',        permission: 'especie:criar' },
+  { href: '/admin/recipientes',     label: 'Recipientes',     permission: 'recipiente:criar' },
+  { href: '/admin/insumos',         label: 'Insumos',         permission: 'insumo:criar' },
+  { href: '/admin/custos-fixos',    label: 'Custos Fixos',    permission: 'custo_fixo:criar' },
+  { href: '/admin/coleta-sementes', label: 'Coleta Sementes', permission: 'coleta_semente:criar' },
+  { href: '/admin/usuarios',        label: 'Usuários',        permission: 'usuario:criar' },
 ]
 
 const ROLE_LABELS: Record<string, string> = {
@@ -31,9 +34,21 @@ const ROLE_LABELS: Record<string, string> = {
 export default async function Home() {
   const user = await requireAuth()
 
-  const showAdmin = user.role === 'admin' || user.role === 'chefia'
-  const showPedidos =
-    user.role === 'admin' || user.role === 'chefia' || user.role === 'gerencia'
+  // Renderizacao, nao controle de acesso — o D4 §4 e explicito: esconder botao
+  // nao protege nada, quem protege e o guard da acao. Isto aqui existe para o
+  // usuario nao ver atalho que o levaria a uma tela da qual seria devolvido.
+  // A permissao usada e a mesma que guarda a pagina de destino.
+  const showAdmin = canAny(user, [
+    'especie:criar',
+    'recipiente:criar',
+    'insumo:criar',
+    'custo_fixo:criar',
+    'coleta_semente:criar',
+    'usuario:criar',
+  ])
+  const showClientes = can(user, 'cliente:criar')
+  const showFornecedores = can(user, 'fornecedor:criar')
+  const showPedidos = can(user, 'pedido:ler')
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -76,8 +91,8 @@ export default async function Home() {
                   <p className="text-sm text-gray-500">Cadastrar, verificar e separar pedidos</p>
                 </div>
               </Link>
-              {/* Clientes — so admin/chefia; gerencia ve o cliente dentro do pedido, nao a aba */}
-              {showAdmin && (
+              {/* Clientes — quem cadastra; a gerencia ve o cliente dentro do pedido, nao a aba */}
+              {showClientes && (
                 <Link
                   href="/clientes"
                   className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
@@ -89,8 +104,8 @@ export default async function Home() {
                   </div>
                 </Link>
               )}
-              {/* Fornecedores — rede de revenda (P11); so admin/chefia */}
-              {showAdmin && (
+              {/* Fornecedores — rede de revenda (P11) */}
+              {showFornecedores && (
                 <Link
                   href="/fornecedores"
                   className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
@@ -136,10 +151,7 @@ export default async function Home() {
             </h2>
             <div className="grid grid-cols-2 gap-2">
               {ADMIN_LINKS
-                .filter((link) => {
-                  if (link.href === '/admin/usuarios') return user.role === 'admin'
-                  return true
-                })
+                .filter((link) => can(user, link.permission))
                 .map(({ href, label }) => (
                   <Link
                     key={href}

@@ -2,9 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/db', () => ({ default: { query: vi.fn(), connect: vi.fn() } }))
-vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))
+// Sessao mockada, POLITICA REAL. Antes estes testes faziam
+// `vi.mock('@/lib/auth', () => ({ requireRole: vi.fn() }))`, o que desligava a
+// guarda: a autorizacao nunca era exercitada. Agora so a sessao e falsa —
+// authz.ts e permissions.ts rodam de verdade.
+vi.mock('@/lib/auth', () => ({ getSession: vi.fn(), requireAuth: vi.fn() }))
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT')
+  }),
+}))
 
 import pool from '@/lib/db'
+import { getSession, requireAuth } from '@/lib/auth'
 import {
   getCustomers,
   createCustomer,
@@ -31,8 +41,28 @@ const I = {
   zip_code: 12,
 }
 
+
+const ADMIN = {
+  id: 'u1',
+  username: 'joao',
+  display_name: 'João',
+  role: 'admin' as const,
+  must_change_password: false,
+}
+const mockedGetSession = getSession as unknown as ReturnType<typeof vi.fn>
+const mockedRequireAuth = requireAuth as unknown as ReturnType<typeof vi.fn>
+
+/** Roda o proximo teste com outro papel, para exercitar a negacao de verdade. */
+function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
+  const u = { ...ADMIN, role }
+  mockedGetSession.mockResolvedValue(u)
+  mockedRequireAuth.mockResolvedValue(u)
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
+  mockedGetSession.mockResolvedValue(ADMIN)
+  mockedRequireAuth.mockResolvedValue(ADMIN)
 })
 
 describe('createCustomer — cadastro simples', () => {
@@ -321,5 +351,22 @@ describe('mergeCustomers', () => {
     expect(res.error).toMatch(/não encontrado/i)
     expect(q.mock.calls.some((c) => c[0] === 'ROLLBACK')).toBe(true)
     expect(client.release).toHaveBeenCalled()
+  })
+})
+
+// A politica roda de verdade nestes testes, entao da para exercitar o D4 §3.8:
+// os cadastros pertencem a chefia; a gerencia le, mas nao cria.
+describe('autorização (política real, D4 §3.8)', () => {
+  it('gerência não cadastra cliente e o banco não é tocado', async () => {
+    comPapel('gerencia')
+    const res = await createCustomer({ name: 'Prefeitura de Rio do Sul' })
+    expect(res).toMatchObject({ error: expect.stringMatching(/permissão/i) })
+    expect(mockedQuery).not.toHaveBeenCalled()
+  })
+
+  it('colaborador não lê a aba de clientes (é redirecionado)', async () => {
+    comPapel('colaborador')
+    await expect(getCustomers()).rejects.toThrow()
+    expect(mockedQuery).not.toHaveBeenCalled()
   })
 })

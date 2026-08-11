@@ -3,10 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
 import type { SpeciesTagSlug } from '@/lib/species-tags'
 import { findNameConflict, normalizePopularName, type KnownName } from '@/lib/species-names'
+import { authorize, requirePermission } from '@/lib/authz'
 
 const PATH = '/admin/especies'
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 // 8 MB
@@ -23,7 +23,7 @@ export interface SpeciesPayload {
 }
 
 export async function uploadEspecieFoto(formData: FormData): Promise<{ url: string } | { error: string }> {
-  await requireRole('admin', 'chefia')
+  await requirePermission('especie:atualizar')
 
   const file = formData.get('file') as File | null
   if (!file || file.size === 0) return { error: 'Nenhum arquivo selecionado.' }
@@ -106,7 +106,8 @@ async function findScientificNameDuplicate(
 }
 
 export async function createEspecie(data: SpeciesPayload): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:criar')
+  if (!auth.ok) return { error: auth.error }
   try {
     const conflict = findNameConflict(data.common_name, await loadKnownNames())
     if (conflict) return { error: conflictMessage(conflict) }
@@ -135,7 +136,8 @@ export async function createEspecie(data: SpeciesPayload): Promise<{ error?: str
 export async function createSpeciesQuick(
   commonName: string,
 ): Promise<{ id?: string; existing?: { id: string; common_name: string }; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:criar')
+  if (!auth.ok) return { error: auth.error }
   const name = commonName.trim()
   if (!name) return { error: 'Informe o nome da espécie.' }
   try {
@@ -157,7 +159,8 @@ export async function createSpeciesQuick(
 }
 
 export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     const conflict = findNameConflict(data.common_name, await loadKnownNames(), id)
     if (conflict) return { error: conflictMessage(conflict) }
@@ -177,7 +180,8 @@ export async function updateEspecie(id: string, data: SpeciesPayload): Promise<{
 }
 
 export async function toggleEspecieAtiva(id: string, active: boolean): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:excluir')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`UPDATE species SET active=$1 WHERE id=$2`, [active, id])
   } catch (e: unknown) {
@@ -200,7 +204,8 @@ export async function addPopularName(
   speciesId: string,
   name: string,
 ): Promise<{ id?: string; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Informe o nome popular.' }
   try {
@@ -221,7 +226,8 @@ export async function addPopularName(
 }
 
 export async function removePopularName(nameId: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`DELETE FROM species_popular_names WHERE id=$1`, [nameId])
   } catch (e: unknown) {
@@ -237,7 +243,8 @@ export async function removePopularName(nameId: string): Promise<{ error?: strin
  * common_name. Transacional — nenhum nome se perde.
  */
 export async function setMainPopularName(nameId: string): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('especie:atualizar')
+  if (!auth.ok) return { error: auth.error }
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { authorize } from '@/lib/authz'
 
 const PATH = '/admin/recipientes'
 
@@ -16,7 +16,8 @@ export interface ContainerPayload {
 }
 
 export async function createRecipiente(data: ContainerPayload): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('recipiente:criar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `INSERT INTO containers (name, volume_liters, substrate_per_unit_liters, unit_cost, active)
@@ -31,7 +32,8 @@ export async function createRecipiente(data: ContainerPayload): Promise<{ error?
 }
 
 export async function updateRecipiente(id: string, data: ContainerPayload): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('recipiente:atualizar')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(
       `UPDATE containers SET name=$1, volume_liters=$2, substrate_per_unit_liters=$3, unit_cost=$4, active=$5
@@ -46,7 +48,8 @@ export async function updateRecipiente(id: string, data: ContainerPayload): Prom
 }
 
 export async function toggleRecipienteAtivo(id: string, active: boolean): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('recipiente:excluir')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`UPDATE containers SET active=$1 WHERE id=$2`, [active, id])
   } catch (e: unknown) {

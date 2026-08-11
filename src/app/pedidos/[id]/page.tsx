@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getOrderById } from '../actions'
 import OrderDetailClient from './OrderDetailClient'
 
@@ -10,7 +10,7 @@ export default async function PedidoDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const user = await requireRole('admin', 'chefia', 'gerencia')
+  const user = await requirePermission('pedido:ler')
   const { id } = await params
 
   const data = await getOrderById(id)

@@ -1,11 +1,11 @@
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import InsumosManager from './InsumosManager'
 
 export const dynamic = 'force-dynamic'
 
 export default async function InsumosPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('insumo:criar')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let inputs: any[] = []

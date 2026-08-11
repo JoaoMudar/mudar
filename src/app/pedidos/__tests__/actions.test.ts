@@ -49,11 +49,20 @@ beforeEach(() => {
 })
 
 describe('getOrdersSignal', () => {
-  it('nega acesso sem permissao (sem tocar o banco)', async () => {
-    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
+  it('sem sessão devolve sinal neutro (sem tocar o banco)', async () => {
+    mockedGetSession.mockResolvedValueOnce(null)
     const sig = await getOrdersSignal()
     expect(sig).toEqual({ count: 0, latest: null })
     expect(mockedQuery).not.toHaveBeenCalled()
+  })
+
+  // Mudanca de comportamento: o D4 §2 da `L` de Pedidos ao colaborador. A
+  // checagem inline anterior o excluia, divergindo da matriz.
+  it('colaborador lê o sinal — D4 §2, linha Pedidos', async () => {
+    mockedGetSession.mockResolvedValueOnce({ ...chefia, role: 'colaborador' })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ count: 3, latest: null }] })
+    const sig = await getOrdersSignal()
+    expect(sig).toEqual({ count: 3, latest: null })
   })
 
   it('retorna contagem e o created_at mais recente em ISO', async () => {

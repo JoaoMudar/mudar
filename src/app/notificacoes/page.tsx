@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import { requireAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getNotifications } from '@/lib/notifications'
 import NotificacoesClient from './NotificacoesClient'
 
 export default async function NotificacoesPage() {
-  const user = await requireAuth()
+  const user = await requirePermission('notificacao_propria:ler')
   const notifications = await getNotifications(user.id, 50)
 
   return (

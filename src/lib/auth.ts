@@ -155,10 +155,8 @@ export async function getCurrentSessionTokenHash(): Promise<string | null> {
   return token ? hashToken(token) : null
 }
 
-export async function requireRole(
-  ...roles: User['role'][]
-): Promise<User> {
-  const user = await requireAuth()
-  if (!roles.includes(user.role)) redirect('/')
-  return user
-}
+// `requireRole(...roles)` foi removida em 11/08/2026. Ela obrigava cada call
+// site a repetir a lista de papeis a mao — eram 78 —, e a matriz do D4 nao
+// tinha como ser conferida contra o codigo. O substituto e
+// `requirePermission` / `authorize` de `@/lib/authz`, que consultam a matriz
+// unica de `@/lib/permissions`.

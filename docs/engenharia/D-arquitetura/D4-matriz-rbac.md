@@ -28,6 +28,22 @@ que a matriz de negócio reflita a operação real do viveiro, e não a estrutur
 dúvida, a decisão pendeu para conceder — um perfil restrito demais produz pedido de exceção
 constante, e a exceção concedida caso a caso é pior que a permissão declarada.
 
+### 1.1 Nota sobre o administrador na implementação (11/08/2026)
+
+A coluna *Administrador* da matriz é, em algumas linhas, mais restrita que a da chefia — coerente
+com o parágrafo acima, já que o administrador não é função de negócio. **Na implementação, porém,
+o perfil `admin` recebe acesso irrestrito**, por um `if` explícito em
+[`src/lib/permissions.ts`](../../../src/lib/permissions.ts) anterior à consulta da matriz.
+
+A razão é operacional e não conceitual: há **uma pessoa** com esse perfil, ela é quem mantém o
+sistema, e precisa conseguir destravar qualquer situação em produção. A alternativa real não é um
+administrador mais restrito — é um administrador que troca o próprio perfil para resolver
+incidente, o que destrói o registro de auditoria justamente no momento em que ele mais importa.
+
+A matriz permanece como está: ela descreve o **projeto** do controle de acesso, e é a fonte do
+teste que compara documento e código (`src/lib/__tests__/permissions.test.ts`). O override é uma
+decisão de implantação, declarada aqui e em um único ponto do código.
+
 ---
 
 ## 2. Matriz por recurso e operação
@@ -39,13 +55,13 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 | **Espécies** | C L A E | L | L | C L A E |
 | **Recipientes** | C L A E | L | L | C L A E |
 | **Insumos** | C L A E | L | L | C L A E |
-| **Consumo de insumo** | L | L | **C L** | L |
+| **Consumo de insumo** | L ¹ | L | **C L** | L |
 | **Custos fixos** | C L A E | — | — | C L A E |
 | **Coleta de sementes** | C L A E | L | — | C L A E |
 | **Custo unitário** | L | L | **—** | L |
-| **Atividades de produção** | L | C L A | **C L** | L |
+| **Atividades de produção** | L ¹ | C L A | **C L** | L |
 | **Estoque** | L | C L A | L | L |
-| **Perdas** | L | L A | **C L** | L |
+| **Perdas** | L ¹ | L A | **C L** | L |
 | **Análise de perdas** | L | L | — | L |
 | **Margem por canal** | C L A | L | **—** | L |
 | **Preço de venda** | C L A | L | **—** | L |
@@ -65,6 +81,8 @@ Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—**
 | **Usuários e perfis** | — | — | — | **C L A E** |
 | **Sessões próprias** | L E | L E | L E | L E |
 | **Auditoria de acesso** | — | — | — | L |
+
+¹ **Emenda de 11/08/2026 — a chefia também cria.** Ver [§3.10](#310-emenda-a-chefia-registra-em-campo-enquanto-o-colaborador-não-usa-o-sistema).
 
 ---
 
@@ -132,6 +150,26 @@ erro, e quem responde pela consequência é quem os mantém.
 
 A gerência lê tudo o que precisa para operar — para verificar disponibilidade é necessário conhecer
 espécies e recipientes, e para acompanhar um pedido é necessário saber de quem ele é.
+
+### 3.10 Emenda: a chefia registra em campo enquanto o colaborador não usa o sistema
+
+*Acrescentada em 11/08/2026, ao transcrever a matriz para código.*
+
+As três linhas marcadas com ¹ — **Consumo de insumo**, **Atividades de produção** e **Perdas** —
+davam `C` exclusivamente ao colaborador. Combinada com o §3.9, que declara que o uso em campo pelo
+colaborador é iteração posterior e que hoje os usuários efetivos são chefia e gerência, a
+especificação literal produz um resultado que ninguém pretendeu: **`/insumos/registrar` fica sem
+nenhum usuário capaz de usá-la**, e o registro de consumo — dependência-raiz do custeio — não
+acontece.
+
+A emenda concede `C` à chefia nessas três linhas. É restrição temporal, não permanente: vale
+enquanto os colaboradores não estiverem em campo com o sistema. Quando estiverem, a permissão da
+chefia pode ser reavaliada, mas não precisa ser removida — quem responde pelo custo pode registrar
+o que o compõe.
+
+A alternativa considerada e descartada foi abrir exceção apenas no código. Seria reproduzir
+exatamente o problema que a matriz única existe para eliminar: uma regra que vale, mas que não
+está escrita onde as regras se leem.
 
 ---
 

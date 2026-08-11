@@ -1,11 +1,11 @@
-import { requireRole } from '@/lib/auth'
+import { requirePermission } from '@/lib/authz'
 import { getQuotes } from './actions'
 import QuotesList from './QuotesList'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CotacoesPage() {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cotacao:ler')
 
   let quotes: Awaited<ReturnType<typeof getQuotes>> = []
   try {

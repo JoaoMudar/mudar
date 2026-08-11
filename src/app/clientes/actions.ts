@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
-import { requireRole } from '@/lib/auth'
 import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
 import { safeErrorMessage } from '@/lib/action-errors'
+import { authorize, requirePermission } from '@/lib/authz'
 import {
   mapBrasilApi,
   mapOpenCnpj,
@@ -119,7 +119,7 @@ async function findCustomerByDocument(
  * no client; o parametro existe para reuso (ex.: busca server-side futura).
  */
 export async function getCustomers(search?: string) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cliente:ler')
   const q = (search ?? '').trim()
   if (!q) {
     const { rows } = await pool.query(
@@ -147,7 +147,7 @@ export async function getCustomers(search?: string) {
 
 /** Busca rapida por nome (ILIKE), limite 10 — usada em autocomplete. */
 export async function searchCustomers(query: string) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cliente:ler')
   const q = (query ?? '').trim()
   if (!q) return []
   const { rows } = await pool.query(
@@ -162,7 +162,7 @@ export async function searchCustomers(query: string) {
 
 /** Cliente completo (todos os campos fiscais) para a tela de edicao/detalhe. */
 export async function getCustomerById(id: string) {
-  await requireRole('admin', 'chefia')
+  await requirePermission('cliente:ler')
   const { rows } = await pool.query(
     `SELECT ${CUSTOMER_COLUMNS} FROM customers WHERE id = $1`,
     [id],
@@ -179,7 +179,8 @@ export async function getCustomerById(id: string) {
 export async function lookupCnpj(
   cnpj: string,
 ): Promise<{ data?: CnpjData; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cliente_fiscal:ler')
+  if (!auth.ok) return { error: auth.error }
   const digits = onlyDigits(cnpj)
   if (!isValidCNPJ(digits)) return { error: 'CNPJ inválido.' }
 
@@ -222,7 +223,8 @@ export async function lookupCnpj(
 export async function createCustomer(
   data: CustomerInput,
 ): Promise<{ id?: string; error?: string; conflict?: { id: string; name: string } }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cliente:criar')
+  if (!auth.ok) return { error: auth.error }
 
   const personType = normPersonType(data.person_type)
   const name = displayName(data, personType)
@@ -283,7 +285,8 @@ export async function updateCustomer(
   id: string,
   data: CustomerInput,
 ): Promise<{ error?: string; conflict?: { id: string; name: string } }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cliente:atualizar')
+  if (!auth.ok) return { error: auth.error }
 
   const personType = normPersonType(data.person_type)
   const name = displayName(data, personType)
@@ -341,7 +344,8 @@ export async function toggleCustomerActive(
   id: string,
   active: boolean,
 ): Promise<{ error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cliente:excluir')
+  if (!auth.ok) return { error: auth.error }
   try {
     await pool.query(`UPDATE customers SET active = $1 WHERE id = $2`, [active, id])
     revalidatePath(PATH)
@@ -361,7 +365,8 @@ export async function mergeCustomers(
   duplicateId: string,
   originalId: string,
 ): Promise<{ movedOrders?: number; error?: string }> {
-  await requireRole('admin', 'chefia')
+  const auth = await authorize('cliente:atualizar')
+  if (!auth.ok) return { error: auth.error }
   if (!duplicateId || !originalId) return { error: 'Clientes inválidos para unir.' }
   if (duplicateId === originalId) return { error: 'Não é possível unir um cliente a ele mesmo.' }
 
