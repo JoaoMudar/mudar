@@ -19,7 +19,7 @@ O que fechou, e por que importava:
 | Erro do Postgres exibido na tela | 24 ocorrências | 0 — tudo passa por `safeErrorMessage` |
 | Upload de foto de espécie | **quebrado em produção** (filesystem somente-leitura na Vercel) | `BYTEA` no Postgres + rota `/api/fotos/[id]` |
 | Fila offline | 3 defeitos reais, nenhum teste | corrigida, idempotente por `client_id`, testada |
-| Observabilidade | nenhuma | Sentry (server + client + edge) |
+| Observabilidade | nenhuma | Sentry (server + client + edge), com evento real confirmado em produção |
 
 **Os dois refactors estruturais estão feitos.** É o que responde à exigência original de "não
 quero ter que refatorar depois": o P13 e o P12 podem ser construídos sobre a política de acesso e
@@ -79,23 +79,26 @@ registrada em `_migrations` mas não aplicou nada" — que é exatamente como o 
 
 ---
 
-## 4. Sentry sem evento real confirmado em produção
+## 4. Sentry — ✅ confirmado em produção (11/08/2026)
 
-**Estado:** instalado e configurado; `npm run sentry:teste` prova que o DSN e a rede funcionam. Falta
-confirmar que um erro **da aplicação em produção** chega ao painel.
+**Não é mais pendência.** Fica registrado porque o caminho de verificação é útil da próxima vez.
 
-**Como confirmar:** logado em produção, abrir `/pedidos/abc`. O `abc` é um UUID malformado, então o
-Postgres lança `22P02`; como nem a página nem `getOrderById` têm `try/catch`, o erro sobe até o
-`onRequestError` do `instrumentation.ts`.
+O erro forçado em `/pedidos/abc` chegou ao painel. O `abc` é um UUID malformado, então o Postgres
+lança `22P02`; como nem a página nem `getOrderById` têm `try/catch`, o erro sobe até o
+`onRequestError` do `instrumentation.ts`. Isso fecha a cadeia inteira: aplicação → instrumentação →
+DSN → painel, com `environment: production`.
 
 > Cuidado com o teste errado: `/pedidos/00000000-0000-0000-0000-000000000000` **não** serve. É um
 > UUID sintaticamente válido que apenas não existe — a consulta devolve zero linhas sem erro e a
 > página faz `redirect('/pedidos')`. Nenhuma exceção é lançada, e o Sentry corretamente não
-> registra nada.
+> registra nada. Foi essa a confusão que atrasou a verificação.
 
-**Pendência menor junto:** o *auth token* para upload de source maps nunca foi criado (não foi
-encontrado na interface do Sentry). Sem ele o stack trace vem minificado. O `next.config.mjs` já
-trata a ausência sem quebrar o build, então isso é conforto, não bloqueio.
+Para testar o DSN isoladamente, sem subir o Next: `npm run sentry:teste`.
+
+**Pendência residual:** o *auth token* para upload de source maps nunca foi criado (não foi
+encontrado na interface do Sentry). Sem ele o stack trace vem minificado — dá para achar o erro,
+mas não a linha. O `next.config.mjs` já trata a ausência sem quebrar o build, então é conforto,
+não bloqueio.
 
 ---
 
@@ -122,6 +125,6 @@ existem e estão preenchidas; `users` ficou de fora. É pré-requisito para a ag
 ## Ordem sugerida
 
 **1** (backup) antes de qualquer coisa — é uma tarde de trabalho e é o único risco irreversível.
-Depois **3** (drift de schema), que é barato e cobre a falha mais provável. **4** custa cinco
-minutos e pode ser feito a qualquer momento. **2** e **6** entram quando houver folga; **5** entra
-junto com a Fase 3 do P13, que é quem precisa dele.
+Depois **3** (drift de schema), que é barato e cobre a falha mais provável. **2** e **6** entram
+quando houver folga; **5** entra junto com a Fase 3 do P13, que é quem precisa dele. **4** está
+fechado (resta só o source map, que é conforto).
