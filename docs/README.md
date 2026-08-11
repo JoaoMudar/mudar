@@ -38,6 +38,7 @@
 | [`EXECUTION-GUIDE.md`](EXECUTION-GUIDE.md) | Como conduzir as sessões de desenvolvimento e a ordem dos sprints. |
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
 | [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria 10/08/2026** — divergências entre docs, planos e código, com ordem de correção. Ler antes de retomar o desenvolvimento. |
+| [`divida-tecnica.md`](divida-tecnica.md) | **Trabalho futuro (11/08/2026)** — o que falta para a produção ser segura de operar: backup, teste contra banco real, drift de schema. Prontidão medida: ~85%. |
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
 > **Financeiro:** a abordagem nova (extrato bancário como fonte da verdade) está em

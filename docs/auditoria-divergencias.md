@@ -6,6 +6,9 @@
 >
 > Método: leitura dos 13 planos, das 9 rotinas, dos 17 artefatos de engenharia e conferência
 > contra `migrations/`, `src/` e `package.json`.
+>
+> **Sequência:** as correções apontadas aqui foram executadas em 10–11/08/2026. O que ficou
+> pendente depois delas está em [`divida-tecnica.md`](divida-tecnica.md).
 
 ## Resumo
 
