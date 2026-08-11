@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic'
 export default async function InsumosPage() {
   await requirePermission('insumo:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let inputs: any[] = []
   try {
     const { rows } = await pool.query(`SELECT * FROM inputs ORDER BY name`)

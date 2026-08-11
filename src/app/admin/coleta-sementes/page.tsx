@@ -7,9 +7,7 @@ export const dynamic = 'force-dynamic'
 export default async function ColetaSementesPage() {
   await requirePermission('coleta_semente:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let normalizedCollections: any[] = []
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let speciesOptions: any[] = []
 
   try {

@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic'
 export default async function UsuariosPage() {
   await requirePermission('usuario:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let users: any[] = []
   try {
     const { rows } = await pool.query(

@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic'
 export default async function CustosFixosPage() {
   await requirePermission('custo_fixo:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let costs: any[] = []
   try {
     const { rows } = await pool.query(

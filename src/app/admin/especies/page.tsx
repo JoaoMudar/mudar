@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic'
 export default async function EspeciesPage() {
   await requirePermission('especie:criar')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let species: any[] = []
   try {
     const { rows } = await pool.query(
