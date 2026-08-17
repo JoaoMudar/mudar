@@ -1,0 +1,67 @@
+flowchart TB
+  BAN(["Instituições bancárias<br/>9 contas · arquivo de extrato"])
+  ACE["<b>Acesso restrito à chefia</b><br/>a base reúne gasto do viveiro e gasto pessoal"]
+
+  IMP["<b>Importação de extrato</b> &mdash; mensal<br/>o arquivo entra inteiro, sem digitação"]
+  AUT["<b>Classificação automática</b><br/>aplica as regras aprendidas<br/>nas classificações dos meses anteriores"]
+  FIL["<b>Fila de lançamentos</b> &mdash; semanal<br/>só o que não foi reconhecido"]
+
+  subgraph CLA["Classificação &mdash; três toques por lançamento"]
+    direction LR
+    C1["<b>Centro de custo</b><br/>viveiro · sítio · clínica · casa · floricultura"]
+    C2["<b>Categoria</b><br/>35 categorias em 14 grupos"]
+    C3["<b>Contraparte</b><br/>com quem foi o dinheiro"]
+    C1 ~~~ C2 ~~~ C3
+  end
+
+  DAT["<b>Duas datas por lançamento</b><br/>caixa: quando o dinheiro saiu<br/>competência: a que mês pertence"]
+  REG["<b>Nova regra</b><br/>cada classificação vira regra<br/>e encurta a fila do mês seguinte"]
+
+  FEC["<b>Fechamento mensal</b><br/>saldo calculado &times; saldo do extrato<br/>conferido e travado"]
+
+  subgraph SAI["O que o financeiro devolve"]
+    direction LR
+    S1["<b>Faturamento</b><br/>por período, cliente e canal<br/>apenas sobre mês fechado"]
+    S2["<b>Custo real dos insumos</b><br/>alimenta o custeio por muda"]
+    S3["<b>Margem por espécie</b><br/>custo real &times; preço praticado"]
+    S1 ~~~ S2 ~~~ S3
+  end
+
+  NF["<b>Nota fiscal</b><br/>emitida no sistema fiscal externo<br/>o sistema registra apenas o número"]
+  PED["<b>Comercial</b><br/>vendas · compras de fornecedor"]
+  IND["<b>Indicadores</b><br/>painel por perfil"]
+
+  ACE -.-> IMP
+  BAN --> IMP --> AUT --> FIL --> C1
+  C3 --> DAT
+  C3 --> REG
+  DAT --> FEC
+  FEC --> S1
+  FEC --> S2
+  FEC --> S3
+  PED --> FIL
+  PED --> NF
+  S2 ==> IND
+  S1 --> IND
+  S3 --> IND
+
+  subgraph LEG["Legenda"]
+    direction LR
+    L1["implementado no protótipo"]
+    L2["parcialmente implementado"]
+    L3["especificado, não implementado"]
+    L1 ~~~ L2 ~~~ L3
+  end
+  IND ~~~ LEG
+
+  classDef feito fill:#e5e7eb,stroke:#374151,stroke-width:2px,color:#111827
+  classDef parcial fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#111827,stroke-dasharray:7 4
+  classDef futuro fill:#ffffff,stroke:#9ca3af,stroke-width:1.5px,color:#4b5563,stroke-dasharray:4 4
+  classDef ator fill:#374151,stroke:#111827,stroke-width:2px,color:#f9fafb
+  classDef grupo fill:#fafafa,stroke:#d1d5db,stroke-width:1px,color:#374151
+
+  class PED,ACE,L1 feito
+  class NF,L2 parcial
+  class IMP,AUT,FIL,C1,C2,C3,DAT,REG,FEC,S1,S2,S3,IND,L3 futuro
+  class BAN ator
+  class CLA,SAI,LEG grupo
