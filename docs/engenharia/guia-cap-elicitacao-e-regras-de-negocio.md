@@ -13,10 +13,11 @@
    a legenda de origem de [`B2`](B-requisitos/B2-especificacao-requisitos.md) §1, o §5 de `B2`
    (conflitos), o §5 de [`B5`](B-requisitos/B5-matriz-rastreabilidade.md) (lacunas) e as seções
    *"Situação atual"* de [`docs/rotinas/`](../rotinas/).
-3. **Regras de negócio** saem de 3 lugares: [`A2`](A-fundacao/A2-glossario-dominio.md) (as regras
-   estão dentro das definições), os fluxos **FE/FA** de
-   [`C2`](C-modelagem/C2-especificacao-casos-de-uso.md) e `## Regras de negócio` do
-   [`CLAUDE.md`](../../CLAUDE.md).
+3. **Regras de negócio** já estão catalogadas: 47 regras em
+   [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md), cada uma com os requisitos que
+   ela origina. Foram extraídas de [`A2`](A-fundacao/A2-glossario-dominio.md) (as regras estão dentro
+   das definições), dos fluxos **FE/FA** de [`C2`](C-modelagem/C2-especificacao-casos-de-uso.md) e do
+   `## Regras de negócio` do [`CLAUDE.md`](../../CLAUDE.md).
 4. **A única coisa que só você pode escrever:** quem foi entrevistado, quando, e com que roteiro.
    Isso não está em lugar nenhum do repositório. É o §1 do capítulo de elicitação — comece por ele
    enquanto a memória está fresca.
@@ -115,7 +116,13 @@ Isto é o único trabalho realmente novo. Nada disso está registrado em nenhum 
 
 ## 2.1 Onde as regras estão escondidas
 
-Não existe um artefato de regras de negócio. Elas estão dissolvidas em cinco lugares:
+> ✅ **Já resolvido.** O catálogo completo agora existe em
+> [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md): **47 regras** numeradas
+> RN-01 a RN-47, cada uma com tipo, onde já estava documentada e os requisitos que ela origina —
+> mais as tabelas inversas (RF → RN e RNF → origem). É de lá que saem as tabelas do capítulo.
+> A subseção abaixo continua útil para conferir se alguma regra escapou.
+
+As regras estavam dissolvidas em cinco lugares:
 
 | Lugar | Como a regra aparece ali |
 |---|---|
@@ -125,40 +132,31 @@ Não existe um artefato de regras de negócio. Elas estão dissolvidas em cinco 
 | [`C6`](C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](C-modelagem/C8-dicionario-de-dados.md) | Regras que viraram estrutura: chaves compostas, listas fechadas, restrições `CHECK`. `C6` §5 explica *por que o piso é coluna e não constante* — regra que molda o modelo |
 | [`G2`](G-gestao/G2-fichas-de-indicadores.md) e [`D4`](D-arquitetura/D4-matriz-rbac.md) | Limiares e regras de acesso (o 20% de mortalidade; o financeiro restrito à chefia) |
 
-## 2.2 Inventário inicial — 19 regras já documentadas
+## 2.2 O catálogo — 47 regras, em [`B3`](B-requisitos/B3-regras-de-negocio.md)
 
-Ponto de partida do capítulo. Numeração **RN-xx** proposta aqui (não existe ainda no projeto).
-A coluna *Requisito* mostra por onde o sistema a implementa — é o que amarra este capítulo ao 4.2.
+As regras estão numeradas **RN-01 a RN-47** e agrupadas em nove áreas:
 
-| RN | Enunciado (linguagem de negócio) | Onde já está | Requisito |
-|---|---|---|---|
-| RN-01 | Toda informação de produção, custo e venda se organiza em torno da **espécie** | `C6` §1; `CLAUDE.md` | RF-08 |
-| RN-02 | O **recipiente** define o tamanho da muda; custo e preço existem por par espécie + recipiente | `A2` §2; `C8` `production_costs` | RF-10, RF-15 |
-| RN-03 | O preço de venda é **custo real + margem do canal** | `A2` §3 "Preço" | RF-31, RF-32 |
-| RN-04 | Nenhuma venda ocorre abaixo do **piso mínimo**, independentemente da negociação | `A2`; `C2` UC-26 FE-1 | RF-33 |
-| RN-05 | O piso mínimo varia por canal e por espécie — não é constante única | `C6` §5 (l. 691) | RF-33 |
-| RN-06 | O **frete** é calculado por R$/km e incorporado ao preço, não cobrado à parte | `A2` §3 "Frete" | RF-34 |
-| RN-07 | O **canal de venda** é lista fechada de cinco; atacado é o padrão | `A2` §3; `C2` UC-24 passo 4 | RF-31 |
-| RN-08 | Mortalidade acima de **20%** é anormal e exige providência | `A2` l. 43; `G2`; `C2` UC-17 FA-1 | RF-28, RF-29 |
-| RN-09 | A causa da perda pertence a uma lista fechada — não há causa em texto livre | `A2`; `RNF-02` | RF-26 |
-| RN-10 | O cliente pode comprar **quantidade sem espécie definida** (item genérico), e o viveiro escolhe as espécies | `A2` §3 "Item genérico" | RF-66 |
-| RN-11 | No item genérico, o cliente pode restringir as espécies aceitas; espécie fora da lista não atende o item | `A2`; `C2` UC-25 FE-1 | RF-67 |
-| RN-12 | Um pedido pode ser atendido **parcialmente** — disponibilidade não é tudo ou nada | `A2` §3; `C2` UC-25 FA-1 | RF-43 |
-| RN-13 | Pode-se ofertar recipiente diferente do pedido, desde que registrado qual | `C2` UC-25 FA-2 | RF-68 |
-| RN-14 | O preço do pedido depende de **aprovação da chefia** antes do fechamento | `C2` UC-26 | RF-44 |
-| RN-15 | Pedido que exige nota fiscal só fecha com cadastro fiscal completo do cliente | `C2` UC-26 FA-1; `RNF-24` | RF-37, RF-40 |
-| RN-16 | Venda para compensação ambiental exige o **nome científico** da espécie | `A2` §3; `RNF-25` | RF-08 |
-| RN-17 | Custo se apura por **competência**, não por data de pagamento | `B2` RF-59 | RF-59 |
-| RN-18 | Indicador financeiro só é confiável sobre **mês fechado**; mês fechado não aceita alteração | `B2` RF-60, RF-61 | RF-60, RF-61 |
-| RN-19 | A mesma pessoa pode ser cliente e fornecedor — a identidade é única | `A2` §3 "Cliente"; [`rotina-cadastros.md`](../rotinas/rotina-cadastros.md) §Identidade única | — |
+| Área | Regras | O que cobre |
+|---|---|---|
+| A — Domínio e produto | RN-01 a RN-06 | Espécie como centro, nomes populares, recipiente define o produto, ciclo produtivo, muda pronta |
+| B — Custeio | RN-07 a RN-12 | Composição do custo unitário, histórico de preço, mão de obra estimada, competência |
+| C — Produção, estoque e perdas | RN-13 a RN-18 | Saldo, contagem física, estoque mínimo, causa em lista fechada, mortalidade de 20%, custo da perda |
+| D — Precificação | RN-19 a RN-24 | Preço = custo + margem, canal, piso mínimo, frete, margem negativa |
+| E — Cliente e obrigação fiscal | RN-25 a RN-30 | PF/PJ, cadastro mínimo, identidade única, nota externa, compensação ambiental, LGPD |
+| F — Pedido, entrega e fornecedor | RN-31 a RN-39 | Ciclo de estados, item genérico, disponibilidade parcial, carga, cotação |
+| G — Financeiro | RN-40 a RN-44 | Extrato como fonte da verdade, centro de custo, fechamento do mês, acesso restrito |
+| H — Acesso e responsabilidade | RN-45, RN-46 | Perfil determina o acesso; todo registro tem autor |
+| I — Indicadores | RN-47 | Indicador sem meta e sem comparação não orienta decisão |
 
-Duas regras adicionais que valem um parágrafo próprio, porque são **decisões de negócio tomadas
-durante o projeto**, e não práticas herdadas — estão em `B2` §5:
+Cada regra em `B3` traz **tipo** (fato, restrição, derivação, acionamento), **onde já estava
+documentada** e **quais RF e RNF ela origina**. As tabelas inversas (RF → RN e RNF → origem) estão
+nas seções 4 e 5 de lá, e o texto integral dos 68 RF e 26 RNF no apêndice — o arquivo é
+autossuficiente para gerar as tabelas do trabalho.
 
-- Mão de obra entra no custo por **tempo médio estimado por atividade**, não por apontamento
-  individual de horas. Precisão suficiente para revelar margem negativa, sem impor controle de ponto.
-- O acesso ao financeiro é **restrito à chefia** porque a base mistura gasto de negócio e gasto
-  pessoal (`RE-7` em `A1` §9) — é regra de negócio, não preferência de segurança.
+**Dois números que valem parágrafo no capítulo:** 65 dos 68 requisitos funcionais nascem de regra de
+negócio, mas apenas 3 dos 26 não funcionais — os outros 23 vêm das restrições do ambiente (RE-1 a
+RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; o ambiente determina
+**como** ele precisa ser.
 
 > ⚠️ **Não inclua** no capítulo de regras: "no máximo cinco campos por tela", "funcionar sem
 > conexão", "senha cifrada". Essas são **RNF** — restrições do ambiente, não regras do viveiro. Já
@@ -168,17 +166,20 @@ durante o projeto**, e não práticas herdadas — estão em `B2` §5:
 
 | Seção | Conteúdo |
 |---|---|
-| 1. Conceito e critério de classificação | O teste "apague o sistema"; a distinção regra × requisito × RNF |
-| 2. Regras de produção e custeio | RN-01, RN-02, RN-17 |
-| 3. Regras de precificação | RN-03 a RN-07 — a **espinha dorsal do trabalho**, é onde o objetivo OP-3 se realiza |
-| 4. Regras de perdas | RN-08, RN-09 |
-| 5. Regras comerciais e de pedido | RN-10 a RN-16 |
-| 6. Regras financeiras e de acesso | RN-18, RN-19 + as duas decisões de projeto |
-| 7. Como as regras se refletem no sistema | Tabela RN → RF → onde é verificada (`E2`) |
-| 8. Regras implementadas como restrição de dados | `C6`/`C8`: lista fechada, chave composta, `CHECK` |
+| 1. Conceito e critério de classificação | O teste "apague o sistema"; a distinção regra × requisito × RNF; os quatro tipos (`B3` §2) |
+| 2. Regras de domínio e produto | RN-01 a RN-06 |
+| 3. Regras de custeio | RN-07 a RN-12 |
+| 4. Regras de produção, estoque e perdas | RN-13 a RN-18 |
+| 5. Regras de precificação | RN-19 a RN-24 — a **espinha dorsal do trabalho**, é onde o objetivo OP-3 se realiza |
+| 6. Regras de cliente e obrigação fiscal | RN-25 a RN-30 |
+| 7. Regras de pedido, entrega e fornecedor | RN-31 a RN-39 |
+| 8. Regras financeiras, de acesso e de indicadores | RN-40 a RN-47 |
+| 9. Como as regras se refletem no sistema | Tabela RN → RF (`B3` §3 e §4) → onde é verificada (`E2`) |
+| 10. Regras implementadas como restrição de dados | `C6`/`C8`: lista fechada, chave composta, `CHECK` |
 
-A seção 7 é a que fecha o capítulo com rigor: mostra que nenhuma regra ficou sem implementação e
-nenhuma implementação ficou sem regra — o mesmo raciocínio de `B5`.
+A seção 9 é a que fecha o capítulo com rigor: mostra que nenhuma regra ficou sem implementação e
+nenhuma implementação ficou sem regra — o mesmo raciocínio de `B5`. As três exceções (RF-02, RF-03 e
+RF-07, que não decorrem de regra alguma) estão justificadas em `B3` §6 e valem um parágrafo.
 
 ---
 
@@ -215,9 +216,9 @@ ordem lógica do trabalho. Recomendação: renumere.
 
 ## 3.2 Fluxo de trabalho (não fure este)
 
-1. Crie os artefatos-fonte em `docs/engenharia/`, seguindo a convenção de códigos:
-   - `B-requisitos/B1-elicitacao-e-analise.md` (os códigos B1, B3 e B4 estão livres)
-   - `B-requisitos/B3-regras-de-negocio.md`
+1. Crie o artefato-fonte que falta em `docs/engenharia/`, seguindo a convenção de códigos:
+   - `B-requisitos/B1-elicitacao-e-analise.md` (os códigos B1 e B4 estão livres)
+   - `B-requisitos/B3-regras-de-negocio.md` — **✅ já existe**, com as 47 regras e as tabelas de vínculo
 2. Registre-os em [`scripts/build-docs-tcc.mjs`](../../scripts/build-docs-tcc.mjs), no array
    `SECOES` (l. 31), na posição correta da ordem — o array define nome de arquivo, título e ordem
    do capítulo.
@@ -254,9 +255,9 @@ Cada bloco é fechado: começa e termina com algo escrito no disco. Não pule o 
 | 4 | Elicitação, miolo | Preencha seções 1, 2, 3 e 5 (todas por recorte de `A1`) | Metade do capítulo |
 | 5 | Elicitação, análise | Seções 6, 7 e 8 — copie os três conflitos de `B2` §5 e as lacunas de `B5` §5 | Capítulo em pé |
 | 6 | Elicitação, fechamento | Seção 9 (viés) + revisão de citações | Capítulo fechado |
-| 7 | Regras, esqueleto | Crie `B3-regras-de-negocio.md` e cole o inventário 2.2 | Arquivo criado |
-| 8 | Regras, revisão do inventário | Confira cada RN contra `A2` e `C2`; corrija enunciados; aplique o teste de 5 segundos | Inventário validado |
-| 9 | Regras, seção 7 e 8 | Tabela RN → RF → verificação; regras que viraram restrição de dados | Capítulo fechado |
+| 7 | Regras, conferência | Leia `B3` §3 inteiro e confira cada enunciado contra a sua vivência do viveiro — corrigir agora custa uma linha, depois custa uma tabela | `B3` validado |
+| 8 | Regras, prosa | Escreva o texto corrido das seções 2 a 8 do esqueleto, uma área por vez, apoiado nas tabelas de `B3` | Capítulo em pé |
+| 9 | Regras, seções 9 e 10 | Vínculo RN → RF (tabelas de `B3` §3 e §4) + regras que viraram restrição de dados (`C6`/`C8`) | Capítulo fechado |
 | 10 | Integração | Registre no `SECOES`, renumere as seções, rode `npm run docs:tcc` | `word/` regenerado |
 
 ## Armadilhas conhecidas
