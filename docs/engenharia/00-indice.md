@@ -3,6 +3,10 @@
 > Para entender a **estrutura de pastas** e o que esperar de cada uma, comece por
 > [`README.md`](README.md). Este arquivo é o índice detalhado, com status e destino no TCC.
 >
+> Vai escrever os capítulos de **elicitação/análise de requisitos** e **regras de negócio**?
+> O mapa do material já existente está em
+> [`guia-cap-elicitacao-e-regras-de-negocio.md`](guia-cap-elicitacao-e-regras-de-negocio.md).
+>
 > Documentação formal de engenharia do projeto, produzida como base do **Capítulo 4 (Resultados)**
 > do Trabalho de Conclusão de Curso *"Digitalização do fluxo operacional e comercial em viveiros
 > florestais: um protótipo de sistema de gestão"* (UNIDAVI, 2026).
