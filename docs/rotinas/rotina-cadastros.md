@@ -34,19 +34,49 @@ Três consequências:
 Uma área `/cadastros` que agrupa as telas. **É agrupador de navegação, não migração de
 banco** — as tabelas continuam onde estão. Nenhuma tela, Server Action ou teste atual quebra.
 
+A lista de telas de cada módulo vive em `src/lib/modules.ts`, que é o que o painel inicial e
+as abas leem — e o que o teste `src/lib/__tests__/modules.test.ts` confere contra as rotas
+que existem de fato.
+
 ```
 /cadastros
-├── espécies          (existe — move de /admin/especies)
-├── recipientes       (existe — move de /admin/recipientes)
-├── insumos           (existe — move de /admin/insumos)
-├── clientes          (existe — /clientes continua funcionando)
-├── fornecedores      (existe — /fornecedores continua funcionando)
-├── funcionários      ← NOVO
+├── pessoas           ← UMA lista, filtrada por papel
+│   ├── cliente       → /clientes       (a tela do papel, URL antiga)
+│   ├── fornecedor    → /fornecedores   (a tela do papel, URL antiga)
+│   └── funcionário   → sem tela ainda  (P13 T13.3 e T13.7)
+├── espécies          (veio de /admin/especies)
+├── recipientes       (veio de /admin/recipientes)
+├── insumos           (veio de /admin/insumos)
 └── tipos de tarefa   ← NOVO
 ```
 
-`/admin` fica só com o que é administração de sistema: usuários, sessões, custos fixos,
-coleta de sementes.
+**Pessoas é uma entrada só, não duas.** Com abas irmãs de Clientes e Fornecedores, o Márcio
+Kuhar — que vende muda e às vezes compra — aparecia duas vezes, que é exatamente o problema
+que `cadastro.parties` foi criada para resolver. A lista mostra a pessoa uma vez, com um selo
+por papel; **o selo é o link** para a tela daquele papel.
+
+**A leitura não é uniforme, e a lista respeita isso.** `cliente:ler` é de chefia, gerência e
+admin; `fornecedor:ler` é só de chefia e admin (D4 §2). Os papéis são filtrados **no
+servidor** (`getPeople` em `src/app/cadastros/pessoas/actions.ts`), e o filtro que vem da tela
+só pode estreitar — nunca ampliar. Uma gerência que abre o Márcio Kuhar vê o selo de cliente
+e não fica sabendo que ele também é fornecedor.
+
+**Funcionário já é opção, sem ser tela.** O papel existe no CHECK de `cadastro.party_roles`
+desde a migration `20260811000004`, e o recurso `funcionario` entrou na matriz de permissões.
+O filtro aparece e devolve lista vazia até a **T13.3** (`users.party_id`) e a **T13.7** (CRUD)
+serem feitas — vazio honesto vale mais que botão que não leva a lugar nenhum.
+
+`/admin` fica só com o que é administração de sistema: **usuários, permissões e sessões**.
+
+**Custos fixos e coleta de sementes não entram em Cadastros** — nenhum dos dois passa na regra
+de corte abaixo. Custo fixo é valor que muda todo mês e que o extrato bancário vai passar a
+alimentar (P12), então foi para `/financeiro/custos-fixos`. Coleta de sementes é atividade de
+campo, então foi para `/producao/coleta-sementes`.
+
+**Fornecedor é cadastro; cotação é movimento.** Os dois dividem a URL `/fornecedores`, mas o
+cadastro da rede é um papel de Pessoas neste módulo e a cotação (`/fornecedores/cotar`, `/cotacoes`,
+`/mapa`, `/dashboard`) pertence ao Comercial. O agrupamento é de navegação — as rotas ficaram
+onde estavam porque `notifications.link` guarda caminho gravado no banco.
 
 ### A regra que decide o que entra
 
@@ -78,6 +108,12 @@ Três consequências práticas:
   a party. Amélia e Jaison aparecem na agenda e no financeiro mesmo sem nunca abrir o app.
 - **O financeiro tem para onde apontar.** Pagamento de diária aponta para a party do
   funcionário, não para um texto digitado.
+
+A tela que materializa isso é `/cadastros/pessoas`, que lê `cadastro.parties` via
+`listParties` (`src/lib/parties.ts`). As telas de papel continuam sendo onde se editam os
+campos **do papel** — dados fiscais e CNPJ no cliente; espécies, confiabilidade e
+geocodificação no fornecedor — porque é isso que a divisão
+`parties` × `customers`/`suppliers` estabelece.
 
 > **Espécies, recipientes, insumos e tipos de tarefa não são pessoas** — não entram em
 > `parties`. Continuam nas suas tabelas. O que os une a clientes e fornecedores é a

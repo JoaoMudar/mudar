@@ -1,7 +1,9 @@
+// v3: as telas foram reagrupadas nos quatro modulos e o `/` cacheado guarda
+// o menu com os links antigos.
 // v2: parou de cachear /api. Trocar o nome do cache e o que faz o `activate`
 // abaixo apagar o cache antigo — sem isso, as respostas de API ja gravadas na
 // v1 continuariam sendo servidas.
-const CACHE_NAME = 'viveiro-mudar-v2'
+const CACHE_NAME = 'viveiro-mudar-v3'
 
 // Arquivos essenciais para cache offline
 const PRECACHE_URLS = [

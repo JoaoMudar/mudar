@@ -1,23 +1,12 @@
 'use client'
 
-import { type PartyMatch, type PartyRole } from '@/lib/parties'
+import { PARTY_ROLE_LABEL, type PartyMatch, type PartyRole } from '@/lib/parties'
 
-// Como o papel aparece na frase. O rotulo e o do papel que a pessoa JA tem —
-// quem esta sendo cadastrado agora e o outro.
-const ROTULO: Record<PartyRole, string> = {
-  cliente: 'cliente',
-  fornecedor: 'fornecedor',
-  funcionario: 'funcionário',
-  socio: 'sócio',
-  familiar: 'familiar',
-  banco: 'banco',
-  governo: 'órgão público',
-  contador: 'contador',
-  outro: 'outro cadastro',
-}
-
+// O rotulo e o do papel que a pessoa JA tem — quem esta sendo cadastrado agora
+// e o outro. A tabela vive em `@/lib/parties` porque a lista de pessoas usa a
+// mesma.
 function listaDePapeis(roles: PartyRole[]): string {
-  const nomes = roles.map((r) => ROTULO[r] ?? r)
+  const nomes = roles.map((r) => PARTY_ROLE_LABEL[r] ?? r)
   if (nomes.length === 0) return 'outro cadastro'
   if (nomes.length === 1) return nomes[0]
   return `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`

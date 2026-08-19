@@ -5,7 +5,7 @@ import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
 import { authorize } from '@/lib/authz'
 
-const PATH = '/admin/coleta-sementes'
+const PATH = '/producao/coleta-sementes'
 
 export interface SeedCollectionPayload {
   species_id: string

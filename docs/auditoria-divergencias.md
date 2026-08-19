@@ -24,6 +24,7 @@
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | 🟡 conhecida |
 | [I](#i--o-que-não-é-divergência) | 39 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
+| [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
 
 ---
 
@@ -232,3 +233,63 @@ implementar sem perceber a troca de stack.
 existe quando a agenda de pessoal registrar horas. Enquanto isso não acontecer, o motor de
 cálculo do P1 (T1.18–T1.20) só sabe somar insumo e custo fixo — devolveria um custo
 sistematicamente subestimado, que é exatamente o erro que o projeto existe para corrigir.
+
+
+---
+
+## K — Sete taxonomias de módulo concorrentes
+
+> Encontrada em **19/08/2026**. Corrigida na mesma data.
+
+Os mesmos módulos apareciam agrupados de sete maneiras diferentes, e a navegação do app não
+seguia nenhuma delas:
+
+| Fonte | Agrupamento |
+|---|---|
+| `docs/rotinas/img/mapa-sistema.mmd` (v1) | 6 blocos |
+| `docs/rotinas/img/mapa-sistema-v2.mmd` | 7 blocos |
+| `mapa-4-areas` | Cadastros · Pedidos · Produção · Financeiro |
+| `mapa-0-acesso` … `mapa-4-financeiro` | Acesso · Cadastros · Produção · Comercial · Financeiro |
+| `00-mapa-de-rotinas.md` §1–8 | 8 rotinas planas |
+| `D1-arquitetura-c4.md` §4 | Acesso · Núcleo · Operação · Comercial · Rede externa · Financeiro |
+| `C1-diagrama-casos-de-uso.md` §2 | 12 subsistemas planos, sem Cadastros |
+| `src/lib/permissions.ts` | 7 blocos, com `custo_fixo` e `coleta_semente` sob Produção |
+| `src/app/page.tsx` (o menu real) | Pedidos · Operações de Campo · Administração · Minha Conta |
+
+Sintomas concretos: Clientes, Estoque, Perdas e Entregas mudavam de dono conforme o
+documento; Custeio e Precificação ora eram "o que a produção gera", ora Financeiro; Custos
+fixos e Coleta de sementes estavam em três lugares ao mesmo tempo (tela em `/admin`,
+permissão sob Produção, mapa sob Cadastros); o fornecedor aparecia duas vezes no mapa v2,
+contra o cadastro único que o P12 Fase 1 estava construindo; e o `mapa-sistema-v2` não era
+referenciado por nenhum `.md` — o mapa de rotinas ainda embutia a v1.
+
+**Correção.** Uma taxonomia só: **Cadastros · Produção · Comercial · Financeiro**, com Acesso
+transversal. Regra de corte de Cadastros mantida do `rotina-cadastros.md` (*é cadastro se, ao
+apagá-lo, um movimento passado ficar sem sentido*), o que tirou Custos fixos (→ Financeiro) e
+Coleta de sementes (→ Produção) de lá. Estoque voltou para a Produção; Custeio, Precificação
+e os Dashboards foram para o Financeiro; Indicadores deixou de ser módulo próprio; Compras
+passou a nascer no Financeiro, com a seta de retorno para a Produção que faltava.
+
+**O que impede a divergência de voltar:** a lista de telas de cada módulo passou a viver em
+`src/lib/modules.ts` — uma fonte só, lida pelo painel inicial, pelos hubs e pelas abas — e
+`src/lib/__tests__/modules.test.ts` confere cada link contra as rotas que existem em
+`src/app/` e contra a matriz de permissões.
+
+### Adendo — cliente e fornecedor viram papéis de uma pessoa
+
+Na primeira passada eu deixei Clientes e Fornecedores como **duas abas irmãs** em
+`/cadastros`, o que reintroduzia em menor escala a mesma divergência: o modelo de dados diz
+"uma identidade, N papéis" (`cadastro.parties`), a navegação dizia "duas listas".
+
+Corrigido em 19/08/2026: `/cadastros/pessoas` é uma lista só de `cadastro.parties`, com
+filtro por papel e um selo por papel em cada linha. As telas `/clientes` e `/fornecedores`
+continuam sendo as telas **do papel** — é lá que vivem os campos que não são de identidade
+(dados fiscais e CNPJ de um lado; espécies, confiabilidade e geocodificação do outro).
+
+Dois efeitos colaterais que valem registro:
+
+- O recurso **`funcionario`** entrou na matriz de permissões (`src/lib/permissions.ts`),
+  declarado como pendência do D4 no mesmo molde de `tarefa`. Sem ele, o filtro de
+  funcionário cairia numa permissão emprestada.
+- `ModuleLink.permission` passou a aceitar lista, avaliada com `canAny` — Pessoas reúne três
+  recursos numa tela só. `canLink()` é o único lugar que decide se um atalho aparece.

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
-import { createSpeciesQuick } from '@/app/admin/especies/actions'
+import { createSpeciesQuick } from '@/app/cadastros/especies/actions'
 import {
   AVAILABILITY_META,
   type SupplierAvailability,

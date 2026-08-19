@@ -9,6 +9,7 @@ import {
   upsertPartyFromCustomer,
   upsertPartyFromSupplier,
   findPartyMatch,
+  listParties,
   mergeParties,
   fillOnly,
   PARTY_ROLES,
@@ -390,5 +391,82 @@ describe('fillOnly', () => {
     expect(r).toEqual({ id: 'party-f', name: 'Márcio', city: 'Ibirama' })
     expect('email' in r).toBe(false)
     expect('whatsapp' in r).toBe(false)
+  })
+})
+
+describe('listParties', () => {
+  const linha = {
+    id: 'p1',
+    name: 'Márcio Kuhar',
+    document: '12345678909',
+    kind: 'pf',
+    phone: null,
+    whatsapp: '47999998888',
+    roles: ['cliente', 'fornecedor'],
+    customer_id: 'c1',
+    supplier_id: 's1',
+  }
+
+  function dbCom(rows: Record<string, unknown>[]) {
+    const query = vi.fn().mockResolvedValue({ rows })
+    return { db: { query } as unknown as Queryable, query }
+  }
+
+  it('sem papel legível não vai ao banco e devolve vazio', async () => {
+    // Falha fechada: um chamador que esqueceu de resolver as permissões recebe
+    // lista vazia, nunca "todo mundo".
+    const { db, query } = dbCom([linha])
+    await expect(listParties(db, { roles: [] })).resolves.toEqual([])
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('filtra pelos papéis pedidos e só pessoas ativas', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'] })
+    const [sql, params] = query.mock.calls[0]
+    expect(sql).toMatch(/r\.role = ANY\(\$1::text\[\]\)/)
+    expect(sql).toMatch(/WHERE p\.active/)
+    expect(params[0]).toEqual(['cliente'])
+  })
+
+  it('a busca cobre nome, razão, fantasia e os dígitos do documento', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'], search: '123.456.789-09' })
+    const [sql, params] = query.mock.calls[0]
+    expect(sql).toMatch(/p\.name\s+ILIKE/)
+    expect(sql).toMatch(/p\.legal_name ILIKE/)
+    expect(sql).toMatch(/p\.trade_name ILIKE/)
+    expect(params[1]).toBe('123.456.789-09')
+    expect(params[2]).toBe('12345678909')
+  })
+
+  it('busca sem dígito nenhum não tenta casar documento', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'], search: 'ipê' })
+    expect(query.mock.calls[0][1][2]).toBeNull()
+  })
+
+  it('a pessoa com dois papéis vem numa linha só, com os dois', async () => {
+    const { db } = dbCom([linha])
+    const [pessoa] = await listParties(db, { roles: ['cliente', 'fornecedor'] })
+    expect(pessoa.roles).toEqual(['cliente', 'fornecedor'])
+    expect(pessoa.customer_id).toBe('c1')
+    expect(pessoa.supplier_id).toBe('s1')
+  })
+
+  it('normaliza ausências para null em vez de undefined', async () => {
+    const { db } = dbCom([{ id: 'p2', name: 'Prefeitura', roles: ['cliente'] }])
+    const [pessoa] = await listParties(db, { roles: ['cliente'] })
+    expect(pessoa.document).toBeNull()
+    expect(pessoa.kind).toBeNull()
+    expect(pessoa.supplier_id).toBeNull()
+  })
+
+  it('tem teto de linhas, com padrão', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'] })
+    expect(query.mock.calls[0][1][3]).toBe(200)
+    await listParties(db, { roles: ['cliente'], limit: 10 })
+    expect(query.mock.calls[1][1][3]).toBe(10)
   })
 })

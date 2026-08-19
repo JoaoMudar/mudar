@@ -93,14 +93,14 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 
 - [x] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`rotina-financeiro/01-cadastro-unico.md`](../docs/rotinas/rotina-financeiro/01-cadastro-unico.md))
 - [x] **T13.2** `src/lib/parties.ts` como ponto único de escrita, com testes
-- [ ] **T13.3** Migration: `users.party_id` UUID NULL → `cadastro.parties`, com backfill dos usuários existentes
+- [ ] **T13.3** Migration: `users.party_id` UUID NULL → `cadastro.parties`, com backfill dos usuários existentes — **é o que faz o filtro Funcionários de `/cadastros/pessoas` deixar de vir vazio**
 
 ## Fase 2 — Área `/cadastros`
 
-- [ ] **T13.4** Layout `/cadastros` com os cards das 7 entidades e guarda de perfil (chefia/gerência)
-- [ ] **T13.5** Mover `/admin/especies`, `/admin/recipientes`, `/admin/insumos` para `/cadastros/*` com redirect das rotas antigas
-- [ ] **T13.6** Linkar `/clientes` e `/fornecedores` a partir de `/cadastros` (rotas permanecem)
-- [ ] **T13.7** `/cadastros/funcionarios` — CRUD sobre `parties` com papel `funcionario` (nome, contato, papel operacional, vínculo fixo/diarista, ativo)
+- [x] **T13.4** Layout `/cadastros` com os cards das entidades e guarda de perfil (chefia/gerência) — feito na reconciliação dos quatro módulos (19/08/2026); funcionários e tipos de tarefa entram com T13.7/T13.8
+- [x] **T13.5** Mover `/admin/especies`, `/admin/recipientes`, `/admin/insumos` para `/cadastros/*` com redirect das rotas antigas — junto vieram `/admin/custos-fixos` → `/financeiro/*`, `/admin/coleta-sementes` → `/producao/*` e `/insumos/registrar` → `/producao/consumo-insumos`
+- [x] **T13.6** Linkar `/clientes` e `/fornecedores` a partir de `/cadastros` (rotas permanecem) — feito como **papéis** dentro de `/cadastros/pessoas`, não como abas irmãs
+- [ ] **T13.7** `/cadastros/funcionarios` — CRUD sobre `parties` com papel `funcionario` (nome, contato, papel operacional, vínculo fixo/diarista, ativo). O papel já aparece como filtro em `/cadastros/pessoas` e o recurso `funcionario` já está na matriz de permissões; falta a tela — ao criá-la, ligar o `href` em `PESSOA_ROLES` (`src/lib/modules.ts`), que o teste cobre
 - [ ] **T13.8** `/cadastros/tipos-de-tarefa` — CRUD de `task_types` (nome, categoria, exige espécie?, exige recipiente?, unidade, tempo médio por unidade, ativo)
 
 ## Fase 3 — Agenda da semana

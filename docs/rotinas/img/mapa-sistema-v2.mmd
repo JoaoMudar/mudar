@@ -1,90 +1,32 @@
-flowchart TB
-  subgraph ACC["0 &middot; ACESSO &nbsp;&mdash;&nbsp; antecede toda operação"]
-    direction LR
-    LOG["<b>Login</b><br/>sessão vinculada ao aparelho"]
-    SEN["<b>Definir / trocar senha</b><br/>obrigatória no 1º acesso"]
-    SES["<b>Aparelhos conectados</b><br/>encerrar sessão remotamente"]
-    USU["<b>Usuários e permissões</b><br/>4 perfis · guarda por operação"]
-    PAI["<b>Painel inicial</b><br/>atalhos por perfil"]
-    NOT["<b>Notificações</b><br/>encadeiam as etapas do pedido"]
-    LOG ~~~ SEN ~~~ SES ~~~ USU ~~~ PAI ~~~ NOT
-  end
+%% Mapa consolidado — QUATRO modulos, com Acesso transversal.
+%% Fonte unica da taxonomia. Espelhada em `src/lib/modules.ts` (navegacao) e
+%% nos comentarios de secao de `src/lib/permissions.ts` (matriz do D4).
+%% Este mapa e de nivel de modulo de proposito: o fluxo entre eles e um CICLO,
+%% e desenhar as ~25 telas junto com o ciclo produzia um emaranhado ilegivel.
+%% O que tem dentro de cada modulo esta em mapa-1-cadastros .. mapa-4-financeiro.
+flowchart LR
+  ACC["<b>ACESSO</b><br/><i>transversal aos quatro módulos</i><br/>login · senha · aparelhos conectados<br/>usuários e permissões<br/>notificações · painel inicial"]
 
-  subgraph CAD["1 &middot; CADASTROS &nbsp;&mdash;&nbsp; não consomem nada, alimentam tudo"]
-    direction LR
-    CLI["<b>Clientes</b><br/>PF/PJ · consulta CNPJ · cadastro rápido"]
-    PES["<b>Fornecedores · Funcionários</b>"]
-    ESP["<b>Espécies</b><br/>nome científico · sinônimos · fotos<br/>revisão de cadastro incompleto"]
-    REC["<b>Recipientes · Insumos</b>"]
-    CFX["<b>Custos fixos · Coleta de sementes</b>"]
-    TIP["<b>Tipos de tarefa</b>"]
-    CLI ~~~ PES ~~~ ESP ~~~ REC ~~~ CFX ~~~ TIP
-  end
+  CAD["<b>1 · CADASTROS</b><br/><i>não consomem nada, alimentam tudo</i><br/>espécies · recipientes · insumos<br/><b>pessoas</b>: cliente · fornecedor · funcionário<br/>tipos de tarefa"]
 
-  subgraph PRO["2 &middot; PRODUÇÃO"]
-    direction LR
-    CON["<b>Consumo de insumos</b><br/>registro em campo · funciona offline"]
-    AGE["<b>Agenda de pessoal</b><br/>semana &times; pessoa"]
-    REG["<b>Registro de atividade</b><br/>semeadura · repicagem · irrigação"]
-    LOT["<b>Lotes</b><br/>semeado &rarr; pronto"]
-    PER["<b>Perdas</b><br/>causa · alerta acima de 20%"]
-    CON ~~~ AGE
-    AGE --> REG
-    REG --> LOT
-    REG --> PER
-  end
+  PRO["<b>2 · PRODUÇÃO</b><br/><i>registro de atividade de campo</i><br/>consumo de insumos · coleta de sementes<br/>agenda de pessoal · registro de atividade<br/>lotes · perdas · estoque <i>(derivado)</i>"]
 
-  subgraph GER["3 &middot; O QUE A PRODUÇÃO GERA"]
-    direction LR
-    CUS["<b>Custeio</b><br/>insumo + mão de obra + fixo"]
-    PRE["<b>Precificação</b><br/>custo + margem por canal · piso mínimo"]
-    EST["<b>Estoque</b><br/><i>derivado: produção &minus; perdas &minus; vendas</i>"]
-    CUS --> PRE ~~~ EST
-  end
+  COM["<b>3 · COMERCIAL</b><br/>pedidos: cadastro → verificação →<br/>aprovação → cargas e separação<br/>cotação com fornecedores<br/>calendário de entregas"]
 
-  subgraph COM["4 &middot; COMERCIAL"]
-    direction TB
-    subgraph PED["Pedidos"]
-      direction LR
-      P1["<b>Cadastro</b><br/>colar do WhatsApp<br/>itens específicos e genéricos"]
-      P2["<b>Verificação de disponibilidade</b><br/>checklist · atribuição de espécies"]
-      P3["<b>Análise e aprovação</b><br/>integral · parcial · devolver"]
-      P4["<b>Cargas e separação</b><br/>uma carga = uma viagem"]
-      ENT["<b>Entregas</b><br/>agenda · roteiro · confirmação"]
-      P1 --> P2 --> P3 --> P4 --> ENT
-    end
-    subgraph COT["Fornecedores &nbsp;&mdash;&nbsp; compra que complementa a produção"]
-      direction LR
-      F1["<b>Cadastro da rede</b>"]
-      F2["<b>Cotação</b><br/>mensagem e link de WhatsApp"]
-      F3["<b>Comparação de propostas</b><br/>preço de revenda · margem mínima"]
-      F4["<b>Painel de cotações · Mapa</b>"]
-      F1 --> F2 --> F3 --> F4
-    end
-    P2 -.->|"falta muda"| F2
-  end
-
-  FIN["<b>5 &middot; FINANCEIRO</b><br/>extrato bancário = verdade · centro de custo · fechamento mensal"]
-  IND["<b>6 &middot; INDICADORES</b><br/>painel por perfil"]
+  FIN["<b>4 · FINANCEIRO</b><br/><i>acesso restrito à chefia</i><br/>dashboards · contas e extratos bancários<br/><b>compras</b> · custos fixos<br/>custeio · precificação"]
 
   ACC ==> CAD
+
+  %% Cadastros alimenta todo mundo e nao consome nada. E o unico sem entrada.
   CAD ==> PRO
+  CAD ==> COM
+  CAD ==> FIN
 
-  CON ==> CUS
-  AGE ==>|"horas &times; valor-hora"| CUS
-  LOT --> EST
-  PER --> EST
-
-  EST --> P2
-  PRE --> P3
-
-  P3 ==>|"vendas"| FIN
-  F3 --> FIN
-  ENT --> FIN
-
-  FIN --> IND
-  EST --> IND
-  PRE --> IND
+  %% O ciclo. Quebrar qualquer elo faz o preco voltar a ser chute.
+  FIN ==>|"compra disponível · custo real do insumo"| PRO
+  PRO ==>|"estoque na verificação<br/>horas e consumo no custeio"| COM
+  COM ==>|"vendas · compra de fornecedor"| FIN
+  FIN ==>|"preço por canal na aprovação"| COM
 
   subgraph LEG["Legenda"]
     direction LR
@@ -94,14 +36,12 @@ flowchart TB
     L1 ~~~ L2 ~~~ L3
   end
 
-  IND ~~~ LEG
-
   classDef ok fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111
   classDef meio fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#111
   classDef falta fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#111
   classDef grupo fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#334155
 
-  class LOG,SEN,SES,PAI,NOT,USU,CLI,PES,ESP,REC,CFX,CON,P1,P2,P3,P4,F1,F2,F3,F4,L1 ok
-  class CUS,FIN,L2 meio
-  class TIP,AGE,REG,LOT,PER,EST,PRE,ENT,IND,L3 falta
-  class ACC,CAD,PRO,GER,COM,PED,COT,LEG grupo
+  class ACC,L1 ok
+  class CAD,COM,L2 meio
+  class PRO,FIN,L3 falta
+  class LEG grupo

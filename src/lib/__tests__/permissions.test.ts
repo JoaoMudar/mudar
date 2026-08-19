@@ -82,6 +82,9 @@ const EMENDAS: Record<string, { verbo: string; papel: Role; motivo: string }[]> 
 const FORA_DO_D4: Record<string, string> = {
   notificacao_propria: '/api/notifications e anterior a matriz; escopado por user_id',
   tarefa: 'agenda de pessoal — P13 Fase 6, T13.22 acrescenta a linha ao D4',
+  funcionario:
+    'vínculo empregatício (papel de `cadastro.party_roles`) — P13 T13.3/T13.7; '
+    + 'entra no D4 junto com `tarefa`',
 }
 
 function papeisEsperados(linha: string, verbo: string): Role[] {

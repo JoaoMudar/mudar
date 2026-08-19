@@ -3,22 +3,29 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const NAV = [
-  { href: '/admin/especies',        label: 'Espécies' },
-  { href: '/admin/recipientes',     label: 'Recipientes' },
-  { href: '/admin/insumos',         label: 'Insumos' },
-  { href: '/admin/custos-fixos',    label: 'Custos Fixos' },
-  { href: '/admin/coleta-sementes', label: 'Coleta Sementes' },
-  { href: '/admin/usuarios',        label: 'Usuários' },
-]
+export interface ModuleNavItem {
+  href: string
+  label: string
+}
 
-export default function AdminNav() {
+/**
+ * Abas horizontais de um modulo. Nasceu como `admin/AdminNav.tsx` e foi
+ * generalizada quando /admin deixou de ser o unico grupo de telas: hoje
+ * Cadastros, Producao e Financeiro usam a mesma barra.
+ *
+ * O item so pode receber `href` que ja e guardado no destino — quem monta a
+ * lista filtra por permissao antes (mesma politica de `src/app/page.tsx`).
+ */
+export default function ModuleNav({ items }: { items: ModuleNavItem[] }) {
   const pathname = usePathname()
+
+  // Com uma aba so a barra nao ajuda a navegar, so ocupa altura de tela.
+  if (items.length < 2) return null
 
   return (
     <nav className="bg-green-700 overflow-x-auto border-b border-green-600">
       <div className="flex min-w-max">
-        {NAV.map(({ href, label }) => {
+        {items.map(({ href, label }) => {
           const active = pathname.startsWith(href)
           return (
             <Link

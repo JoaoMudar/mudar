@@ -5,7 +5,7 @@ import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { buildSupplierPasteRows } from '@/lib/supplier-paste'
 import { type MatchStatus, type SpeciesOption } from '@/lib/order-paste'
 import { normalizePopularName } from '@/lib/species-names'
-import { createSpeciesQuick, addPopularName } from '@/app/admin/especies/actions'
+import { createSpeciesQuick, addPopularName } from '@/app/cadastros/especies/actions'
 import { importSupplierSpeciesRows } from '../actions'
 
 interface Props {

@@ -5,7 +5,7 @@ import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
 import { authorize } from '@/lib/authz'
 
-const PATH = '/admin/custos-fixos'
+const PATH = '/financeiro/custos-fixos'
 
 export type FixedCostCategory =
   | 'salarios' | 'energia' | 'agua' | 'manutencao' | 'combustivel' | 'depreciacao' | 'outros'

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Toast, { ToastType } from '@/components/Toast'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { updateOrderAfterReview } from '../../actions'
-import { createSpeciesQuick } from '@/app/admin/especies/actions'
+import { createSpeciesQuick } from '@/app/cadastros/especies/actions'
 import { buildAvailabilityNote, type ReviewItemInput } from '@/lib/orders'
 
 interface Species {

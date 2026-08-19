@@ -1,24 +1,22 @@
+%% Modulo 2 de 4. Estoque fica aqui (e derivado da producao, nao cadastro).
+%% Custeio e precificacao sairam para o Financeiro: sao dinheiro, e quem os
+%% alimenta e o extrato bancario. A entrada de compras vem de la.
 flowchart TB
-  CAD["<b>Cadastros</b><br/>espécies · recipientes · insumos · custos fixos"]
+  CAD["<b>1 · Cadastros</b><br/>espécies · recipientes · insumos<br/>funcionários · tipos de tarefa"]
+  FIN["<b>4 · Financeiro</b><br/>a compra do insumo nasce lá<br/>e fica disponível para uso aqui"]
 
   subgraph CAMPO["Registro em campo &mdash; colaborador, no celular"]
     direction LR
     CON["<b>Consumo de insumos</b><br/>insumo · espécie · recipiente · quantidade · data<br/>funciona sem conexão, sincroniza depois"]
     ATV["<b>Registro de atividade</b><br/>semeadura · repicagem · irrigação · adubação"]
+    COL["<b>Coleta de sementes</b><br/>origem própria da matéria-prima"]
     PER["<b>Perdas</b><br/>quantidade · causa"]
-    CON ~~~ ATV ~~~ PER
+    CON ~~~ ATV ~~~ COL ~~~ PER
   end
 
   AGE["<b>Agenda de pessoal</b><br/>quem faz o quê na semana<br/>fonte das horas trabalhadas"]
   LOT["<b>Lotes</b><br/>semeado &rarr; repicado &rarr; pronto para venda"]
-
-  subgraph GERA["O que a produção gera"]
-    direction LR
-    EST["<b>Estoque</b><br/><i>produção &minus; perdas &minus; vendas</i><br/>contagem periódica de conferência"]
-    CUS["<b>Custeio</b><br/>insumo + mão de obra + custo fixo rateado<br/>custo unitário por espécie e recipiente"]
-    PRE["<b>Precificação</b><br/>custo + margem por canal<br/>piso mínimo · frete por quilômetro"]
-    EST ~~~ CUS --> PRE
-  end
+  EST["<b>Estoque</b><br/><i>produção &minus; perdas &minus; vendas</i><br/>contagem periódica de conferência"]
 
   subgraph ALE["Alertas"]
     direction LR
@@ -27,11 +25,14 @@ flowchart TB
     A1 ~~~ A2
   end
 
-  COM["<b>Comercial</b><br/>disponibilidade na verificação do pedido<br/>preço por canal na aprovação"]
+  COM["<b>3 · Comercial</b><br/>disponibilidade na verificação do pedido"]
+  CUS["<b>4 · Financeiro &mdash; custeio</b><br/>consumo de insumo + horas &times; valor-hora<br/>é o que transforma campo em custo por muda"]
 
   CAD ==> CON
   CAD --> ATV
+  CAD --> COL
   CAD ==> AGE
+  FIN ==>|"compra disponível para uso"| CON
   AGE --> ATV
   ATV --> LOT
   ATV --> PER
@@ -39,11 +40,9 @@ flowchart TB
   PER --> EST
   CON ==> CUS
   AGE ==>|"horas &times; valor-hora"| CUS
-  CAD --> CUS
   PER --> A1
   EST --> A2
   EST --> COM
-  PRE --> COM
 
   subgraph LEG["Legenda"]
     direction LR
@@ -59,7 +58,7 @@ flowchart TB
   classDef futuro fill:#ffffff,stroke:#9ca3af,stroke-width:1.5px,color:#4b5563,stroke-dasharray:4 4
   classDef grupo fill:#fafafa,stroke:#d1d5db,stroke-width:1px,color:#374151
 
-  class CAD,CON,COM,L1 feito
+  class CAD,CON,COL,COM,L1 feito
   class CUS,L2 parcial
-  class ATV,PER,AGE,LOT,EST,PRE,A1,A2,L3 futuro
-  class CAMPO,GERA,ALE,LEG grupo
+  class ATV,PER,AGE,LOT,EST,A1,A2,FIN,L3 futuro
+  class CAMPO,ALE,LEG grupo

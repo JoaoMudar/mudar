@@ -1,57 +1,57 @@
+%% Modulo 1 de 4. Cliente, fornecedor e funcionario sao PAPEIS de uma pessoa:
+%% a porta de entrada e /cadastros/pessoas, nao uma aba por papel.
+%% Modulo 1 de 4. Regra de corte: e cadastro se, ao apaga-lo, um movimento
+%% passado ficar sem sentido. Custos fixos foi para o Financeiro (valor que
+%% muda todo mes, alimentado pelo extrato) e coleta de sementes para a
+%% Producao (atividade de campo) — nenhum dos dois passa nessa regra.
 flowchart TB
   subgraph PRODU["Cadastros de produto"]
     direction LR
     ESP["<b>Espécies</b><br/>nome popular · nome científico · sinônimos<br/>características · fotografia<br/>cadastro rápido · revisão de incompletos"]
     REC["<b>Recipientes</b><br/>tubete · sacos 10x18 a 28x32 · balde<br/>definem o tamanho da muda"]
-    INS["<b>Insumos</b><br/>nome · unidade de medida"]
+    INS["<b>Insumos</b><br/>nome · unidade de medida<br/><i>o tipo; a compra nasce no Financeiro</i>"]
     ESP ~~~ REC ~~~ INS
   end
 
-  subgraph CUSTO["Cadastros de custo"]
+  subgraph PESSOAS["Pessoas &nbsp;&mdash;&nbsp; UMA lista, filtrada por papel"]
     direction LR
-    CFX["<b>Custos fixos</b><br/>rateados sobre a produção"]
-    COL["<b>Coleta de sementes</b><br/>origem própria da matéria-prima"]
-    CFX ~~~ COL
-  end
-
-  subgraph PESSOAS["Cadastros de pessoas"]
-    direction LR
-    CLI["<b>Clientes</b><br/>pessoa física e jurídica<br/>consulta automática por CNPJ<br/>dados fiscais para nota<br/>cadastro rápido dentro do pedido"]
-    FOR["<b>Fornecedores</b><br/>contato · cidade e estado<br/>espécies que fornece<br/>coordenadas por geocodificação"]
-    FUN["<b>Funcionários</b><br/>vinculados às contas de acesso"]
+    CLI["<b>Cliente</b><br/>pessoa física e jurídica<br/>consulta automática por CNPJ<br/>dados fiscais para nota<br/>cadastro rápido dentro do pedido"]
+    FOR["<b>Fornecedor</b><br/>contato · cidade e estado<br/>espécies que fornece<br/>coordenadas por geocodificação"]
+    FUN["<b>Funcionário</b><br/>existe sem login<br/>vínculo fixo ou diarista<br/><i>filtro já existe; tela não</i>"]
     CLI ~~~ FOR ~~~ FUN
   end
 
+  IDE["<b>Identidade única</b> &mdash; <code>cadastro.parties</code><br/>quem vende muda e às vezes compra é <b>um cadastro só</b><br/>a lista mostra a pessoa uma vez, com um selo por papel<br/>o financeiro aponta para a mesma pessoa em toda linha do extrato"]
+
   subgraph OPER["Cadastros de operação"]
     direction LR
-    TIP["<b>Tipos de tarefa</b><br/>vocabulário da agenda de produção"]
+    TIP["<b>Tipos de tarefa</b><br/>vocabulário da agenda de produção<br/>tempo médio por unidade &rarr; custeio"]
   end
 
-  subgraph CONS["Para onde os cadastros vão"]
+  subgraph CONS["Para onde os cadastros vão &nbsp;&mdash;&nbsp; os outros três módulos"]
     direction LR
-    D1["<b>Custeio</b><br/>custo unitário por espécie e recipiente"]
-    D2["<b>Produção</b><br/>consumo de insumos · atividades · perdas"]
-    D3["<b>Pedidos</b><br/>itens · cliente · nota fiscal"]
-    D4["<b>Cotações</b><br/>compra externa · mapa da rede"]
-    D1 ~~~ D2 ~~~ D3 ~~~ D4
+    D2["<b>2 · Produção</b><br/>espécie · recipiente · insumo<br/>funcionário · tipo de tarefa"]
+    D3["<b>3 · Comercial</b><br/>cliente e espécie no pedido<br/>fornecedor na cotação"]
+    D4["<b>4 · Financeiro</b><br/>contraparte de cada lançamento<br/>espécie e recipiente no custeio"]
+    D2 ~~~ D3 ~~~ D4
   end
 
-  INS ~~~ CFX
-  COL ~~~ CLI
+  INS ~~~ CLI
   FUN ~~~ TIP
 
-  ESP --> D1
-  REC --> D1
-  INS --> D1
-  CFX --> D1
-  COL --> D1
+  CLI --> IDE
+  FOR --> IDE
+  FUN --> IDE
+
   ESP --> D2
+  REC --> D2
   INS --> D2
   TIP --> D2
   ESP --> D3
-  CLI --> D3
-  FOR --> D4
+  IDE --> D3
   ESP --> D4
+  REC --> D4
+  IDE --> D4
 
   subgraph LEG["Legenda"]
     direction LR
@@ -60,14 +60,14 @@ flowchart TB
     L3["especificado, não implementado"]
     L1 ~~~ L2 ~~~ L3
   end
-  D2 ~~~ LEG
+  CONS ~~~ LEG
 
   classDef feito fill:#e5e7eb,stroke:#374151,stroke-width:2px,color:#111827
   classDef parcial fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#111827,stroke-dasharray:7 4
   classDef futuro fill:#ffffff,stroke:#9ca3af,stroke-width:1.5px,color:#4b5563,stroke-dasharray:4 4
   classDef grupo fill:#fafafa,stroke:#d1d5db,stroke-width:1px,color:#374151
 
-  class ESP,REC,INS,CFX,COL,CLI,FOR,FUN,D3,D4,L1 feito
-  class D1,L2 parcial
-  class TIP,D2,L3 futuro
-  class PRODU,CUSTO,PESSOAS,OPER,CONS,LEG grupo
+  class ESP,REC,INS,CLI,FOR,IDE,D3,L1 feito
+  class D4,L2 parcial
+  class FUN,TIP,D2,L3 futuro
+  class PRODU,PESSOAS,OPER,CONS,LEG grupo

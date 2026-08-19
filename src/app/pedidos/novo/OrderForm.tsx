@@ -10,7 +10,7 @@ import { createOrder } from '../actions'
 import { createCustomer } from '@/app/clientes/actions'
 import { type PartyDecision, type PartyMatch } from '@/lib/parties'
 import PartyMatchPrompt from '@/components/PartyMatchPrompt'
-import { createSpeciesQuick } from '@/app/admin/especies/actions'
+import { createSpeciesQuick } from '@/app/cadastros/especies/actions'
 import PasteImport, { type ImportedItem } from './PasteImport'
 
 interface Customer {

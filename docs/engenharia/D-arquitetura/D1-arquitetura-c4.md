@@ -116,7 +116,8 @@ graph TB
 
 ## 4. Nível 3 — Componentes da camada de lógica
 
-Decomposição interna do servidor, organizada pelos subsistemas dos requisitos.
+Decomposição interna do servidor, organizada pelos **quatro módulos** do sistema 
+(`docs/rotinas/00-mapa-de-rotinas.md`), com Acesso transversal.
 
 ```mermaid
 graph TB
@@ -126,70 +127,75 @@ graph TB
     A3["Auditoria de acesso"]
   end
 
-  subgraph nucleo["Núcleo"]
+  subgraph cadastros["1 · Cadastros"]
     N1["Catálogo de espécies"]
     N2["Cadastro de recipientes e insumos"]
-    N3["Motor de custeio"]
+    N3["Identidade única de pessoas"]
   end
 
-  subgraph operacao["Operação"]
+  subgraph producao["2 · Produção"]
     O1["Registro de produção"]
     O2["Registro de perdas"]
     O3["Apuração de estoque"]
   end
 
-  subgraph comercial["Comercial"]
-    C1["Cadastro de clientes"]
+  subgraph comercial["3 · Comercial"]
     C2["Ciclo de pedidos"]
     C3["Separação e cargas"]
-    C4["Precificação"]
-  end
-
-  subgraph externo["Rede externa"]
-    F1["Cadastro de fornecedores"]
+    C5["Entregas"]
     F2["Cotações"]
   end
 
-  subgraph fin["Financeiro"]
+  subgraph fin["4 · Financeiro"]
     FI1["Importação de extrato"]
     FI2["Classificação de lançamentos"]
     FI3["Fechamento de período"]
+    FI4["Compras"]
+    FI5["Motor de custeio"]
+    FI6["Precificação"]
   end
 
-  N3 --> N1
-  N3 --> N2
-  C4 --> N3
-  C2 --> C1
+  FI5 --> N1
+  FI5 --> N2
+  FI6 --> FI5
+  C2 --> N3
   C2 --> O3
   C3 --> C2
+  C5 --> C3
   O3 --> O1
   O3 --> O2
-  F2 --> F1
+  F2 --> N3
   F2 --> C2
   FI2 --> FI1
   FI3 --> FI2
-  FI2 -.->|"custo fixo real"| N3
+  FI2 -.->|"custo fixo real"| FI5
+  FI4 -.->|"compra disponível"| O1
+  FI4 --> FI5
+  FI6 -.->|"preço por canal"| C2
 
-  A2 -.->|"protege"| nucleo
-  A2 -.->|"protege"| operacao
+  A2 -.->|"protege"| cadastros
+  A2 -.->|"protege"| producao
   A2 -.->|"protege"| comercial
-  A2 -.->|"protege"| externo
   A2 -.->|"protege"| fin
 ```
 
 ### O que o grafo de dependências revela
 
-**O motor de custeio é a raiz.** Precificação depende dele, e ele depende apenas do catálogo. É a
-tradução arquitetural da ordem de implementação declarada no §3.5 da metodologia: o custeio é o
-primeiro projeto porque nada mais funciona sem ele.
+**O motor de custeio é a raiz, e ele mora no Financeiro.** Precificação depende dele, e ele
+depende apenas do catálogo de Cadastros e das compras. É a tradução arquitetural da ordem de
+implementação declarada no §3.5 da metodologia: o custeio é o primeiro projeto porque nada mais
+funciona sem ele. Custo e preço são dinheiro — ficam no módulo do dinheiro, não num "núcleo"
+à parte.
 
 **A apuração de estoque depende de produção e perdas, e o ciclo de pedidos depende dela.** A cadeia
 explica por que a verificação de disponibilidade não pode ser confiável antes de os registros de
 campo estarem em uso: o estoque é derivado, não digitado.
 
-**O financeiro alimenta o custeio de volta**, fornecendo o custo fixo efetivamente saído da conta em
-lugar de um valor estimado. É a única dependência que atravessa a fronteira do subsistema restrito, e
-por isso é de leitura agregada — o custeio recebe o total do período, nunca o lançamento individual.
+**O Financeiro alimenta a Produção de volta**, por dois caminhos: a compra de insumo, que nasce
+lá e fica disponível para uso no campo, e o custo fixo efetivamente saído da conta, em lugar de
+um valor estimado. São as dependências que atravessam a fronteira do módulo restrito, e por
+isso são de leitura agregada — o custeio recebe o total do período, nunca o lançamento
+individual. É esse retorno que fecha o ciclo; sem ele, o preço volta a ser estimativa.
 
 ---
 

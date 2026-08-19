@@ -1,4 +1,7 @@
-// Ponto unico de escrita em `cadastro.parties`.
+// Ponto unico de acesso a `cadastro.parties`.
+//
+// Nasceu so de escrita; ganhou leitura quando `/cadastros/pessoas` passou a
+// listar as pessoas por identidade em vez de duas listas por papel.
 //
 // Depois do backfill, o mesmo nome existe em dois lugares: em `parties` e na
 // coluna antiga de `customers`/`suppliers`. E divida deliberada e temporaria,
@@ -39,6 +42,23 @@ export const PARTY_ROLES: readonly PartyRole[] = [
   'contador',
   'outro',
 ] as const
+
+/**
+ * Como cada papel aparece na tela, no singular. Vive aqui, e nao no componente
+ * que o usa, porque agora sao dois: o aviso de identidade repetida e a lista de
+ * pessoas. Duas tabelas de rotulo divergiriam na primeira renomeacao.
+ */
+export const PARTY_ROLE_LABEL: Record<PartyRole, string> = {
+  cliente: 'cliente',
+  fornecedor: 'fornecedor',
+  funcionario: 'funcionário',
+  socio: 'sócio',
+  familiar: 'familiar',
+  banco: 'banco',
+  governo: 'órgão público',
+  contador: 'contador',
+  outro: 'outro cadastro',
+}
 
 /**
  * Aceita `pool` ou o `client` de uma transacao em andamento. As Server Actions
@@ -294,6 +314,80 @@ export async function findPartyMatch(
   if (nome) return busca('LOWER(TRIM(p.name))', nome.toLowerCase(), 'name')
 
   return null
+}
+
+/** Uma pessoa na lista de `/cadastros/pessoas`. */
+export interface PartyListRow {
+  id: string
+  name: string
+  document: string | null
+  kind: PartyKind | null
+  phone: string | null
+  whatsapp: string | null
+  /** Todos os papeis da pessoa que o chamador pode ler — nunca os outros. */
+  roles: PartyRole[]
+  /** Id na tela do papel, quando existe. E o que o selo da lista abre. */
+  customer_id: string | null
+  supplier_id: string | null
+}
+
+/**
+ * Lista pessoas por identidade: quem vende muda e tambem compra aparece **uma
+ * vez**, com dois papeis. E o que as duas listas separadas por papel nao davam.
+ *
+ * `roles` e obrigatorio e nao tem valor padrao de proposito. `cliente:ler` e de
+ * chefia, gerencia e admin, mas `fornecedor:ler` e so de chefia e admin — uma
+ * lista unica precisa saber quais papeis o usuario pode ver, e um default aqui
+ * seria exatamente o esquecimento que vaza fornecedor para a gerencia. Lista
+ * vazia devolve zero linhas (falha fechada), nunca "todos".
+ *
+ * O filtro de papel tambem poda o `array_agg`: a gerencia que abre um Marcio
+ * Kuhar ve o selo de cliente e nao fica sabendo que ele tambem e fornecedor.
+ */
+export async function listParties(
+  db: Queryable,
+  opts: { roles: PartyRole[]; search?: string | null; limit?: number },
+): Promise<PartyListRow[]> {
+  if (opts.roles.length === 0) return []
+
+  const termo = (opts.search ?? '').trim()
+  const digitos = onlyDigits(termo) || null
+
+  const { rows } = await db.query(
+    `SELECT p.id, p.name, p.document, p.kind, p.phone, p.whatsapp,
+            array_agg(DISTINCT r.role) AS roles,
+            MAX(c.id::text) AS customer_id,
+            MAX(s.id::text) AS supplier_id
+       FROM cadastro.parties p
+       JOIN cadastro.party_roles r
+         ON r.party_id = p.id AND r.role = ANY($1::text[])
+       LEFT JOIN customers c ON c.party_id = p.id AND c.active
+       LEFT JOIN suppliers s ON s.party_id = p.id AND s.active
+      WHERE p.active
+        AND (
+          $2::text IS NULL
+          OR p.name       ILIKE '%' || $2 || '%'
+          OR p.legal_name ILIKE '%' || $2 || '%'
+          OR p.trade_name ILIKE '%' || $2 || '%'
+          OR ($3::text IS NOT NULL AND p.document LIKE '%' || $3 || '%')
+        )
+      GROUP BY p.id, p.name, p.document, p.kind, p.phone, p.whatsapp
+      ORDER BY LOWER(TRIM(p.name))
+      LIMIT $4`,
+    [opts.roles, termo || null, digitos, opts.limit ?? 200],
+  )
+
+  return rows.map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    document: (r.document as string | null) ?? null,
+    kind: (r.kind as PartyKind | null) ?? null,
+    phone: (r.phone as string | null) ?? null,
+    whatsapp: (r.whatsapp as string | null) ?? null,
+    roles: (r.roles as PartyRole[]) ?? [],
+    customer_id: (r.customer_id as string | null) ?? null,
+    supplier_id: (r.supplier_id as string | null) ?? null,
+  }))
 }
 
 /**
