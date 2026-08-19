@@ -65,6 +65,12 @@ npx -y @mermaid-js/mermaid-cli -i docs/rotinas/img/mapa-sistema-v2.mmd \
   -o docs/rotinas/img/mapa-sistema-v2.png -w 1600 -b white
 ```
 
+⚠️ **O `-w` não é o mesmo para todos os mapas** — cada um foi gerado com a largura que o seu
+conteúdo pedia, e o PNG sai com `-w` menos 16 px. Antes de regerar, confira a largura do PNG
+atual e use o `-w` correspondente (PNG de 1584 px ⇒ `-w 1600`; de 1784 px ⇒ `-w 1800`), senão
+a figura reescala e o diff fica com uma mudança que ninguém pediu. `mapa-4-financeiro` usa
+`-w 1800`.
+
 O PNG é a fonte para leitura e para o TCC; o `.mmd` é a fonte para edição.
 
 `img/mapa-sistema.mmd` é a versão anterior, de seis blocos, mantida só como registro do que

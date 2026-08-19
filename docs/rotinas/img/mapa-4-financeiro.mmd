@@ -2,9 +2,13 @@
 %% insumo nasce aqui e fica disponivel para a Producao usar), CUSTOS FIXOS
 %% (vieram de /admin), CUSTEIO e PRECIFICACAO — que sao dinheiro, nao campo.
 %% Indicadores deixou de ser modulo proprio: viraram os dashboards daqui.
+%% A restricao de acesso e do RECURSO, nao da porta do modulo: fica restrito o
+%% que expoe a base bancaria; o que dela deriva (custo, preco, indicadores) a
+%% gerencia le, e sempre leu. Regra em D4 §3.2 — nao dizer "modulo restrito a
+%% chefia" aqui, que foi o que este no dizia antes de 19/08/2026.
 flowchart TB
   BAN(["Instituições bancárias<br/>9 contas · arquivo de extrato"])
-  ACE["<b>Acesso restrito à chefia</b><br/>a base reúne gasto do viveiro e gasto pessoal"]
+  ACE["<b>Base bancária &mdash; só chefia e admin</b><br/>reúne gasto do viveiro e gasto pessoal<br/><i>o que dela deriva — custo, preço, indicadores —<br/>a gerência lê (D4 §3.2)</i>"]
 
   IMP["<b>Importação de extrato</b> &mdash; mensal<br/>o arquivo entra inteiro, sem digitação"]
   AUT["<b>Classificação automática</b><br/>aplica as regras aprendidas<br/>nas classificações dos meses anteriores"]
