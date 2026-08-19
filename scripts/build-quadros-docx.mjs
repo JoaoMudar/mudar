@@ -221,6 +221,14 @@ const RELS_DOC = XML
   + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
   + '</Relationships>'
 
+/**
+ * Data fixa, de proposito. O .docx e versionado, e um carimbo de "agora" faria
+ * o arquivo mudar de bytes a cada execucao — o git acusaria alteracao mesmo
+ * quando nada no conteudo mudou. Com data fixa, mesma entrada gera saida
+ * identica, e um diff no .docx significa que os quadros mudaram de verdade.
+ */
+const DATA_DOC = '2026-01-01T00:00:00Z'
+
 const coreXml = (agora) => XML
   + '<cp:coreProperties'
   + ' xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"'
@@ -290,7 +298,6 @@ if (quadros.length === 0) {
   process.exit(1)
 }
 
-const agora = new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 const corpo = quadros.map(montaQuadro).join('')
 
 writeFileSync(SAIDA, zip([
@@ -299,7 +306,7 @@ writeFileSync(SAIDA, zip([
   ['word/_rels/document.xml.rels', RELS_DOC],
   ['word/document.xml', documentXml(corpo)],
   ['word/styles.xml', STYLES_XML],
-  ['docProps/core.xml', coreXml(agora)],
+  ['docProps/core.xml', coreXml(DATA_DOC)],
 ]))
 
 for (const q of quadros) {
