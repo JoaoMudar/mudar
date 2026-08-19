@@ -1,7 +1,7 @@
 # B5 — Matriz de rastreabilidade
 
 > **Artefato:** Matriz de rastreabilidade · **Bloco:** B — Engenharia de requisitos
-> **Destino no TCC:** Capítulo 4, seção 4.9 (recorte comentado) e Apêndice (integral)
+> **Destino no TCC:** Capítulo 4, seção 4.10 (recorte comentado) e Apêndice (integral)
 > **Fundamentação:** Sommerville (2011) descreve a organização dos requisitos, inicialmente não
 > estruturados, em conjuntos coerentes associados aos subsistemas da aplicação, e trata o
 > gerenciamento de requisitos como atividade que exige rastrear as relações entre eles e os demais
@@ -215,7 +215,7 @@ justifique**?
 |---|---|---|
 | Casos de uso (C1) | 44 | Nenhum |
 | Entidades (C6, C8) | 45 | Nenhuma |
-| Recursos de acesso (D4) | 31 | Nenhum — `Funcionários` e `Tarefas` ganharam RF-69 a RF-75 em 19/08/2026 |
+| Recursos de acesso (D4) | 31 | Nenhum — `Funcionários` e `Tarefas` ganharam RF-69 a RF-76 em 19/08/2026 |
 | Casos de aceite (E2) | 55 | Nenhum |
 | Indicadores (G2) | 9 | Nenhum — todos derivam de RF-63 a RF-65 |
 
@@ -227,8 +227,9 @@ aperte — e a matriz é o que torna essa decisão informada em vez de arbitrár
 
 ## 5. O que a construção desta matriz revelou
 
-Esta seção é o resultado principal do artefato. As três lacunas abaixo **não eram visíveis** nos
-documentos lidos isoladamente; apareceram ao confrontá-los.
+Esta seção é o resultado principal do artefato. As quatro lacunas abaixo **não eram visíveis** nos
+documentos lidos isoladamente; apareceram ao confrontá-los. As três primeiras foram fechadas; a
+quarta (§5.5) continua aberta.
 
 ### 5.1 Cinco requisitos sem entidade — precificação
 
@@ -272,12 +273,31 @@ como quantidade derivada.
 | Sem entidade — precificação | 5 | 2 entidades acrescentadas |
 | Sem entidade — operação | 12 | 3 entidades acrescentadas |
 | Sem teste de aceite | 8 | 8 casos acrescentados |
-| **Total de requisitos que estavam sem realização completa** | **25 de 68** | |
+| **Total de requisitos que estavam sem realização completa** | **25 de 76** | |
 
 **Um em cada três requisitos estava incompleto em algum elo da cadeia.** Nenhum deles era
 identificável pela leitura dos documentos separadamente — todos os artefatos pareciam corretos por
 si. É a razão pela qual a matriz de rastreabilidade é construída por último e, ainda assim, altera
 os artefatos que a antecedem.
+
+### 5.5 Sete requisitos *deve ter* sem teste de aceite — lacuna aberta
+
+As três lacunas anteriores foram encontradas e **fechadas**. Esta foi encontrada e continua aberta,
+e registrá-la é o que impede que a matriz passe a mentir.
+
+Os requisitos da agenda de pessoal e do custo de mão de obra — **RF-69, RF-70, RF-71, RF-72,
+RF-73, RF-74 e RF-76** — entraram em 19/08/2026 com caso de uso, entidade e recurso de acesso
+definidos, e **sem caso de teste**. Todos são de prioridade *deve ter*, o que os coloca dentro do
+critério de aprovação de subsistema de [`E2`](../E-qualidade/E2-casos-de-teste-de-aceite.md), não
+fora dele.
+
+A afirmação anterior desta seção — de que todo requisito *deve ter* possuía teste — valia para os
+51 requisitos existentes até então e **deixou de valer** quando os oito novos entraram. É o tipo
+exato de defasagem que a matriz existe para expor: o número não estava errado quando foi escrito,
+ficou errado depois, e só a recontagem o revela.
+
+**Correção pendente:** sete casos de aceite a acrescentar em `E2`. Enquanto não existirem, o
+subsistema de agenda de pessoal não tem critério de aprovação declarado.
 
 ---
 
@@ -285,19 +305,20 @@ os artefatos que a antecedem.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | **68 de 68** |
-| Requisitos funcionais com entidade ou derivação declarada | **68 de 68** |
-| Requisitos funcionais com regra de acesso definida | **68 de 68** |
-| Requisitos de prioridade *deve ter* com teste de aceite | **51 de 51** |
-| Requisitos *deveria ter* / *poderia ter* sem teste | 10 — deliberado |
+| Requisitos funcionais com caso de uso | **76 de 76** |
+| Requisitos funcionais com entidade ou derivação declarada | **76 de 76** |
+| Requisitos funcionais com regra de acesso definida | **76 de 76** |
+| Requisitos de prioridade *deve ter* com teste de aceite | **51 de 58** — ver §5.5 |
+| Requisitos *deveria ter* / *poderia ter* sem teste | 12 — deliberado |
 | Casos de uso sem requisito de origem | 0 |
 | Entidades sem requisito de origem | 0 |
 
-Os dez requisitos sem teste são todos de prioridade inferior a *deve ter*. A ausência é decisão
-declarada, não omissão: o critério de aprovação de subsistema em
-[`E2`](../E-qualidade/E2-casos-de-teste-de-aceite.md) exige verificação apenas dos *deve ter*, e
-estender a cobertura consumiria tempo de usuário que é o recurso mais escasso do projeto
-([`E3`, R-04](../E-qualidade/E3-analise-de-riscos.md)).
+Dezenove requisitos estão sem teste, e as duas ausências têm naturezas opostas. **Doze** são de
+prioridade inferior a *deve ter*: decisão declarada, não omissão — o critério de aprovação de
+subsistema em [`E2`](../E-qualidade/E2-casos-de-teste-de-aceite.md) exige verificação apenas dos
+*deve ter*, e estender a cobertura consumiria tempo de usuário, o recurso mais escasso do projeto
+([`E3`, R-04](../E-qualidade/E3-analise-de-riscos.md)). Os outros **sete são *deve ter*** e estão
+descobertos por defasagem, não por decisão: são a lacuna aberta da §5.5.
 
 ---
 

@@ -1,7 +1,7 @@
 # E6 — Plano de backup e recuperação
 
 > **Artefato:** Plano de backup e recuperação · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Segurança e controle de acesso
+> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
 > **Fundamentação:** Sommerville (2011) classifica como **limitação de exposição e recuperação** os
 > controles voltados à recuperação de dados, exemplificando-os com backup automatizado e
 > espelhamento de informações, capazes de cobrir os custos de um ataque bem-sucedido. Este documento

@@ -1,7 +1,7 @@
 # E5 — Mapeamento de tratamento de dados pessoais (LGPD)
 
 > **Artefato:** Mapeamento LGPD · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Segurança e controle de acesso
+> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
 > **Fundamentação:** Lei nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais).
 > ⚠️ **Exige acréscimo ao Capítulo 2.5 do TCC** — o referencial atual não menciona a legislação de
 > proteção de dados. O texto proposto está em [`../word/`](../word/).

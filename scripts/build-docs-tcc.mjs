@@ -40,23 +40,28 @@ const SECOES = [
     fontes: ['B-requisitos/B2-especificacao-requisitos.md'],
   },
   {
-    arquivo: '4.3-modelagem-do-sistema.md',
-    titulo: '4.3 Modelagem do sistema',
+    arquivo: '4.3-regras-de-negocio.md',
+    titulo: '4.3 Regras de negócio',
+    fontes: ['B-requisitos/B3-regras-de-negocio.md'],
+  },
+  {
+    arquivo: '4.4-modelagem-do-sistema.md',
+    titulo: '4.4 Modelagem do sistema',
     fontes: ['C-modelagem/C1-diagrama-casos-de-uso.md', 'C-modelagem/C2-especificacao-casos-de-uso.md'],
   },
   {
-    arquivo: '4.4-modelagem-de-dados.md',
-    titulo: '4.4 Modelagem de dados',
+    arquivo: '4.5-modelagem-de-dados.md',
+    titulo: '4.5 Modelagem de dados',
     fontes: ['C-modelagem/C6-modelo-entidade-relacionamento.md'],
   },
   {
-    arquivo: '4.5-arquitetura.md',
-    titulo: '4.5 Arquitetura da solução',
+    arquivo: '4.6-arquitetura.md',
+    titulo: '4.6 Arquitetura da solução',
     fontes: ['D-arquitetura/D1-arquitetura-c4.md', 'D-arquitetura/D3-diagrama-implantacao.md'],
   },
   {
-    arquivo: '4.6-seguranca-e-controle-de-acesso.md',
-    titulo: '4.6 Segurança e controle de acesso',
+    arquivo: '4.7-seguranca-e-controle-de-acesso.md',
+    titulo: '4.7 Segurança e controle de acesso',
     fontes: [
       'D-arquitetura/D4-matriz-rbac.md',
       'E-qualidade/E4-modelagem-de-ameacas.md',
@@ -65,18 +70,18 @@ const SECOES = [
     ],
   },
   {
-    arquivo: '4.7-verificacao-e-validacao.md',
-    titulo: '4.7 Verificação e validação',
+    arquivo: '4.8-verificacao-e-validacao.md',
+    titulo: '4.8 Verificação e validação',
     fontes: ['F-ux/F3-plano-avaliacao-usabilidade.md'],
   },
   {
-    arquivo: '4.8-indicadores-de-desempenho.md',
-    titulo: '4.8 Indicadores de desempenho',
+    arquivo: '4.9-indicadores-de-desempenho.md',
+    titulo: '4.9 Indicadores de desempenho',
     fontes: ['G-gestao/G2-fichas-de-indicadores.md'],
   },
   {
-    arquivo: '4.9-rastreabilidade.md',
-    titulo: '4.9 Rastreabilidade',
+    arquivo: '4.10-rastreabilidade.md',
+    titulo: '4.10 Rastreabilidade',
     fontes: ['B-requisitos/B5-matriz-rastreabilidade.md'],
   },
   // Fora do Capitulo 4
@@ -105,6 +110,11 @@ const SECOES = [
     arquivo: 'apendice-C-casos-de-teste.md',
     titulo: 'Apêndice C — Casos de teste de aceite',
     fontes: ['E-qualidade/E2-casos-de-teste-de-aceite.md'],
+  },
+  {
+    arquivo: 'apendice-D-quadros.md',
+    titulo: 'Apêndice D — Quadros de regras de negócio e requisitos',
+    fontes: ['B-requisitos/B4-quadros-tcc.md'],
   },
 ]
 

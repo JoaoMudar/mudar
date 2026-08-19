@@ -1,7 +1,7 @@
 # F3 — Plano de avaliação de usabilidade
 
 > **Artefato:** Plano de avaliação de usabilidade · **Bloco:** F — Usabilidade
-> **Destino no TCC:** Capítulo 4, seção 4.7 — Verificação e validação
+> **Destino no TCC:** Capítulo 4, seção 4.8 — Verificação e validação
 > **Fundamentação:** Nielsen (1993) estabelece que a usabilidade não é propriedade unidimensional,
 > mas reúne cinco atributos — **aprendizado, eficiência, memorização, erros e satisfação** —, e que a
 > combinação deles permite quantificar o nível de usabilidade de forma precisa e mensurável,

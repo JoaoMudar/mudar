@@ -97,11 +97,11 @@ banco de dados usam o equivalente em **inglês**, indicado entre parênteses qua
 | Termo | Definição | Como a empresa chama | Forma canônica |
 |---|---|---|---|
 | **Perfil** | Papel de acesso atribuído ao usuário, que determina o que ele pode ver e fazer. São três perfis de negócio — chefia, gerência, colaborador — mais um papel técnico de administração. | "permissão", "acesso" | **Perfil** (`role`) |
-| **Chefia** | Perfil responsável por vendas, finanças, aprovação de preço, decisões e entregas. Único com acesso ao financeiro. | "o Gilberto" | **Chefia** |
+| **Chefia** | Perfil responsável por vendas, finanças, aprovação de preço, decisões e entregas. Único com acesso à **base bancária** — extrato, lançamento, compra, custo fixo e fechamento; o que dela deriva e não a expõe (custo, preço, margem, indicador) a gerência lê. | "o Gilberto" | **Chefia** |
 | **Gerência** | Perfil responsável pela operação: coordenação, estoque, planejamento de produção e distribuição de tarefas. | "quem coordena" | **Gerência** |
-| **Colaborador** | Perfil de execução em campo: registro de produção, de perdas e separação de cargas. Não acessa preço, custo nem financeiro. | "funcionário", "o pessoal" | **Colaborador** |
+| **Colaborador** | Perfil de execução em campo: registro de produção, de perdas, conclusão das tarefas atribuídas a ele e separação de cargas. Não acessa preço, custo nem base bancária. | "funcionário", "o pessoal" | **Colaborador** |
 | **Administrador** | Papel técnico de administração do sistema — gestão de usuários e manutenção. Não corresponde a uma função da empresa e não participa das rotinas de negócio. | — | **Administrador** |
-| **Rotina** | Processo de negócio recorrente do viveiro, decomposto em etapas com perfil responsável por cada uma. São oito: pedidos, estoque, tarefas, perdas, entregas, financeiro, produção e clientes. | "o jeito que se faz" | **Rotina** |
+| **Rotina** | Processo de negócio recorrente do viveiro, decomposto em etapas com perfil responsável por cada uma. As rotinas se agrupam nos **quatro módulos** do sistema — Cadastros, Produção, Comercial e Financeiro —, com Acesso atravessando os quatro. | "o jeito que se faz" | **Rotina** |
 | **Formulário de campo** | Tela projetada para uso em ambiente de trabalho, sob as restrições de no máximo cinco campos, listas fechadas em vez de campo aberto, botões grandes e resposta visual imediata. | — | **Formulário de campo** |
 | **Uso offline** | Capacidade de registrar dados sem conexão, com envio posterior automático. Necessário porque a conexão no viveiro é instável. | "sem internet" | **Uso offline** |
 

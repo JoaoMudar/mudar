@@ -4,19 +4,20 @@
 > `docs/engenharia/` e rode `npm run docs:tcc`. Qualquer edição feita nesta pasta é perdida
 > na próxima geração.
 
-Gerado em 2026-08-19 · 14 arquivos · 18 figuras.
+Gerado em 2026-08-19 · 16 arquivos · 18 figuras.
 
 ## Ordem de colagem no Capítulo 4
 
 1. `4.1-visao-geral-da-solucao.md` → **4.1 Visão geral da solução**
 2. `4.2-requisitos.md` → **4.2 Requisitos do sistema**
-3. `4.3-modelagem-do-sistema.md` → **4.3 Modelagem do sistema**
-4. `4.4-modelagem-de-dados.md` → **4.4 Modelagem de dados**
-5. `4.5-arquitetura.md` → **4.5 Arquitetura da solução**
-6. `4.6-seguranca-e-controle-de-acesso.md` → **4.6 Segurança e controle de acesso**
-7. `4.7-verificacao-e-validacao.md` → **4.7 Verificação e validação**
-8. `4.8-indicadores-de-desempenho.md` → **4.8 Indicadores de desempenho**
-9. `4.9-rastreabilidade.md` → **4.9 Rastreabilidade**
+3. `4.3-regras-de-negocio.md` → **4.3 Regras de negócio**
+4. `4.4-modelagem-do-sistema.md` → **4.4 Modelagem do sistema**
+5. `4.5-modelagem-de-dados.md` → **4.5 Modelagem de dados**
+6. `4.6-arquitetura.md` → **4.6 Arquitetura da solução**
+7. `4.7-seguranca-e-controle-de-acesso.md` → **4.7 Segurança e controle de acesso**
+8. `4.8-verificacao-e-validacao.md` → **4.8 Verificação e validação**
+9. `4.9-indicadores-de-desempenho.md` → **4.9 Indicadores de desempenho**
+10. `4.10-rastreabilidade.md` → **4.10 Rastreabilidade**
 
 ## Fora do Capítulo 4
 
@@ -35,6 +36,7 @@ Gerado em 2026-08-19 · 14 arquivos · 18 figuras.
 - `apendice-A-glossario.md` → Apêndice A — Glossário do domínio
 - `apendice-B-dicionario-de-dados.md` → Apêndice B — Dicionário de dados
 - `apendice-C-casos-de-teste.md` → Apêndice C — Casos de teste de aceite
+- `apendice-D-quadros.md` → Apêndice D — Quadros de regras de negócio e requisitos
 
 Estes quatro são longos demais para o corpo do texto. A recomendação é apresentar, no capítulo, uma
 amostra de duas ou três tabelas e remeter ao apêndice para o restante.

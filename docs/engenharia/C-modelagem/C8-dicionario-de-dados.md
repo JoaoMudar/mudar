@@ -1,7 +1,7 @@
 # C8 — Dicionário de dados
 
 > **Artefato:** Dicionário de dados · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.4 (amostra de duas ou três entidades) e Apêndice (integral)
+> **Destino no TCC:** Capítulo 4, seção 4.5 (amostra de duas ou três entidades) e Apêndice (integral)
 > **Fundamentação:** Elmasri e Navathe (2011) situam a definição dos tipos de dados, estruturas e
 > restrições como primeiro passo da criação de um banco de dados. Este documento é o registro dessa
 > definição, entidade por entidade.

@@ -1,7 +1,7 @@
 # C2 — Especificação de casos de uso
 
 > **Artefato:** Especificação de casos de uso · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.3 (amostra) e Apêndice (integral)
+> **Destino no TCC:** Capítulo 4, seção 4.4 (amostra) e Apêndice (integral)
 > **Fundamentação:** Pressman e Maxim (2016, p. 149) definem que "um caso de uso conta uma jornada
 > estilizada sobre como um usuário [...] interage com o sistema sob um conjunto de circunstâncias
 > específicas". Sommerville (2011) complementa que a descrição textual detalha o que o diagrama

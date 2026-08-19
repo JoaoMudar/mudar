@@ -1,7 +1,7 @@
 # C1 — Diagrama de casos de uso
 
 > **Artefato:** Diagrama de casos de uso (UML) · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.3 — Modelagem do sistema
+> **Destino no TCC:** Capítulo 4, seção 4.4 — Modelagem do sistema
 > **Fundamentação:** Sommerville (2011) define o caso de uso como cenário que descreve o que o
 > usuário espera do sistema, representando uma interação externa. Pressman e Maxim (2016) indicam
 > que a construção parte da **definição dos atores** — todo elemento externo que se comunica com o

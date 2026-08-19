@@ -1,7 +1,7 @@
 # E4 — Modelagem de ameaças e controles
 
 > **Artefato:** Modelagem de ameaças · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Segurança e controle de acesso
+> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
 > **Fundamentação:** Sommerville (2011) classifica as ameaças em três tipos — à
 > **confidencialidade**, à **integridade** e à **disponibilidade** — e os controles em três
 > categorias: **prevenção de vulnerabilidade**, **detecção e neutralização de ataques** e

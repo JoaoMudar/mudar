@@ -1,7 +1,7 @@
 # C6 — Modelo Entidade-Relacionamento
 
 > **Artefato:** MER conceitual, lógico e físico · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.4 — Modelagem de dados
+> **Destino no TCC:** Capítulo 4, seção 4.5 — Modelagem de dados
 > **Fundamentação:** Elmasri e Navathe (2011) definem o modelo Entidade-Relacionamento como modelo
 > conceitual de alto nível que abstrai objetos do mundo real em entidades descritas por atributos.
 > A progressão conceitual → lógico → físico e os critérios de normalização seguem os mesmos autores.

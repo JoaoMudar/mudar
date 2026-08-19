@@ -1,7 +1,7 @@
 # G2 — Fichas de indicadores de desempenho
 
 > **Artefato:** Fichas de indicador (KPI) · **Bloco:** G — Gestão e Business Intelligence
-> **Destino no TCC:** Capítulo 4, seção 4.8 — Indicadores de desempenho
+> **Destino no TCC:** Capítulo 4, seção 4.9 — Indicadores de desempenho
 > **Fundamentação:** Sharda, Delen e Turban (2015) definem métricas de desempenho como o método
 > sistemático de definir metas acompanhado de feedback periódico sobre o progresso em relação a
 > elas, e caracterizam os KPIs como **multidimensionais** — contemplando estratégia, metas

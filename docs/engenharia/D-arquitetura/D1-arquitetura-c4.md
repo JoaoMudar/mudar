@@ -1,7 +1,7 @@
 # D1 — Documento de arquitetura
 
 > **Artefato:** Documento de arquitetura (modelo C4) · **Bloco:** D — Arquitetura
-> **Destino no TCC:** Capítulo 4, seção 4.5 — Arquitetura da solução
+> **Destino no TCC:** Capítulo 4, seção 4.6 — Arquitetura da solução
 > **Fundamentação:** Sommerville (2011) descreve a arquitetura cliente-servidor como conjunto de
 > serviços e servidores acessados por clientes, e apresenta o sistema de informação genérico
 > estruturado em **três camadas**: comunicação com o usuário, lógica da aplicação, e gerenciamento do

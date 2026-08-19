@@ -1,7 +1,7 @@
 # D4 — Matriz de controle de acesso baseado em papéis
 
 > **Artefato:** Matriz RBAC · **Bloco:** D — Arquitetura
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Segurança e controle de acesso
+> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
 > **Fundamentação:** Sommerville (2011) trata autenticação e controle de acesso como controles de
 > **prevenção de vulnerabilidade**, e observa que a proteção tem como contrapartida a perda de
 > produtividade do usuário, cabendo ao projetista encontrar o equilíbrio em cada cenário. Este

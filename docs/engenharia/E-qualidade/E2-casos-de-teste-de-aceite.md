@@ -1,7 +1,7 @@
 # E2 — Casos de teste de aceite
 
 > **Artefato:** Casos de teste de aceite · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.7 (amostra) e Apêndice (integral)
+> **Destino no TCC:** Capítulo 4, seção 4.8 (amostra) e Apêndice (integral)
 > **Fundamentação:** Sommerville (2011) define o teste de aceite como aquele conduzido com dados
 > reais do cliente, destinado a verificar se o sistema atende às suas necessidades — distinto do
 > teste de desenvolvimento, que verifica se o sistema faz o que o programador pretendeu.
@@ -186,11 +186,18 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Financeiro | 6 | RF-56 a RF-61 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **55** | **Todos os 51 requisitos de prioridade *deve ter*** |
+| **Total** | **55** | **51 dos 58 requisitos de prioridade *deve ter*** |
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de
 prioridade *deve ter* é defeito de especificação, não do teste.
+
+**Sete *deve ter* estão hoje descobertos** — RF-69, RF-70, RF-71, RF-72, RF-73, RF-74 e RF-76,
+todos da agenda de pessoal e do custo de mão de obra, acrescentados a `B2` em 19/08/2026. Pelo
+critério do parágrafo anterior, isso é defeito de especificação a corrigir, e está registrado como
+lacuna aberta em [`B5` §5.5](../B-requisitos/B5-matriz-rastreabilidade.md). Enquanto os casos não
+existirem, **o subsistema de agenda de pessoal não tem critério de aprovação declarado** — e a
+tabela acima não deve ser lida como cobertura completa.
 
 ---
 

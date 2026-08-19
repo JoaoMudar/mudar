@@ -1,7 +1,7 @@
 # D3 — Diagrama de implantação
 
 > **Artefato:** Diagrama de implantação · **Bloco:** D — Arquitetura
-> **Destino no TCC:** Capítulo 4, seção 4.5 — Arquitetura da solução
+> **Destino no TCC:** Capítulo 4, seção 4.6 — Arquitetura da solução
 > **Fundamentação:** Sommerville (2011) descreve a arquitetura cliente-servidor como sistema
 > distribuído cuja principal vantagem está em permitir acrescentar servidores sem afetar as demais
 > partes. Este documento registra como os componentes lógicos de [`D1`](D1-arquitetura-c4.md) se
