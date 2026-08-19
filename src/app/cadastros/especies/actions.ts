@@ -8,7 +8,7 @@ import type { SpeciesTagSlug } from '@/lib/species-tags'
 import { findNameConflict, normalizePopularName, type KnownName } from '@/lib/species-names'
 import { authorize, requirePermission } from '@/lib/authz'
 
-const PATH = '/admin/especies'
+const PATH = '/cadastros/especies'
 const MAX_UPLOAD_BYTES = 8 * 1024 * 1024 // 8 MB
 
 export interface SpeciesPayload {

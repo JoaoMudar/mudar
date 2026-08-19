@@ -3,6 +3,10 @@
 > Para entender a **estrutura de pastas** e o que esperar de cada uma, comece por
 > [`README.md`](README.md). Este arquivo é o índice detalhado, com status e destino no TCC.
 >
+> Vai escrever os capítulos de **elicitação/análise de requisitos** e **regras de negócio**?
+> O mapa do material já existente está em
+> [`guia-cap-elicitacao-e-regras-de-negocio.md`](guia-cap-elicitacao-e-regras-de-negocio.md).
+>
 > Documentação formal de engenharia do projeto, produzida como base do **Capítulo 4 (Resultados)**
 > do Trabalho de Conclusão de Curso *"Digitalização do fluxo operacional e comercial em viveiros
 > florestais: um protótipo de sistema de gestão"* (UNIDAVI, 2026).
@@ -31,6 +35,7 @@ São documentos de projeto, não relatórios de código.
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
 | [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 68 RF, 26 RNF |
+| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | Capítulo de Regras de negócio | ✅ escrito — 47 regras, 65 dos 68 RF vinculados |
 | [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.9 + Apêndice | ✅ escrito — revelou 25 lacunas |
 
 ### C — Modelagem UML e de dados

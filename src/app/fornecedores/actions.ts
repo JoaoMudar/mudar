@@ -3,7 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
-import { upsertPartyFromSupplier, updateAddressGeo } from '@/lib/parties'
+import {
+  upsertPartyFromSupplier,
+  updateAddressGeo,
+  findPartyMatch,
+  mergeParties,
+  fillOnly,
+  type PartyDecision,
+  type PartyMatch,
+} from '@/lib/parties'
 import { onlyDigits, isValidUF } from '@/lib/customers'
 import {
   normalizeAvailability,
@@ -93,17 +101,38 @@ export async function getSupplierById(id: string) {
   return { ...supplier, species }
 }
 
+/**
+ * Cria fornecedor. `decision` responde "esta pessoa ja existe em outro papel?" —
+ * sem ela, havendo identidade parecida, nada e gravado e a action devolve
+ * `partyMatch` para a tela perguntar. O sistema nunca une sozinho.
+ */
 export async function createSupplier(
   data: SupplierInput,
-): Promise<{ id?: string; error?: string }> {
+  decision?: PartyDecision,
+): Promise<{ id?: string; error?: string; partyMatch?: PartyMatch }> {
   const auth = await authorize('fornecedor:criar')
   if (!auth.ok) return { error: auth.error }
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
+
+  const linkPartyId = decision && 'link' in decision ? decision.link : null
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+
+    // `suppliers` nao tem coluna de documento, entao o casamento aqui e sempre
+    // por nome normalizado — mesma limitacao registrada no backfill da migration
+    // 20260811000004. Por isso a pergunta na tela e obrigatoria.
+    if (!decision) {
+      const match = await findPartyMatch(client, { name: v.name, role: 'fornecedor' })
+      if (match) {
+        await client.query('ROLLBACK')
+        return { partyMatch: match }
+      }
+    }
+
     const { rows } = await client.query(
       `INSERT INTO suppliers
          (name, contact_name, whatsapp, phone, email, instagram,
@@ -117,12 +146,13 @@ export async function createSupplier(
     )
     const supplierId = rows[0].id as string
 
-    // Identidade em cadastro.parties, no mesmo `client` da transacao. O
-    // fornecedor nao tem documento, entao a identidade dele e nome + contato —
-    // se essa pessoa tambem for cliente, o COALESCE de upsertParty preserva o
-    // documento que o cadastro de cliente preencheu.
-    const partyId = await upsertPartyFromSupplier(client, {
-      id: supplierId,
+    // Identidade em cadastro.parties, no mesmo `client` da transacao. Sem
+    // ligacao, a party reusa o id do fornecedor. Com ligacao, grava na
+    // identidade que ja existia — e como este formulario nao tem documento nem
+    // endereco, `fillOnly` garante que ele nao apague o que o cadastro de
+    // cliente preencheu.
+    const identidade = {
+      id: linkPartyId ?? supplierId,
       name: v.name,
       email: v.email,
       phone: v.phone,
@@ -130,7 +160,11 @@ export async function createSupplier(
       notes: v.notes,
       city: v.city,
       state: v.state,
-    })
+    }
+    const partyId = await upsertPartyFromSupplier(
+      client,
+      linkPartyId ? fillOnly(identidade) : identidade,
+    )
     await client.query(`UPDATE suppliers SET party_id = $1 WHERE id = $2`, [partyId, supplierId])
 
     await client.query('COMMIT')
@@ -147,15 +181,40 @@ export async function createSupplier(
 export async function updateSupplier(
   id: string,
   data: SupplierInput,
-): Promise<{ error?: string }> {
+  decision?: PartyDecision,
+): Promise<{ error?: string; partyMatch?: PartyMatch }> {
   const auth = await authorize('fornecedor:atualizar')
   if (!auth.ok) return { error: auth.error }
   const error = validateSupplier(data)
   if (error) return { error }
   const v = supplierValues(data)
+
+  const linkPartyId = decision && 'link' in decision ? decision.link : null
+
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+
+    const { rows: atual } = await client.query(
+      `SELECT party_id FROM suppliers WHERE id = $1`,
+      [id],
+    )
+    const partyAtual = (atual[0]?.party_id as string | null) ?? null
+
+    // Tambem no update: e o caminho de conserto dos cadastros duplicados criados
+    // desde o backfill, sem precisar de tela de manutencao.
+    if (!decision) {
+      const match = await findPartyMatch(client, {
+        name: v.name,
+        role: 'fornecedor',
+        excludePartyId: partyAtual ?? id,
+      })
+      if (match) {
+        await client.query('ROLLBACK')
+        return { partyMatch: match }
+      }
+    }
+
     // Cidade/UF mudou → zera lat/lng/geocoded_at (CASE le os valores ANTIGOS
     // da linha), forcando nova geocodificacao sob demanda (P11 F4).
     await client.query(
@@ -175,17 +234,19 @@ export async function updateSupplier(
         v.city, v.state, v.notes, v.reliability_score, v.status, id,
       ],
     )
-    const { rows: cur } = await client.query(
-      `SELECT party_id FROM suppliers WHERE id = $1`,
-      [id],
-    )
+    // Ligou a uma identidade que ja existia: funde a party antiga na escolhida,
+    // em vez de largar identidade orfa. mergeParties ja repointa
+    // suppliers.party_id; a UPDATE do fim so confirma.
+    if (linkPartyId && partyAtual && partyAtual !== linkPartyId) {
+      await mergeParties(client, partyAtual, linkPartyId)
+    }
 
-    // Identidade em cadastro.parties, no mesmo `client` da transacao. O
-    // fornecedor nao tem documento, entao a identidade dele e nome + contato —
-    // se essa pessoa tambem for cliente, o COALESCE de upsertParty preserva o
-    // documento que o cadastro de cliente preencheu.
-    const partyId = await upsertPartyFromSupplier(client, {
-      id: (cur[0]?.party_id as string | null) ?? id,
+    // Identidade em cadastro.parties, no mesmo `client` da transacao. Este
+    // formulario nao conhece documento nem endereco completo: essas chaves nem
+    // sao passadas, entao `upsertParty` as deixa de fora do UPDATE e o que o
+    // cadastro de cliente preencheu fica intacto.
+    const identidade = {
+      id: linkPartyId ?? partyAtual ?? id,
       name: v.name,
       email: v.email,
       phone: v.phone,
@@ -193,7 +254,11 @@ export async function updateSupplier(
       notes: v.notes,
       city: v.city,
       state: v.state,
-    })
+    }
+    const partyId = await upsertPartyFromSupplier(
+      client,
+      linkPartyId ? fillOnly(identidade) : identidade,
+    )
     await client.query(`UPDATE suppliers SET party_id = $1 WHERE id = $2`, [partyId, id])
 
     await client.query('COMMIT')
@@ -208,7 +273,12 @@ export async function updateSupplier(
   }
 }
 
-/** Soft-delete via `active` (padrao do sistema). Nunca deleta fisicamente. */
+/**
+ * Soft-delete via `active` (padrao do sistema). Nunca deleta fisicamente.
+ *
+ * **Nao mexe em `cadastro.parties.active` de proposito** — a mesma pessoa pode
+ * seguir ativa como cliente. Ver a nota equivalente em toggleCustomerActive.
+ */
 export async function toggleSupplierActive(
   id: string,
   active: boolean,

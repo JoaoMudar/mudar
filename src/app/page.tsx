@@ -1,28 +1,9 @@
 import Link from 'next/link'
 import { requireAuth } from '@/lib/auth'
-import { can, canAny, type Permission } from '@/lib/permissions'
+import { MODULES, ADMIN_LINKS, canLink, linkPermissions } from '@/lib/modules'
+import { canAny } from '@/lib/permissions'
 import LogoutButton from './LogoutButton'
 import NotificationBell from '@/components/NotificationBell'
-
-const WORKER_LINKS = [
-  {
-    href: '/insumos/registrar',
-    label: 'Registrar Insumo',
-    icon: '📦',
-    desc: 'Lançar compra ou uso de insumo',
-  },
-]
-
-// A permissao de cada link e a MESMA que guarda a pagina de destino, para que
-// o atalho nunca apareca levando a uma tela que devolveria o usuario.
-const ADMIN_LINKS: { href: string; label: string; permission: Permission }[] = [
-  { href: '/admin/especies',        label: 'Espécies',        permission: 'especie:criar' },
-  { href: '/admin/recipientes',     label: 'Recipientes',     permission: 'recipiente:criar' },
-  { href: '/admin/insumos',         label: 'Insumos',         permission: 'insumo:criar' },
-  { href: '/admin/custos-fixos',    label: 'Custos Fixos',    permission: 'custo_fixo:criar' },
-  { href: '/admin/coleta-sementes', label: 'Coleta Sementes', permission: 'coleta_semente:criar' },
-  { href: '/admin/usuarios',        label: 'Usuários',        permission: 'usuario:criar' },
-]
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrador',
@@ -37,18 +18,10 @@ export default async function Home() {
   // Renderizacao, nao controle de acesso — o D4 §4 e explicito: esconder botao
   // nao protege nada, quem protege e o guard da acao. Isto aqui existe para o
   // usuario nao ver atalho que o levaria a uma tela da qual seria devolvido.
-  // A permissao usada e a mesma que guarda a pagina de destino.
-  const showAdmin = canAny(user, [
-    'especie:criar',
-    'recipiente:criar',
-    'insumo:criar',
-    'custo_fixo:criar',
-    'coleta_semente:criar',
-    'usuario:criar',
-  ])
-  const showClientes = can(user, 'cliente:criar')
-  const showFornecedores = can(user, 'fornecedor:criar')
-  const showPedidos = can(user, 'pedido:ler')
+  // A permissao usada e a mesma que guarda a pagina de destino (ver
+  // `src/lib/modules.ts`, que e a fonte unica desses links).
+  const modules = MODULES.filter((m) => canAny(user, m.links.flatMap(linkPermissions)))
+  const adminLinks = ADMIN_LINKS.filter((l) => canLink(user, l))
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -72,101 +45,46 @@ export default async function Home() {
         </div>
       </header>
 
-      <div className="px-4 py-6 space-y-8 max-w-lg mx-auto">
+      <div className="px-4 py-6 space-y-3 max-w-lg mx-auto">
 
-        {/* Secao pedidos — visivel para admin, chefia e gerencia */}
-        {showPedidos && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
-              Pedidos
-            </h2>
-            <div className="space-y-3">
-              <Link
-                href="/pedidos"
-                className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
-              >
-                <span className="text-3xl">🧾</span>
-                <div>
-                  <p className="font-semibold text-gray-900 text-base">Pedidos</p>
-                  <p className="text-sm text-gray-500">Cadastrar, verificar e separar pedidos</p>
-                </div>
-              </Link>
-              {/* Clientes — quem cadastra; a gerencia ve o cliente dentro do pedido, nao a aba */}
-              {showClientes && (
-                <Link
-                  href="/clientes"
-                  className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
-                >
-                  <span className="text-3xl">👥</span>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-base">Clientes</p>
-                    <p className="text-sm text-gray-500">Cadastrar e completar dados fiscais de clientes</p>
-                  </div>
-                </Link>
-              )}
-              {/* Fornecedores — rede de revenda (P11) */}
-              {showFornecedores && (
-                <Link
-                  href="/fornecedores"
-                  className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
-                >
-                  <span className="text-3xl">🤝</span>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-base">Fornecedores</p>
-                    <p className="text-sm text-gray-500">Rede de fornecedores e espécies que cada um oferece</p>
-                  </div>
-                </Link>
-              )}
+        {/* Os quatro modulos. O painel leva ao modulo; o modulo leva a tela.
+            Dois toques, e o menu nao cresce a cada rotina nova. */}
+        {modules.map(({ slug, title, icon, summary }) => (
+          <Link
+            key={slug}
+            href={`/${slug}`}
+            className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
+          >
+            <span className="text-3xl">{icon}</span>
+            <div>
+              <p className="font-semibold text-gray-900 text-base">{title}</p>
+              <p className="text-sm text-gray-500">{summary}</p>
             </div>
-          </section>
-        )}
+          </Link>
+        ))}
 
-        {/* Secao operacoes */}
-        <section>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
-            Operações de Campo
-          </h2>
-          <div className="space-y-3">
-            {WORKER_LINKS.map(({ href, label, icon, desc }) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-center gap-4 bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 active:bg-green-50"
-              >
-                <span className="text-3xl">{icon}</span>
-                <div>
-                  <p className="font-semibold text-gray-900 text-base">{label}</p>
-                  <p className="text-sm text-gray-500">{desc}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* Secao admin — visivel para admin e chefia */}
-        {showAdmin && (
-          <section>
+        {/* Acesso — transversal, fora dos quatro modulos */}
+        {adminLinks.length > 0 && (
+          <section className="pt-5">
             <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
               Administração
             </h2>
             <div className="grid grid-cols-2 gap-2">
-              {ADMIN_LINKS
-                .filter((link) => can(user, link.permission))
-                .map(({ href, label }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
-                  >
-                    {label}
-                  </Link>
-                ))}
+              {adminLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 text-center active:bg-gray-100"
+                >
+                  {label}
+                </Link>
+              ))}
             </div>
           </section>
         )}
 
         {/* Secao conta — todos os usuarios logados */}
-        <section>
+        <section className="pt-5">
           <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
             Minha Conta
           </h2>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { buildPasteRows, type MatchStatus, type SpeciesOption } from '@/lib/order-paste'
 import { normalizePopularName } from '@/lib/species-names'
-import { createSpeciesQuick, addPopularName } from '@/app/admin/especies/actions'
+import { createSpeciesQuick, addPopularName } from '@/app/cadastros/especies/actions'
 
 interface Container {
   id: string

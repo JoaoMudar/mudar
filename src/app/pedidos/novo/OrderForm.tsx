@@ -8,7 +8,9 @@ import Autocomplete, { AutocompleteItem } from '@/components/Autocomplete'
 import { SALE_CHANNELS, type SaleChannel } from '@/lib/orders'
 import { createOrder } from '../actions'
 import { createCustomer } from '@/app/clientes/actions'
-import { createSpeciesQuick } from '@/app/admin/especies/actions'
+import { type PartyDecision, type PartyMatch } from '@/lib/parties'
+import PartyMatchPrompt from '@/components/PartyMatchPrompt'
+import { createSpeciesQuick } from '@/app/cadastros/especies/actions'
 import PasteImport, { type ImportedItem } from './PasteImport'
 
 interface Customer {
@@ -87,6 +89,10 @@ export default function OrderForm({ customers, species, containers }: Props) {
   const [showNewCustomer, setShowNewCustomer] = useState(false)
   const [newCustomerName, setNewCustomerName] = useState('')
   const [newCustomerPhone, setNewCustomerPhone] = useState('')
+  // Cadastro inline e o caminho que mais duplica pessoa: quem ja e fornecedor
+  // vira cliente aqui, no meio do pedido. A pergunta aparece no proprio bloco,
+  // sem tirar ninguem da tela.
+  const [newCustomerMatch, setNewCustomerMatch] = useState<PartyMatch | null>(null)
 
   const [channel, setChannel] = useState<SaleChannel>('atacado')
   const [deliveryDate, setDeliveryDate] = useState('')
@@ -226,13 +232,20 @@ export default function OrderForm({ customers, species, containers }: Props) {
     showToast(`Espécie "${trimmed}" criada!`, 'success')
   }
 
-  async function handleCreateCustomer() {
+  async function handleCreateCustomer(decision?: PartyDecision) {
     const name = newCustomerName.trim()
     if (!name) {
       showToast('Informe o nome do cliente.', 'error')
       return
     }
-    const result = await createCustomer({ name, phone: newCustomerPhone.trim() })
+    if (decision) setNewCustomerMatch(null)
+    const result = await createCustomer({ name, phone: newCustomerPhone.trim() }, decision)
+    // Identidade parecida: nada foi gravado ainda. Sem este ramo o cadastro
+    // cairia no erro generico abaixo e o cliente nao seria criado.
+    if (result.partyMatch) {
+      setNewCustomerMatch(result.partyMatch)
+      return
+    }
     if (result.error || !result.id) {
       showToast(result.error ?? 'Erro ao criar cliente.', 'error')
       return
@@ -242,6 +255,7 @@ export default function OrderForm({ customers, species, containers }: Props) {
     setShowNewCustomer(false)
     setNewCustomerName('')
     setNewCustomerPhone('')
+    setNewCustomerMatch(null)
     showToast('Cliente criado!', 'success')
   }
 
@@ -333,8 +347,19 @@ export default function OrderForm({ customers, species, containers }: Props) {
                 placeholder="Telefone (opcional)"
                 className="input"
               />
+              {newCustomerMatch && (
+                <PartyMatchPrompt
+                  match={newCustomerMatch}
+                  onSame={() => handleCreateCustomer({ link: newCustomerMatch.id })}
+                  onDifferent={() => handleCreateCustomer({ separate: true })}
+                />
+              )}
               <div className="flex gap-2">
-                <button type="button" onClick={handleCreateCustomer} className="btn-primary py-3 text-base">
+                <button
+                  type="button"
+                  onClick={() => handleCreateCustomer()}
+                  className="btn-primary py-3 text-base"
+                >
                   Salvar cliente
                 </button>
                 <button

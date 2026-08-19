@@ -5,7 +5,7 @@ import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
 import { authorize } from '@/lib/authz'
 
-const PATH = '/admin/recipientes'
+const PATH = '/cadastros/recipientes'
 
 export interface ContainerPayload {
   name: string

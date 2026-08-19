@@ -67,10 +67,29 @@ function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
  * queries de `cadastro.*` e delega o restante ao `mockedQuery` — assim as
  * filas de `mockResolvedValueOnce` dos testes existentes continuam valendo.
  */
+// Resposta da busca de identidade irma. Vazio = ninguem parecido, o padrao.
+let partyMatchRows: Record<string, unknown>[] = []
+
+/** Faz a proxima findPartyMatch achar uma pessoa que ja existe em outro papel. */
+function comIdentidadeIrma(
+  row: Record<string, unknown> = {
+    id: 'party-fornecedor',
+    name: 'Márcio Kuhar',
+    active: true,
+    roles: ['fornecedor'],
+  },
+) {
+  partyMatchRows = [row]
+}
+
 function transacao() {
   const release = vi.fn()
   const query = vi.fn(async (sql: string, params?: unknown[]) => {
     if (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql)) return { rows: [] }
+    // Busca de identidade irma (findPartyMatch): por padrao NAO acha nada, que e
+    // o caso comum. Os testes que exercitam a pergunta trocam esta resposta com
+    // `comIdentidadeIrma()`.
+    if (/FROM cadastro\.parties p/.test(sql)) return { rows: partyMatchRows }
     if (sql.includes('cadastro.')) return { rows: [{ id: 'party-1' }] }
     if (/SET party_id/.test(sql)) return { rows: [] }
     if (/SELECT party_id FROM/.test(sql)) return { rows: [{ party_id: 'party-1' }] }
@@ -82,6 +101,7 @@ function transacao() {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  partyMatchRows = []
   mockedGetSession.mockResolvedValue(ADMIN)
   mockedRequireAuth.mockResolvedValue(ADMIN)
   transacao()
@@ -326,5 +346,61 @@ describe('autorização (política real)', () => {
     const res = await createSupplier({ name: 'Viveiro Vizinho' })
     expect(res).toMatchObject({ error: expect.stringMatching(/permissão/i) })
     expect(mockedQuery).not.toHaveBeenCalled()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fornecedor que já é cliente — o mesmo caso, visto do outro lado.
+//
+// `suppliers` não tem coluna de documento, então aqui o casamento é sempre por
+// nome normalizado. Por isso a confirmação na tela não é opcional.
+// ---------------------------------------------------------------------------
+describe('createSupplier — identidade que já existe em outro papel', () => {
+  it('sem decisão, devolve a pergunta e NÃO grava nada', async () => {
+    comIdentidadeIrma({
+      id: 'party-cliente',
+      name: 'Márcio Kuhar',
+      active: true,
+      roles: ['cliente'],
+    })
+    const t = transacao()
+    const res = await createSupplier({ name: 'Márcio Kuhar' })
+
+    expect(res.partyMatch?.id).toBe('party-cliente')
+    expect(res.partyMatch?.roles).toEqual(['cliente'])
+    expect(res.id).toBeUndefined()
+    expect(mockedQuery).not.toHaveBeenCalled() // nenhum INSERT em suppliers
+    const sqls = t.query.mock.calls.map((c) => String(c[0]))
+    expect(sqls.some((q) => /ROLLBACK/.test(q))).toBe(true)
+    expect(sqls.some((q) => /COMMIT/.test(q))).toBe(false)
+  })
+
+  it('“sim, é a mesma pessoa” grava na identidade do cliente', async () => {
+    comIdentidadeIrma({ id: 'party-cliente', name: 'Márcio Kuhar', active: true, roles: ['cliente'] })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 's9' }] })
+    const t = transacao()
+    const res = await createSupplier({ name: 'Márcio Kuhar' }, { link: 'party-cliente' })
+
+    expect(res.id).toBe('s9')
+    const upsert = t.query.mock.calls.find((c) => /cadastro\.parties/.test(String(c[0])))
+    expect((upsert?.[1] as unknown[])?.at(-1)).toBe('party-cliente')
+  })
+
+  it('“não, é outra pessoa” segue com identidade própria', async () => {
+    comIdentidadeIrma({ id: 'party-cliente', name: 'Márcio Kuhar', active: true, roles: ['cliente'] })
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 's9' }] })
+    const t = transacao()
+    const res = await createSupplier({ name: 'Márcio Kuhar' }, { separate: true })
+
+    expect(res.id).toBe('s9')
+    const upsert = t.query.mock.calls.find((c) => /cadastro\.parties/.test(String(c[0])))
+    expect((upsert?.[1] as unknown[])?.at(-1)).toBe('s9')
+  })
+
+  it('sem ninguém parecido, o cadastro segue direto', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 's1' }] })
+    const res = await createSupplier({ name: 'Viveiro Novo' })
+    expect(res.id).toBe('s1')
+    expect(res.partyMatch).toBeUndefined()
   })
 })

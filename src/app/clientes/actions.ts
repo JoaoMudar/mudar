@@ -4,7 +4,14 @@ import { revalidatePath } from 'next/cache'
 import pool from '@/lib/db'
 import { onlyDigits, isValidCNPJ, validateSimpleCustomer, type PersonType } from '@/lib/customers'
 import { safeErrorMessage } from '@/lib/action-errors'
-import { upsertPartyFromCustomer } from '@/lib/parties'
+import {
+  upsertPartyFromCustomer,
+  findPartyMatch,
+  mergeParties,
+  fillOnly,
+  type PartyDecision,
+  type PartyMatch,
+} from '@/lib/parties'
 import { authorize, requirePermission } from '@/lib/authz'
 import {
   mapBrasilApi,
@@ -220,10 +227,20 @@ export async function lookupCnpj(
 /**
  * Cria cliente. Aceita o cadastro simples (so `name`, como o inline do pedido) e
  * o completo (com campos fiscais). Campos fiscais nullable => o simples segue valido.
+ *
+ * `decision` responde "esta pessoa ja existe em outro papel?". Sem ela, quando
+ * ha identidade parecida, **nada e gravado** e a action devolve `partyMatch`
+ * para a tela perguntar. Foi assim que se decidiu: o sistema nunca une sozinho.
  */
 export async function createCustomer(
   data: CustomerInput,
-): Promise<{ id?: string; error?: string; conflict?: { id: string; name: string } }> {
+  decision?: PartyDecision,
+): Promise<{
+  id?: string
+  error?: string
+  conflict?: { id: string; name: string }
+  partyMatch?: PartyMatch
+}> {
   const auth = await authorize('cliente:criar')
   if (!auth.ok) return { error: auth.error }
 
@@ -233,6 +250,8 @@ export async function createCustomer(
   if (simpleError) return { error: simpleError }
 
   const f = fiscalValues(data, personType)
+
+  const linkPartyId = decision && 'link' in decision ? decision.link : null
   // Transacao: a identidade em cadastro.parties e o cliente sao gravados
   // juntos ou nenhum dos dois. Fora da transacao, um erro no INSERT de
   // customers deixaria uma party orfa — e a party e a fonte de verdade da
@@ -240,6 +259,23 @@ export async function createCustomer(
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+
+    // Se ha identidade que ja e fornecedor (ou outro papel) com este
+    // documento/nome, devolve a pergunta sem gravar nada. Dentro da transacao,
+    // e nao antes dela: ler numa conexao e escrever noutra abriria janela para
+    // a identidade aparecer entre as duas.
+    if (!decision) {
+      const match = await findPartyMatch(client, {
+        document: f.document,
+        name,
+        role: 'cliente',
+      })
+      if (match) {
+        await client.query('ROLLBACK')
+        return { partyMatch: match }
+      }
+    }
+
     const { rows } = await client.query(
       `INSERT INTO customers
          (name, phone, city, state, notes,
@@ -273,10 +309,12 @@ export async function createCustomer(
     )
 
     const customerId = rows[0].id as string
-    // Ponto unico de escrita da identidade (src/lib/parties.ts). O party_id
-    // reusa o id do cliente, mesmo criterio do backfill da migration.
-    const partyId = await upsertPartyFromCustomer(client, {
-      id: customerId,
+    // Ponto unico de escrita da identidade (src/lib/parties.ts). Sem ligacao, o
+    // party_id reusa o id do cliente — mesmo criterio do backfill da migration.
+    // Com ligacao, grava na identidade que ja existia, e `fillOnly` impede que
+    // um campo em branco desta tela apague o que o outro papel ja tinha.
+    const identidade = {
+      id: linkPartyId ?? customerId,
       kind: personType,
       document: f.document,
       name,
@@ -291,7 +329,11 @@ export async function createCustomer(
       neighborhood: f.neighborhood,
       city: data.city?.trim() || null,
       state: data.state?.trim() || null,
-    })
+    }
+    const partyId = await upsertPartyFromCustomer(
+      client,
+      linkPartyId ? fillOnly(identidade) : identidade,
+    )
     await client.query(`UPDATE customers SET party_id = $1 WHERE id = $2`, [
       partyId,
       customerId,
@@ -317,11 +359,22 @@ export async function createCustomer(
   }
 }
 
-/** Atualiza contato + dados fiscais de um cliente. */
+/**
+ * Atualiza contato + dados fiscais de um cliente.
+ *
+ * A busca por identidade irmã roda aqui tambem, e nao so no create: e o que da
+ * caminho de conserto aos cadastros duplicados desde o backfill de 11/08/2026 —
+ * abrir e salvar levanta a pergunta, sem precisar de tela de manutencao.
+ */
 export async function updateCustomer(
   id: string,
   data: CustomerInput,
-): Promise<{ error?: string; conflict?: { id: string; name: string } }> {
+  decision?: PartyDecision,
+): Promise<{
+  error?: string
+  conflict?: { id: string; name: string }
+  partyMatch?: PartyMatch
+}> {
   const auth = await authorize('cliente:atualizar')
   if (!auth.ok) return { error: auth.error }
 
@@ -331,10 +384,33 @@ export async function updateCustomer(
   if (simpleError) return { error: simpleError }
 
   const f = fiscalValues(data, personType)
+
+  const linkPartyId = decision && 'link' in decision ? decision.link : null
   // Mesma transacao do create: identidade e cliente andam juntos.
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+
+    // party_id pode ser nulo em cliente criado antes do cadastro unico.
+    const { rows: atual } = await client.query(
+      `SELECT party_id FROM customers WHERE id = $1`,
+      [id],
+    )
+    const partyAtual = (atual[0]?.party_id as string | null) ?? null
+
+    if (!decision) {
+      const match = await findPartyMatch(client, {
+        document: f.document,
+        name,
+        role: 'cliente',
+        excludePartyId: partyAtual ?? id,
+      })
+      if (match) {
+        await client.query('ROLLBACK')
+        return { partyMatch: match }
+      }
+    }
+
     await client.query(
       `UPDATE customers SET
          name = $1, phone = $2, city = $3, state = COALESCE($4, 'SC'), notes = $5,
@@ -363,14 +439,17 @@ export async function updateCustomer(
         id,
       ],
     )
-    // party_id pode ser nulo em cliente criado antes do cadastro unico; o
-    // upsert cria a identidade com o mesmo id e a UPDATE seguinte a amarra.
-    const { rows: cur } = await client.query(
-      `SELECT party_id FROM customers WHERE id = $1`,
-      [id],
-    )
-    const partyId = await upsertPartyFromCustomer(client, {
-      id: (cur[0]?.party_id as string | null) ?? id,
+    // Ligou a uma identidade que ja existia: funde a party antiga deste cliente
+    // na escolhida, em vez de largar uma identidade orfa para tras. mergeParties
+    // ja repointa customers.party_id, entao a UPDATE do fim so confirma.
+    if (linkPartyId && partyAtual && partyAtual !== linkPartyId) {
+      await mergeParties(client, partyAtual, linkPartyId)
+    }
+
+    // Sem party (cliente anterior ao cadastro unico), o upsert cria a
+    // identidade com o mesmo id e a UPDATE seguinte a amarra.
+    const identidade = {
+      id: linkPartyId ?? partyAtual ?? id,
       kind: personType,
       document: f.document,
       name,
@@ -385,7 +464,11 @@ export async function updateCustomer(
       neighborhood: f.neighborhood,
       city: data.city?.trim() || null,
       state: data.state?.trim() || null,
-    })
+    }
+    const partyId = await upsertPartyFromCustomer(
+      client,
+      linkPartyId ? fillOnly(identidade) : identidade,
+    )
     await client.query(`UPDATE customers SET party_id = $1 WHERE id = $2`, [partyId, id])
 
     await client.query('COMMIT')
@@ -408,7 +491,14 @@ export async function updateCustomer(
   }
 }
 
-/** Soft-delete via `active`, espelhando toggleUsuarioAtivo. Nunca deleta fisicamente. */
+/**
+ * Soft-delete via `active`, espelhando toggleUsuarioAtivo. Nunca deleta fisicamente.
+ *
+ * **Nao mexe em `cadastro.parties.active` de proposito.** Arquivar o cliente nao
+ * pode arquivar a identidade: a mesma pessoa pode seguir ativa como fornecedora.
+ * Papel e identidade sao coisas diferentes — e essa a razao de existir o schema
+ * `cadastro`.
+ */
 export async function toggleCustomerActive(
   id: string,
   active: boolean,
@@ -443,7 +533,7 @@ export async function mergeCustomers(
   try {
     await client.query('BEGIN')
     const { rows: found } = await client.query(
-      `SELECT id FROM customers WHERE id = ANY($1::uuid[])`,
+      `SELECT id, party_id FROM customers WHERE id = ANY($1::uuid[])`,
       [[duplicateId, originalId]],
     )
     if (found.length < 2) {
@@ -454,6 +544,16 @@ export async function mergeCustomers(
       `UPDATE orders SET customer_id = $1 WHERE customer_id = $2`,
       [originalId, duplicateId],
     )
+
+    // Unir os pedidos sem unir as identidades deixava a party do duplicado viva
+    // e sem dono — a lista de clientes ficava certa e a de identidades errada,
+    // justamente o que o cadastro unico existe para impedir.
+    const partyDoDuplicado = found.find((r) => r.id === duplicateId)?.party_id as string | null
+    const partyDoOriginal = found.find((r) => r.id === originalId)?.party_id as string | null
+    if (partyDoDuplicado && partyDoOriginal) {
+      await mergeParties(client, partyDoDuplicado, partyDoOriginal)
+    }
+
     await client.query(`UPDATE customers SET active = false WHERE id = $1`, [duplicateId])
     await client.query('COMMIT')
     revalidatePath(PATH)

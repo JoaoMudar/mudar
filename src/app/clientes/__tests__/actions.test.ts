@@ -66,10 +66,29 @@ function comPapel(role: 'chefia' | 'gerencia' | 'colaborador') {
  * queries de `cadastro.*` e delega o restante ao `mockedQuery` — assim as
  * filas de `mockResolvedValueOnce` dos testes existentes continuam valendo.
  */
+// Resposta da busca de identidade irma. Vazio = ninguem parecido, o padrao.
+let partyMatchRows: Record<string, unknown>[] = []
+
+/** Faz a proxima findPartyMatch achar uma pessoa que ja existe em outro papel. */
+function comIdentidadeIrma(
+  row: Record<string, unknown> = {
+    id: 'party-fornecedor',
+    name: 'Márcio Kuhar',
+    active: true,
+    roles: ['fornecedor'],
+  },
+) {
+  partyMatchRows = [row]
+}
+
 function transacao() {
   const release = vi.fn()
   const query = vi.fn(async (sql: string, params?: unknown[]) => {
     if (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql)) return { rows: [] }
+    // Busca de identidade irma (findPartyMatch): por padrao NAO acha nada, que e
+    // o caso comum. Os testes que exercitam a pergunta trocam esta resposta com
+    // `comIdentidadeIrma()`.
+    if (/FROM cadastro\.parties p/.test(sql)) return { rows: partyMatchRows }
     if (sql.includes('cadastro.')) return { rows: [{ id: 'party-1' }] }
     if (/SET party_id/.test(sql)) return { rows: [] }
     if (/SELECT party_id FROM/.test(sql)) return { rows: [{ party_id: 'party-1' }] }
@@ -81,6 +100,7 @@ function transacao() {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  partyMatchRows = []
   mockedGetSession.mockResolvedValue(ADMIN)
   mockedRequireAuth.mockResolvedValue(ADMIN)
   transacao()
@@ -389,5 +409,99 @@ describe('autorização (política real, D4 §3.8)', () => {
     comPapel('colaborador')
     await expect(getCustomers()).rejects.toThrow()
     expect(mockedQuery).not.toHaveBeenCalled()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Cliente que já é fornecedor (o caso do Márcio Kuhar).
+//
+// O backfill uniu as identidades uma vez; sem isto, todo cadastro novo volta a
+// duplicar. E a união nunca é automática — quem conhece as pessoas responde.
+// ---------------------------------------------------------------------------
+describe('createCustomer — identidade que já existe em outro papel', () => {
+  it('sem decisão, devolve a pergunta e NÃO grava nada', async () => {
+    comIdentidadeIrma()
+    const t = transacao()
+    const res = await createCustomer({ name: 'Márcio Kuhar' })
+
+    expect(res.partyMatch?.id).toBe('party-fornecedor')
+    expect(res.partyMatch?.roles).toEqual(['fornecedor'])
+    expect(res.id).toBeUndefined()
+    expect(mockedQuery).not.toHaveBeenCalled() // nenhum INSERT em customers
+    const sqls = t.query.mock.calls.map((c) => String(c[0]))
+    expect(sqls.some((q) => /ROLLBACK/.test(q))).toBe(true)
+    expect(sqls.some((q) => /COMMIT/.test(q))).toBe(false)
+  })
+
+  it('“sim, é a mesma pessoa” grava na identidade que já existia', async () => {
+    comIdentidadeIrma()
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'c9' }] })
+    const t = transacao()
+    const res = await createCustomer({ name: 'Márcio Kuhar' }, { link: 'party-fornecedor' })
+
+    expect(res.id).toBe('c9')
+    // Escreveu na party do fornecedor, e não numa nova com o id do cliente.
+    const upsert = t.query.mock.calls.find((c) => /cadastro\.parties/.test(String(c[0])))
+    expect((upsert?.[1] as unknown[])?.at(-1)).toBe('party-fornecedor')
+    const vinculo = t.query.mock.calls.find((c) => /SET party_id/.test(String(c[0])))
+    expect(vinculo?.[1]).toEqual(['party-1', 'c9'])
+  })
+
+  it('“não, é outra pessoa” segue com identidade própria', async () => {
+    comIdentidadeIrma()
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'c9' }] })
+    const t = transacao()
+    const res = await createCustomer({ name: 'Márcio Kuhar' }, { separate: true })
+
+    expect(res.id).toBe('c9')
+    const upsert = t.query.mock.calls.find((c) => /cadastro\.parties/.test(String(c[0])))
+    expect((upsert?.[1] as unknown[])?.at(-1)).toBe('c9') // party própria, id do cliente
+  })
+
+  it('sem ninguém parecido, o cadastro simples segue direto', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'c1' }] })
+    const res = await createCustomer({ name: 'Pessoa Nova' })
+    expect(res.id).toBe('c1')
+    expect(res.partyMatch).toBeUndefined()
+  })
+})
+
+describe('mergeCustomers — funde também as identidades', () => {
+  it('une as parties e não deixa identidade órfã', async () => {
+    const q = vi
+      .fn()
+      .mockResolvedValueOnce(undefined) // BEGIN
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 'dup', party_id: 'party-dup' },
+          { id: 'orig', party_id: 'party-orig' },
+        ],
+      })
+      .mockResolvedValue({ rowCount: 2, rows: [] })
+    mockedConnect.mockResolvedValueOnce({ query: q, release: vi.fn() })
+
+    const res = await mergeCustomers('dup', 'orig')
+    expect(res.error).toBeUndefined()
+
+    const sqls = q.mock.calls.map((c) => String(c[0]))
+    // A identidade duplicada some; antes ela ficava viva e sem dono.
+    const del = q.mock.calls.find((c) => /DELETE FROM cadastro\.parties/.test(String(c[0])))
+    expect(del?.[1]).toEqual(['party-dup'])
+    expect(sqls.some((x) => /INSERT INTO cadastro\.party_roles/.test(x))).toBe(true)
+    expect(sqls.some((x) => /COMMIT/.test(x))).toBe(true)
+  })
+
+  it('cliente sem party (anterior ao cadastro único) não quebra a união', async () => {
+    const q = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ rows: [{ id: 'dup', party_id: null }, { id: 'orig', party_id: null }] })
+      .mockResolvedValue({ rowCount: 1, rows: [] })
+    mockedConnect.mockResolvedValueOnce({ query: q, release: vi.fn() })
+
+    const res = await mergeCustomers('dup', 'orig')
+    expect(res.error).toBeUndefined()
+    const sqls = q.mock.calls.map((c) => String(c[0]))
+    expect(sqls.some((x) => /DELETE FROM cadastro\.parties/.test(x))).toBe(false)
   })
 })

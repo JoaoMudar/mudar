@@ -19,7 +19,7 @@
 1. **`CLAUDE.md`** (raiz) — regras e convenções inegociáveis.
 2. **`docs/contexto-projeto.md`** — visão geral, arquitetura dos projetos, histórico, princípios de UX de campo.
 3. **`docs/funcionarios-viveiro-mudar.md`** — quem é quem (perfis: chefia, gerência, colaborador).
-4. **`docs/rotinas/00-mapa-de-rotinas.md`** — as 7 rotinas de negócio e quais perfis tocam cada etapa.
+4. **`docs/rotinas/00-mapa-de-rotinas.md`** — os **quatro módulos** (Cadastros, Produção, Comercial, Financeiro), as rotinas de cada um e quais perfis tocam cada etapa.
 5. **`plans/`** — o plano da feature que você vai implementar.
 
 ## Conteúdo de `docs/`
@@ -38,6 +38,7 @@
 | [`EXECUTION-GUIDE.md`](EXECUTION-GUIDE.md) | Como conduzir as sessões de desenvolvimento e a ordem dos sprints. |
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
 | [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria 10/08/2026** — divergências entre docs, planos e código, com ordem de correção. Ler antes de retomar o desenvolvimento. |
+| [`divida-tecnica.md`](divida-tecnica.md) | **Trabalho futuro (11/08/2026)** — o que falta para a produção ser segura de operar: backup, teste contra banco real, drift de schema. Prontidão medida: ~85%. |
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
 > **Financeiro:** a abordagem nova (extrato bancário como fonte da verdade) está em
@@ -71,19 +72,19 @@ Comece por [`engenharia/README.md`](engenharia/README.md) — explica a estrutur
 Cada rotina descreve um processo do viveiro e quais perfis executam cada etapa.
 Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 
-O mapa traz também o **diagrama de como todas as rotinas se relacionam** no sistema inteiro.
+O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um diagrama por módulo.
 
-| Rotina | Arquivo |
-|--------|---------|
-| **Cadastros** (cadastro único — agrupador) | [`rotinas/rotina-cadastros.md`](rotinas/rotina-cadastros.md) |
-| Produção (visão geral + subrotinas) | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) e a pasta [`rotinas/rotina-producao/`](rotinas/rotina-producao/) |
-| Pedidos (visão geral + detalhamento) | [`rotinas/rotina-pedidos.md`](rotinas/rotina-pedidos.md) e a pasta [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/) |
-| Clientes (visão geral + detalhamento) | [`rotinas/rotina-clientes.md`](rotinas/rotina-clientes.md) e a pasta [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/) |
-| Estoque | [`rotinas/rotina-estoque.md`](rotinas/rotina-estoque.md) |
-| Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
-| Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
-| Financeiro (visão geral + detalhamento) | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) e a pasta [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) |
-| ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) fica como histórico |
+| Módulo | Rotina | Arquivo |
+|--------|--------|---------|
+| **1 · Cadastros** | Cadastro único (agrupador) | [`rotinas/rotina-cadastros.md`](rotinas/rotina-cadastros.md) |
+| **1 · Cadastros** | Clientes (visão geral + detalhamento) | [`rotinas/rotina-clientes.md`](rotinas/rotina-clientes.md) e a pasta [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/) |
+| **2 · Produção** | Produção (visão geral + subrotinas) | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) e a pasta [`rotinas/rotina-producao/`](rotinas/rotina-producao/) |
+| **2 · Produção** | Estoque | [`rotinas/rotina-estoque.md`](rotinas/rotina-estoque.md) |
+| **2 · Produção** | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
+| **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/rotina-pedidos.md`](rotinas/rotina-pedidos.md) e a pasta [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/) |
+| **3 · Comercial** | Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
+| **4 · Financeiro** | Financeiro (visão geral + detalhamento) | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) e a pasta [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) |
+| — | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) fica como histórico |
 
 A rotina de **Produção** tem detalhamento em [`rotinas/rotina-producao/`](rotinas/rotina-producao/):
 visão geral e a **agenda de pessoal** (grade semanal de quem faz o quê, base do custo de mão de obra).

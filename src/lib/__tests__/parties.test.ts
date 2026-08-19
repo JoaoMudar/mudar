@@ -8,6 +8,11 @@ import {
   upsertPrimaryAddress,
   upsertPartyFromCustomer,
   upsertPartyFromSupplier,
+  findPartyMatch,
+  listParties,
+  getPartyDetail,
+  mergeParties,
+  fillOnly,
   PARTY_ROLES,
   type Queryable,
 } from '../parties'
@@ -45,7 +50,20 @@ describe('normalizeIdentity', () => {
   it('kind inválido vira null em vez de chutar', () => {
     // Chutar 'pf' para uma prefeitura seria pior que admitir que não se sabe.
     expect(normalizeIdentity({ name: 'X', kind: 'xx' as never }).kind).toBeNull()
-    expect(normalizeIdentity({ name: 'X' }).kind).toBeNull()
+  })
+
+  it('chave ausente continua ausente; chave vazia vira null', () => {
+    // A distinção que impede a divergência: `undefined` é "este formulário não
+    // conhece o campo" (o de fornecedor não tem documento) e preserva o que já
+    // existe; `null` é "o usuário apagou" e grava NULL.
+    const ausente = normalizeIdentity({ name: 'X' })
+    expect(ausente.kind).toBeUndefined()
+    expect(ausente.document).toBeUndefined()
+    expect(ausente.email).toBeUndefined()
+
+    const apagado = normalizeIdentity({ name: 'X', document: '', email: null })
+    expect(apagado.document).toBeNull()
+    expect(apagado.email).toBeNull()
   })
 
   it('strings vazias viram null', () => {
@@ -55,9 +73,12 @@ describe('normalizeIdentity', () => {
     expect(n.notes).toBeNull()
   })
 
-  it('active tem default true', () => {
-    expect(normalizeIdentity({ name: 'X' }).active).toBe(true)
+  it('active só aparece quando quem chama informa', () => {
+    // Ninguém passa `active` hoje. Deixá-lo ausente evita que salvar um cadastro
+    // reative sem querer a identidade de alguém arquivado.
+    expect(normalizeIdentity({ name: 'X' }).active).toBeUndefined()
     expect(normalizeIdentity({ name: 'X', active: false }).active).toBe(false)
+    expect(normalizeIdentity({ name: 'X', active: true }).active).toBe(true)
   })
 })
 
@@ -114,13 +135,26 @@ describe('upsertParty', () => {
     expect(f.query).toHaveBeenCalledTimes(1)
   })
 
-  it('o UPDATE usa COALESCE — o formulário de um papel não apaga o do outro', async () => {
+  it('o UPDATE só toca nas colunas que quem chama conhece', async () => {
     // O cadastro de fornecedor não tem documento; gravar NULL ali apagaria o
-    // CNPJ que o cadastro de cliente preencheu para a mesma pessoa.
+    // CNPJ que o cadastro de cliente preencheu para a mesma pessoa. A coluna
+    // simplesmente não entra no comando.
     await upsertParty(f.db, { id: 'party-9', name: 'X' })
-    const [sql] = f.query.mock.calls[0]
-    expect(sql).toContain('COALESCE($2, document)')
-    expect(sql).toContain('COALESCE($4, legal_name)')
+    const [sql, params] = f.query.mock.calls[0]
+    expect(sql).toContain('UPDATE cadastro.parties SET name = $1')
+    expect(sql).not.toContain('document')
+    expect(sql).not.toContain('legal_name')
+    expect(params).toEqual(['X', 'party-9'])
+  })
+
+  it('campo esvaziado na tela vira NULL no banco', async () => {
+    // O outro lado da moeda: apagar o telefone em /clientes tem de apagar
+    // também em parties, senão o valor errado sobrevive na identidade.
+    await upsertParty(f.db, { id: 'party-9', name: 'X', phone: '', email: null })
+    const [sql, params] = f.query.mock.calls[0]
+    expect(sql).toContain('phone =')
+    expect(sql).toContain('email =')
+    expect(params).toEqual(['X', null, null, 'party-9'])
   })
 
   it('id inexistente cai para INSERT com o mesmo id, sem travar o cadastro', async () => {
@@ -219,5 +253,274 @@ describe('atalhos por papel', () => {
       .filter((c) => (c[0] as string).includes('party_roles'))
       .map((c) => (c[1] as string[])[1])
     expect(papeis).toEqual(['cliente', 'fornecedor'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// A regra que faltava: procurar antes de criar.
+//
+// O backfill da migration 20260811000004 casou cliente e fornecedor uma vez.
+// Sem isto aqui, todo cadastro novo volta a criar uma identidade separada — e a
+// duplicidade que o schema `cadastro` existe para impedir reaparece sozinha.
+// ---------------------------------------------------------------------------
+describe('findPartyMatch', () => {
+  const achou = (over: Record<string, unknown> = {}) => ({
+    rows: [{ id: 'party-f', name: 'Márcio Kuhar', active: true, roles: ['fornecedor'], ...over }],
+  })
+
+  it('acha por documento e marca a origem do casamento', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValueOnce(achou())
+    const m = await findPartyMatch(f.db, { document: '123.456.789-09', name: 'Outro', role: 'cliente' })
+    expect(m?.id).toBe('party-f')
+    expect(m?.matchedBy).toBe('document')
+    expect(m?.roles).toEqual(['fornecedor'])
+    // Documento normalizado para só dígitos antes de ir ao banco.
+    expect(f.query.mock.calls[0][1]?.[0]).toBe('12345678909')
+  })
+
+  it('sem documento, cai para o nome normalizado', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValueOnce(achou())
+    const m = await findPartyMatch(f.db, { name: '  Márcio Kuhar ', role: 'cliente' })
+    expect(m?.matchedBy).toBe('name')
+    expect(f.query.mock.calls[0][0]).toContain('LOWER(TRIM(p.name))')
+    expect(f.query.mock.calls[0][1]?.[0]).toBe('márcio kuhar')
+  })
+
+  it('documento sem acerto ainda tenta pelo nome', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce(achou())
+    const m = await findPartyMatch(f.db, { document: '12345678909', name: 'Márcio', role: 'cliente' })
+    expect(m?.matchedBy).toBe('name')
+    expect(f.query).toHaveBeenCalledTimes(2)
+  })
+
+  it('exclui quem já tem o papel — isso é duplicata do mesmo papel, não outra faceta', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValueOnce({ rows: [] })
+    const m = await findPartyMatch(f.db, { name: 'Márcio', role: 'cliente' })
+    expect(m).toBeNull()
+    const [sql, params] = f.query.mock.calls[0]
+    expect(sql).toContain('NOT EXISTS')
+    expect(params?.[2]).toBe('cliente')
+  })
+
+  it('ignora a própria identidade no caminho de edição', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValueOnce({ rows: [] })
+    await findPartyMatch(f.db, { name: 'X', role: 'cliente', excludePartyId: 'party-1' })
+    expect(f.query.mock.calls[0][1]?.[1]).toBe('party-1')
+  })
+
+  it('sem documento nem nome não consulta o banco', async () => {
+    const f = fakeDb()
+    expect(await findPartyMatch(f.db, { role: 'cliente' })).toBeNull()
+    expect(f.query).not.toHaveBeenCalled()
+  })
+})
+
+describe('mergeParties', () => {
+  async function fundir() {
+    const f = fakeDb()
+    await mergeParties(f.db, 'party-dup', 'party-orig')
+    return { ...f, sqls: f.query.mock.calls.map((c) => c[0] as string) }
+  }
+
+  it('move os papéis do duplicado sem violar a PK composta', async () => {
+    const { sqls } = await fundir()
+    const papeis = sqls.find((q) => /INSERT INTO cadastro\.party_roles/.test(q))
+    expect(papeis).toContain('ON CONFLICT (party_id, role) DO NOTHING')
+  })
+
+  it('solta o documento do duplicado ANTES de copiá-lo', async () => {
+    // idx_parties_document é UNIQUE parcial e o Postgres o checa por comando,
+    // não no fim da transação: com o documento nas duas linhas ao mesmo tempo,
+    // o merge morria em "duplicar valor da chave viola a restrição de
+    // unicidade". Achado rodando contra o banco de verdade — os mocks não pegam.
+    const f = fakeDb()
+    f.query.mockResolvedValue({ rows: [{ document: '11144477735' }] })
+    await mergeParties(f.db, 'party-dup', 'party-orig')
+    const sqls = f.query.mock.calls.map((c) => String(c[0]))
+
+    const iSolta = sqls.findIndex((q) => /SET document = NULL/.test(q))
+    const iCompleta = sqls.findIndex((q) => /COALESCE\(o\.document/.test(q))
+    expect(iSolta).toBeGreaterThan(-1)
+    expect(iCompleta).toBeGreaterThan(iSolta)
+    expect(f.query.mock.calls[iSolta][1]).toEqual(['party-dup'])
+  })
+
+  it('completa lacunas sem sobrescrever o que o original já tinha', async () => {
+    const f = fakeDb()
+    f.query.mockResolvedValue({ rows: [{ document: null }] })
+    await mergeParties(f.db, 'party-dup', 'party-orig')
+    const completa = f.query.mock.calls.find((c) => /COALESCE\(o\.document/.test(String(c[0])))
+    expect(String(completa?.[0])).toContain('COALESCE(o.legal_name, d.legal_name)')
+    // Sem documento no duplicado, nem chega a emitir o UPDATE que o solta.
+    expect(f.query.mock.calls.some((c) => /SET document = NULL/.test(String(c[0])))).toBe(false)
+  })
+
+  it('só move o endereço primário se o original não tiver — o índice é único parcial', async () => {
+    const { sqls } = await fundir()
+    const endereco = sqls.find((q) => /UPDATE cadastro\.addresses/.test(q))
+    expect(endereco).toContain('NOT EXISTS')
+  })
+
+  it('repointa customers e suppliers ANTES do DELETE (a FK não tem CASCADE)', async () => {
+    const { sqls } = await fundir()
+    const iCustomers = sqls.findIndex((q) => /UPDATE customers SET party_id/.test(q))
+    const iSuppliers = sqls.findIndex((q) => /UPDATE suppliers SET party_id/.test(q))
+    const iDelete = sqls.findIndex((q) => /DELETE FROM cadastro\.parties/.test(q))
+    expect(iCustomers).toBeGreaterThan(-1)
+    expect(iSuppliers).toBeGreaterThan(-1)
+    expect(iDelete).toBeGreaterThan(iCustomers)
+    expect(iDelete).toBeGreaterThan(iSuppliers)
+  })
+
+  it('não faz nada quando os dois lados são a mesma identidade', async () => {
+    const f = fakeDb()
+    await mergeParties(f.db, 'party-1', 'party-1')
+    expect(f.query).not.toHaveBeenCalled()
+  })
+})
+
+describe('fillOnly', () => {
+  it('desliga o apagar ao ligar a uma identidade que já existia', () => {
+    // A tela de cliente nunca mostrou o whatsapp que o fornecedor tinha; um
+    // campo em branco aqui é "não preenchi", e não "apague o do outro papel".
+    const r = fillOnly({ id: 'party-f', name: 'Márcio', email: '', whatsapp: null, city: 'Ibirama' })
+    expect(r).toEqual({ id: 'party-f', name: 'Márcio', city: 'Ibirama' })
+    expect('email' in r).toBe(false)
+    expect('whatsapp' in r).toBe(false)
+  })
+})
+
+describe('listParties', () => {
+  const linha = {
+    id: 'p1',
+    name: 'Márcio Kuhar',
+    document: '12345678909',
+    kind: 'pf',
+    phone: null,
+    whatsapp: '47999998888',
+    roles: ['cliente', 'fornecedor'],
+    customer_id: 'c1',
+    supplier_id: 's1',
+  }
+
+  function dbCom(rows: Record<string, unknown>[]) {
+    const query = vi.fn().mockResolvedValue({ rows })
+    return { db: { query } as unknown as Queryable, query }
+  }
+
+  it('sem papel legível não vai ao banco e devolve vazio', async () => {
+    // Falha fechada: um chamador que esqueceu de resolver as permissões recebe
+    // lista vazia, nunca "todo mundo".
+    const { db, query } = dbCom([linha])
+    await expect(listParties(db, { roles: [] })).resolves.toEqual([])
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('filtra pelos papéis pedidos e só pessoas ativas', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'] })
+    const [sql, params] = query.mock.calls[0]
+    expect(sql).toMatch(/r\.role = ANY\(\$1::text\[\]\)/)
+    expect(sql).toMatch(/WHERE p\.active/)
+    expect(params[0]).toEqual(['cliente'])
+  })
+
+  it('a busca cobre nome, razão, fantasia e os dígitos do documento', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'], search: '123.456.789-09' })
+    const [sql, params] = query.mock.calls[0]
+    expect(sql).toMatch(/p\.name\s+ILIKE/)
+    expect(sql).toMatch(/p\.legal_name ILIKE/)
+    expect(sql).toMatch(/p\.trade_name ILIKE/)
+    expect(params[1]).toBe('123.456.789-09')
+    expect(params[2]).toBe('12345678909')
+  })
+
+  it('busca sem dígito nenhum não tenta casar documento', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'], search: 'ipê' })
+    expect(query.mock.calls[0][1][2]).toBeNull()
+  })
+
+  it('a pessoa com dois papéis vem numa linha só, com os dois', async () => {
+    const { db } = dbCom([linha])
+    const [pessoa] = await listParties(db, { roles: ['cliente', 'fornecedor'] })
+    expect(pessoa.roles).toEqual(['cliente', 'fornecedor'])
+    expect(pessoa.customer_id).toBe('c1')
+    expect(pessoa.supplier_id).toBe('s1')
+  })
+
+  it('normaliza ausências para null em vez de undefined', async () => {
+    const { db } = dbCom([{ id: 'p2', name: 'Prefeitura', roles: ['cliente'] }])
+    const [pessoa] = await listParties(db, { roles: ['cliente'] })
+    expect(pessoa.document).toBeNull()
+    expect(pessoa.kind).toBeNull()
+    expect(pessoa.supplier_id).toBeNull()
+  })
+
+  it('tem teto de linhas, com padrão', async () => {
+    const { db, query } = dbCom([])
+    await listParties(db, { roles: ['cliente'] })
+    expect(query.mock.calls[0][1][3]).toBe(200)
+    await listParties(db, { roles: ['cliente'], limit: 10 })
+    expect(query.mock.calls[1][1][3]).toBe(10)
+  })
+})
+
+describe('getPartyDetail', () => {
+  function dbCom(rows: Record<string, unknown>[]) {
+    const query = vi.fn().mockResolvedValue({ rows })
+    return { db: { query } as unknown as Queryable, query }
+  }
+
+  it('sem papel legível não vai ao banco', async () => {
+    const { db, query } = dbCom([{ id: 'p1', name: 'X', roles: ['cliente'] }])
+    await expect(getPartyDetail(db, 'p1', { roles: [] })).resolves.toBeNull()
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('some quem não tem nenhum papel legível — a ficha não pode abrir por fora', async () => {
+    // O JOIN por papel é o que garante isso: esconder os selos e deixar a ficha
+    // acessível por URL direta seria vazar pelo caminho de trás.
+    const { db, query } = dbCom([])
+    await expect(getPartyDetail(db, 'p1', { roles: ['cliente'] })).resolves.toBeNull()
+    expect(query.mock.calls[0][0]).toMatch(/r\.role = ANY\(\$2::text\[\]\)/)
+  })
+
+  it('traz identidade, papéis e os ids das telas de papel', async () => {
+    const { db } = dbCom([
+      {
+        id: 'p1',
+        name: 'Márcio Kuhar',
+        document: '12345678909',
+        kind: 'pf',
+        phone: null,
+        whatsapp: '47999998888',
+        legal_name: null,
+        trade_name: null,
+        email: null,
+        city: 'Rio do Sul',
+        state: 'SC',
+        roles: ['cliente', 'fornecedor'],
+        customer_id: 'c1',
+        supplier_id: 's1',
+      },
+    ])
+    const p = await getPartyDetail(db, 'p1', { roles: ['cliente', 'fornecedor'] })
+    expect(p?.roles).toEqual(['cliente', 'fornecedor'])
+    expect(p?.customer_id).toBe('c1')
+    expect(p?.supplier_id).toBe('s1')
+    expect(p?.city).toBe('Rio do Sul')
+  })
+
+  it('só pessoa ativa', async () => {
+    const { db, query } = dbCom([])
+    await getPartyDetail(db, 'p1', { roles: ['cliente'] })
+    expect(query.mock.calls[0][0]).toMatch(/p\.id = \$1 AND p\.active/)
   })
 })

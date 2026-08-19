@@ -50,6 +50,20 @@ const securityHeaders = [
     : []),
 ]
 
+// As telas foram reagrupadas nos quatro modulos (Cadastros, Producao,
+// Comercial, Financeiro). Estes redirects existem para o link salvo, o
+// atalho da PWA ja instalada e o `/` em cache do service worker antigo nao
+// caírem em 404. `permanent: false` de proposito: 308 fica gravado no
+// navegador e seria irreversivel se algum caminho voltasse atras.
+const legacyRedirects = [
+  { source: '/admin/especies',        destination: '/cadastros/especies' },
+  { source: '/admin/recipientes',     destination: '/cadastros/recipientes' },
+  { source: '/admin/insumos',         destination: '/cadastros/insumos' },
+  { source: '/admin/custos-fixos',    destination: '/financeiro/custos-fixos' },
+  { source: '/admin/coleta-sementes', destination: '/producao/coleta-sementes' },
+  { source: '/insumos/registrar',     destination: '/producao/consumo-insumos' },
+].map((r) => ({ ...r, permanent: false }))
+
 const nextConfig = {
   // Evita que o bundler tente internalizar drivers nativos de postgres.
   // Necessário no Vercel para pg e @neondatabase/serverless funcionarem corretamente.
@@ -57,6 +71,10 @@ const nextConfig = {
 
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
+  },
+
+  async redirects() {
+    return legacyRedirects
   },
 }
 

@@ -5,7 +5,7 @@ import pool from '@/lib/db'
 import { safeErrorMessage } from '@/lib/action-errors'
 import { authorize, requirePermission } from '@/lib/authz'
 
-const PATH = '/admin/insumos'
+const PATH = '/cadastros/insumos'
 
 export type InputCategory = 'substrato' | 'adubo' | 'defensivo' | 'recipiente' | 'outros'
 

@@ -1,0 +1,47 @@
+%% Mapa consolidado — QUATRO modulos, com Acesso transversal.
+%% Fonte unica da taxonomia. Espelhada em `src/lib/modules.ts` (navegacao) e
+%% nos comentarios de secao de `src/lib/permissions.ts` (matriz do D4).
+%% Este mapa e de nivel de modulo de proposito: o fluxo entre eles e um CICLO,
+%% e desenhar as ~25 telas junto com o ciclo produzia um emaranhado ilegivel.
+%% O que tem dentro de cada modulo esta em mapa-1-cadastros .. mapa-4-financeiro.
+flowchart LR
+  ACC["<b>ACESSO</b><br/><i>transversal aos quatro módulos</i><br/>login · senha · aparelhos conectados<br/>usuários e permissões<br/>notificações · painel inicial"]
+
+  CAD["<b>1 · CADASTROS</b><br/><i>não consomem nada, alimentam tudo</i><br/>espécies · recipientes · insumos<br/><b>pessoas</b>: cliente · fornecedor · funcionário<br/>tipos de tarefa"]
+
+  PRO["<b>2 · PRODUÇÃO</b><br/><i>registro de atividade de campo</i><br/>consumo de insumos · coleta de sementes<br/>agenda de pessoal · registro de atividade<br/>lotes · perdas · estoque <i>(derivado)</i>"]
+
+  COM["<b>3 · COMERCIAL</b><br/>pedidos: cadastro → verificação →<br/>aprovação → cargas e separação<br/>cotação com fornecedores<br/>calendário de entregas"]
+
+  FIN["<b>4 · FINANCEIRO</b><br/><i>acesso restrito à chefia</i><br/>dashboards · contas e extratos bancários<br/><b>compras</b> · custos fixos<br/>custeio · precificação"]
+
+  ACC ==> CAD
+
+  %% Cadastros alimenta todo mundo e nao consome nada. E o unico sem entrada.
+  CAD ==> PRO
+  CAD ==> COM
+  CAD ==> FIN
+
+  %% O ciclo. Quebrar qualquer elo faz o preco voltar a ser chute.
+  FIN ==>|"compra disponível · custo real do insumo"| PRO
+  PRO ==>|"estoque na verificação<br/>horas e consumo no custeio"| COM
+  COM ==>|"vendas · compra de fornecedor"| FIN
+  FIN ==>|"preço por canal na aprovação"| COM
+
+  subgraph LEG["Legenda"]
+    direction LR
+    L1["implementado no protótipo"]
+    L2["parcialmente implementado"]
+    L3["especificado, não implementado"]
+    L1 ~~~ L2 ~~~ L3
+  end
+
+  classDef ok fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#111
+  classDef meio fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#111
+  classDef falta fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#111
+  classDef grupo fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px,color:#334155
+
+  class ACC,L1 ok
+  class CAD,COM,L2 meio
+  class PRO,FIN,L3 falta
+  class LEG grupo

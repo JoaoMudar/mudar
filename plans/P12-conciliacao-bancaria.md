@@ -195,6 +195,7 @@ Detalhe de cada tabela em
 - [ ] **Fase 2 — schema `financeiro`:** as 9 tabelas + seed das listas fechadas
       (5 centros, 14 grupos, 44 categorias, 10 contas). Nenhuma tela ainda.
       **Também não depende dos extratos.**
+      ⚠️ **Junto com a tabela, corrigir `mergeParties`** — ver a 4ª armadilha abaixo.
 - [ ] **Fase 3 — entrada de dados:** ⏸ *aguarda João juntar os extratos das 9 contas.*
       Formatos prováveis: OFX na maioria, CSV/Excel em algumas. O desenho só é escrito
       com os arquivos reais na mesa — a tabela já aceita qualquer origem.
@@ -207,11 +208,51 @@ Detalhe de cada tabela em
 
 ---
 
-## 3 armadilhas que afundam o plano
+## 4 armadilhas que afundam o plano
 
 1. Fundação frouxa (centros de custo mal definidos) → bagunça de novo.
 2. Querer reconciliar a história inteira → desiste no meio. **Marco zero é sagrado.**
 3. Rotina não virar hábito → apodrece em 3 meses. Fechamento mensal no calendário.
+4. **A primeira fusão de pessoas depois do financeiro apaga dinheiro.** Ver abaixo.
+
+---
+
+## A armadilha 4, por extenso: `mergeParties` × `transactions.party_id`
+
+> Encontrada em 19/08/2026, ao desenhar `/cadastros/pessoas`. **Ainda não dá para corrigir**
+> — a tabela não existe. Fica registrada aqui para a Fase 2 não tropecçar nela.
+
+`mergeParties` (`src/lib/parties.ts`) termina com `DELETE FROM cadastro.parties`, e o passo
+anterior repointa **apenas** `customers` e `suppliers`:
+
+```
+5. Repointa quem apontava para o duplicado. TEM de vir antes do DELETE:
+   customers.party_id e suppliers.party_id sao FK sem ON DELETE CASCADE.
+```
+
+`financeiro.transactions.party_id` será uma terceira FK para a mesma linha. Fundir duas
+identidades depois da Fase 2 vai dar num de dois lugares, os dois ruins:
+
+- **FK RESTRICT** — o merge falha com erro de integridade, e o usuário fica sem entender por
+  que "unir a Márcio Kuhar" parou de funcionar;
+- **`ON DELETE SET NULL`**, se alguém escolher isso para "resolver" — as transações perdem a
+  contraparte **em silêncio**. O dinheiro continua no saldo e some do histórico da pessoa. É a
+  pior das duas, porque não reclama.
+
+**O que fazer na Fase 2:**
+
+1. `transactions.party_id` FK **sem** `ON DELETE` automático — RESTRICT explícito, para que
+   esquecer o passo 5 quebre alto e cedo, no teste, e não baixo e tarde, no histórico.
+2. Acrescentar ao passo 5 de `mergeParties`:
+   `UPDATE financeiro.transactions SET party_id = $2 WHERE party_id = $1`.
+   Vale para toda tabela nova que ganhar `party_id` — `classification_rules` também tem.
+3. Um teste em `src/lib/__tests__/parties.test.ts` que falhe se `mergeParties` deletar uma
+   party ainda referenciada. O arquivo já exercita o SQL emitido; é mais um caso.
+
+**Por que importa mais do que parece:** a fusão de identidades não é caso raro — é a rotina
+que o cadastro único existe para servir. `PartyMatchPrompt` oferece unir toda vez que um
+fornecedor conhecido é cadastrado como cliente. E é exatamente a pessoa **com os dois papéis**
+— de quem se compra e para quem se vende — cujo histórico financeiro tem mais valor.
 
 ---
 

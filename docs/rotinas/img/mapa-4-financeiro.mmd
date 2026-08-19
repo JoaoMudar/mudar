@@ -1,0 +1,79 @@
+%% Modulo 4 de 4. Ganhou o que antes estava espalhado: COMPRAS (a compra do
+%% insumo nasce aqui e fica disponivel para a Producao usar), CUSTOS FIXOS
+%% (vieram de /admin), CUSTEIO e PRECIFICACAO — que sao dinheiro, nao campo.
+%% Indicadores deixou de ser modulo proprio: viraram os dashboards daqui.
+flowchart TB
+  BAN(["Instituições bancárias<br/>9 contas · arquivo de extrato"])
+  ACE["<b>Acesso restrito à chefia</b><br/>a base reúne gasto do viveiro e gasto pessoal"]
+
+  IMP["<b>Importação de extrato</b> &mdash; mensal<br/>o arquivo entra inteiro, sem digitação"]
+  AUT["<b>Classificação automática</b><br/>aplica as regras aprendidas<br/>nas classificações dos meses anteriores"]
+  FIL["<b>Fila de lançamentos</b> &mdash; semanal<br/>só o que não foi reconhecido"]
+
+  subgraph CLA["Classificação &mdash; três toques por lançamento"]
+    direction LR
+    C1["<b>Centro de custo</b><br/>viveiro · sítio · clínica · casa · floricultura"]
+    C2["<b>Categoria</b><br/>35 categorias em 14 grupos"]
+    C3["<b>Contraparte</b><br/>com quem foi o dinheiro &mdash; uma <i>party</i> do cadastro"]
+    C1 ~~~ C2 ~~~ C3
+  end
+
+  DAT["<b>Duas datas por lançamento</b><br/>caixa: quando o dinheiro saiu<br/>competência: a que mês pertence"]
+  REG["<b>Nova regra</b><br/>cada classificação vira regra<br/>e encurta a fila do mês seguinte"]
+
+  FEC["<b>Fechamento mensal</b><br/>saldo calculado &times; saldo do extrato<br/>conferido e travado"]
+
+  CPR["<b>Compras</b> &mdash; lançamento na origem<br/>nota de insumo e de mudas de terceiros<br/><i>o extrato diz R$3.400 para Agro Comercial;<br/>a nota diz 40 sacos a R$85</i>"]
+  CFX["<b>Custos fixos</b><br/>energia · folha · contabilidade · combustível<br/>hoje digitados; passam a vir do mês fechado"]
+
+  subgraph PRECO["Do custo ao preço"]
+    direction LR
+    CUS["<b>Custeio por espécie</b><br/>insumo + mão de obra + fixo rateado<br/>custo unitário por espécie e recipiente"]
+    PRE["<b>Precificação</b><br/>custo + margem por canal<br/>piso mínimo · frete por quilômetro"]
+    CUS --> PRE
+  end
+
+  DSH["<b>Dashboards</b><br/>faturamento por período, cliente e canal<br/>margem por espécie · painel por perfil<br/><i>apenas sobre mês fechado</i>"]
+
+  NF["<b>Nota fiscal</b><br/>emitida no sistema fiscal externo<br/>o sistema registra apenas o número"]
+  PRO["<b>2 · Produção</b><br/>consumo de insumos · horas da agenda"]
+  COM["<b>3 · Comercial</b><br/>vendas · compra de fornecedor"]
+
+  ACE -.-> IMP
+  BAN --> IMP --> AUT --> FIL --> C1
+  C3 --> DAT
+  C3 --> REG
+  DAT --> FEC
+
+  CPR --> FEC
+  FEC ==> CFX
+  CFX ==> CUS
+  CPR ==>|"custo real do insumo"| CUS
+  PRO ==>|"quanto se consumiu · horas &times; valor-hora"| CUS
+  CPR ==>|"compra disponível para uso"| PRO
+  PRE ==>|"preço por canal na aprovação"| COM
+  COM --> FIL
+  COM --> NF
+  FEC --> DSH
+  PRE --> DSH
+
+  subgraph LEG["Legenda"]
+    direction LR
+    L1["implementado no protótipo"]
+    L2["parcialmente implementado"]
+    L3["especificado, não implementado"]
+    L1 ~~~ L2 ~~~ L3
+  end
+  DSH ~~~ LEG
+
+  classDef feito fill:#e5e7eb,stroke:#374151,stroke-width:2px,color:#111827
+  classDef parcial fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#111827,stroke-dasharray:7 4
+  classDef futuro fill:#ffffff,stroke:#9ca3af,stroke-width:1.5px,color:#4b5563,stroke-dasharray:4 4
+  classDef ator fill:#374151,stroke:#111827,stroke-width:2px,color:#f9fafb
+  classDef grupo fill:#fafafa,stroke:#d1d5db,stroke-width:1px,color:#374151
+
+  class ACE,COM,L1 feito
+  class CFX,CUS,NF,L2 parcial
+  class IMP,AUT,FIL,C1,C2,C3,DAT,REG,FEC,CPR,PRE,DSH,PRO,L3 futuro
+  class BAN ator
+  class CLA,PRECO,LEG grupo

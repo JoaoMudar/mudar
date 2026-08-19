@@ -1,15 +1,18 @@
+%% A visao do dono: os quatro modulos e nada mais. Antes esta area se chamava
+%% "Pedidos" e continha clientes; hoje cliente e cadastro e a area e Comercial.
 flowchart LR
-  C["🗂️ Cadastros<br/><small>espécies, pessoas, tarefas</small>"]
-  P["🤝 Pedidos<br/><small>pedidos, clientes, cotação</small>"]
-  R["🌱 Produção<br/><small>agenda, atividades, estoque, perdas</small>"]
-  F["🏦 Financeiro<br/><small>extratos, custeio, preço</small>"]
+  C["🗂️ <b>Cadastros</b><br/><small>espécies, recipientes, insumos<br/>pessoas, tipos de tarefa</small>"]
+  R["🌱 <b>Produção</b><br/><small>agenda, atividades, coleta<br/>lotes, perdas, estoque</small>"]
+  P["🤝 <b>Comercial</b><br/><small>pedidos, cotação, entregas</small>"]
+  F["🏦 <b>Financeiro</b><br/><small>extratos, compras, custos fixos<br/>custeio, preço, dashboards</small>"]
 
-  C --> P
   C --> R
+  C --> P
   C --> F
-  R <--> P
-  P --> F
-  F --> R
+  R -->|"estoque"| P
+  P -->|"vendas"| F
+  F -->|"compras e custo real"| R
+  F -->|"preço por canal"| P
 
   classDef ok fill:#dcfce7,stroke:#16a34a,color:#111
   classDef meio fill:#fef9c3,stroke:#ca8a04,color:#111

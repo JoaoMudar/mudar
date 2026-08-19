@@ -25,15 +25,18 @@ export type Verb = 'criar' | 'ler' | 'atualizar' | 'excluir'
 type ResourceEntry = { d4: string } & Partial<Record<Verb, readonly Role[]>>
 
 /**
- * Uma entrada por linha da tabela do D4 §2, na mesma ordem do documento.
- * O campo `d4` cita a linha de origem — e o que permite conferir sem abrir os
- * dois arquivos lado a lado.
+ * Uma entrada por linha da tabela do D4 §2, agrupada pelos quatro modulos do
+ * sistema (`src/lib/modules.ts`) e nao mais pela ordem do documento: era por
+ * ali que a matriz divergia do mapa — `custo_fixo` e `coleta_semente` ficavam
+ * sob Producao enquanto as telas viviam em /admin e o mapa os punha em
+ * Cadastros. O campo `d4` cita a linha de origem — e ele, nao a ordem, que
+ * permite conferir sem abrir os dois arquivos lado a lado.
  *
  * Verbo ausente = ninguem pode. E mais forte que lista vazia: `can(u,
  * 'custo_unitario:criar')` nao compila, em vez de compilar e retornar false.
  */
 const MATRIX = {
-  // --- Cadastros (D4 §3.8: criacao e da chefia, gerencia e colaborador leem) ---
+  // --- 1 · Cadastros — D4 §3.8: criacao e da chefia, gerencia e colaborador leem ---
   especie: {
     d4: 'Espécies',
     criar: ['chefia', 'admin'],
@@ -55,8 +58,55 @@ const MATRIX = {
     atualizar: ['chefia', 'admin'],
     excluir: ['chefia', 'admin'],
   },
+  cliente: {
+    d4: 'Clientes',
+    criar: ['chefia', 'admin'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+    excluir: ['chefia', 'admin'],
+  },
+  cliente_fiscal: {
+    d4: 'Dados fiscais de cliente',
+    criar: ['chefia', 'admin'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+  },
+  fornecedor: {
+    d4: 'Fornecedores',
+    criar: ['chefia', 'admin'],
+    ler: ['chefia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+    excluir: ['chefia', 'admin'],
+  },
+  funcionario: {
+    // Vinculo empregaticio, nao nivel de acesso: `users.role` continua sendo o
+    // acesso. Papel ja existe no CHECK de `cadastro.party_roles`; o que falta e
+    // `users.party_id` (P13 T13.3) e a tela (P13 T13.7). Declarado desde ja
+    // porque a lista de pessoas precisa saber quem pode ver funcionario, e sem
+    // isto o filtro cairia numa permissao emprestada. Papeis conforme
+    // docs/rotinas/rotina-cadastros.md (cadastrar/editar e da chefia); a
+    // gerencia le porque e ela quem monta a agenda. O D4 precisa ganhar esta
+    // linha junto com a de `tarefa`.
+    d4: '(pendente — P13 T13.22)',
+    criar: ['chefia', 'admin'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+    excluir: ['chefia', 'admin'],
+  },
+  tarefa: {
+    // A agenda de pessoal (P13) traz a primeira regra que depende do REGISTRO
+    // e nao so do papel: o colaborador enxerga apenas as tarefas atribuidas a
+    // ele. Declarado desde ja, sem tabela nem tela, para que o mecanismo de
+    // subject nasca exercitado por teste. O D4 precisa ganhar esta linha
+    // (P13 Fase 6, T13.22).
+    d4: '(pendente — P13 T13.22)',
+    criar: ['chefia', 'gerencia'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['gerencia', 'colaborador'],
+    excluir: ['gerencia'],
+  },
 
-  // --- Producao ---
+  // --- 2 · Producao — registro de atividade de campo ---
   consumo_insumo: {
     d4: 'Consumo de insumo',
     // `chefia` no criar e a emenda de 11/08/2026 ao D4 §2, registrada em §3.9:
@@ -67,25 +117,12 @@ const MATRIX = {
     criar: ['chefia', 'colaborador'],
     ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
   },
-  custo_fixo: {
-    d4: 'Custos fixos',
-    criar: ['chefia', 'admin'],
-    ler: ['chefia', 'admin'],
-    atualizar: ['chefia', 'admin'],
-    excluir: ['chefia', 'admin'],
-  },
   coleta_semente: {
     d4: 'Coleta de sementes',
     criar: ['chefia', 'admin'],
     ler: ['chefia', 'gerencia', 'admin'],
     atualizar: ['chefia', 'admin'],
     excluir: ['chefia', 'admin'],
-  },
-  custo_unitario: {
-    d4: 'Custo unitário',
-    // D4 §3.1: o colaborador registra o consumo que COMPOE o custo e nao ve o
-    // custo resultante.
-    ler: ['chefia', 'gerencia', 'admin'],
   },
   atividade_producao: {
     d4: 'Atividades de produção',
@@ -110,34 +147,7 @@ const MATRIX = {
     ler: ['chefia', 'gerencia', 'admin'],
   },
 
-  // --- Comercial (D4 §3.1: colaborador nao ve margem nem preco) ---
-  margem_canal: {
-    d4: 'Margem por canal',
-    criar: ['chefia'],
-    ler: ['chefia', 'gerencia', 'admin'],
-    atualizar: ['chefia'],
-  },
-  preco_venda: {
-    d4: 'Preço de venda',
-    criar: ['chefia'],
-    ler: ['chefia', 'gerencia', 'admin'],
-    atualizar: ['chefia'],
-  },
-  cliente: {
-    d4: 'Clientes',
-    criar: ['chefia', 'admin'],
-    ler: ['chefia', 'gerencia', 'admin'],
-    atualizar: ['chefia', 'admin'],
-    excluir: ['chefia', 'admin'],
-  },
-  cliente_fiscal: {
-    d4: 'Dados fiscais de cliente',
-    criar: ['chefia', 'admin'],
-    ler: ['chefia', 'gerencia', 'admin'],
-    atualizar: ['chefia', 'admin'],
-  },
-
-  // --- Pedidos ---
+  // --- 3 · Comercial — pedidos, cotacao e entregas ---
   pedido: {
     d4: 'Pedidos',
     criar: ['chefia', 'admin'],
@@ -176,15 +186,6 @@ const MATRIX = {
     ler: ['chefia', 'gerencia', 'admin'],
     atualizar: ['chefia', 'admin'],
   },
-
-  // --- Fornecedores ---
-  fornecedor: {
-    d4: 'Fornecedores',
-    criar: ['chefia', 'admin'],
-    ler: ['chefia', 'admin'],
-    atualizar: ['chefia', 'admin'],
-    excluir: ['chefia', 'admin'],
-  },
   cotacao: {
     d4: 'Cotações',
     criar: ['chefia', 'admin'],
@@ -196,7 +197,32 @@ const MATRIX = {
     atualizar: ['chefia', 'admin'],
   },
 
-  // --- Financeiro (D4 §3.2: exclusivo da chefia, nem leitura para a gerencia) ---
+  // --- 4 · Financeiro — D4 §3.2: exclusivo da chefia, nem leitura para a gerencia. Colaborador nao ve margem nem preco (D4 §3.1) ---
+  custo_fixo: {
+    d4: 'Custos fixos',
+    criar: ['chefia', 'admin'],
+    ler: ['chefia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+    excluir: ['chefia', 'admin'],
+  },
+  custo_unitario: {
+    d4: 'Custo unitário',
+    // D4 §3.1: o colaborador registra o consumo que COMPOE o custo e nao ve o
+    // custo resultante.
+    ler: ['chefia', 'gerencia', 'admin'],
+  },
+  margem_canal: {
+    d4: 'Margem por canal',
+    criar: ['chefia'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia'],
+  },
+  preco_venda: {
+    d4: 'Preço de venda',
+    criar: ['chefia'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia'],
+  },
   financeiro: {
     d4: 'Financeiro — todos os recursos',
     criar: ['chefia', 'admin'],
@@ -209,7 +235,7 @@ const MATRIX = {
     ler: ['chefia', 'gerencia', 'admin'],
   },
 
-  // --- Sistema ---
+  // --- Acesso — transversal aos quatro modulos, nao e modulo de negocio ---
   usuario: {
     d4: 'Usuários e perfis',
     // D4 §3.7: nenhum perfil de negocio cria usuario ou altera perfil,
@@ -237,20 +263,6 @@ const MATRIX = {
     d4: '(ausente do D4 — ver pendencia no topo do arquivo de teste)',
     ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
     atualizar: ['chefia', 'gerencia', 'colaborador', 'admin'],
-  },
-
-  // --- P13, ainda nao especificado no D4 ---
-  tarefa: {
-    // A agenda de pessoal (P13) traz a primeira regra que depende do REGISTRO
-    // e nao so do papel: o colaborador enxerga apenas as tarefas atribuidas a
-    // ele. Declarado desde ja, sem tabela nem tela, para que o mecanismo de
-    // subject nasca exercitado por teste. O D4 precisa ganhar esta linha
-    // (P13 Fase 6, T13.22).
-    d4: '(pendente — P13 T13.22)',
-    criar: ['chefia', 'gerencia'],
-    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
-    atualizar: ['gerencia', 'colaborador'],
-    excluir: ['gerencia'],
   },
 } as const satisfies Record<string, ResourceEntry>
 
@@ -287,7 +299,7 @@ const RULES: {
   'tarefa:atualizar': (u, s) => u.role !== 'colaborador' || s.assigned_to === u.id,
 }
 
-type Actor = Pick<User, 'id' | 'role'>
+export type Actor = Pick<User, 'id' | 'role'>
 
 /**
  * Implementacao. Recebe o subject solto porque a assinatura publica, variadica
@@ -358,6 +370,7 @@ const RESOURCE_LABELS: Record<Resource, string> = {
   preco_venda: 'preços de venda',
   cliente: 'clientes',
   cliente_fiscal: 'dados fiscais de cliente',
+  funcionario: 'funcionários',
   pedido: 'pedidos',
   pedido_aprovacao: 'a aprovação do pedido',
   verificacao: 'a verificação de disponibilidade',

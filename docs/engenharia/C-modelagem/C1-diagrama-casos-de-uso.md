@@ -44,18 +44,26 @@ graph LR
   CO(("Colaborador"))
   AD(("Administrador"))
 
-  S1["Custeio"]
-  S2["Produção"]
-  S3["Estoque"]
-  S4["Perdas"]
-  S5["Precificação"]
-  S6["Clientes"]
-  S7["Pedidos"]
-  S8["Entregas"]
-  S9["Fornecedores"]
-  S10["Financeiro"]
-  S11["Indicadores"]
-  S12["Acesso"]
+  subgraph M1["1 · Cadastros"]
+    S6["Clientes"]
+    S9["Fornecedores"]
+  end
+  subgraph M2["2 · Produção"]
+    S2["Produção"]
+    S3["Estoque"]
+    S4["Perdas"]
+  end
+  subgraph M3["3 · Comercial"]
+    S7["Pedidos"]
+    S8["Entregas"]
+  end
+  subgraph M4["4 · Financeiro"]
+    S1["Custeio"]
+    S5["Precificação"]
+    S10["Financeiro"]
+    S11["Indicadores"]
+  end
+  S12["Acesso &mdash; transversal"]
 
   CH --- S1
   CH --- S5
@@ -81,11 +89,17 @@ graph LR
   AD --- S12
 ```
 
-Duas leituras que o diagrama torna imediatas:
+Os subsistemas estão agrupados nos **quatro módulos** do sistema
+(`docs/rotinas/00-mapa-de-rotinas.md`). Acesso fica de fora porque atravessa os quatro.
+
+Três leituras que o diagrama torna imediatas:
 
 - **O colaborador toca quatro subsistemas, sempre pela ponta do registro.** Ele alimenta o sistema e
   não consulta resultado — não acessa preço, custo nem indicador. É o que justifica o rigor dos
   requisitos não funcionais de usabilidade: para esse ator, o sistema **é** o formulário.
+- **Custeio e precificação são do Financeiro, não da Produção.** A gerência toca o custeio para
+  consultar, mas quem o alimenta é o extrato bancário — e é por isso que o preço do viveiro
+  é estimativa enquanto o módulo 4 não rodar.
 - **O financeiro conecta-se a um único ator.** Não é omissão do diagrama, é regra de negócio: a base
   mistura gasto do viveiro com gasto pessoal da família, e o acesso é restrito à chefia.
 

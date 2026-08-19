@@ -1,0 +1,64 @@
+%% Modulo 2 de 4. Estoque fica aqui (e derivado da producao, nao cadastro).
+%% Custeio e precificacao sairam para o Financeiro: sao dinheiro, e quem os
+%% alimenta e o extrato bancario. A entrada de compras vem de la.
+flowchart TB
+  CAD["<b>1 · Cadastros</b><br/>espécies · recipientes · insumos<br/>funcionários · tipos de tarefa"]
+  FIN["<b>4 · Financeiro</b><br/>a compra do insumo nasce lá<br/>e fica disponível para uso aqui"]
+
+  subgraph CAMPO["Registro em campo &mdash; colaborador, no celular"]
+    direction LR
+    CON["<b>Consumo de insumos</b><br/>insumo · espécie · recipiente · quantidade · data<br/>funciona sem conexão, sincroniza depois"]
+    ATV["<b>Registro de atividade</b><br/>semeadura · repicagem · irrigação · adubação"]
+    COL["<b>Coleta de sementes</b><br/>origem própria da matéria-prima"]
+    PER["<b>Perdas</b><br/>quantidade · causa"]
+    CON ~~~ ATV ~~~ COL ~~~ PER
+  end
+
+  AGE["<b>Agenda de pessoal</b><br/>quem faz o quê na semana<br/>fonte das horas trabalhadas"]
+  LOT["<b>Lotes</b><br/>semeado &rarr; repicado &rarr; pronto para venda"]
+  EST["<b>Estoque</b><br/><i>produção &minus; perdas &minus; vendas</i><br/>contagem periódica de conferência"]
+
+  subgraph ALE["Alertas"]
+    direction LR
+    A1["<b>Mortalidade</b><br/>acima de 20% por espécie"]
+    A2["<b>Estoque baixo</b><br/>abaixo do mínimo ou zerado"]
+    A1 ~~~ A2
+  end
+
+  COM["<b>3 · Comercial</b><br/>disponibilidade na verificação do pedido"]
+  CUS["<b>4 · Financeiro &mdash; custeio</b><br/>consumo de insumo + horas &times; valor-hora<br/>é o que transforma campo em custo por muda"]
+
+  CAD ==> CON
+  CAD --> ATV
+  CAD --> COL
+  CAD ==> AGE
+  FIN ==>|"compra disponível para uso"| CON
+  AGE --> ATV
+  ATV --> LOT
+  ATV --> PER
+  LOT --> EST
+  PER --> EST
+  CON ==> CUS
+  AGE ==>|"horas &times; valor-hora"| CUS
+  PER --> A1
+  EST --> A2
+  EST --> COM
+
+  subgraph LEG["Legenda"]
+    direction LR
+    L1["implementado no protótipo"]
+    L2["parcialmente implementado"]
+    L3["especificado, não implementado"]
+    L1 ~~~ L2 ~~~ L3
+  end
+  COM ~~~ LEG
+
+  classDef feito fill:#e5e7eb,stroke:#374151,stroke-width:2px,color:#111827
+  classDef parcial fill:#f3f4f6,stroke:#6b7280,stroke-width:2px,color:#111827,stroke-dasharray:7 4
+  classDef futuro fill:#ffffff,stroke:#9ca3af,stroke-width:1.5px,color:#4b5563,stroke-dasharray:4 4
+  classDef grupo fill:#fafafa,stroke:#d1d5db,stroke-width:1px,color:#374151
+
+  class CAD,CON,COL,COM,L1 feito
+  class CUS,L2 parcial
+  class ATV,PER,AGE,LOT,EST,A1,A2,FIN,L3 futuro
+  class CAMPO,ALE,LEG grupo
