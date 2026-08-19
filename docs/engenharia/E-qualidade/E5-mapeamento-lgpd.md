@@ -103,9 +103,12 @@ Três características tornam este o tratamento de maior risco do sistema:
 
 **Controles aplicados:**
 
-- **Acesso exclusivo da chefia e do administrador** a todo o subsistema financeiro (RF-62). Gerência
-  e colaborador não acessam nenhuma tela — é a restrição mais rígida do sistema, e sua motivação é
-  de privacidade, não de escopo funcional.
+- **Acesso exclusivo da chefia e do administrador à base bancária** (RF-62): extrato, lançamento,
+  compra, custo fixo e fechamento. Gerência e colaborador não abrem nenhuma dessas telas, nem em
+  leitura — é a restrição mais rígida do sistema, e sua motivação é de privacidade, não de escopo
+  funcional. O que **deriva** dessa base sem expô-la — custo unitário, margem, preço, indicadores
+  operacionais — permanece legível para a gerência: são agregados que não dizem para quem se pagou
+  (ver [`D4 §3.2`](../D-arquitetura/D4-matriz-rbac.md)).
 - **Esquema de banco separado**, o que torna a fronteira de acesso estrutural e não apenas
   procedimental (ver [`C6`, §3.5](../C-modelagem/C6-modelo-entidade-relacionamento.md)).
 - **Separação por centro de custo**, que permite distinguir o que é da empresa do que é pessoal — e

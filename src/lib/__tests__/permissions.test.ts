@@ -31,35 +31,42 @@ const VERBO_DE_LETRA = { C: 'criar', L: 'ler', A: 'atualizar', E: 'excluir' } as
 
 // Linha do D4 §2 -> celulas de Chefia, Gerencia, Colaborador, Administrador.
 const D4: Record<string, [string, string, string, string]> = {
-  'Espécies':                         ['C L A E', 'L',     'L',     'C L A E'],
-  'Recipientes':                      ['C L A E', 'L',     'L',     'C L A E'],
-  'Insumos':                          ['C L A E', 'L',     'L',     'C L A E'],
-  'Consumo de insumo':                ['L',       'L',     'C L',   'L'      ],
-  'Custos fixos':                     ['C L A E', '—',     '—',     'C L A E'],
-  'Coleta de sementes':               ['C L A E', 'L',     '—',     'C L A E'],
-  'Custo unitário':                   ['L',       'L',     '—',     'L'      ],
-  'Atividades de produção':           ['L',       'C L A', 'C L',   'L'      ],
-  'Estoque':                          ['L',       'C L A', 'L',     'L'      ],
-  'Perdas':                           ['L',       'L A',   'C L',   'L'      ],
-  'Análise de perdas':                ['L',       'L',     '—',     'L'      ],
-  'Margem por canal':                 ['C L A',   'L',     '—',     'L'      ],
-  'Preço de venda':                   ['C L A',   'L',     '—',     'L'      ],
-  'Clientes':                         ['C L A E', 'L',     '—',     'C L A E'],
-  'Dados fiscais de cliente':         ['C L A',   'L',     '—',     'C L A'  ],
-  'Pedidos':                          ['C L A E', 'L A',   'L',     'C L A E'],
-  'Aprovação de pedido':              ['A',       '—',     '—',     'A'      ],
-  'Verificação de disponibilidade':   ['L',       'C L A', '—',     'L'      ],
-  'Cargas':                           ['L',       'C L A', 'L',     'L'      ],
-  'Separação de carga':               ['L',       'L A',   'A',     'L'      ],
-  'Entregas':                         ['C L A',   'L',     '—',     'C L A'  ],
-  'Fornecedores':                     ['C L A E', '—',     '—',     'C L A E'],
-  'Cotações':                         ['C L A',   '—',     '—',     'C L A'  ],
-  'Escolha de proposta':              ['A',       '—',     '—',     'A'      ],
-  'Financeiro — todos os recursos':   ['C L A E', '—',     '—',     'C L A E'],
-  'Indicadores':                      ['L',       'L',     '—',     'L'      ],
-  'Usuários e perfis':                ['—',       '—',     '—',     'C L A E'],
-  'Sessões próprias':                 ['L E',     'L E',   'L E',   'L E'    ],
-  'Auditoria de acesso':              ['—',       '—',     '—',     'L'      ],
+  // --- 1 · Cadastros ---
+  'Espécies':                         ['C L A E', 'L',       'L',     'C L A E'],
+  'Recipientes':                      ['C L A E', 'L',       'L',     'C L A E'],
+  'Insumos':                          ['C L A E', 'L',       'L',     'C L A E'],
+  'Clientes':                         ['C L A E', 'L',       '—',     'C L A E'],
+  'Dados fiscais de cliente':         ['C L A',   'L',       '—',     'C L A'  ],
+  'Fornecedores':                     ['C L A E', '—',       '—',     'C L A E'],
+  'Funcionários':                     ['C L A E', 'L',       '—',     'C L A E'],
+  'Tarefas':                          ['C L',     'C L A E', 'L A',   'L'      ],
+  // --- 2 · Producao ---
+  'Consumo de insumo':                ['L',       'L',       'C L',   'L'      ],
+  'Coleta de sementes':               ['C L A E', 'L',       '—',     'C L A E'],
+  'Atividades de produção':           ['L',       'C L A',   'C L',   'L'      ],
+  'Estoque':                          ['L',       'C L A',   'L',     'L'      ],
+  'Perdas':                           ['L',       'L A',     'C L',   'L'      ],
+  'Análise de perdas':                ['L',       'L',       '—',     'L'      ],
+  // --- 3 · Comercial ---
+  'Pedidos':                          ['C L A E', 'L A',     'L',     'C L A E'],
+  'Aprovação de pedido':              ['A',       '—',       '—',     'A'      ],
+  'Verificação de disponibilidade':   ['L',       'C L A',   '—',     'L'      ],
+  'Cargas':                           ['L',       'C L A',   'L',     'L'      ],
+  'Separação de carga':               ['L',       'L A',     'A',     'L'      ],
+  'Entregas':                         ['C L A',   'L',       '—',     'C L A'  ],
+  'Cotações':                         ['C L A',   '—',       '—',     'C L A'  ],
+  'Escolha de proposta':              ['A',       '—',       '—',     'A'      ],
+  // --- 4 · Financeiro (modulo restrito) ---
+  'Custos fixos':                     ['C L A E', '—',       '—',     'C L A E'],
+  'Financeiro — todos os recursos':   ['C L A E', '—',       '—',     'C L A E'],
+  'Custo unitário':                   ['L',       'L',       '—',     'L'      ],
+  'Margem por canal':                 ['C L A',   'L',       '—',     'L'      ],
+  'Preço de venda':                   ['C L A',   'L',       '—',     'L'      ],
+  'Indicadores':                      ['L',       'L',       '—',     'L'      ],
+  // --- Acesso (transversal) ---
+  'Usuários e perfis':                ['—',       '—',       '—',     'C L A E'],
+  'Sessões próprias':                 ['L E',     'L E',     'L E',   'L E'    ],
+  'Auditoria de acesso':              ['—',       '—',       '—',     'L'      ],
 }
 
 /**
@@ -81,10 +88,6 @@ const EMENDAS: Record<string, { verbo: string; papel: Role; motivo: string }[]> 
 /** Recursos que ainda nao tem linha no D4, cada um com a pendencia declarada. */
 const FORA_DO_D4: Record<string, string> = {
   notificacao_propria: '/api/notifications e anterior a matriz; escopado por user_id',
-  tarefa: 'agenda de pessoal — P13 Fase 6, T13.22 acrescenta a linha ao D4',
-  funcionario:
-    'vínculo empregatício (papel de `cadastro.party_roles`) — P13 T13.3/T13.7; '
-    + 'entra no D4 junto com `tarefa`',
 }
 
 function papeisEsperados(linha: string, verbo: string): Role[] {
@@ -168,9 +171,20 @@ describe('can — regras estruturais', () => {
     expect(can(colaborador, 'preco_venda:ler')).toBe(false)
     expect(can(colaborador, 'margem_canal:ler')).toBe(false)
 
-    // §3.2 — financeiro é exclusivo da chefia, nem leitura para a gerência
+    // §3.2 — a BASE BANCARIA e exclusiva da chefia: extrato, lancamento,
+    // compra, custo fixo, fechamento. Nem leitura para a gerencia.
     expect(can(chefia, 'financeiro:ler')).toBe(true)
     expect(can(gerencia, 'financeiro:ler')).toBe(false)
+    expect(can(gerencia, 'custo_fixo:ler')).toBe(false)
+
+    // §3.2, o outro lado — o que DERIVA da base e nao a expoe continua legivel
+    // para a gerencia. E a metade da regra que faltava aqui: sem estas quatro
+    // linhas, alguem "corrige" o modulo restrito fechando o que nunca foi
+    // fechado, e o teste nao reclama.
+    expect(can(gerencia, 'custo_unitario:ler')).toBe(true)
+    expect(can(gerencia, 'margem_canal:ler')).toBe(true)
+    expect(can(gerencia, 'preco_venda:ler')).toBe(true)
+    expect(can(gerencia, 'indicador:ler')).toBe(true)
 
     // §3.3 — aprovar pedido é privativo da chefia; a gerência edita quantidades
     expect(can(chefia, 'pedido_aprovacao:atualizar')).toBe(true)

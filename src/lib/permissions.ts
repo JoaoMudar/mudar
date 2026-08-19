@@ -195,7 +195,12 @@ const MATRIX = {
     atualizar: ['chefia', 'admin'],
   },
 
-  // --- 4 · Financeiro — D4 §3.2: exclusivo da chefia, nem leitura para a gerencia. Colaborador nao ve margem nem preco (D4 §3.1) ---
+  // --- 4 · Financeiro — modulo restrito, mas a restricao e do RECURSO (D4 §3.2).
+  // Fica so com chefia/admin o que EXPOE A BASE BANCARIA: `financeiro` (extrato,
+  // lancamento, compra, fechamento) e `custo_fixo`. O que DERIVA dela sem a expor
+  // — custo unitario, margem, preco, indicador — a gerencia le, e sempre leu: ela
+  // precisa desses numeros para verificar pedido e cotar com fornecedor.
+  // Colaborador nao ve nem um nem outro (D4 §3.1). ---
   custo_fixo: {
     d4: 'Custos fixos',
     criar: ['chefia', 'admin'],

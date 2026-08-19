@@ -147,7 +147,7 @@ export const FINANCEIRO: Module = {
   slug: 'financeiro',
   title: 'Financeiro',
   icon: '🏦',
-  summary: 'Onde a compra nasce e onde o custo real vira preço. Acesso restrito à chefia.',
+  summary: 'Onde a compra nasce e onde o custo real vira preço. A base bancária é só da chefia; custo e preço a gerência lê.',
   links: [
     { href: '/financeiro/custos-fixos', label: 'Custos Fixos', desc: 'Rateados sobre a produção; base do custo por muda', icon: '🧮', permission: 'custo_fixo:criar', tab: true },
   ],
