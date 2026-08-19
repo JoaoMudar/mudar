@@ -44,14 +44,37 @@ const LARGURAS = {
   padrao: [1200, 7871],
 }
 
-/** Alinhamento por coluna: c = centro, l = esquerda. Sem entrada, a 1a coluna
- *  vai centralizada e em negrito, e as demais a esquerda. */
+/**
+ * Alinhamento por coluna. Os valores vao direto para <w:jc w:val="..."/>, entao
+ * precisam ser os do enum ST_Jc do OOXML — 'center' e 'left', nao abreviacoes.
+ * Diante de um w:val invalido o Word recusa o documento inteiro, e nenhum leitor
+ * tolerante (python-docx, por exemplo) acusa o problema.
+ * Sem entrada aqui, a 1a coluna vai centralizada e em negrito, as demais a esquerda.
+ */
 const ALINHAMENTO = {
-  9: ['l', 'l', 'c'],
-  13: ['l', 'c', 'c', 'c', 'c'],
+  9: ['left', 'left', 'center'],
+  13: ['left', 'center', 'center', 'center', 'center'],
 }
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+/**
+ * Valores aceitos por <w:jc>. A checagem existe porque um w:val invalido nao
+ * degrada: o Word recusa o arquivo inteiro com uma mensagem generica, e os
+ * leitores tolerantes abrem sem reclamar — ou seja, o erro so aparece na mao do
+ * usuario. Melhor quebrar o build.
+ */
+const JC_VALIDOS = new Set(['left', 'center', 'right', 'both', 'start', 'end', 'distribute'])
+
+function jcValido(jc) {
+  if (!JC_VALIDOS.has(jc)) {
+    throw new Error(
+      'Alinhamento invalido para <w:jc w:val="' + jc + '"/>. '
+      + 'Use um destes: ' + [...JC_VALIDOS].join(', ') + '.',
+    )
+  }
+  return jc
+}
 
 const BORDA = ['top', 'left', 'bottom', 'right']
   .map((l) => '<w:' + l + ' w:val="single" w:color="000000" w:sz="4"/>').join('')
@@ -75,7 +98,7 @@ function paragrafo(texto, opcoes) {
   const st = estilo ? '<w:pStyle w:val="' + estilo + '"/>' : ''
   return '<w:p><w:pPr>' + st
     + '<w:spacing w:after="' + depois + '" w:before="' + antes + '" w:line="240"/>'
-    + '<w:jc w:val="' + jc + '"/></w:pPr>'
+    + '<w:jc w:val="' + jcValido(jc) + '"/></w:pPr>'
     + corrida(texto, { negrito, tamanho }) + '</w:p>'
 }
 
@@ -88,7 +111,7 @@ function celula(texto, largura, opcoes) {
     + '<w:tcBorders>' + BORDA + '</w:tcBorders>' + shd + MARGENS
     + '<w:vAlign w:val="center"/></w:tcPr>'
     + '<w:p><w:pPr><w:spacing w:after="20" w:before="20" w:line="240"/>'
-    + '<w:jc w:val="' + jc + '"/></w:pPr>'
+    + '<w:jc w:val="' + jcValido(jc) + '"/></w:pPr>'
     + corrida(texto, { negrito: cabecalho || negrito }) + '</w:p></w:tc>'
 }
 
@@ -243,6 +266,15 @@ const coreXml = (agora) => XML
 
 // --------------------------------------------------------------------- zip cru
 
+/**
+ * Data/hora MS-DOS das entradas do zip: 01/01/2026 00:00, fixa pelo mesmo
+ * motivo de DATA_DOC. Zero NAO serve aqui — em MS-DOS o zero significa mes 0 e
+ * dia 0, que sao invalidos, e o Word recusa o pacote inteiro por causa disso.
+ * Formato: data = (ano-1980)<<9 | mes<<5 | dia; hora = h<<11 | min<<5 | seg/2.
+ */
+const ZIP_DATA = ((2026 - 1980) << 9) | (1 << 5) | 1
+const ZIP_HORA = 0
+
 /** Escreve um zip minimo com deflate. O .docx e exatamente isto. */
 function zip(arquivos) {
   const locais = []
@@ -259,6 +291,8 @@ function zip(arquivos) {
     local.writeUInt16LE(20, 4)      // versao necessaria
     local.writeUInt16LE(0x0800, 6)  // flag: nome em UTF-8
     local.writeUInt16LE(8, 8)       // metodo: deflate
+    local.writeUInt16LE(ZIP_HORA, 10)
+    local.writeUInt16LE(ZIP_DATA, 12)
     local.writeUInt32LE(crc, 14)
     local.writeUInt32LE(comprimido.length, 18)
     local.writeUInt32LE(cru.length, 22)
@@ -271,6 +305,8 @@ function zip(arquivos) {
     central.writeUInt16LE(20, 6)
     central.writeUInt16LE(0x0800, 8)
     central.writeUInt16LE(8, 10)
+    central.writeUInt16LE(ZIP_HORA, 12)
+    central.writeUInt16LE(ZIP_DATA, 14)
     central.writeUInt32LE(crc, 16)
     central.writeUInt32LE(comprimido.length, 20)
     central.writeUInt32LE(cru.length, 24)
