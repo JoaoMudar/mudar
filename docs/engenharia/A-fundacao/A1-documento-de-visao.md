@@ -163,7 +163,7 @@ Limites impostos ao projeto, não escolhidos por ele.
 | **RE-4** | Uso com as mãos sujas, sob sol e chuva | Ambiente físico | Alvos de toque grandes, contraste alto, resposta visual imediata a cada ação |
 | **RE-5** | Orçamento de microempresa | Porte da organização | Adoção de serviços de custo baixo ou nulo; sem licenças proprietárias |
 | **RE-6** | Prazo até novembro de 2026 | Calendário acadêmico | Escopo entregue de forma incremental, com projetos priorizados por dependência |
-| **RE-7** | Base financeira mistura gasto de negócio e gasto pessoal | Histórico da empresa | Acesso ao financeiro restrito à chefia; separação por centro de custo é pré-requisito de qualquer indicador |
+| **RE-7** | Base financeira mistura gasto de negócio e gasto pessoal | Histórico da empresa | Acesso à base bancária restrito à chefia — o que dela deriva (custo, preço, indicador) a gerência lê; separação por centro de custo é pré-requisito de qualquer indicador |
 | **RE-8** | Dados pessoais de clientes sujeitos à legislação de proteção de dados | Legal | Tratamento mapeado, acesso controlado e retenção definida |
 
 ---

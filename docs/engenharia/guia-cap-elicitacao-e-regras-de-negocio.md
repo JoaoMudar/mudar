@@ -65,7 +65,7 @@ requisito é a resposta do software a ela.
 
 ## 1.2 Tabela pronta — requisitos por técnica de elicitação
 
-Contagem extraída de `B2` (68 RF). Requisitos com duas origens aparecem em ambas as linhas, por isso
+Contagem extraída de `B2` (76 RF). Requisitos com duas origens aparecem em ambas as linhas, por isso
 a soma passa de 68.
 
 | Técnica (código em `B2`) | Requisitos funcionais | Leitura |
@@ -130,7 +130,7 @@ As regras estavam dissolvidas em cinco lugares:
 | [`C2-especificacao-casos-de-uso.md`](C-modelagem/C2-especificacao-casos-de-uso.md) | Nos fluxos **FE** (exceção) e **FA** (alternativo). Toda exceção existe porque uma regra foi violada — `FE-1 Preço abaixo do piso mínimo` é a regra vista pelo avesso |
 | [`CLAUDE.md`](../../CLAUDE.md) §Regras de negócio | A lista curta e canônica, em 6 linhas. **Comece por ela** |
 | [`C6`](C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](C-modelagem/C8-dicionario-de-dados.md) | Regras que viraram estrutura: chaves compostas, listas fechadas, restrições `CHECK`. `C6` §5 explica *por que o piso é coluna e não constante* — regra que molda o modelo |
-| [`G2`](G-gestao/G2-fichas-de-indicadores.md) e [`D4`](D-arquitetura/D4-matriz-rbac.md) | Limiares e regras de acesso (o 20% de mortalidade; o financeiro restrito à chefia) |
+| [`G2`](G-gestao/G2-fichas-de-indicadores.md) e [`D4`](D-arquitetura/D4-matriz-rbac.md) | Limiares e regras de acesso (o 20% de mortalidade; a base bancária restrita à chefia) |
 
 ## 2.2 O catálogo — 47 regras, em [`B3`](B-requisitos/B3-regras-de-negocio.md)
 
@@ -150,10 +150,10 @@ As regras estão numeradas **RN-01 a RN-47** e agrupadas em nove áreas:
 
 Cada regra em `B3` traz **tipo** (fato, restrição, derivação, acionamento), **onde já estava
 documentada** e **quais RF e RNF ela origina**. As tabelas inversas (RF → RN e RNF → origem) estão
-nas seções 4 e 5 de lá, e o texto integral dos 68 RF e 26 RNF no apêndice — o arquivo é
+nas seções 4 e 5 de lá, e o texto integral dos 76 RF e 26 RNF no apêndice — o arquivo é
 autossuficiente para gerar as tabelas do trabalho.
 
-**Dois números que valem parágrafo no capítulo:** 65 dos 68 requisitos funcionais nascem de regra de
+**Dois números que valem parágrafo no capítulo:** 73 dos 76 requisitos funcionais nascem de regra de
 negócio, mas apenas 3 dos 26 não funcionais — os outros 23 vêm das restrições do ambiente (RE-1 a
 RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; o ambiente determina
 **como** ele precisa ser.

@@ -66,6 +66,8 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-39 | UC-23 | `customers` | Clientes | TA-54 |
 | RF-40 | UC-22, UC-26 | `customers`, `orders` | Dados fiscais de cliente | TA-27 |
 | RF-52 | UC-31 | `suppliers`, `supplier_species` | Fornecedores | — *(DV)* |
+| RF-69 | UC-41 | `parties`, `party_roles` | Funcionários | — *(novo)* |
+| RF-70 | UC-42 | `task_types` | Tarefas | — *(novo)* |
 
 ### 2.3 Módulo 2 · Produção
 
@@ -78,6 +80,11 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-19 | UC-12 | `production_activities` | Atividades de produção | TA-50 |
 | RF-20 | UC-13, UC-40 | `production_activities` | Atividades de produção | — *(DV)* |
 | RF-21 | UC-14 | `production_activities`, `species` | Atividades de produção | — *(DV)* |
+| RF-71 | UC-43 | `week_plans`, `assignments` | Tarefas | — *(novo)* |
+| RF-72 | UC-43 | `week_plans`, `assignments` | Tarefas | — *(novo)* |
+| RF-73 | UC-43 | `week_plans` | Tarefas | — *(novo)* |
+| RF-74 | UC-44 | `assignments`, `production_activities` | Tarefas | — *(novo)* |
+| RF-75 | UC-43 | `assignments`, `production_activities` | Tarefas | — *(novo)* |
 
 #### 2.3.2 Estoque
 
@@ -143,6 +150,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-16 | UC-11 | `fixed_costs`, `species_unit_cost` | Custo unitário | TA-12 |
 | RF-17 | UC-11 | `species_unit_cost` | Custo unitário | TA-09 |
 | RF-18 | UC-11 | `production_costs` | Custo unitário | TA-11 |
+| RF-76 | UC-11 | `labor_rates`, `assignments`, `species_unit_cost` | Custo unitário | — *(novo)* |
 
 #### 2.5.2 Precificação
 
@@ -205,16 +213,11 @@ justifique**?
 
 | Artefato | Elementos | Sem requisito de origem |
 |---|---|---|
-| Casos de uso (C1) | 40 | Nenhum |
-| Entidades (C6, C8) | 41 | Nenhuma |
-| Recursos de acesso (D4) | 31 | **2** — `Funcionários` e `Tarefas`, do P13, declarados antes dos RF-69…RF-76 que os justificarão |
+| Casos de uso (C1) | 44 | Nenhum |
+| Entidades (C6, C8) | 45 | Nenhuma |
+| Recursos de acesso (D4) | 31 | Nenhum — `Funcionários` e `Tarefas` ganharam RF-69 a RF-75 em 19/08/2026 |
 | Casos de aceite (E2) | 55 | Nenhum |
 | Indicadores (G2) | 9 | Nenhum — todos derivam de RF-63 a RF-65 |
-
-**As duas linhas de D4 sem requisito são deliberadas**, e não achado: `funcionario` e `tarefa` foram
-declarados em `src/lib/permissions.ts` antes da tela para que a lista de pessoas e o mecanismo de
-regra por registro nascessem cobertos por teste. Viram lacuna de verdade se os RF do P13 não forem
-escritos até a entrega.
 
 **Duas entidades merecem nota:** `notifications` e `order_status_history` atendem a requisitos de
 prioridade *deveria ter* (RF-49 e RF-48). São, portanto, as primeiras candidatas a corte caso o prazo

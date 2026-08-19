@@ -104,6 +104,7 @@ Classificação adotada neste catálogo:
 | **RN-10** | A mão de obra compõe o custo por **tempo médio estimado por atividade**, e não por apontamento individual de horas — precisão suficiente para revelar margem negativa, sem impor controle de ponto por tarefa | Derivação | `B2` §5 (conflito 3) | RF-15, RF-19, RF-20 | RNF-01 |
 | **RN-11** | A semente coletada em campo **tem custo próprio** — deslocamento, combustível e horas —, rateado pela quantidade obtida. Nem toda espécie tem semente comprada | Derivação | `A2` §1 | RF-13, RF-15 | — |
 | **RN-12** | O gasto pertence ao **mês de competência**, não ao mês em que o dinheiro saiu: o substrato comprado em fevereiro e pago em abril é custo de fevereiro, porque foi em fevereiro que virou muda | Derivação | `A2` §4 | RF-12, RF-16, RF-59 | — |
+| **RN-53** | A mão de obra entra no custo por um **valor-hora médio da equipe** — folha do mês dividida pelas horas do mês —, e não pelo salário de cada um. O que varia entre espécies é o tempo gasto, não quem o gastou; e o custo fica real sem expor remuneração individual | Derivação | `plans/P13`; `B2` §5 | RF-76 | RNF-12 |
 
 ### 3.3 Área C — Produção, estoque e perdas
 
@@ -115,6 +116,11 @@ Classificação adotada neste catálogo:
 | **RN-16** | A perda é evento **normal** da produção e exige **causa classificada em lista fechada** — seca, praga, geada, manuseio, outro. Campo livre inviabiliza a análise por causa | Restrição | `A2` §1 | RF-26, RF-27 | RNF-01, RNF-02, RNF-05 |
 | **RN-17** | A **mortalidade** é a razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de **20%** a situação é anormal e exige providência | Acionamento | `A2` §1; `G2`; `CLAUDE.md` | RF-27, RF-28, RF-29, RF-65 | — |
 | **RN-18** | A muda perdida **carrega o custo já incorrido**: a perda tem valor financeiro, não apenas quantidade | Derivação | `B2` RF-30 | RF-30 | — |
+| **RN-48** | O trabalho do viveiro é planejado por **turno, não por horário**: a unidade da agenda é dia × turno (manhã, tarde), e **um turno vale quatro horas**. Ninguém ali trabalha com hora marcada, e exigir horário exato garantiria agenda não preenchida | Fato | `plans/P13`; `rotinas/2-producao/01` | RF-71, RF-76 | RNF-01 |
+| **RN-49** | A semana do viveiro **repete a anterior**: replanejar do zero é a exceção, copiar e ajustar é a regra | Fato | `rotinas/2-producao/01` | RF-72 | RNF-01 |
+| **RN-50** | A semana **fecha** e, fechada, não se altera — sem isso o custo do período muda depois de apurado | Restrição | `plans/P13` | RF-73 | — |
+| **RN-51** | Tarefa planejada e **não confirmada conta como realizada** ao fechar a semana, com a condição registrada. Agenda com buraco não serve para calcular custo, e assumir o planejado sinalizando a dúvida é mais honesto do que não ter dado | Derivação | `plans/P13` | RF-75 | — |
+| **RN-52** | O colaborador responde pelas **suas** tarefas: vê e conclui as que lhe foram atribuídas, e nenhuma outra | Restrição | `D4` §3.11 | RF-74 | RNF-01, RNF-02 |
 
 ### 3.4 Área D — Precificação
 
@@ -137,6 +143,8 @@ Classificação adotada neste catálogo:
 | **RN-28** | A **nota fiscal é emitida em sistema externo**. O viveiro registra a exigência e o número; a emissão não pertence a este sistema | Restrição | `A2` §4 | RF-40, RF-45 | RNF-24 |
 | **RN-29** | A venda para **compensação ambiental** exige o nome científico da espécie e, em geral, nota fiscal | Restrição | `A2` §3 | RF-08, RF-45 | RNF-25 |
 | **RN-30** | Dado pessoal de cliente é tratado sob a **Lei nº 13.709/2018**, com finalidade, base legal e prazo de retenção declarados | Restrição | `E5`; `A1` §9 RE-8 | RF-37 | RNF-23 |
+| **RN-54** | **Funcionário é vínculo de trabalho, não acesso ao sistema**: o diarista que aparece duas semanas por ano existe na agenda e no custo sem nunca abrir o aplicativo | Fato | `rotinas/1-cadastros/00-visao-geral.md`; `plans/P13` | RF-69 | — |
+| **RN-55** | O **tipo de tarefa** é vocabulário fechado, e carrega o tempo médio por unidade — é ele que liga a atividade de campo ao custo | Fato | `plans/P13` | RF-70 | RNF-01 |
 
 ### 3.6 Área F — Pedido, entrega e fornecedor
 
@@ -180,28 +188,28 @@ Classificação adotada neste catálogo:
 | Área | Regras | Quantidade |
 |---|---|---:|
 | A — Domínio e produto | RN-01 a RN-06 | 6 |
-| B — Custeio | RN-07 a RN-12 | 6 |
-| C — Produção, estoque e perdas | RN-13 a RN-18 | 6 |
+| B — Custeio | RN-07 a RN-12, RN-53 | 7 |
+| C — Produção, estoque e perdas | RN-13 a RN-18, RN-48 a RN-52 | 11 |
 | D — Precificação | RN-19 a RN-24 | 6 |
-| E — Cliente e obrigação fiscal | RN-25 a RN-30 | 6 |
+| E — Cliente e obrigação fiscal | RN-25 a RN-30, RN-54, RN-55 | 8 |
 | F — Pedido, entrega e fornecedor | RN-31 a RN-39 | 9 |
 | G — Financeiro | RN-40 a RN-44 | 5 |
 | H — Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I — Indicadores | RN-47 | 1 |
-| **Total** | | **47** |
+| **Total** | | **55** |
 
 | Tipo | Quantidade |
 |---|---:|
-| Fato | 17 |
-| Restrição | 17 |
-| Derivação | 9 |
+| Fato | 21 |
+| Restrição | 19 |
+| Derivação | 11 |
 | Acionamento | 4 |
 
 ---
 
 ## 4. Rastreabilidade inversa — requisito funcional → regra que o origina
 
-Os 68 requisitos funcionais de `B2`. Quatro não decorrem de regra de negócio e estão justificados na
+Os 76 requisitos funcionais de `B2`. Três não decorrem de regra de negócio e estão justificados na
 seção 6.
 
 | RF | Regras que o originam |
@@ -274,6 +282,14 @@ seção 6.
 | RF-66 | RN-32 |
 | RF-67 | RN-33 |
 | RF-68 | RN-04, RN-35 |
+| RF-69 | RN-54 |
+| RF-70 | RN-55 |
+| RF-71 | RN-48 |
+| RF-72 | RN-49 |
+| RF-73 | RN-50 |
+| RF-74 | RN-52 |
+| RF-75 | RN-51 |
+| RF-76 | RN-48, RN-53 |
 
 ---
 
@@ -316,7 +332,7 @@ assinalado como tal.
 **Leitura para o texto do trabalho:** de 26 requisitos não funcionais, apenas **3 decorrem
 diretamente de regra de negócio** (RNF-23, RNF-24, RNF-25 — todos de origem legal); **10 derivam das
 restrições do ambiente** de operação (RE-1 a RE-5) e **13 de política do projeto**. É o oposto do
-que ocorre nos funcionais, em que 65 dos 68 nascem de regra de negócio. A conclusão defensável:
+que ocorre nos funcionais, em que 73 dos 76 nascem de regra de negócio. A conclusão defensável:
 **as regras de negócio determinam o que o sistema faz; o ambiente de operação determina como ele
 precisa ser.**
 
@@ -438,6 +454,14 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-66 | O sistema deve permitir registrar item genérico — quantidade e recipiente sem espécie definida —, atendido posteriormente por uma ou mais espécies | D | OP |
 | RF-67 | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida | D | OP, EN |
 | RF-68 | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual | DV | OP |
+| RF-69 | O sistema deve permitir cadastrar funcionário com contato e vínculo — fixo ou diarista —, inclusive quando ele não tem acesso ao sistema | D | EN |
+| RF-70 | O sistema deve permitir manter o catálogo de tipos de tarefa, com unidade de medida, tempo médio por unidade e quais tipos exigem espécie e recipiente | D | OP |
+| RF-71 | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno — manhã ou tarde | D | EN, OP |
+| RF-72 | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas | D | OP |
+| RF-73 | O sistema deve controlar a situação da semana — rascunho, publicada e fechada — e impedir alteração depois do fechamento | D | ORG |
+| RF-74 | O sistema deve apresentar ao colaborador apenas as tarefas atribuídas a ele no dia, e permitir concluí-las informando somente a quantidade realizada | D | OP |
+| RF-75 | O sistema deve assumir como realizada, ao fechar a semana, a tarefa planejada que não foi confirmada, registrando essa condição | DV | ORG |
+| RF-76 | O sistema deve apurar o custo de mão de obra por espécie e período, a partir das horas da agenda e de um valor-hora médio do período, e incorporá-lo ao custo unitário | D | EN, AD |
 
 ### 7.2 Requisitos não funcionais
 

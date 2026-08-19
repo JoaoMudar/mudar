@@ -48,6 +48,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `active` | boolean | ● | | Usuário habilitado |
 | `failed_login_attempts` | integer | ● | | Tentativas malsucedidas consecutivas |
 | `locked_until` | timestamptz | ○ | | Bloqueio temporário após tentativas sucessivas |
+| `party_id` | uuid | ○ | FK | Pessoa do cadastro a que esta credencial pertence. **Opcional:** há funcionário sem login e administrador sem vínculo (RN-54) |
 
 ## `sessions` — sessão ativa
 
@@ -265,6 +266,22 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 # Módulo 2 · Produção
 
+## `task_types` — tipo de tarefa
+
+Vocabulário fechado da agenda de pessoal (RF-70). O tempo médio por unidade é o que liga a tarefa
+de campo ao custo de mão de obra.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Nome da tarefa — semeadura, repicagem, irrigação, adubação, separação |
+| `category` | text | ● | | Agrupamento para leitura da agenda |
+| `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição exige espécie |
+| `requires_container` | boolean | ● | | Quando verdadeiro, a atribuição exige recipiente |
+| `unit_of_measure` | text | ○ | | Unidade do que se produz na tarefa (muda, bandeja, metro) |
+| `avg_minutes_per_unit` | numeric | ○ | | Tempo médio por unidade; alimenta a estimativa de custo |
+| `active` | boolean | ● | | Tipo em uso |
+
 ## `input_usages` — consumo de insumo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
@@ -349,6 +366,39 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 > a divergência é ela própria informação: indica registro de produção ou de perda não realizado.
 
 ---
+
+## `week_plans` — semana de trabalho
+
+A semana é a unidade real de decisão do viveiro (RF-71, RF-73). Fechada, não se altera — sem isso
+o custo do período mudaria depois de apurado (RN-50).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `week_start` | date | ● | UK | Segunda-feira da semana; única |
+| `status` | text | ● | | `rascunho`, `publicada`, `fechada` |
+| `published_by` | uuid | ○ | FK | Quem publicou a semana para a equipe |
+| `closed_at` | timestamptz | ○ | | Momento do fechamento; a partir dele a semana é imutável |
+
+## `assignments` — atribuição de tarefa
+
+A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui que saem as horas
+(RF-71), e um turno vale quatro horas por convenção (RN-48).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `week_plan_id` | uuid | ● | FK | Semana a que pertence |
+| `party_id` | uuid | ● | FK | Quem executa — pessoa com papel `funcionario`, com ou sem usuário |
+| `work_date` | date | ● | | Dia da tarefa |
+| `shift` | text | ● | | `manha` ou `tarde`. Nunca hora marcada (RN-48) |
+| `task_type_id` | uuid | ● | FK | Tipo de tarefa |
+| `species_id` | uuid | ○ | FK | Espécie, quando o tipo de tarefa a exigir |
+| `container_id` | uuid | ○ | FK | Recipiente, quando o tipo de tarefa o exigir |
+| `planned_quantity` | integer | ○ | | Quantidade planejada, quando aplicável |
+| `is_recurring` | boolean | ● | | Tarefa fixa: renasce em toda semana nova (RF-72) |
+| `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada` — a última é a que o fechamento assume como realizada (RN-51) |
+| `notes` | text | ○ | | Observação livre; único campo aberto da agenda |
 
 # Módulo 3 · Comercial
 
@@ -522,6 +572,20 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 | `unit_cost_estimated` | custo variável somado ao rateio |
 
 ---
+
+## `labor_rates` — valor-hora do período
+
+Um registro por mês: folha dividida por horas (RN-53). Guarda o custo da hora **da equipe**, nunca
+o salário individual.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `year` | integer | ● | | Ano de referência |
+| `month` | integer | ● | | Mês de referência |
+| `payroll_total` | numeric(14,2) | ● | | Total da folha do mês, vindo do financeiro |
+| `hours_total` | numeric(10,2) | ● | | Horas apuradas na agenda do mês |
+| `hourly_rate` | numeric(12,4) | ● | | Derivado: `payroll_total / hours_total` |
 
 ## `accounts` — conta
 
@@ -706,10 +770,10 @@ ausência de sobreposição entre períodos de vigência.
 | Módulo | Entidades | Observação |
 |---|---:|---|
 | *(transversal)* Acesso | 4 | |
-| 1 · Cadastros | 11 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
-| 2 · Produção | 5 | consumo, coleta, atividade, perda, contagem |
+| 1 · Cadastros | 12 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
+| 2 · Produção | 7 | consumo, coleta, atividade, perda, contagem |
 | 3 · Comercial | 8 | pedido, item, carga, cotação |
-| 4 · Financeiro | 13 | esquema `financeiro` separado, mais custeio e preço |
-| **Total** | **41** | mais `species_unit_cost`, que é visão e não tabela |
+| 4 · Financeiro | 14 | esquema `financeiro` separado, mais custeio e preço |
+| **Total** | **45** | mais `species_unit_cost`, que é visão e não tabela |
 
 

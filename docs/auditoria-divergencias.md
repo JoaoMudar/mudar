@@ -21,8 +21,8 @@
 | [E](#e--roadmap-desatualizado-em-três-lugares) | Roadmap P1→P10 repetido em 3 arquivos, sem P11, P12 e P13 | 🟠 média |
 | [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | 🟠 média |
 | [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
-| [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | 🟡 conhecida |
-| [I](#i--o-que-não-é-divergência) | 41 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
+| [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | ✅ resolvido 19/08 |
+| [I](#i--o-que-não-é-divergência) | 45 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 | [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
 
@@ -146,18 +146,25 @@ subsistema Cadastros em `C1`, quatro entidades em `C6`/`C8`, a regra do colabora
 as linhas novas em `B5`. Lista completa em
 [`plans/P13-producao-agenda-cadastros.md`](../plans/P13-producao-agenda-cadastros.md).
 
+> ✅ **Resolvido em 19/08/2026** — RF-69 a RF-76 no `B2`, RN-48 a RN-55 no `B3`, UC-41 a UC-44 no
+> `C1`, as quatro entidades da agenda em `C6`/`C8`, a regra §3.11 no `D4` e as linhas do `B5`.
+> Detalhe na terceira passada, no fim deste arquivo. Ficaram de fora, com motivo declarado, o `C2`
+> e os indicadores novos do `G2`.
+
 ## I — O que **não** é divergência
 
-`C6`/`C8` especificam **41 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
+`C6`/`C8` especificam **45 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
 declarado em `docs/engenharia/00-indice.md`:
 
 > Os artefatos são redigidos em tempo de projeto, como especificação da solução a ser
 > construída. São documentos de projeto, não relatórios de código.
 
-As 14 entidades ainda não criadas (`production_activities`, `loss_events`, `stock_counts`,
-`accounts`, `cost_centers`, `categories`, `parties`, `transactions`, `transaction_splits`,
-`classification_rules`, `periods`, `statement_imports`, `sale_channels`, `sale_prices`)
-correspondem a P2, P3, P12 e P13 — projetos especificados e não implementados.
+As entidades ainda não criadas (`production_activities`, `loss_events`, `stock_counts`,
+`accounts`, `cost_centers`, `categories`, `transactions`, `transaction_splits`,
+`classification_rules`, `periods`, `statement_imports`, `sale_channels`, `sale_prices` e, desde
+19/08/2026, `task_types`, `week_plans`, `assignments`, `labor_rates`) correspondem a P2, P3, P12 e
+P13 — projetos especificados e não implementados. `parties`, `party_roles` e `addresses` saíram
+desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
 
 **Também conferido e consistente:**
 
@@ -165,7 +172,7 @@ correspondem a P2, P3, P12 e P13 — projetos especificados e não implementados
   `C2`, `C8`, `D4` e `E2`. É a área mais bem mantida do projeto.
 - Os 5 canais de venda batem entre `CLAUDE.md`, `orders.ts` e o banco.
 - O limite de mortalidade de 20% bate entre `CLAUDE.md`, `RF-29` e `IND-01`.
-- Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso.
+- Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso. *(Em 19/08/2026 passaram a 76 RF e 44 casos de uso, com os requisitos da agenda de pessoal.)*
 - Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `4-financeiro/` e `C8`.
 
 ## J — Migrations marcadas como aplicadas que nunca rodaram
@@ -331,3 +338,41 @@ figuras** — as de `D1` e `D3` — em silêncio: no Windows o checkout entrega 
 CRLF (`core.autocrlf`) e a regex do gerador exigia `\n`. As figuras do Word estavam
 desatualizadas desde a reescrita do `D1`. Corrigido em `scripts/build-docs-tcc.mjs` com
 `\r?\n`; a pasta `word/` foi regerada com as 21.
+
+### Terceira passada — o resto (19/08/2026)
+
+O que a segunda passada não alcançou, resolvido na mesma data.
+
+**A regra do módulo restrito não tinha chegado ao código.** `permissions.ts`, `modules.ts` e o
+comentário do próprio teste ainda diziam "exclusivo da chefia" a três linhas de `custo_unitario`,
+`margem_canal`, `preco_venda` e `indicador`, que dão `ler` à gerência. Corrigidos, e o teste ganhou
+as quatro asserções do lado que faltava — sem elas, "consertar" o módulo restrito fechando o que
+nunca foi fechado passaria despercebido. A transcrição do `D4 §2` no teste também estava
+incompleta: `Funcionários` e `Tarefas` entraram.
+
+**Os mapas: cor na fonte, cinza na figura.** Os três diagramas de topo discordavam entre si sobre o
+status de Comercial e de Financeiro, e os sub-mapas usavam outro vocabulário de classes. Agora são
+oito arquivos com as mesmas três classes (`ok`/`meio`/`falta`), definidas **em cores** — e
+`npm run docs:mapas` troca a paleta por escala de cinza só na hora de renderizar. O status passou a
+ser contado por critério verificável: quantas etapas da tabela de cada módulo têm tela
+(Cadastros 4/6, Produção 2/10, Comercial 6/8, Financeiro 1/9), com a fração no rótulo do nó.
+
+**`C6` e `C8` adotaram os quatro módulos** — as duas últimas peças em taxonomia própria. A objeção
+de perder arestas ao separar entidades relacionadas foi resolvida com a convenção de **caixa
+vazia**: a entidade de outro módulo aparece sem atributos, só para a aresta existir.
+
+**A dívida do P13 com a engenharia (`T13.22`) foi paga.** `B2` ganhou **RF-69 a RF-76** (funcionário,
+tipos de tarefa, agenda semanal, recorrência, fechamento, conclusão pelo colaborador, valor-hora,
+mão de obra no custo) e o conflito de §5 foi reescrito para turno de 4h × valor-hora médio da
+equipe. Em cascata: `B3` ganhou **RN-48 a RN-55**, `C1` os **UC-41 a UC-44**, `C6`/`C8` as quatro
+entidades da agenda, `D4` a regra **§3.11** (a tarefa é a primeira permissão que depende do
+registro, não do perfil) e `B5` as linhas correspondentes.
+
+**Ficaram de fora, com motivo declarado:** `C2`, que detalha oito casos escolhidos e não os 44; e
+indicadores novos no `G2`, porque os três que o P13 sugeria eram *possíveis*, não pedidos — e cada
+ficha do G2 exige meta e responsável, que teriam de ser inventados junto.
+
+**Contagens acertadas.** Várias estavam erradas e se repetiam por até sete arquivos: as entidades
+eram declaradas como 39 e são 45 (a tabela-resumo do `C6` contava 10 no Financeiro, que tinha 12);
+os requisitos passaram de 68 para 76; os casos de uso, de 40 para 44; as regras de negócio, de 47
+para 55.

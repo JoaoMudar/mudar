@@ -39,19 +39,20 @@ vivem na agenda.
 
 ## Impacto nos documentos de engenharia (TCC)
 
-Estas incongruências foram encontradas e **precisam de revisão** antes da entrega do Cap. 4:
+Estas incongruências foram encontradas e **precisavam de revisão** antes da entrega do Cap. 4.
+Todas resolvidas em 19/08/2026, exceto as duas declaradas como fora de escopo:
 
 | Doc | O que muda | Gravidade |
 |---|---|---|
-| **B2 §2.2.2, §2.3.1 e §2.5.1** | Faltam RFs para agenda semanal (§2.3.1), catálogo de tipos de tarefa e cadastro de funcionário (§2.2.2) e custo de mão de obra (§2.5.1). Estimados **~8 RF novos** (RF-69…RF-76). A numeração das seções mudou em 19/08/2026, com o reagrupamento em quatro módulos. | alta |
-| **B2 §5 Conflitos** | A resolução "mão de obra por tempo médio estimado por atividade" precisa ser **reescrita** para "horas planejadas na agenda × valor-hora médio da equipe". A tensão continua a mesma; a solução ficou melhor. | alta |
+| **B2 §2.2.2, §2.3.1 e §2.5.1** | ✅ feito em 19/08/2026 — **RF-69 a RF-76** escritos: funcionário e tipo de tarefa em Cadastros, agenda/recorrência/fechamento/conclusão em Produção, valor-hora e mão de obra no custo em Financeiro. O B2 passou de 68 para 76 RF. | — |
+| **B2 §5 Conflitos** | ✅ feito em 19/08/2026 — reescrito para turno de 4h × valor-hora médio da equipe, com a tensão original preservada. | — |
 | **C1 §2 Subsistemas** | ✅ resolvido em 19/08/2026 — os subsistemas passaram a ser agrupados nos quatro módulos e **Cadastros** virou o módulo 1, com Clientes e Fornecedores dentro. Falta só ligar a ele os UCs novos da linha seguinte. | — |
-| **C1 §4 / C2** | UC-40 "Consultar tarefas do dia" hoje aponta para RF-20. Precisa de UCs novos: montar agenda da semana, concluir tarefa, cadastrar funcionário, cadastrar tipo de tarefa. | média |
-| **C6 MER** | Entidades novas: `task_types`, `week_plans`, `assignments`, `labor_rates`. `production_activities` ganha `assignment_id` opcional. `users` ganha `party_id` opcional. | alta |
-| **C8 Dicionário** | Idem — documentar as 4 entidades novas. | alta |
-| **D4 RBAC** | Regra nova: colaborador lê/edita só as próprias tarefas; grade da semana é gerência/chefia. | média |
-| **G2 Indicadores** | Indicadores novos possíveis: horas por espécie, planejado × realizado, % de tarefas não confirmadas. | baixa |
-| **B5 Rastreabilidade** | Refazer as linhas dos RFs novos. | média |
+| **C1 §4 / C2** | ✅ feito em 19/08/2026 — **UC-41 a UC-44** (manter funcionário, manter tipos de tarefa, montar a agenda, concluir tarefa do dia), nos diagramas por ator e no catálogo; UC-40 repontado para RF-74. C1 passou de 40 para 44 casos. **C2 fica de fora de propósito:** ele detalha 8 casos escolhidos, não os 44. | — |
+| **C6 MER** | ✅ feito em 19/08/2026 — as quatro entidades nos módulos a que pertencem (`task_types` em Cadastros, `week_plans`/`assignments` em Produção, `labor_rates` em Financeiro), mais `production_activities.assignment_id` e `users.party_id`, ambos opcionais. | — |
+| **C8 Dicionário** | ✅ feito em 19/08/2026 — as quatro entidades com atributo a atributo, na ordem dos módulos. | — |
+| **D4 RBAC** | ✅ feito em 19/08/2026 — linhas `Funcionários` e `Tarefas` na matriz e a regra **§3.11**: a tarefa é a primeira permissão que depende do registro, e não do perfil. | — |
+| **G2 Indicadores** | ⛔ **não fazer agora**, decidido em 19/08/2026. Os três eram "possíveis", não pedidos: criar ficha para indicador que ninguém encomendou é inventar escopo, e cada ficha do G2 tem meta e responsável — que teriam de ser inventados junto. Reabrir quando a agenda estiver rodando e houver o que medir. | — |
+| **B5 Rastreabilidade** | ✅ feito em 19/08/2026 — oito linhas novas, e as duas lacunas de recurso sem requisito (`Funcionários`, `Tarefas`) fechadas. | — |
 | **`docs/rotinas/2-producao/99-tarefas-diarias-historico.md`** | ✅ já resolvido — absorvido pela Produção, arquivo mantido como histórico. | — |
 
 > **Nota para o TCC:** a absorção de "Tarefas Diárias" pela Produção **corrige uma
@@ -127,7 +128,7 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 
 ## Fase 6 — Engenharia (TCC)
 
-- [ ] **T13.22** Atualizar B2 (RFs novos + reescrever o conflito de §4), C1, C2, C6, C8, D4, G2, B5 conforme a tabela de impacto acima
+- [x] **T13.22** Atualizar B2 (RF-69 a RF-76 + o conflito de §5 reescrito), C1 (UC-41 a UC-44), C6, C8, D4 (§3.11) e B5 — feito em 19/08/2026. **Fora**: C2, que detalha 8 casos escolhidos e não todos; e G2, por decisão registrada na tabela acima. B3 ganhou junto oito regras de negócio (RN-48 a RN-55), que a tabela não previa.
 - [ ] **T13.23** `npm run docs:tcc` para regenerar `docs/engenharia/word/`
 
 ---

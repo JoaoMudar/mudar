@@ -103,8 +103,9 @@ contenha, sem contradição, recursos que a gerência lê (§3.2).
 ² **Recursos do [P13](../../../plans/P13-producao-agenda-cadastros.md), declarados antes da tela.**
 `funcionario` e `tarefa` já existem em `src/lib/permissions.ts` — o primeiro porque a lista de
 pessoas precisa saber quem pode ver o papel, o segundo porque a agenda de pessoal traz a
-primeira regra que depende do registro e não só do perfil. As tabelas e as telas vêm nas
-Fases 2 e 3 do P13; os requisitos correspondentes (RF-69…RF-76) ainda não foram escritos.
+primeira regra que depende do registro e não só do perfil. Os requisitos que os justificam foram
+escritos em 19/08/2026 — **RF-69/RF-70** para funcionário e tipo de tarefa, **RF-71 a RF-75** para
+a agenda; as tabelas e as telas vêm nas Fases 2 e 3 do P13.
 
 ³ **O colaborador atualiza apenas a tarefa atribuída a ele** — é a única regra da matriz que
 depende do registro, e não do perfil. Ver §3.11.

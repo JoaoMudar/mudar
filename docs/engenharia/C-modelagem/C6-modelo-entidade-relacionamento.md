@@ -15,7 +15,7 @@ fornecedor referenciam-na por chave estrangeira. Essa centralidade não é prefe
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
 O modelo é apresentado em **cinco agrupamentos** — os quatro módulos do sistema, mais o Acesso,
-que atravessa todos. Um diagrama único com as 41 entidades seria ilegível em página impressa, e
+que atravessa todos. Um diagrama único com as 45 entidades seria ilegível em página impressa, e
 usar aqui o mesmo agrupamento dos requisitos ([`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md))
 e da matriz de acesso ([`D4 §2`](../D-arquitetura/D4-matriz-rbac.md)) permite ler os três
 documentos lado a lado sem traduzir de um para o outro.
@@ -23,11 +23,11 @@ documentos lado a lado sem traduzir de um para o outro.
 | Agrupamento | Entidades | Papel |
 |---|---|---|
 | *(transversal)* **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
-| **1 · Cadastros** | 11 | Catálogo de produção e identidade das pessoas — não consome nada, alimenta tudo |
-| **2 · Produção** | 5 | Consumo, coleta, atividade, perda e contagem de estoque |
+| **1 · Cadastros** | 12 | Catálogo de produção e identidade das pessoas — não consome nada, alimenta tudo |
+| **2 · Produção** | 7 | Consumo, coleta, atividade, perda e contagem de estoque |
 | **3 · Comercial** | 8 | Pedido, item, carga e cotação com fornecedor |
-| **4 · Financeiro** | 13 | Extrato como fonte da verdade, custeio e preço |
-| **Total** | **41** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
+| **4 · Financeiro** | 14 | Extrato como fonte da verdade, custeio e preço |
+| **Total** | **45** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
 
 **O preço da escolha, declarado:** agrupar por propósito faz relacionamentos cruzarem a fronteira
 do diagrama — `input_usages` é da Produção e aponta para `species`, `containers` e `inputs`, que
@@ -83,7 +83,7 @@ erDiagram
   PEDIDO       ||--o| LANCAMENTO  : "é conciliado com"
 ```
 
-O diagrama conceitual apresenta **dezoito entidades**, e não as quarenta e uma do modelo completo.
+O diagrama conceitual apresenta **dezoito entidades**, e não as quarenta e cinco do modelo completo.
 A redução é deliberada: Sommerville (2011) observa que a ausência de detalhe excessivo é
 característica central do modelo, cujo objetivo é destacar o mais relevante e não especificar por
 inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas nos modelos lógicos por
@@ -134,6 +134,7 @@ erDiagram
     boolean active
     int     failed_login_attempts
     timestamptz locked_until
+    uuid    party_id FK
   }
   sessions {
     uuid id PK
@@ -163,7 +164,13 @@ erDiagram
   users ||--o{ sessions     : "mantém"
   users ||--o{ login_events : "gera"
   users ||--o{ notifications: "recebe"
+  parties ||--o| users : "pode ter login"
 ```
+
+**`users.party_id` é opcional, e a opcionalidade é a regra.** Usuário é *credencial*; funcionário é
+*vínculo* (`cadastro.parties`). Há pessoa com login e sem vínculo — o administrador —, e pessoa com
+vínculo e sem login — o diarista, que aparece na agenda e no custo sem nunca abrir o aplicativo
+(RN-54). Fundir as duas numa tabela só obrigaria a inventar um dos dois lados.
 
 O usuário não pertence a módulo de negócio: ele opera os quatro. `notifications` está aqui, e não
 no Comercial que a origina, porque a notificação é do **destinatário** — quem a lê é uma pessoa,
@@ -278,6 +285,16 @@ erDiagram
     numeric lng
     bool is_primary
   }
+  task_types {
+    uuid id PK
+    text name
+    text category
+    boolean requires_species
+    boolean requires_container
+    text unit_of_measure
+    numeric avg_minutes_per_unit
+    boolean active
+  }
 
   species   ||--o{ species_popular_names : "conhecida como"
   inputs    ||--o{ input_price_history   : "histórico de"
@@ -286,6 +303,8 @@ erDiagram
   parties   ||--o{ addresses             : "tem"
   parties   ||--o| customers             : "é, no papel de cliente"
   parties   ||--o| suppliers             : "é, no papel de fornecedor"
+  parties   ||--o{ assignments           : "executa"
+  task_types ||--o{ assignments          : "classifica"
 ```
 
 **Por que `species_popular_names` é entidade separada.** O nome popular é atributo **multivalorado**
@@ -298,6 +317,10 @@ normalizado garante o outro lado da regra: **um nome popular aponta para uma ún
 custo de todas as espécies retroativamente — o custo apurado em março passaria a refletir o preço de
 agosto. É a anomalia de atualização que a normalização busca evitar, e a solução é preservar o
 histórico em vez de sobrescrever (RF-11).
+
+**`task_types` é cadastro, e não configuração de tela.** Ele traz o `avg_minutes_per_unit` — o
+tempo médio por unidade —, que é o que liga uma tarefa de campo a um custo. Passa na regra de corte
+do módulo: apagar um tipo de tarefa deixaria sem sentido toda atribuição passada que o usou.
 
 **Por que `parties` está aqui, e não no Financeiro onde nasceu.** As três entidades do esquema
 `cadastro` — `parties`, `party_roles`, `addresses` — foram desenhadas para dar contraparte a cada
@@ -346,6 +369,7 @@ erDiagram
   }
   production_activities {
     uuid id PK
+    uuid assignment_id FK
     uuid species_id FK
     uuid container_id FK
     text activity_type
@@ -372,6 +396,27 @@ erDiagram
     date counted_at
     uuid counted_by FK
   }
+  week_plans {
+    uuid id PK
+    date week_start UK
+    text status
+    uuid published_by FK
+    timestamptz closed_at
+  }
+  assignments {
+    uuid id PK
+    uuid week_plan_id FK
+    uuid party_id FK
+    date work_date
+    text shift
+    uuid task_type_id FK
+    uuid species_id FK
+    uuid container_id FK
+    int planned_quantity
+    boolean is_recurring
+    text status
+    text notes
+  }
 
   species    ||--o{ input_usages          : "consome"
   containers ||--o{ input_usages          : "contextualiza"
@@ -383,7 +428,23 @@ erDiagram
   containers ||--o{ loss_events           : "contextualiza"
   species    ||--o{ stock_counts          : "é contada em"
   containers ||--o{ stock_counts          : "contextualiza"
+  week_plans ||--o{ assignments           : "compõe-se de"
+  task_types ||--o{ assignments           : "classifica"
+  parties    ||--o{ assignments           : "executa"
+  species    ||--o{ assignments           : "é objeto de"
+  containers ||--o{ assignments           : "contextualiza"
+  assignments ||--o| production_activities : "vira realizado em"
 ```
+
+**A agenda é a única fonte possível de horas.** `assignments` é a célula da grade — pessoa, dia,
+turno, tipo de tarefa — e `week_plans` é a semana que as reúne, com situação própria: rascunho,
+publicada, fechada. Um turno vale **quatro horas** por convenção (RN-48), e é essa conversão que
+transforma uma grade de planejamento em custo de mão de obra sem exigir controle de ponto.
+
+**`production_activities.assignment_id` é opcional, de propósito.** A atividade realizada pode
+nascer de uma tarefa planejada — o caso normal — ou avulsa, quando alguém faz algo que não estava
+na agenda. Tornar o vínculo obrigatório proibiria o segundo caso, que é justamente o que a agenda
+não consegue prever.
 
 **`input_usages` é o único registro de campo que já existe.** Ela liga insumo, espécie e
 recipiente à quantidade gasta, e é a dependência-raiz do custeio: sem ela, o custo por muda não
@@ -538,6 +599,14 @@ o que sai daqui é custo por muda e preço por canal.
 
 ```mermaid
 erDiagram
+  labor_rates {
+    uuid id PK
+    int year
+    int month
+    numeric payroll_total
+    numeric hours_total
+    numeric hourly_rate
+  }
   fixed_costs {
     uuid id PK
     enum category
@@ -657,6 +726,7 @@ erDiagram
     uuid defined_by FK
   }
 
+  labor_rates ||--o{ production_costs : "precifica a hora de"
   species    ||--o{ production_costs : "custa"
   containers ||--o{ production_costs : "determina"
   accounts        ||--o{ transactions        : "movimenta"
@@ -713,6 +783,11 @@ Quatro decisões de modelagem com justificativa:
   existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
   partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
   comportamento é testável.
+
+**`labor_rates` guarda o valor-hora do período, e não o salário de ninguém.** É a folha do mês
+dividida pelas horas do mês (RN-53): um número por período, que multiplica as horas da agenda para
+produzir o custo de mão de obra por espécie. A escolha é deliberada — o custo fica real, e o
+sistema nunca precisa saber quanto cada pessoa ganha.
 
 #### Do custo ao preço
 

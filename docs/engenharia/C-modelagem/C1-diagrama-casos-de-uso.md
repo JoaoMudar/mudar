@@ -127,6 +127,7 @@ graph LR
     UC22(["UC-22 · Manter cadastro de cliente"])
     UC23(["UC-23 · Consultar cliente"])
     UC31(["UC-31 · Manter fornecedor"])
+    UC41(["UC-41 · Manter cadastro de funcionário"])
   end
 
   subgraph M2["2 · Produção"]
@@ -171,6 +172,7 @@ graph LR
   CH --- UC20
   CH --- UC11
   CH --- UC31
+  CH --- UC41
   CH --- UC32
   CH --- UC33
   CH --- UC34
@@ -183,7 +185,7 @@ graph LR
   CH --- UC39
 ```
 
-A concentração é acentuada: **vinte e cinco dos quarenta casos de uso pertencem à chefia.** Não é
+A concentração é acentuada: **vinte e seis dos quarenta e quatro casos de uso pertencem à chefia.** Não é
 falha de distribuição — é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
@@ -194,7 +196,12 @@ verificável a que já existe.
 graph LR
   GE(("Gerência"))
 
+  subgraph M1["1 · Cadastros"]
+    UC42(["UC-42 · Manter tipos de tarefa"])
+  end
+
   subgraph M2["2 · Produção"]
+    UC43(["UC-43 · Montar a agenda da semana"])
     UC13(["UC-13 · Planejar e atribuir produção"])
     UC14(["UC-14 · Acompanhar ciclo produtivo"])
     UC15(["UC-15 · Consultar estoque"])
@@ -212,6 +219,8 @@ graph LR
     UC11b(["UC-11 · Consultar custo unitário"])
   end
 
+  GE --- UC42
+  GE --- UC43
   GE --- UC13
   GE --- UC14
   GE --- UC15
@@ -239,15 +248,17 @@ graph LR
   UC17(["UC-17 · Registrar perda"])
   UC27(["UC-27 · Separar carga"])
   UC40(["UC-40 · Consultar tarefas do dia"])
+  UC44(["UC-44 · Concluir tarefa do dia"])
 
   CO --- UC10
   CO --- UC12
   CO --- UC17
   CO --- UC27
   CO --- UC40
+  CO --- UC44
 ```
 
-Cinco casos de uso, todos de registro ou consulta operacional. É deliberado: cada caso adicional
+Seis casos de uso, todos de registro ou consulta operacional. É deliberado: cada caso adicional
 atribuído a esse ator aumenta a chance de que nenhum seja executado.
 
 ### 3.4 Administrador
@@ -317,9 +328,13 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-37** | Fechar o mês | 4 · Fin. | Chefia | RF-60, RF-61 | — |
 | **UC-38** | Consultar faturamento | 4 · Fin. | Chefia | RF-61, RF-62 | — |
 | **UC-39** | Acompanhar indicadores | 4 · Fin. | Chefia, Gerência | RF-63, RF-64, RF-65 | — |
-| **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-20 | — |
+| **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-74 | — |
+| **UC-41** | Manter cadastro de funcionário | 1 · Cad. | Chefia | RF-69 | — |
+| **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70 | — |
+| **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | — |
+| **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | — |
 
-**40 casos de uso.** Os oito marcados são especificados em detalhe em
+**44 casos de uso.** Os oito marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
 

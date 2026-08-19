@@ -34,18 +34,18 @@ São documentos de projeto, não relatórios de código.
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 68 RF, 26 RNF |
-| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | Capítulo de Regras de negócio | ✅ escrito — 47 regras, 65 dos 68 RF vinculados |
+| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito — 76 RF, 26 RNF |
+| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | Capítulo de Regras de negócio | ✅ escrito — 55 regras, 73 dos 76 RF vinculados |
 | [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.9 + Apêndice | ✅ escrito — revelou 25 lacunas |
 
 ### C — Modelagem UML e de dados
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.3 Modelagem do sistema | ✅ escrito — 40 casos de uso |
+| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.3 Modelagem do sistema | ✅ escrito — 44 casos de uso |
 | [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.3 + Apêndice | ✅ escrito — 8 casos detalhados |
-| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ✅ escrito — 41 entidades nos quatro módulos |
-| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ✅ escrito — 41 entidades + 1 visão |
+| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.4 Modelagem de dados | ✅ escrito — 45 entidades nos quatro módulos |
+| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.4 + Apêndice | ✅ escrito — 45 entidades + 1 visão |
 
 ### D — Arquitetura e decisões técnicas
 
