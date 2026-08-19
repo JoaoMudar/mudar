@@ -1,7 +1,7 @@
-# D3 — Diagrama de implantação
+# D3: Diagrama de implantação
 
-> **Artefato:** Diagrama de implantação · **Bloco:** D — Arquitetura
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Arquitetura da solução
+> **Artefato:** Diagrama de implantação · **Bloco:** D, Arquitetura
+> **Destino no TCC:** Capítulo 4, seção 4.6, Arquitetura da solução
 > **Fundamentação:** Sommerville (2011) descreve a arquitetura cliente-servidor como sistema
 > distribuído cuja principal vantagem está em permitir acrescentar servidores sem afetar as demais
 > partes. Este documento registra como os componentes lógicos de [`D1`](D1-arquitetura-c4.md) se
@@ -13,7 +13,7 @@
 
 ```mermaid
 graph TB
-  subgraph campo["Viveiro — Agrolândia, SC"]
+  subgraph campo["Viveiro: Agrolândia, SC"]
     CEL["<b>Celulares da equipe</b><br/>Navegador móvel<br/>Aplicação instalada como app<br/>Fila local de sincronização"]
     PC["<b>Computador da chefia</b><br/>Navegador<br/>Financeiro e relatórios"]
   end
@@ -39,7 +39,7 @@ graph TB
   PC  -.->|"acesso pelo navegador,<br/>fora do sistema"| NF
 ```
 
-**A rede do viveiro não hospeda nada.** Não há servidor local a manter, atualizar ou proteger — o que
+**A rede do viveiro não hospeda nada.** Não há servidor local a manter, atualizar ou proteger: o que
 é decisão de custo e de risco: uma microempresa de nove pessoas não tem quem administre servidor, e um
 equipamento no viveiro seria o ponto único de falha e o alvo mais exposto.
 
@@ -104,13 +104,13 @@ graph LR
 Três propriedades desse fluxo importam para a confiabilidade do ambiente:
 
 1. **A migração precede a entrada no ar.** O esquema nunca fica atrás do código que o consome.
-2. **Falha na migração interrompe a publicação.** A versão anterior continua operando — degradação
+2. **Falha na migração interrompe a publicação.** A versão anterior continua operando, degradação
    preferível a uma versão nova sobre esquema incompatível.
 3. **Somente o pendente é aplicado.** Cada ambiente recebe apenas as migrações que ainda não
    executou, o que torna a publicação idempotente.
 
 **Migração não tem guarda condicional.** Uma migração que verifica uma condição e retorna sem fazer
-nada é registrada como aplicada mesmo sem ter criado coisa alguma — e o ambiente passa a divergir
+nada é registrada como aplicada mesmo sem ter criado coisa alguma, e o ambiente passa a divergir
 silenciosamente. A regra adotada é que migração falha ruidosamente ou não existe.
 
 ---

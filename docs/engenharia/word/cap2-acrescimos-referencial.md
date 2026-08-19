@@ -1,7 +1,7 @@
-# Capítulo 2.5 — Acréscimos ao referencial teórico
+# Capítulo 2.5, Acréscimos ao referencial teórico
 
 > Gerado a partir de `E-qualidade/E5-E6-referencial-cap2.md`.
-> **Não edite este arquivo** — edite o artefato de origem e rode `npm run docs:tcc`.
+> **Não edite este arquivo**: edite o artefato de origem e rode `npm run docs:tcc`.
 
 ---
 

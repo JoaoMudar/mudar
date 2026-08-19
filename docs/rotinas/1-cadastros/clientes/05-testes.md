@@ -13,7 +13,7 @@ código inclui testes; Server Actions que dependem do banco mockam os imports co
 
 ## Tarefas
 
-### T5.1 — Testes da lib pura (`customers.test.ts`)
+### T5.1: Testes da lib pura (`customers.test.ts`)
 - [x] `src/lib/__tests__/customers.test.ts`
 - [x] `isValidCPF` / `isValidCNPJ`: válidos conhecidos, inválidos, dígitos repetidos,
   tamanho errado, com/sem máscara (via `onlyDigits`).
@@ -25,7 +25,7 @@ código inclui testes; Server Actions que dependem do banco mockam os imports co
   - faltando e-mail / CEP / UF inválida → aparece na lista.
   - cliente simples (`person_type=NULL`) → incompleto (lista não vazia).
 
-### T5.2 — Testes das actions de `/clientes`
+### T5.2: Testes das actions de `/clientes`
 - [x] `src/app/clientes/__tests__/actions.test.ts` (mock `@/lib/db` e `@/lib/auth`).
 - [x] cria cliente **simples** (só nome) → ok.
 - [x] cria **PF completo** → ok.
@@ -34,15 +34,15 @@ código inclui testes; Server Actions que dependem do banco mockam os imports co
 - [x] documento duplicado (violação do índice único) → retorna erro amigável.
 - [x] `toggleCustomerActive(id,false)` → cliente sai da listagem ativa.
 
-### T5.3 — Estender testes de `approveOrder`
+### T5.3: Estender testes de `approveOrder`
 - [x] Em `src/app/pedidos/__tests__/actions.test.ts`:
   - aprovar **sem NF** (`needsInvoice=false`) → aprova, **nenhuma** checagem fiscal.
   - aprovar **com NF** + cliente completo → aprova e grava `needs_invoice=true`.
   - aprovar **com NF** + cliente incompleto → bloqueia e lista campos faltantes; status
     permanece `verificado`.
 
-### T5.4 — Roteiro manual (ponta-a-ponta)
-Executar no app (de preferência sobre o Postgres espelho — `npm run db:refresh-local`,
+### T5.4: Roteiro manual (ponta-a-ponta)
+Executar no app (de preferência sobre o Postgres espelho, `npm run db:refresh-local`,
 ver `docs/banco-local-espelho.md`):
 
 - [ ] **1.** Cadastro rápido no pedido (nome + telefone) ainda funciona como antes.
@@ -57,7 +57,7 @@ ver `docs/banco-local-espelho.md`):
   preencher, salvar e aprovar sem sair do pedido.
 
 ## Notas Técnicas
-- O grosso da lógica testável está na **lib pura** (Fase 2) — priorizar `customers.test.ts`.
+- O grosso da lógica testável está na **lib pura** (Fase 2), priorizar `customers.test.ts`.
 - Actions: mockar `pool.query` e `requireRole`/`getSession` como já é feito em pedidos.
-- Rodar `npm test` antes de commitar — o pre-commit hook roda lint + testes e bloqueia se falhar.
+- Rodar `npm test` antes de commitar: o pre-commit hook roda lint + testes e bloqueia se falhar.
 - O roteiro manual cobre os caminhos que os mocks não pegam (UX do modal, complementação inline).

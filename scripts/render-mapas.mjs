@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Renderiza os mapas de docs/rotinas/img/ — COLORIDOS na fonte, CINZA no PNG.
+ * Renderiza os mapas de docs/rotinas/img/: COLORIDOS na fonte, CINZA no PNG.
  *
  * Por que existe:
  *   1. O `.mmd` e a fonte de edicao, e cor comunica status muito melhor na tela:

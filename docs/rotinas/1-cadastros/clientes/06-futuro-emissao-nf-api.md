@@ -2,13 +2,13 @@
 
 > **Fora do escopo desta rotina.** Este documento registra o que as Fases 1–4 deixam
 > pronto e o que ainda falta para emitir Nota Fiscal de verdade. É o ponto de partida
-> da rotina Financeiro/NF — **nada aqui se implementa agora**.
+> da rotina Financeiro/NF: **nada aqui se implementa agora**.
 
 ## O que esta rotina já prepara
 - **Dados fiscais estruturados** do destinatário: PF/PJ, documento único (CPF/CNPJ),
   endereço completo, e-mail (para envio de DANFE/XML), IE / isenção.
-- **`orders.needs_invoice`** por pedido — sabemos quais pedidos vão gerar NF.
-- **Gate de completude** (`isFiscallyComplete`) acionado no fechamento — garante que
+- **`orders.needs_invoice`** por pedido: sabemos quais pedidos vão gerar NF.
+- **Gate de completude** (`isFiscallyComplete`) acionado no fechamento, garante que
   todo pedido marcado para NF tem destinatário válido.
 
 ## O que ainda falta (a decidir/implementar depois)
@@ -35,6 +35,6 @@
   `danfe_url`, `provider`, `error`, timestamps).
 
 ## Cross-references
-- `../../4-financeiro/00-visao-geral.md` — etapa "Emissão de nota fiscal" (perfil **Chefia**).
-- `../../3-comercial/pedidos/05-analise-fechamento.md` — onde `needs_invoice` é definido.
-- `04-integracao-pedidos-nf.md` — o gate de completude que habilita esta fase.
+- `../../4-financeiro/00-visao-geral.md`: etapa "Emissão de nota fiscal" (perfil **Chefia**).
+- `../../3-comercial/pedidos/05-analise-fechamento.md`: onde `needs_invoice` é definido.
+- `04-integracao-pedidos-nf.md`: o gate de completude que habilita esta fase.

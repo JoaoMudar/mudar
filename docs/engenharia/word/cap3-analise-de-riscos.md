@@ -1,7 +1,7 @@
-# Capítulo 3 — Análise de riscos do projeto
+# Capítulo 3, Análise de riscos do projeto
 
 > Gerado a partir de `E-qualidade/E3-analise-de-riscos.md`.
-> **Não edite este arquivo** — edite o artefato de origem e rode `npm run docs:tcc`.
+> **Não edite este arquivo**: edite o artefato de origem e rode `npm run docs:tcc`.
 
 ---
 
@@ -37,14 +37,14 @@ demais são monitorados.
 
 O sistema depende de dados que **nunca foram medidos**: consumo de substrato por recipiente, tempo de
 produção por espécie, custo de coleta de sementes, custos fixos mensais. Não estão em lugar algum a
-ser consultado — precisam ser levantados em campo, pela primeira vez, por pessoas ocupadas com a
+ser consultado: precisam ser levantados em campo, pela primeira vez, por pessoas ocupadas com a
 produção.
 
 Sem eles, o sistema funciona vazio: o custeio não calcula, o preço não se sustenta e o indicador não
 tem o que exibir. É o único risco cuja materialização inviabiliza o objetivo geral do trabalho.
 
 **Mitigação:**
-- Levantamento conduzido **em paralelo** ao desenvolvimento, e não depois — de modo que o atraso de
+- Levantamento conduzido **em paralelo** ao desenvolvimento, e não depois, de modo que o atraso de
   um não bloqueie o outro.
 - Aceitação de **estimativa declarada como estimativa** onde a medição não for viável no prazo: o
   tempo de produção entra como valor estimado pela gerência, identificado como tal, e é refinado
@@ -67,7 +67,7 @@ A base financeira anterior mistura gasto de negócio com gasto pessoal, contém 
 ausentes e categorias digitadas à mão. Reconstituí-la consumiria o prazo do trabalho sem produzir
 dado confiável.
 
-**Mitigação:** marco zero declarado. O sistema não reconstitui o passado — o histórico anterior serve
+**Mitigação:** marco zero declarado. O sistema não reconstitui o passado, o histórico anterior serve
 a análise de tendência, nunca a conciliação. Registrado como fora de escopo em
 [`A1`](../A-fundacao/A1-documento-de-visao.md).
 
@@ -84,25 +84,25 @@ a análise de tendência, nunca a conciliação. Registrado como fora de escopo 
 | **Exposição** | **Alta** |
 
 O autor integra a gerência da empresa estudada. A condição é declarada na metodologia como
-participante-observador e traz vantagem real de acesso ao domínio — mas cria três riscos concretos,
+participante-observador e traz vantagem real de acesso ao domínio, mas cria três riscos concretos,
 que convém nomear em vez de deixar implícitos:
 
-1. **Elicitação enviesada** — requisitos derivados da percepção do autor sobre a operação, e não da
+1. **Elicitação enviesada**: requisitos derivados da percepção do autor sobre a operação, e não da
    percepção de quem a executa.
-2. **Validação complacente** — avaliar a usabilidade de um sistema que se projetou, com usuários que
+2. **Validação complacente**: avaliar a usabilidade de um sistema que se projetou, com usuários que
    são colegas de trabalho, tende a produzir resultado favorável.
-3. **Escopo dirigido pela conveniência** — priorizar o que é interessante de construir em vez do que
+3. **Escopo dirigido pela conveniência**: priorizar o que é interessante de construir em vez do que
    é necessário para a empresa.
 
 **Mitigação:**
 - **Rastreabilidade de origem.** Todo requisito em [`B2`](../B-requisitos/B2-especificacao-requisitos.md)
-  declara sua fonte — observação, entrevista, análise documental ou exigência legal. Requisito sem
+  declara sua fonte: observação, entrevista, análise documental ou exigência legal. Requisito sem
   origem externa fica visível como tal.
 - **Instrumento de usabilidade definido antes da avaliação**, com métricas objetivas de tempo e
   contagem de erros ([`F3`](../F-ux/F3-plano-avaliacao-usabilidade.md)), em vez de opinião coletada
   ao fim. Tempo de tarefa e número de erros não são complacentes.
 - **Critérios de aceite verificáveis por terceiro**, definidos antes da implementação
-  ([`E2`](E2-casos-de-teste-de-aceite.md)) — em especial a conferência do custo calculado contra
+  ([`E2`](E2-casos-de-teste-de-aceite.md)): em especial a conferência do custo calculado contra
   apuração manual independente.
 
 > Este risco é registrado deliberadamente. Uma banca que o identifique num trabalho que o omite tem
@@ -121,7 +121,7 @@ A validação exige tempo de três pessoas que respondem pela operação de uma 
 sazonalidade agrava: em período de plantio, a disponibilidade cai a quase zero.
 
 **Mitigação:** sessões de observação curtas, executadas dentro da rotina real em vez de em ambiente
-preparado — o que também melhora a validade do que se observa. Agendamento fora da alta temporada de
+preparado: o que também melhora a validade do que se observa. Agendamento fora da alta temporada de
 expedição.
 
 ### R-05 · Rejeição do sistema pela equipe
@@ -187,7 +187,7 @@ A conexão no viveiro é instável, e é justamente na área de separação e no
 com mais frequência.
 
 **Mitigação:** fila local de sincronização no dispositivo (RNF-05), com confirmação visual imediata
-ao usuário mesmo sem rede. O registro é gravado localmente e enviado depois — o usuário não precisa
+ao usuário mesmo sem rede. O registro é gravado localmente e enviado depois: o usuário não precisa
 saber se havia conexão.
 
 ---
@@ -219,7 +219,7 @@ classificação foi feita **antes** de o prazo apertar, e não durante.
 | **Exposição** | **Média** |
 
 Trinta e nove entidades e quatro módulos excedem o que se espera de um protótipo acadêmico. O risco
-é de largura sem profundidade — muitas telas, nenhuma utilizável.
+é de largura sem profundidade: muitas telas, nenhuma utilizável.
 
 **Mitigação:** critério declarado de que um subsistema só conta como entregue quando atende a seus
 critérios de aceite em [`E2`](E2-casos-de-teste-de-aceite.md). Módulo iniciado e não validado é
@@ -243,14 +243,14 @@ registrado como não entregue, e não como entrega parcial.
 | **R-10** | Escopo excessivo para um protótipo | Média | Médio | Média |
 
 **Os dois riscos de maior exposição não são técnicos.** R-01 é de disponibilidade de informação que
-nunca foi medida, e R-03 é metodológico. Nenhum se resolve escrevendo código — o que é, em si, o
+nunca foi medida, e R-03 é metodológico. Nenhum se resolve escrevendo código: o que é, em si, o
 achado mais relevante desta análise para um trabalho cujo produto é software.
 
 ---
 
 ## 7. Distinção em relação aos riscos de segurança
 
-Este documento trata dos riscos **do projeto** — o que pode impedir que o trabalho alcance seu
-objetivo. Os riscos **do sistema em operação** — ameaças, vulnerabilidades e controles — são objeto
+Este documento trata dos riscos **do projeto**: o que pode impedir que o trabalho alcance seu
+objetivo. Os riscos **do sistema em operação** (ameaças, vulnerabilidades e controles) são objeto
 de [`E4`](E4-modelagem-de-ameacas.md), com método e escala próprios.
 

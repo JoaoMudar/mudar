@@ -1,4 +1,4 @@
-# Banco `notas_despesas` — guia para construção de BI
+# Banco `notas_despesas`: guia para construção de BI
 
 Contexto para o Claude Code produzir dashboards/BI sobre o banco histórico fiscal-financeiro
 do **Viveiro Mudar** (produção de mudas nativas + compensação ambiental). Este banco é a
@@ -26,14 +26,14 @@ clientes e geografia.
 >
 > **Este banco (`notas_despesas`, schema `viveiro`) segue separado e intacto**, como
 > descrito no resto do documento. Onde se lê `viveiro.tabela`, é `viveiro.tabela` mesmo.
-> Ele serve para **tendência histórica**, não para conciliação — o marco zero do
+> Ele serve para **tendência histórica**, não para conciliação: o marco zero do
 > financeiro novo é 01/01/2026.
 >
 > ### Outras correções
 >
 > 1. **As views `vw_*` da seção 4 continuam válidas neste banco.** A família `vw_bi_*`
->    que existiu por cima delas foi descartada junto com a abordagem — não procure por ela.
-> 2. **A regra de natureza da seção 3 está errada** — ver a correção abaixo.
+>    que existiu por cima delas foi descartada junto com a abordagem: não procure por ela.
+> 2. **A regra de natureza da seção 3 está errada**, ver a correção abaixo.
 > 3. **A janela confiável começa em 2020.** Antes disso o dado não tem qualidade.
 >
 > ### Correções de fato apuradas contra o banco
@@ -41,14 +41,14 @@ clientes e geografia.
 > | Este documento diz | O banco tem |
 > |---|---|
 > | `natureza IN ('negocio','misto')` basta para o DRE | **Não basta.** A coluna está furada nos dois sentidos: R$48.793 de gasto pessoal marcado `negocio` (entra sem dever) e R$63.311 de gasto de negócio marcado `pessoal` (fica de fora). A natureza confiável é a da **categoria**, mais rateio por centro de custo para as 15 categorias `misto`. |
-> | Período detalhado confiável 2003→2026 | A **despesa de 2024 para em ago** e a **de 2026 em abr**, enquanto a receita segue até o fim. Isso produz margem falsa de 74,1% (2024) e 79,2% (2026) — suprima a margem desses anos. |
+> | Período detalhado confiável 2003→2026 | A **despesa de 2024 para em ago** e a **de 2026 em abr**, enquanto a receita segue até o fim. Isso produz margem falsa de 74,1% (2024) e 79,2% (2026), suprima a margem desses anos. |
 > | Receita começa em 2003 | `notas_fiscais` começa em **jun/2011**. O prejuízo de 2003–2010 no `vw_dre_anual` é receita ausente, não prejuízo real. |
-> | `municipios_ibge` com 5.570 municípios | Ficou 29 linhas na primeira carga; **corrigido** — hoje são 5.571 e a receita está 100% geolocalizada. |
+> | `municipios_ibge` com 5.570 municípios | Ficou 29 linhas na primeira carga; **corrigido**: hoje são 5.571 e a receita está 100% geolocalizada. |
 > | 27 categorias | Confere. Dessas, **15 são `misto`** (não 12). |
 >
 > ### Uso extra dos totalizadores
 >
-> A seção 3 manda filtrar `eh_totalizador = FALSE` — continua valendo. Mas eles
+> A seção 3 manda filtrar `eh_totalizador = FALSE`, continua valendo. Mas eles
 > também servem de **auditoria**: o maior totalizador de cada aba é o total que a
 > própria planilha calculava naquele mês. Comparado com a soma do detalhe, aponta
 > onde a importação não bateu (2020–2026: 84 abas, 49 conferem ao centavo, 35
@@ -101,18 +101,18 @@ na mesma pasta (já incluído).
 | `municipios_ibge` | 5.570 municípios (código + UF + região + lat/long). |
 
 **Relações principais:** `notas_fiscais` → `pessoas` (emitente/destinatário) → `enderecos`;
-`notas_fiscais` 1—N `itens_nota` → `especies`; `despesas` → `categorias_despesa` + `centros_custo`.
+`notas_fiscais` 1:N `itens_nota` → `especies`; `despesas` → `categorias_despesa` + `centros_custo`.
 `despesas`/`controle_notas` não têm FK rígida com as notas (elo lógico por `numero`).
 
 ---
 
 ## 3. Regras CRÍTICAS (não negociáveis para BI correto)
 
-1. **`despesas.eh_totalizador` — SEMPRE filtrar `= FALSE`.**
+1. **`despesas.eh_totalizador`: SEMPRE filtrar `= FALSE`.**
    2.553 linhas são somatórios/totais herdados do Excel. Incluí-las **infla a despesa ~4×**
    (bruto R$28,5M vs real R$6,99M). *Toda* query de despesa começa com `WHERE eh_totalizador = FALSE`.
 
-2. **`despesas.natureza` — separa negócio de pessoal.** Valores: `negocio`, `pessoal`, `misto`.
+2. **`despesas.natureza`: separa negócio de pessoal.** Valores: `negocio`, `pessoal`, `misto`.
    O banco mistura gastos do viveiro e da família. Para **DRE/custo do negócio**, use
    `natureza IN ('negocio','misto')`. Pessoal (casa, clínica da mãe) fica de fora.
 
@@ -133,7 +133,7 @@ na mesma pasta (já incluído).
 
 ---
 
-## 4. Camada analítica — as VIEWS são o contrato do BI
+## 4. Camada analítica: as VIEWS são o contrato do BI
 
 Prefira ler estas views a montar joins do zero. Já aplicam as regras da seção 3.
 
@@ -150,7 +150,7 @@ Prefira ler estas views a montar joins do zero. Já aplicam as regras da seção
 | `vw_vendas_recipiente` | recipiente, tamanho | Mix por embalagem (mudas). |
 | `vw_vendas_geo` | município | Vendas por local (com lat/long p/ mapa). |
 | `vw_conciliacao_notas` | nota | Controle × NF (confere/divergente/sem NF). |
-| `vw_despesas_reais` / `vw_despesas_negocio` | lançamento | Base limpa (sem totalizador) — geral / só negócio. |
+| `vw_despesas_reais` / `vw_despesas_negocio` | lançamento | Base limpa (sem totalizador): geral / só negócio. |
 | `vw_mix_produtos` | descrição bruta | Legado (use `vw_vendas_especie`). |
 
 **Números de referência (sanidade):** DRE do negócio ~R$400–540k receita/ano, margem **48–79%**.
@@ -160,32 +160,32 @@ Estrutura de custo: Operacional produção 34%, Tributos/Serviços 18%, Veículo
 
 ## 5. Dashboards sugeridos (primeira versão do BI)
 
-1. **Visão executiva** — `vw_dre_anual`: receita × despesa × resultado × margem por ano; KPIs do ano corrente.
-2. **Financeiro mensal** — `vw_resultado_mensal` (série temporal) + `vw_estrutura_custo` (donut de custo).
-3. **Vendas & produto** — `vw_vendas_especie` (top espécies) + `vw_vendas_recipiente` (mix por tamanho) + sazonalidade via `vw_faturamento_mensal`.
-4. **Clientes** — `vw_ranking_clientes` (Pareto/curva ABC, recência).
-5. **Mapa de vendas** — `vw_vendas_geo` (choropleth por município/UF; pontos por lat/long).
-6. **Qualidade fiscal** — `vw_conciliacao_notas` (divergências controle × NF).
+1. **Visão executiva**: `vw_dre_anual`: receita × despesa × resultado × margem por ano; KPIs do ano corrente.
+2. **Financeiro mensal**: `vw_resultado_mensal` (série temporal) + `vw_estrutura_custo` (donut de custo).
+3. **Vendas & produto**: `vw_vendas_especie` (top espécies) + `vw_vendas_recipiente` (mix por tamanho) + sazonalidade via `vw_faturamento_mensal`.
+4. **Clientes**: `vw_ranking_clientes` (Pareto/curva ABC, recência).
+5. **Mapa de vendas**: `vw_vendas_geo` (choropleth por município/UF; pontos por lat/long).
+6. **Qualidade fiscal**: `vw_conciliacao_notas` (divergências controle × NF).
 
 Ferramenta: qualquer BI que fale Postgres (Metabase, Power BI, Looker Studio, Superset).
 Aponte para as views do schema `viveiro`.
 
 ---
 
-## 6. Limites — o que o banco NÃO responde (ainda)
+## 6. Limites: o que o banco NÃO responde (ainda)
 
 Seja explícito com o usuário se ele pedir estas análises:
 
 - **Margem/custo por produto:** há receita por espécie, mas **não custo por espécie**. As despesas
   estão em nível de categoria, não rateadas por muda. Decisão de preço precisa de um modelo de
-  custeio (plano **P1**) — não existe no banco hoje.
+  custeio (plano **P1**): não existe no banco hoje.
 - **Produção, estoque e mortalidade:** não há dados (plano **P2**). Não dá para planejar produção
   ou avaliar perdas a partir daqui.
 - **Segmento de cliente** (B2C/produtor/paisagista/empresa/governo): campo ainda não criado em `pessoas`.
 - **Atualização contínua:** este é um retrato histórico carregado uma vez. Para BI vivo é preciso
   um pipeline de ingestão de notas/despesas novas.
 - **Cauda de despesas sem categoria (~7% do valor)** e **grafias duplicadas de espécie**
-  (araçá/araca, gerivá/jerivá) — pequenas imprecisões conhecidas.
+  (araçá/araca, gerivá/jerivá): pequenas imprecisões conhecidas.
 
 ---
 

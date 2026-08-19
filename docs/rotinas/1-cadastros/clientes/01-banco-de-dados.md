@@ -1,4 +1,4 @@
-# Fase 1: Banco de Dados — Migração Aditiva
+# Fase 1: Banco de Dados, Migração Aditiva
 
 ## Objetivo
 Estender `customers` com campos fiscais (PF/PJ, documento, endereço, e-mail) e
@@ -15,21 +15,21 @@ Tudo aditivo, idempotente e retrocompatível: nenhum cliente legado deixa de fun
 
 ## Tarefas
 
-### T1.1 — Campos fiscais em `customers`
+### T1.1: Campos fiscais em `customers`
 - [x] Criar migração `migrations/20260525xxxxxx_clientes_fiscal_fields.sql`
 - [x] `ADD COLUMN IF NOT EXISTS` para cada campo (todos NULL-able):
-  - `person_type` VARCHAR(2) — CHECK (`person_type IN ('pf','pj')`); `NULL` = legado/simples
-  - `document` VARCHAR(14) — CPF (11) ou CNPJ (14), **só dígitos**
+  - `person_type` VARCHAR(2): CHECK (`person_type IN ('pf','pj')`); `NULL` = legado/simples
+  - `document` VARCHAR(14): CPF (11) ou CNPJ (14), **só dígitos**
   - `email` VARCHAR(255)
-  - `legal_name` VARCHAR(255) — razão social (PJ)
-  - `trade_name` VARCHAR(255) — nome fantasia (PJ)
-  - `state_registration` VARCHAR(20) — inscrição estadual (IE)
-  - `ie_exempt` BOOLEAN DEFAULT false — isento de IE
-  - `zip_code` VARCHAR(8) — CEP, só dígitos
-  - `street` VARCHAR(255) — logradouro
-  - `address_number` VARCHAR(20) — número (evita a palavra reservada `number`)
+  - `legal_name` VARCHAR(255): razão social (PJ)
+  - `trade_name` VARCHAR(255): nome fantasia (PJ)
+  - `state_registration` VARCHAR(20): inscrição estadual (IE)
+  - `ie_exempt` BOOLEAN DEFAULT false: isento de IE
+  - `zip_code` VARCHAR(8): CEP, só dígitos
+  - `street` VARCHAR(255): logradouro
+  - `address_number` VARCHAR(20): número (evita a palavra reservada `number`)
   - `complement` VARCHAR(255)
-  - `neighborhood` VARCHAR(100) — bairro
+  - `neighborhood` VARCHAR(100): bairro
   - (reutiliza `city` e `state` já existentes)
 - [x] `name` permanece `NOT NULL` e é o rótulo de exibição: PF = nome completo;
   PJ = nome fantasia (ou razão social).
@@ -37,18 +37,18 @@ Tudo aditivo, idempotente e retrocompatível: nenhum cliente legado deixa de fun
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_document ON customers (document) WHERE document IS NOT NULL;`
 - [x] Manter `idx_customers_name` e `idx_customers_active` existentes.
 
-### T1.2 — `orders.needs_invoice`
+### T1.2: `orders.needs_invoice`
 - [x] Criar migração separada `migrations/20260525xxxxxx_orders_needs_invoice.sql`
 - [x] `ALTER TABLE orders ADD COLUMN IF NOT EXISTS needs_invoice BOOLEAN NOT NULL DEFAULT false;`
 - [x] Definido no fechamento do pedido (Fase 4). Default `false` garante que pedidos
   antigos e o fluxo simples não exigem NF.
 
-### T1.3 — Rodar e validar
+### T1.3: Rodar e validar
 - [x] Executar `npm run db:migrate` e confirmar que as colunas foram criadas.
 - [x] Validar com:
   `SELECT column_name FROM information_schema.columns WHERE table_name='customers';`
 - [x] Confirmar que clientes legados continuam selecionáveis (campos fiscais `NULL`).
-- [x] (Local) Testar de forma segura no Postgres espelho — ver `docs/banco-local-espelho.md`
+- [x] (Local) Testar de forma segura no Postgres espelho, ver `docs/banco-local-espelho.md`
   (`npm run db:refresh-local`).
 
 ## Esboço do SQL (referência)
@@ -92,5 +92,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_document
   diferentes, seguindo o padrão sequencial das migrações de pedidos.
 - **Convenção do projeto** (CLAUDE.md): toda alteração de banco mantém compatibilidade
   retroativa e é registrada (header descritivo na migração).
-- **Melhoria futura**: `pg_trgm` em `name`/`legal_name`/`phone` para busca tolerante —
+- **Melhoria futura**: `pg_trgm` em `name`/`legal_name`/`phone` para busca tolerante.
   anotado, não implementar agora.

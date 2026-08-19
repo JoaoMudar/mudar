@@ -1,7 +1,7 @@
 # Mapa de Rotinas
 
 > **O sistema tem quatro módulos**: Cadastros, Produção, Comercial, Financeiro.
-> Acesso (login, senha, aparelhos, usuários, notificações) é **transversal** — atravessa os
+> Acesso (login, senha, aparelhos, usuários, notificações) é **transversal**, atravessa os
 > quatro e não é módulo de negócio.
 >
 > Esta é a taxonomia única. Ela está espelhada em quatro lugares que não podem divergir:
@@ -30,7 +30,7 @@
 
 ## Como os quatro módulos se relacionam
 
-![Mapa do sistema — quatro módulos](img/mapa-sistema-v2.png)
+![Mapa do sistema: quatro módulos](img/mapa-sistema-v2.png)
 
 **Como ler o status.** O critério é contado sobre a tabela de etapas de cada módulo, mais
 abaixo nesta página: **cinza sólido** = toda etapa tem tela · **tracejado largo** = parte tem ·
@@ -49,7 +49,7 @@ abaixo nesta página: **cinza sólido** = toda etapa tem tela · **tracejado lar
 
 ### O ciclo do dinheiro
 
-O único anel fechado do sistema — hoje quebrado na agenda de pessoal, que é a única fonte
+O único anel fechado do sistema: hoje quebrado na agenda de pessoal, que é a única fonte
 possível de horas. Sem ela, custeio e precificação continuam sendo estimativa.
 
 ![Ciclo do dinheiro](img/ciclo-dinheiro.png)
@@ -69,13 +69,13 @@ npm run docs:mapas mapa-2-producao    # só um
 ```
 
 **A cor mora no `.mmd`; o cinza mora no `.png`.** Os arquivos-fonte usam verde, amarelo e
-vermelho — é o que faz sentido num preview de Mermaid, na tela. O
+vermelho: é o que faz sentido num preview de Mermaid, na tela. O
 [`scripts/render-mapas.mjs`](../../scripts/render-mapas.mjs) troca essa paleta por uma escala
 de cinza numa cópia temporária, renderiza e joga a cópia fora. O que vai para o repositório e
 para o TCC é o cinza, que sobrevive à impressão em preto e branco; o que se edita continua
 colorido.
 
-As três classes de status chamam-se `ok`, `meio` e `falta` nos oito diagramas — quem
+As três classes de status chamam-se `ok`, `meio` e `falta` nos oito diagramas: quem
 acrescentar um mapa deve usar os mesmos nomes, senão o script não encontra o que trocar. A
 largura também mora no script, uma só para todos: antes disso cada mapa tinha sido gerado com
 um `-w` diferente, e regerar com o valor errado reescalava a figura sem ninguém perceber.
@@ -89,7 +89,7 @@ o mapa dizia antes da reconciliação.
 
 ---
 
-## 0 · Acesso — transversal
+## 0 · Acesso: transversal
 
 ![Acesso](img/mapa-0-acesso.png)
 
@@ -97,7 +97,7 @@ Login, definição e troca de senha, aparelhos conectados, usuários e permissõ
 e painel inicial. Não é módulo de negócio: guarda os quatro.
 
 Telas em `/login`, `/trocar-senha`, `/conta/sessoes`, `/notificacoes` e `/admin/usuarios`.
-`/admin` ficou **só** com administração de sistema — usuários e sessões.
+`/admin` ficou **só** com administração de sistema, usuários e sessões.
 
 ---
 
@@ -119,13 +119,13 @@ Rotina **agrupadora**, sem processo próprio. Reúne o que é estável e se repe
 | Cadastrar/editar tipo de tarefa | Gerência |
 
 **Pessoas são uma identidade só.** Cliente, fornecedor e funcionário são papéis de
-`cadastro.parties` — quem vende muda e às vezes compra é um cadastro só. Por isso
+`cadastro.parties`: quem vende muda e às vezes compra é um cadastro só. Por isso
 `/cadastros/pessoas` é **uma lista com filtro por papel**, e não uma aba por papel: a pessoa
 aparece uma vez, com um selo por papel que leva à tela daquele papel. O nome abre a **ficha**
-(`/cadastros/pessoas/[id]`), com o histórico dos dois lados — é onde o *quanto compramos e
+(`/cadastros/pessoas/[id]`), com o histórico dos dois lados, é onde o *quanto compramos e
 quanto vendemos* vai aparecer quando o Financeiro existir.
 
-Os papéis vêm filtrados do servidor pelo que o usuário pode ler — `fornecedor:ler` é só de
+Os papéis vêm filtrados do servidor pelo que o usuário pode ler, `fornecedor:ler` é só de
 chefia e admin, então a gerência não vê a rede de fornecedores nem de relance. Funcionário
 é filtro sem tela até o P13 T13.3/T13.7.
 
@@ -177,11 +177,11 @@ Financeiro as compras que ficam disponíveis para uso.
 ![Financeiro](img/mapa-4-financeiro.png)
 
 **Este é o módulo restrito do sistema.** A base bancária mistura gasto do viveiro com gasto
-pessoal da família e da clínica — extrato, lançamento, compra, custo fixo e fechamento são
+pessoal da família e da clínica: extrato, lançamento, compra, custo fixo e fechamento são
 de chefia/admin, e a gerência não os abre nem em leitura.
 
 A restrição vale para a **base**, não para tudo que mora aqui. Com os quatro módulos,
-custeio, precificação e os painéis vieram para cá — são dinheiro, e quem os alimenta é o
+custeio, precificação e os painéis vieram para cá, são dinheiro, e quem os alimenta é o
 extrato. Mas são números **derivados**: não expõem lançamento nenhum, a gerência precisa
 deles para operar e sempre pôde lê-los. É por isso que a matriz do
 [`D4`](../engenharia/D-arquitetura/D4-matriz-rbac.md) restringe **por recurso**, e não pela
@@ -197,9 +197,9 @@ porta do módulo.
 | Emissão de nota fiscal (sistema do Sebrae; app registra o número) | Chefia |
 | Ver faturamento e margem (só sobre mês fechado) | Chefia |
 | Consulta de preço, custo unitário e margem por canal | Gerência *(leitura)* |
-| Painel de indicadores operacionais — IND-01, 02, 03, 05 | Gerência *(leitura)* |
+| Painel de indicadores operacionais: IND-01, 02, 03, 05 | Gerência *(leitura)* |
 
-Área `/financeiro`. **É aqui que a compra nasce** — e é de onde ela fica disponível para a
+Área `/financeiro`. **É aqui que a compra nasce**, e é de onde ela fica disponível para a
 Produção usar.
 
 ---
@@ -212,7 +212,7 @@ Produção usar.
 
 ## Onde cada rotina mora
 
-As pastas seguem os módulos — uma por módulo, na ordem em que o fluxo os percorre. Antes os
+As pastas seguem os módulos: uma por módulo, na ordem em que o fluxo os percorre. Antes os
 arquivos eram `rotina-*.md` soltos na raiz, herança das oito rotinas planas.
 
 ```

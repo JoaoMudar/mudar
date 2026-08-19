@@ -7,7 +7,7 @@ Perdas não são registradas. Ninguém sabe a taxa de mortalidade real por espé
 
 ### Colaborador
 - **Registrar perda**: selecionar espécie, recipiente, quantidade perdida, causa (seca, praga, geada, manuseio, outro)
-- Deve ser rápido — poucos toques no celular
+- Deve ser rápido: poucos toques no celular
 
 ### Gerência
 - **Perdas recentes**: lista das últimas perdas registradas, filtro por período

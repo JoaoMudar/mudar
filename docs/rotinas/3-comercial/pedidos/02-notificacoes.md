@@ -11,18 +11,18 @@ Notificacoes sao o "elo" entre as etapas do fluxo de pedidos.
 
 ## Tarefas
 
-### T2.1 — Server Actions de notificacoes
+### T2.1: Server Actions de notificacoes
 - [x] Criar `src/lib/notifications.ts` com funcoes:
-  - `createNotification(userId, type, title, message, link)` — insere notificacao no banco
-  - `getUnreadNotifications(userId)` — retorna notificacoes nao lidas do usuario
-  - `getNotifications(userId, limit=20)` — retorna ultimas notificacoes (lidas e nao lidas)
-  - `markAsRead(notificationId)` — marca uma notificacao como lida
-  - `markAllAsRead(userId)` — marca todas como lidas
-  - `getUnreadCount(userId)` — retorna contagem de nao lidas (para badge)
+  - `createNotification(userId, type, title, message, link)`, insere notificacao no banco
+  - `getUnreadNotifications(userId)`: retorna notificacoes nao lidas do usuario
+  - `getNotifications(userId, limit=20)`: retorna ultimas notificacoes (lidas e nao lidas)
+  - `markAsRead(notificationId)`: marca uma notificacao como lida
+  - `markAllAsRead(userId)`: marca todas como lidas
+  - `getUnreadCount(userId)`: retorna contagem de nao lidas (para badge)
 - [x] Todas as funcoes devem usar `'use server'` e importar `pool` de `@/lib/db`
-- [x] Funcao helper `notifyRole(role, type, title, message, link)` — cria notificacao para TODOS os usuarios ativos com determinado role
+- [x] Funcao helper `notifyRole(role, type, title, message, link)`, cria notificacao para TODOS os usuarios ativos com determinado role
 
-### T2.2 — Componente NotificationBell (sino de notificacoes)
+### T2.2: Componente NotificationBell (sino de notificacoes)
 - [x] Criar `src/components/NotificationBell.tsx` (client component)
 - [x] Exibir icone de sino no header/nav
 - [x] Badge vermelho com contagem de nao lidas (ex: "3")
@@ -33,18 +33,18 @@ Notificacoes sao o "elo" entre as etapas do fluxo de pedidos.
 - [x] Polling a cada 30 segundos para atualizar contagem (via fetch a uma API route ou server action)
   - Alternativa: usar `router.refresh()` com revalidacao, mas polling eh mais simples para MVP
 
-### T2.3 — API Route para polling de notificacoes
+### T2.3: API Route para polling de notificacoes
 - [x] Criar `src/app/api/notifications/route.ts`
 - [x] GET: retorna `{ unreadCount, notifications }` para o usuario autenticado
 - [x] Verificar sessao no handler (rejeitar se nao autenticado)
 
-### T2.4 — Integrar NotificationBell no layout
+### T2.4: Integrar NotificationBell no layout
 - [x] Adicionar `<NotificationBell />` no layout principal (`src/app/layout.tsx` ou header compartilhado)
 - [x] Exibir apenas para usuarios autenticados
 - [x] Posicionar no canto superior direito
 - [x] Responsivo: funcionar bem em mobile e desktop
 
-### T2.5 — Pagina de notificacoes (opcional, mas recomendada)
+### T2.5: Pagina de notificacoes (opcional, mas recomendada)
 - [x] Criar `src/app/notificacoes/page.tsx`
 - [x] Lista completa de notificacoes com scroll
 - [x] Filtro: todas / nao lidas
@@ -78,14 +78,14 @@ Dropdown ao clicar no sino:
 
 | type | Quando | Para quem | Titulo exemplo |
 |------|--------|-----------|----------------|
-| `novo_pedido` | Chefia cadastra pedido | Gerencia | "Novo pedido #47 — Cliente X" |
-| `pedido_verificado` | Gerencia finaliza checklist | Chefia | "Pedido #47 verificado — 2 itens indisponiveis" |
-| `pedido_aprovado` | Chefia aprova pedido | Gerencia | "Pedido #47 aprovado — separar ate 15/06" |
-| `pedido_alterado` | Chefia altera itens | Gerencia | "Pedido #47 alterado — verificar novamente" |
+| `novo_pedido` | Chefia cadastra pedido | Gerencia | "Novo pedido #47: Cliente X" |
+| `pedido_verificado` | Gerencia finaliza checklist | Chefia | "Pedido #47 verificado: 2 itens indisponiveis" |
+| `pedido_aprovado` | Chefia aprova pedido | Gerencia | "Pedido #47 aprovado: separar ate 15/06" |
+| `pedido_alterado` | Chefia altera itens | Gerencia | "Pedido #47 alterado: verificar novamente" |
 | `pedido_pronto` | Gerencia finaliza separacao | Chefia | "Pedido #47 pronto para envio" |
 
 ## Notas Tecnicas
 - Polling de 30s eh aceitavel para MVP (equipe de 7 pessoas, volume baixo)
-- Nao implementar WebSocket ou SSE agora — complexidade desnecessaria
+- Nao implementar WebSocket ou SSE agora: complexidade desnecessaria
 - Notificacoes antigas (>30 dias lidas) podem ser limpas por cron futuramente
 - O sino deve funcionar em TODAS as paginas, nao so admin

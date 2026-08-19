@@ -1,13 +1,13 @@
-# E6 — Plano de backup e recuperação
+# E6: Plano de backup e recuperação
 
-> **Artefato:** Plano de backup e recuperação · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
+> **Artefato:** Plano de backup e recuperação · **Bloco:** E, Qualidade, riscos e segurança
+> **Destino no TCC:** Capítulo 4, seção 4.7, Segurança e controle de acesso
 > **Fundamentação:** Sommerville (2011) classifica como **limitação de exposição e recuperação** os
 > controles voltados à recuperação de dados, exemplificando-os com backup automatizado e
 > espelhamento de informações, capazes de cobrir os custos de um ataque bem-sucedido. Este documento
 > é a aplicação desse tipo de controle, e fecha o princípio de **disponibilidade** enunciado no
 > Capítulo 2.5.1.
-> ⚠️ **Exige acréscimo ao Capítulo 2.5 do TCC** — o texto proposto está em [`../word/`](../word/).
+> ⚠️ **Exige acréscimo ao Capítulo 2.5 do TCC**: o texto proposto está em [`../word/`](../word/).
 
 ---
 
@@ -19,14 +19,14 @@ irreproduzível**.
 
 | Conjunto de dados | Reprodutível? | Custo de reconstituição |
 |---|---|---|
-| **Levantamento primário** — consumo de insumo por espécie, tempos de produção, custos de coleta | **Não** | Meses de nova medição em campo |
+| **Levantamento primário**: consumo de insumo por espécie, tempos de produção, custos de coleta | **Não** | Meses de nova medição em campo |
 | **Histórico de perdas e produção** | **Não** | Impossível. O evento passou |
-| **Classificação financeira** | **Não** | A memória do gasto se perde em semanas — é a razão da rotina semanal |
+| **Classificação financeira** | **Não** | A memória do gasto se perde em semanas: é a razão da rotina semanal |
 | **Pedidos e clientes** | Parcialmente | Reconstituível a partir de conversas e notas fiscais, a custo alto |
 | **Cadastro de fornecedores** | Parcialmente | Rede construída ao longo de anos |
 | **Catálogo de espécies e recipientes** | Sim | Recadastramento trabalhoso, mas viável |
 
-**As três primeiras linhas são o que este plano protege.** Perdê-las não significa refazer trabalho —
+**As três primeiras linhas são o que este plano protege.** Perdê-las não significa refazer trabalho.
 significa que o dado deixa de existir, e com ele o objetivo do trabalho.
 
 ---
@@ -35,20 +35,20 @@ significa que o dado deixa de existir, e com ele o objetivo do trabalho.
 
 | Métrica | Objetivo | Significado |
 |---|---|---|
-| **RPO** — perda máxima aceitável | **24 horas** | Em um desastre, admite-se perder até um dia de registros |
-| **RTO** — tempo máximo de restabelecimento | **8 horas** | Prazo para o sistema voltar a operar |
+| **RPO**: perda máxima aceitável | **24 horas** | Em um desastre, admite-se perder até um dia de registros |
+| **RTO**: tempo máximo de restabelecimento | **8 horas** | Prazo para o sistema voltar a operar |
 | **Retenção** | **30 dias** de cópias diárias | Janela para detectar e reverter corrupção não percebida de imediato |
 
 ### Por que estes números
 
 **RPO de 24 horas** é adequado ao volume real: o viveiro gera dezenas de registros por dia, não
-milhares. Um dia perdido é reconstituível pela memória recente da equipe — a perda de uma semana não
+milhares. Um dia perdido é reconstituível pela memória recente da equipe: a perda de uma semana não
 seria. O número não é ambicioso porque não precisa ser, e um RPO menor exigiria arquitetura de custo
 incompatível com o porte da empresa.
 
 **RTO de 8 horas** decorre da natureza do sistema: é ferramenta de gestão, não de controle de
-processo em tempo real. Um dia sem o sistema adia registros — que a fila local do dispositivo
-preserva — e não interrompe a produção de mudas nem a expedição.
+processo em tempo real. Um dia sem o sistema adia registros, que a fila local do dispositivo
+preserva: e não interrompe a produção de mudas nem a expedição.
 
 **Retenção de 30 dias** é dimensionada pelo modo de falha mais provável, que **não é o desastre**. É
 a corrupção silenciosa: uma importação de extrato equivocada, uma exclusão em massa por engano, um
@@ -62,7 +62,7 @@ dias cobrem o intervalo entre o erro e sua percepção.
 ### 3.1 Cópia automatizada do banco
 
 Cópia diária automática mantida pelo serviço gerenciado de banco de dados, com retenção de 30 dias.
-Sendo automática e externa à aplicação, não depende de ninguém lembrar de executá-la — o que é
+Sendo automática e externa à aplicação, não depende de ninguém lembrar de executá-la: o que é
 decisivo numa organização sem administrador de sistemas.
 
 Complementarmente, **exportação mensal completa armazenada fora do provedor**. Esta é a cópia que
@@ -78,7 +78,7 @@ banco.
 ### 3.3 Código e estrutura do banco
 
 O repositório é distribuído por natureza: cada cópia de trabalho é uma réplica completa do histórico.
-As migrações versionadas permitem reconstruir a estrutura do banco do zero — o que significa que a
+As migrações versionadas permitem reconstruir a estrutura do banco do zero: o que significa que a
 recuperação precisa restaurar **dados**, nunca esquema.
 
 ### 3.4 O que não é copiado, e por quê
@@ -101,7 +101,7 @@ executar estará sob pressão.
 | 1 | **Identificar o momento a restaurar.** Em desastre, a cópia mais recente. Em corrupção, a última cópia anterior ao erro | Momento escolhido é anterior ao primeiro registro corrompido |
 | 2 | **Restaurar em instância nova**, sem sobrescrever a existente | A instância original permanece intacta e disponível para comparação |
 | 3 | **Conferir a integridade** contando registros das entidades críticas: espécies, lançamentos, pedidos, perdas | As contagens são compatíveis com o esperado para a data |
-| 4 | **Conferir o saldo financeiro** do último mês fechado contra o extrato bancário | Os saldos coincidem — é a verificação mais forte, porque confronta o sistema com fonte externa |
+| 4 | **Conferir o saldo financeiro** do último mês fechado contra o extrato bancário | Os saldos coincidem: é a verificação mais forte, porque confronta o sistema com fonte externa |
 | 5 | **Apontar a aplicação** para a instância restaurada | Sistema responde e autentica |
 | 6 | **Verificar as migrações pendentes** e aplicá-las, se a cópia for anterior a alguma alteração de esquema | Estrutura compatível com a versão do código em produção |
 | 7 | **Comunicar a equipe** sobre o intervalo perdido, para relançamento manual | Equipe sabe o que precisa relançar |
@@ -116,7 +116,7 @@ financeiro.
 ## 5. Teste de restauração
 
 **Backup não testado não é backup.** Uma cópia que nunca foi restaurada é uma hipótese, não um
-controle — e o momento de descobrir que ela não funciona não pode ser o do desastre.
+controle: e o momento de descobrir que ela não funciona não pode ser o do desastre.
 
 | Aspecto | Definição |
 |---|---|
@@ -125,7 +125,7 @@ controle — e o momento de descobrir que ela não funciona não pode ser o do d
 | **Critério de aprovação** | Sistema operante, contagens compatíveis e **saldo do último mês fechado coincidente com o extrato** |
 | **Registro** | Data, momento restaurado, tempo decorrido e resultado |
 
-O tempo decorrido no teste é o que valida — ou refuta — o RTO declarado de 8 horas. Um objetivo de
+O tempo decorrido no teste é o que valida (ou refuta) o RTO declarado de 8 horas. Um objetivo de
 recuperação nunca medido é uma intenção.
 
 ---
@@ -134,10 +134,10 @@ recuperação nunca medido é uma intenção.
 
 | Origem | Item tratado |
 |---|---|
-| [`E3`](E3-analise-de-riscos.md) | **R-07** — perda de dados, impacto crítico |
-| [`E4`](E4-modelagem-de-ameacas.md) | **A-10** — perda por falha de infraestrutura, ameaça à disponibilidade |
-| [`E4`](E4-modelagem-de-ameacas.md) | **A-09** — alteração indevida de dado consolidado; a retenção de 30 dias é o que permite reverter |
-| [`B2`](../B-requisitos/B2-especificacao-requisitos.md) | **RNF-14** — rotina de backup com objetivos declarados |
+| [`E3`](E3-analise-de-riscos.md) | **R-07**: perda de dados, impacto crítico |
+| [`E4`](E4-modelagem-de-ameacas.md) | **A-10**: perda por falha de infraestrutura, ameaça à disponibilidade |
+| [`E4`](E4-modelagem-de-ameacas.md) | **A-09**: alteração indevida de dado consolidado; a retenção de 30 dias é o que permite reverter |
+| [`B2`](../B-requisitos/B2-especificacao-requisitos.md) | **RNF-14**: rotina de backup com objetivos declarados |
 | [`D3`](../D-arquitetura/D3-diagrama-implantacao.md) | Ponto único de falha aceito; este plano é a contrapartida que torna a aceitação defensável |
 
 ---

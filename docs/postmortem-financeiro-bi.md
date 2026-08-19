@@ -17,7 +17,7 @@ Funcionava. O problema nunca foi o código.
 
 ## Por que foi abandonado
 
-**A planilha não é uma fonte de dados — é a memória de uma pessoa em forma de
+**A planilha não é uma fonte de dados: é a memória de uma pessoa em forma de
 grade.** Cada defeito abaixo foi medido contra a base real, não suposto. Nenhum é
 bug de importação: são propriedades do artefato que estávamos tratando como
 fonte da verdade.
@@ -26,7 +26,7 @@ fonte da verdade.
 
 | Defeito | Tamanho medido |
 |---|---|
-| Linhas de subtotal herdadas do Excel (`eh_totalizador`) | 2.554 linhas — incluí-las inflava a despesa **~4×** (R$21,5M sobre R$7M reais) |
+| Linhas de subtotal herdadas do Excel (`eh_totalizador`) | 2.554 linhas: incluí-las inflava a despesa **~4×** (R$21,5M sobre R$7M reais) |
 | Rótulo digitado em coluna de dinheiro (`%`, `Folha`) | 72 células em toda a base |
 | Numeração de veículo (1 a 11) na coluna DESCRIÇÃO em Jun26/Jul26 | 22 falsos lançamentos, R$12.875,11 de combustível **já contado no detalhe** |
 
@@ -43,7 +43,7 @@ Medido em 2020+, usando a coluna `despesas.natureza`:
   insumos R$14,6k) marcado como `pessoal` → ficava de fora.
 
 A correção foi deduzir a natureza da **categoria** + rateio por centro de custo,
-nunca da linha. Funcionou — mas é uma camada de conserto sobre um dado que nasceu
+nunca da linha. Funcionou: mas é uma camada de conserto sobre um dado que nasceu
 errado porque **conta pessoal e conta de empresa são a mesma conta**. É esse o
 problema de raiz, e ele não se resolve no software.
 
@@ -52,10 +52,10 @@ problema de raiz, e ele não se resolve no software.
 Muda comprada de outro produtor (Márcio Kuhar, Sávio Giacomozzi, Artêmio,
 Guilherme Ponticelli) para revenda caía em **Insumos/Produção**. Não é insumo de
 produção, é custo de mercadoria, com margem diferente. Uma migração separou
-**215 lançamentos / R$111.726,50**. Em 2025 isso era **R$28,9k de R$52,5k — 55% do
+**215 lançamentos / R$111.726,50**. Em 2025 isso era **R$28,9k de R$52,5k, 55% do
 "insumo" não era insumo.**
 
-Origem do erro: campo de texto livre. Daí a decisão nº 4 do plano novo —
+Origem do erro: campo de texto livre. Daí a decisão nº 4 do plano novo.
 **lista fechada, sem campo aberto, sem typo.**
 
 ### 4. A planilha anda depois do import, e não avisa
@@ -64,7 +64,7 @@ Conferência linha a linha de 05/08/2026 contra os 24 arquivos `.xls` originais:
 das 42.666 linhas, **41.844 batiam campo a campo**, mais 179 depois de descontado
 deslocamento de linha. De 2003 a 2025 o banco reproduzia a planilha.
 
-E mesmo assim faltavam **R$299.047,85 — 100% deles em 2026**, o ano vivo:
+E mesmo assim faltavam **R$299.047,85: 100% deles em 2026**, o ano vivo:
 
 | Forma da defasagem | Linhas | Valor |
 |---|---|---|
@@ -77,8 +77,8 @@ pré-digitados em vermelho no começo do mês (Contab, Luz, Condomínio, INSS, F
 Mesada) e só preenche o valor quando a conta chega. O import passou no meio: veio
 a descrição, não veio o valor.
 
-Consequência: **abr/2026 aparecia verde** na grade de cobertura — "tem lançamento
-nesse mês" — e estava subestimado em R$8.798,18. A grade responde *"tem linha
+Consequência: **abr/2026 aparecia verde** na grade de cobertura, "tem lançamento
+nesse mês": e estava subestimado em R$8.798,18. A grade responde *"tem linha
 nesse mês?"*, nunca *"as linhas têm valor?"*. Um mês pela metade passa por
 completo.
 
@@ -89,7 +89,7 @@ import, e 448 linhas apareceram como "sobrando".
 
 35 meses divergiam na tela de qualidade. Em ago/2020 o banco reproduzia o Excel
 com 100% de acerto e ainda assim o total da planilha (R$45.916,89) não fechava com
-a soma do próprio detalhe dela (R$45.970,28) — **−R$53,39, a fórmula `SUM`
+a soma do próprio detalhe dela (R$45.970,28), **−R$53,39, a fórmula `SUM`
 deixando linha de fora do intervalo.** O padrão se repete em vários meses.
 
 Quando a fonte da verdade não fecha consigo mesma, não há conciliação possível:
@@ -99,7 +99,7 @@ não existe resposta certa para comparar.
 
 Ao final, a fila de categorização tinha **2.764 linhas / R$407.138,09** sem
 categoria. Cada linha nova nascia sem categoria, de propósito. A triagem por valor
-(497 lançamentos ≥ R$100 = 65% do valor) tornava viável — mas é uma fila que
+(497 lançamentos ≥ R$100 = 65% do valor) tornava viável, mas é uma fila que
 **cresce sozinha e nunca zera**, porque a entrada de dados continua sendo digitação
 livre num Excel.
 
@@ -111,7 +111,7 @@ movimento chega pronto no OFX. A fila passa a ser só o que não casou.
 1. **Fonte da verdade é o que a realidade registrou sozinho** (extrato), não o que
    alguém digitou depois (planilha).
 2. **Ano em curso ≠ ano fechado.** Comparar 2026 parcial com 2025 cheio inventa
-   variação. Se um período está incompleto, o número tem que ser suprimido — um
+   variação. Se um período está incompleto, o número tem que ser suprimido, um
    travessão leva à pergunta certa, uma margem de 74,1% falsa leva à decisão errada.
 3. **"Tem dado no mês" não é "o mês está completo".** Qualquer indicador de
    cobertura precisa olhar valor, não existência de linha.
@@ -119,7 +119,7 @@ movimento chega pronto no OFX. A fila passa a ser só o que não casou.
    categoria errada em escala.
 5. **Separar conta pessoal de conta de empresa é pré-requisito, não detalhe.**
    Sem isso, toda apuração de margem carrega um conserto estatístico por cima.
-   (Passado: negócio R$3,69M, pessoal R$3,30M — quase meio a meio.)
+   (Passado: negócio R$3,69M, pessoal R$3,30M, quase meio a meio.)
 6. **View empilhada não tem índice para se apoiar.** Uma subquery escalar
    correlacionada sobre uma view que varre 60k linhas fez o DRE anual levar 11 s
    para devolver 7 linhas (13 subqueries × 7 anos ≈ 150 varreduras completas). O
@@ -127,7 +127,7 @@ movimento chega pronto no OFX. A fila passa a ser só o que não casou.
    `FILTER` sobre o resultado já pequeno. Depois: ~130 ms.
 7. **Migration com guarda `IF ... IS NULL THEN RETURN` roda como no-op e mesmo
    assim é marcada como aplicada.** No Neon as 6 migrations do BI ficaram
-   registradas sem nunca terem criado nada — todo deploy da Vercel roda
+   registradas sem nunca terem criado nada: todo deploy da Vercel roda
    `tsx scripts/migrate.ts && next build`. Se um dia o schema fosse importado lá,
    `db:migrate` responderia "nenhuma migração pendente" e as views nunca
    existiriam. Guarda de migration precisa vir com uma forma de desmarcar.
@@ -154,6 +154,6 @@ git log --stat feat/financeiro-bi -12                        # tudo que existia
 ```
 
 O banco de origem **`notas_despesas`** (Postgres local, schema `viveiro`, 42.666
-linhas) está intacto — é ele que vai ser conciliado com os extratos na Fase 3 do
+linhas) está intacto: é ele que vai ser conciliado com os extratos na Fase 3 do
 plano novo. O schema `financeiro` dentro do banco `viveiro` era só uma cópia dele,
 e foi removido.

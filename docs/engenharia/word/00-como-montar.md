@@ -1,6 +1,6 @@
 # Como montar o TCC a partir desta pasta
 
-> **Pasta gerada automaticamente.** Não edite nada aqui — edite o artefato de origem em
+> **Pasta gerada automaticamente.** Não edite nada aqui, edite o artefato de origem em
 > `docs/engenharia/` e rode `npm run docs:tcc`. Qualquer edição feita nesta pasta é perdida
 > na próxima geração.
 
@@ -21,22 +21,22 @@ Gerado em 2026-08-19 · 16 arquivos · 18 figuras.
 
 ## Fora do Capítulo 4
 
-- `cap2-acrescimos-referencial.md` → Capítulo 2.5 — Acréscimos ao referencial teórico
-- `cap3-analise-de-riscos.md` → Capítulo 3 — Análise de riscos do projeto
+- `cap2-acrescimos-referencial.md` → Capítulo 2.5, Acréscimos ao referencial teórico
+- `cap3-analise-de-riscos.md` → Capítulo 3, Análise de riscos do projeto
 
 > **`cap2-acrescimos-referencial.md` deve ser colado antes do Capítulo 4.** Os artefatos de LGPD e
 > de backup apresentam, nos resultados, conteúdo que o referencial atual não fundamenta. Sem esse
 > acréscimo, o Capítulo 4 afirma o que o Capítulo 2 não sustenta.
 >
 > **`cap3-analise-de-riscos.md` não pertence ao Capítulo 4.** Análise de riscos do projeto é
-> elemento de metodologia — cabe como seção nova no Capítulo 3.
+> elemento de metodologia: cabe como seção nova no Capítulo 3.
 
 ## Apêndices
 
-- `apendice-A-glossario.md` → Apêndice A — Glossário do domínio
-- `apendice-B-dicionario-de-dados.md` → Apêndice B — Dicionário de dados
-- `apendice-C-casos-de-teste.md` → Apêndice C — Casos de teste de aceite
-- `apendice-D-quadros.md` → Apêndice D — Quadros de regras de negócio e requisitos
+- `apendice-A-glossario.md` → Apêndice A, Glossário do domínio
+- `apendice-B-dicionario-de-dados.md` → Apêndice B, Dicionário de dados
+- `apendice-C-casos-de-teste.md` → Apêndice C, Casos de teste de aceite
+- `apendice-D-quadros.md` → Apêndice D, Quadros de regras de negócio e requisitos
 
 Estes quatro são longos demais para o corpo do texto. A recomendação é apresentar, no capítulo, uma
 amostra de duas ou três tabelas e remeter ao apêndice para o restante.
@@ -50,12 +50,12 @@ Ao colar no Word:
 
 1. Insira a imagem por **Inserir → Imagens → Este dispositivo**, apontando para o arquivo em `img/`.
 2. Aplique **Inserir legenda** na figura, para que o Word mantenha a numeração automática e permita
-   gerar a lista de figuras. A legenda já está escrita no texto — use-a como conteúdo.
+   gerar a lista de figuras. A legenda já está escrita no texto, use-a como conteúdo.
 3. Confira a largura: as imagens foram geradas a 1400 px e devem ser reduzidas à largura da mancha
    de texto.
 
 > A **Lista de Figuras** do trabalho hoje traz apenas os títulos de exemplo. Com 18 figuras,
-> ela passa a ser obrigatória — o próprio modelo indica que a lista é exigida acima de cinco figuras.
+> ela passa a ser obrigatória: o próprio modelo indica que a lista é exigida acima de cinco figuras.
 
 ## Tabelas
 

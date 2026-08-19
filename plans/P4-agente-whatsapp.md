@@ -1,13 +1,13 @@
-# P4 — Agente WhatsApp
+# P4: Agente WhatsApp
 
 > 🗂️ **Módulo 3 · Comercial** (reorganização de 19/08/2026). O painel de atendimento fica em
-> `/comercial/atendimento`. O bot consulta preço e estoque, que são de outros módulos —
+> `/comercial/atendimento`. O bot consulta preço e estoque, que são de outros módulos.
 > preço vem do Financeiro (P3) e estoque da Produção (P2).
 
 ## Status: NÃO INICIADO
 ## Prioridade: ALTA
 ## Dependências: P1 (espécies/estoque), P3 (tabela de preços, simulador de orçamento)
-## Bloqueia: P5 (Automação n8n — fluxo pós-venda)
+## Bloqueia: P5 (Automação n8n, fluxo pós-venda)
 
 ---
 
@@ -29,7 +29,7 @@ Criar um agente de atendimento via WhatsApp que responde perguntas frequentes, c
 
 - [ ] **20 perguntas mais frequentes**: Gilberto revisar conversas recentes e listar (com respostas padrão)
 - [ ] **Fluxo de decisão**: João + Gilberto definirem o que o bot responde sozinho vs escala para humano
-- [ ] **Textos padrão**: João escrever templates de resposta para cada situação — tom profissional mas acessível
+- [ ] **Textos padrão**: João escrever templates de resposta para cada situação, tom profissional mas acessível
 - [ ] **Número WhatsApp Business**: João contratar número com API (Evolution API self-hosted ou Z-API)
 - [ ] **Horário de atendimento**: definir quando bot responde sozinho vs quando avisa "fora do horário"
 - [ ] **Informações do viveiro**: endereço, horário, formas de pagamento, prazo médio de entrega, área de cobertura
@@ -128,10 +128,10 @@ Criar um agente de atendimento via WhatsApp que responde perguntas frequentes, c
 ---
 
 ## Notas Técnicas
-- Evolution API é self-hosted e gratuita — requer VPS com Docker.
+- Evolution API é self-hosted e gratuita: requer VPS com Docker.
 - Usar Anthropic Claude Sonnet para o agente (custo-benefício).
 - Manter histórico de conversa limitado a 20 mensagens no contexto do agente para controlar tokens.
 - Custo estimado do agente: ~R$0,05-0,20 por conversa completa.
 - Implementar rate limiting: máximo 30 mensagens/minuto por número para evitar ban do WhatsApp.
-- A Evolution API suporta webhooks — cada mensagem recebida dispara o webhook automaticamente.
+- A Evolution API suporta webhooks: cada mensagem recebida dispara o webhook automaticamente.
 - Para áudios: usar Whisper (OpenAI) para transcrever antes de enviar ao agente.

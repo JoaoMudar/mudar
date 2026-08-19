@@ -1,7 +1,7 @@
-# Rotina: Produção — visão geral
+# Rotina: Produção, visão geral
 
 > Substitui e absorve a antiga `rotina-tarefas.md` (hoje [`99-tarefas-diarias-historico.md`](99-tarefas-diarias-historico.md)). Tarefa diária **não é uma rotina
-> separada** — é como a produção é executada. Os documentos de engenharia já tratavam assim
+> separada**: é como a produção é executada. Os documentos de engenharia já tratavam assim
 > (UC-40 "Consultar tarefas do dia" aponta para RF-20, de atribuição de atividade de
 > produção); esta reorganização alinha o domínio ao que a engenharia já dizia.
 
@@ -29,7 +29,7 @@ agenda (planejado)  →  registro (realizado)  →  lote avança  →  estoque m
 ```
 
 **A agenda é a porta de entrada.** Sem ela, o registro de atividade é um formulário solto
-que ninguém lembra de preencher. Com ela, o colaborador abre o app e já vê o que fazer —
+que ninguém lembra de preencher. Com ela, o colaborador abre o app e já vê o que fazer.
 registrar vira confirmar, não digitar.
 
 ## Telas por perfil
@@ -46,7 +46,7 @@ registrar vira confirmar, não digitar.
 
 ### Colaborador
 - **Minhas tarefas de hoje**: lista curta, vinda da agenda; marcar como feito
-- **Registro de atividade**: espécie, recipiente, quantidade — pré-preenchido pela tarefa
+- **Registro de atividade**: espécie, recipiente, quantidade, pré-preenchido pela tarefa
 
 ## Relação com as outras rotinas
 

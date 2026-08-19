@@ -10,7 +10,7 @@ testes destrutivos (apagar pedidos, mudar status, mexer em estoque) isso é
 arriscado. A solução é manter um **Postgres local descartável** que é recriado a
 partir de uma cópia fresca do Neon sempre que necessário.
 
-- **Fonte:** Neon (produção) — acessado **somente em leitura** pelo `pg_dump`.
+- **Fonte:** Neon (produção), acessado **somente em leitura** pelo `pg_dump`.
 - **Alvo:** Postgres 17 local (`localhost:5432`, banco `viveiro`), visível no pgAdmin.
 - Cada refresh **apaga e recria** o banco local. Pode bagunçar à vontade: é só
   rodar de novo para voltar ao estado de produção.
@@ -29,7 +29,7 @@ partir de uma cópia fresca do Neon sempre que necessário.
   LOCAL_DATABASE_URL=postgresql://postgres:<senha>@127.0.0.1:5432/viveiro
   ```
 
-  O `DATABASE_URL` que o app usa é separado — aponte para o local enquanto testa.
+  O `DATABASE_URL` que o app usa é separado, aponte para o local enquanto testa.
 
 ## Como usar
 
@@ -43,7 +43,7 @@ O script (`scripts/refresh-local-db.ps1`) faz, em sequência:
 2. `DROP DATABASE viveiro WITH (FORCE)` + `CREATE DATABASE viveiro` (recria do zero).
 3. `pg_restore` no banco local.
 
-Depois é só abrir o pgAdmin — os dados estão lá.
+Depois é só abrir o pgAdmin: os dados estão lá.
 
 ## Travas de segurança
 
@@ -57,7 +57,7 @@ Ou seja: é impossível, por engano, escrever no banco real.
 
 ## Notas
 
-- **`npm test` não depende disto** — os testes usam mocks do banco (ver `CLAUDE.md`).
+- **`npm test` não depende disto**: os testes usam mocks do banco (ver `CLAUDE.md`).
 - O script é **ASCII puro de propósito**: o Windows PowerShell 5.1 lê `.ps1` como
   ANSI, então acentos e travessões (`—`) quebram o parser. Mantenha assim ao editar.
-- Dumps locais (`*.dump`) já estão no `.gitignore` — não são versionados.
+- Dumps locais (`*.dump`) já estão no `.gitignore`: não são versionados.

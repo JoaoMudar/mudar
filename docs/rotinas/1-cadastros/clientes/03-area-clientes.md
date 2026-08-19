@@ -16,22 +16,22 @@ aqui a "casa canônica" das server actions de cliente.
 
 ## Tarefas
 
-### T3.1 — Server actions (casa canônica)
+### T3.1: Server actions (casa canônica)
 - [x] Criar `src/app/clientes/actions.ts` com `'use server'`, importando `pool` de `@/lib/db`.
 - [x] **Mover** de `src/app/pedidos/actions.ts` para cá: `getCustomers`, `searchCustomers`,
   `createCustomer`. Em `pedidos/actions.ts`, passar a **importar** essas funções daqui
-  (re-export ou import direto) — sem duplicar lógica.
-- [x] `getCustomers(search?)` — lista ativos; `search` casa nome/telefone/documento/razão
+  (re-export ou import direto): sem duplicar lógica.
+- [x] `getCustomers(search?)`: lista ativos; `search` casa nome/telefone/documento/razão
   social (ILIKE). Incluir campos fiscais para a lista calcular o selo de completude.
-- [x] `getCustomerById(id)` — cliente completo (todos os campos fiscais).
-- [x] `createCustomer(data)` — aceita o cadastro **simples** (só `name`, como hoje) e o
+- [x] `getCustomerById(id)`: cliente completo (todos os campos fiscais).
+- [x] `createCustomer(data)`: aceita o cadastro **simples** (só `name`, como hoje) e o
   **completo** (com campos fiscais). Campos fiscais nullable ⇒ o simples continua válido.
   Tratar violação do índice único de `document` → erro "Documento já cadastrado".
-- [x] `updateCustomer(id, data)` — atualiza contato + fiscais; mesmo tratamento de duplicidade.
-- [x] `toggleCustomerActive(id, active)` — soft-delete via `active`, espelhando `toggleUsuarioAtivo`.
+- [x] `updateCustomer(id, data)`: atualiza contato + fiscais; mesmo tratamento de duplicidade.
+- [x] `toggleCustomerActive(id, active)`: soft-delete via `active`, espelhando `toggleUsuarioAtivo`.
 - [x] Todas com `requireRole('admin','chefia','gerencia')` + `revalidatePath('/clientes')`.
 
-### T3.2 — Página e listagem
+### T3.2: Página e listagem
 - [x] Criar `src/app/clientes/page.tsx` (server component) com `requireRole('admin','chefia','gerencia')`.
 - [x] Carregar `getCustomers(search)` e renderizar `ClientesManager`.
 - [x] Lista com: nome, telefone, cidade/UF, **badge PF/PJ** e **selo fiscal**
@@ -39,13 +39,13 @@ aqui a "casa canônica" das server actions de cliente.
   via `isFiscallyComplete`).
 - [x] Busca no topo (debounce), reaproveitando o padrão de `Autocomplete`/filtro client-side.
 
-### T3.3 — Manager (client component)
+### T3.3: Manager (client component)
 - [x] Criar `src/app/clientes/ClientesManager.tsx` no padrão de `UsuariosManager.tsx`:
   lista + botão "Novo cliente" + ações por linha (editar, inativar) + `Toast` de feedback.
 - [x] Usar `useTransition` nas chamadas de action.
 
-### T3.4 — Formulário fiscal reutilizável
-- [x] Criar `src/app/clientes/CustomerFiscalForm.tsx` (client component) — **reutilizável**
+### T3.4: Formulário fiscal reutilizável
+- [x] Criar `src/app/clientes/CustomerFiscalForm.tsx` (client component), **reutilizável**
   (usado aqui e na complementação inline do fechamento, Fase 4).
 - [x] Toggle **PF / PJ** no topo; campos condicionais:
   - PF: nome completo, CPF (máscara).
@@ -55,12 +55,12 @@ aqui a "casa canônica" das server actions de cliente.
   destacar o que falta; não bloquear o salvamento (permite rascunho incompleto).
 - [x] Reusar classes `.input` / `.label` / `.btn-primary`.
 
-### T3.5 — Card na home e navegação
+### T3.5: Card na home e navegação
 - [x] Em `src/app/page.tsx`, adicionar card "Clientes" com o **mesmo gate** de
   `showPedidos` (`admin || chefia || gerencia`), seguindo o padrão visual da seção Pedidos.
 - [x] Garantir link/rota `/clientes` na navegação onde fizer sentido.
 
-## Wireframe — Lista de Clientes
+## Wireframe: Lista de Clientes
 
 ```
 +======================================================================+
@@ -78,7 +78,7 @@ aqui a "casa canônica" das server actions de cliente.
 +----------------------------------------------------------------------+
 ```
 
-## Wireframe — Formulário (PJ selecionado)
+## Wireframe: Formulário (PJ selecionado)
 
 ```
 +======================================================================+
@@ -107,12 +107,12 @@ aqui a "casa canônica" das server actions de cliente.
 
 ## Notas Técnicas
 - **Casa canônica**: depois desta fase, o domínio de cliente vive em `src/app/clientes/`.
-  `pedidos/actions.ts` apenas reusa — evita duas implementações divergindo. O cadastro
+  `pedidos/actions.ts` apenas reusa: evita duas implementações divergindo. O cadastro
   inline do `OrderForm` (nome + telefone) continua chamando o mesmo `createCustomer`.
 - **`CustomerFiscalForm` é o ponto de reuso-chave**: a Fase 4 o embute no fechamento do
   pedido. Projetá-lo desacoplado de `/clientes` (recebe `customer` + `onSaved`).
 - **Selo de completude na lista** usa `isFiscallyComplete` (lib pura), sem ida extra ao banco.
-- **Soft-delete** preserva histórico de pedidos — nunca deletar cliente fisicamente.
+- **Soft-delete** preserva histórico de pedidos, nunca deletar cliente fisicamente.
 - **Duplicidade de documento**: capturar a violação do índice único parcial e devolver
   mensagem amigável, no padrão de `createUsuario` ("nome de usuário já existe").
 - **Futuro (anotar, não implementar)**: autofill de endereço por CEP (ViaCEP) ao sair do

@@ -1,4 +1,4 @@
-# Rotina: Tarefas Diárias — ABSORVIDA PELA PRODUÇÃO
+# Rotina: Tarefas Diárias, ABSORVIDA PELA PRODUÇÃO
 
 > ⚠️ **Este documento foi substituído.** Tarefa diária não é uma rotina separada: é a forma
 > como a rotina de Produção é executada. Os documentos de engenharia já tratavam assim

@@ -43,7 +43,7 @@ bash scripts/setup-hooks.sh
 
 ## Trabalho paralelo com multiplos terminais (worktrees)
 
-Quando voce roda 2 ou mais terminais com Claude Code no mesmo projeto, cada um **deve** trabalhar em seu proprio worktree com sua propria branch. O Git so permite uma branch ativa por diretorio — se dois terminais compartilham o mesmo diretorio, eles pisam um no outro.
+Quando voce roda 2 ou mais terminais com Claude Code no mesmo projeto, cada um **deve** trabalhar em seu proprio worktree com sua propria branch. O Git so permite uma branch ativa por diretorio, se dois terminais compartilham o mesmo diretorio, eles pisam um no outro.
 
 ### Criar um worktree para cada terminal
 
@@ -66,7 +66,7 @@ Cada worktree:
 
 ### Regras importantes
 
-- **Duas worktrees nao podem estar na mesma branch** — o Git bloqueia isso automaticamente
+- **Duas worktrees nao podem estar na mesma branch**: o Git bloqueia isso automaticamente
 - Sempre crie a branch junto com o worktree (`git worktree add <caminho> <branch>`)
 - Depois do merge, limpe o worktree para nao acumular diretorios
 
@@ -169,7 +169,7 @@ git revert <hash-do-commit>
 git commit --no-verify -m "mensagem"
 ```
 
-**Hook do Claude Code** — renomear o arquivo:
+**Hook do Claude Code**: renomear o arquivo:
 ```bash
 mv .claude/hooks/auto-commit-stop.sh .claude/hooks/auto-commit-stop.sh.disabled
 ```

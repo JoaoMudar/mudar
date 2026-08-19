@@ -1,27 +1,27 @@
-# P5 — Automação de Pedidos (n8n)
+# P5: Automação de Pedidos (n8n)
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🗂️ **Módulo 3 · Comercial** (reorganização de 19/08/2026). As telas de pedido já existem em
-> `/pedidos/*` — cadastro, verificação, aprovação e separação — construídas pela
+> `/pedidos/*` (cadastro, verificação, aprovação e separação) construídas pela
 > [rotina de pedidos](../docs/rotinas/3-comercial/pedidos.md), não por este plano. O que o P5
 > acrescenta é a automação em volta delas. **Entrega não é o 5º estado do pedido:** cada carga
 > vira uma viagem, com calendário próprio ([`3-comercial/entregas.md`](../docs/rotinas/3-comercial/entregas.md)).
 
 ## Status: NÃO INICIADO
 ## Prioridade: ALTA
-## Dependências: P3 (orçamentos/quotes), P4 (WhatsApp — canal de entrada)
+## Dependências: P3 (orçamentos/quotes), P4 (WhatsApp, canal de entrada)
 ## Bloqueia: Nenhum diretamente (melhoria operacional)
 
 ---
 
 ## Objetivo
-Automatizar o fluxo do pedido — do orçamento aprovado até a entrega — eliminando retrabalho manual, esquecimentos e comunicação verbal entre setores.
+Automatizar o fluxo do pedido (do orçamento aprovado até a entrega) eliminando retrabalho manual, esquecimentos e comunicação verbal entre setores.
 
 ## Contexto
 Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débora de boca, Débora organiza a separação sem documento, João carrega e entrega. Não há rastreio de status. Pedidos se perdem, prazos furam, e ninguém sabe quantos pedidos estão em cada etapa.
@@ -36,9 +36,9 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 
 ## Dados que a Equipe de Campo Precisa Levantar (PARALELO)
 
-- [ ] **Mapa do fluxo atual**: João documentar cada etapa do pedido — quem faz o quê, quanto tempo leva
-- [ ] **Status do pedido**: João + Gilberto validarem a lista — orçamento → aprovado → separando → carregado → em_trânsito → entregue → pago
-- [ ] **Dados obrigatórios do pedido**: Gilberto definir checklist — cliente, endereço completo, espécies/qtd, prazo, forma de pagamento
+- [ ] **Mapa do fluxo atual**: João documentar cada etapa do pedido, quem faz o quê, quanto tempo leva
+- [ ] **Status do pedido**: João + Gilberto validarem a lista, orçamento → aprovado → separando → carregado → em_trânsito → entregue → pago
+- [ ] **Dados obrigatórios do pedido**: Gilberto definir checklist, cliente, endereço completo, espécies/qtd, prazo, forma de pagamento
 - [ ] **SLA por etapa**: definir tempo máximo aceitável entre etapas (ex: aprovado → separação em 24h)
 
 ---
@@ -124,7 +124,7 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 - [ ] **T5.15** Criar template de ordem de separação (imprimível):
   - Número do pedido
   - Cliente + endereço
-  - Lista: espécie | recipiente | quantidade | lote sugerido (baseado em FIFO — primeiro a plantar, primeiro a sair)
+  - Lista: espécie | recipiente | quantidade | lote sugerido (baseado em FIFO, primeiro a plantar, primeiro a sair)
   - Campo para Débora marcar "separado" à mão
   - QR code que linka para o pedido no sistema
 - [ ] **T5.16** Criar página `/pedidos/[id]/separar` (versão digital da ordem)
@@ -146,5 +146,5 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 - n8n self-hosted é gratuito e ilimitado. Requer VPS com Node.js + Docker.
 - Supabase webhooks usam o recurso Database Webhooks (via pg_net ou Supabase Functions).
 - A ordem de separação com sugestão de lote (FIFO) ajuda a vender mudas mais antigas primeiro.
-- Não integrar emissão de NF nesta fase — verificar API do sistema Sebrae como fase futura.
+- Não integrar emissão de NF nesta fase: verificar API do sistema Sebrae como fase futura.
 - O kanban é visual para João/Gilberto. Débora e funcionários interagem via WhatsApp.

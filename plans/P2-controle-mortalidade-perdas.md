@@ -1,14 +1,14 @@
-# P2 — Controle de Mortalidade e Perdas
+# P2: Controle de Mortalidade e Perdas
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🗂️ **Módulo 2 · Produção** (reorganização de 19/08/2026). Lotes, contagens, perdas, análise
-> de perdas e alerta de mortalidade são registro de campo — ficam em `/producao/*`. As rotas
+> de perdas e alerta de mortalidade são registro de campo, ficam em `/producao/*`. As rotas
 > deste plano já estão atualizadas; o `/app/...` de antes nunca existiu como prefixo real.
 > Mapa em [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md);
 > domínio em [`docs/rotinas/2-producao/03-perdas.md`](../docs/rotinas/2-producao/03-perdas.md).
@@ -16,7 +16,7 @@
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (tabelas species, containers)
-## Bloqueia: P6 (Dashboard — KPI de mortalidade)
+## Bloqueia: P6 (Dashboard, KPI de mortalidade)
 
 ---
 
@@ -39,7 +39,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 - [ ] **Sistema de plaquinhas**: comprar placas de PVC e caneta permanente, identificar cada canteiro com código do lote (Débora + João)
 - [ ] **Padrão de código de lote**: definir formato, ex: `ESP-REC-AAMMDD-SEQ` → `IPE-T-250415-01` (João)
 - [ ] **Contagem inicial**: contar todas as mudas existentes por canteiro/espécie/recipiente e registrar como lote ativo (Débora + funcionários)
-- [ ] **Lista de causas de perda**: validar e ajustar a lista padrão — praga, fungo, seca, alagamento, manuseio, geada, sol excessivo, outro (Gilberto)
+- [ ] **Lista de causas de perda**: validar e ajustar a lista padrão, praga, fungo, seca, alagamento, manuseio, geada, sol excessivo, outro (Gilberto)
 - [ ] **Rotina de contagem**: definir dia do mês para contagem de sobrevivência (Débora)
 
 ---
@@ -91,7 +91,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 - [ ] **T2.7** Criar trigger: quando `batch_counts` é inserido, atualizar `batches.current_quantity`
 - [ ] **T2.8** Criar RLS policies consistentes com P1
 
-### Fase 2: Formulário Mobile — Registro de Lote
+### Fase 2: Formulário Mobile, Registro de Lote
 
 - [ ] **T2.9** Criar página `/producao/lotes/novo`
   - Dropdown de espécie (da tabela `species` de P1)
@@ -107,7 +107,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
   - Ordenar por mortalidade (piores primeiro)
   - Busca por código do lote
 
-### Fase 3: Formulário Mobile — Contagem e Registro de Perda
+### Fase 3: Formulário Mobile, Contagem e Registro de Perda
 
 - [ ] **T2.11** Criar página `/producao/lotes/[id]/contagem`
   - Exibe dados do lote (espécie, quantidade anterior, idade)
@@ -161,4 +161,4 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 - A `batch_mortality_summary` view será consumida pelo Dashboard (P6) como KPI central.
 - Quando P4 (WhatsApp) estiver pronto, alertas de mortalidade serão enviados por WhatsApp.
 - A foto de perda pode ser armazenada no Supabase Storage (bucket `loss-photos`).
-- O código de lote na plaquinha física DEVE ser idêntico ao digital — é o elo de ligação.
+- O código de lote na plaquinha física DEVE ser idêntico ao digital, é o elo de ligação.

@@ -1,9 +1,9 @@
-# E2 — Casos de teste de aceite
+# E2: Casos de teste de aceite
 
-> **Artefato:** Casos de teste de aceite · **Bloco:** E — Qualidade, riscos e segurança
+> **Artefato:** Casos de teste de aceite · **Bloco:** E, Qualidade, riscos e segurança
 > **Destino no TCC:** Capítulo 4, seção 4.8 (amostra) e Apêndice (integral)
 > **Fundamentação:** Sommerville (2011) define o teste de aceite como aquele conduzido com dados
-> reais do cliente, destinado a verificar se o sistema atende às suas necessidades — distinto do
+> reais do cliente, destinado a verificar se o sistema atende às suas necessidades, distinto do
 > teste de desenvolvimento, que verifica se o sistema faz o que o programador pretendeu.
 
 ---
@@ -15,7 +15,7 @@ mínimo necessário para que os casos abaixo se sustentem.
 
 | Nível | O que verifica | Quem executa | Automatizado |
 |---|---|---|---|
-| **Unitário** | Funções utilitárias, regras de negócio e validações isoladas — cálculo de preço, validação de documento, política de senha | Desenvolvimento | Sim |
+| **Unitário** | Funções utilitárias, regras de negócio e validações isoladas, cálculo de preço, validação de documento, política de senha | Desenvolvimento | Sim |
 | **Integração** | Operações de servidor contra o banco, incluindo restrições de integridade e permissão | Desenvolvimento | Sim, com dependências simuladas |
 | **Aceite** | Se o sistema resolve o problema do usuário, com dados reais da empresa | **Usuário, com observação** | Não |
 
@@ -23,11 +23,11 @@ mínimo necessário para que os casos abaixo se sustentem.
 publicada no ambiente de produção com dados reais.
 
 **Critério de aprovação** de um subsistema: todos os seus casos de aceite de prioridade *deve ter*
-resultam em **Aprovado**. Caso reprovado impede a aprovação do subsistema — não existe aprovação
+resultam em **Aprovado**. Caso reprovado impede a aprovação do subsistema: não existe aprovação
 parcial, pela razão registrada em [`E3`, R-10](E3-analise-de-riscos.md): módulo iniciado e não
 validado conta como não entregue.
 
-**Ambiente:** celular Android com navegador de uso corrente, nas condições reais de campo — inclusive
+**Ambiente:** celular Android com navegador de uso corrente, nas condições reais de campo, inclusive
 sob conexão instável, que não é exceção a evitar mas condição a testar.
 
 ---
@@ -55,9 +55,9 @@ autenticação.
 | **TA-01** | RF-01 | Sem sessão ativa | 1. Acessar diretamente o endereço de uma tela interna | Acesso é recusado e o usuário conduzido à autenticação | Não executado |
 | **TA-02** | RF-02 | Usuário recém-criado com senha temporária | 1. Autenticar-se com a senha temporária<br>2. Tentar acessar qualquer outra tela | Sistema exige a definição de nova senha antes de permitir qualquer outra tela | Não executado |
 | **TA-03** | RF-06 | Sessão de perfil colaborador | 1. Acionar diretamente uma operação restrita à chefia | Operação é recusada, ainda que acionada fora da interface | Não executado |
-| **TA-04** | RF-62 | Sessão de perfil gerência | 1. Tentar acessar extrato, lançamento, compra, custo fixo e fechamento — inclusive digitando o endereço direto | Acesso recusado nas cinco. Consulta de preço, custo unitário, margem e indicadores permanecem acessíveis (D4 §3.2) | Não executado |
+| **TA-04** | RF-62 | Sessão de perfil gerência | 1. Tentar acessar extrato, lançamento, compra, custo fixo e fechamento, inclusive digitando o endereço direto | Acesso recusado nas cinco. Consulta de preço, custo unitário, margem e indicadores permanecem acessíveis (D4 §3.2) | Não executado |
 | **TA-05** | RF-07 | Duas sessões ativas do mesmo usuário, em aparelhos distintos | 1. Listar sessões ativas<br>2. Encerrar a sessão do outro aparelho<br>3. Tentar usar o outro aparelho | A sessão encerrada perde o acesso; a sessão atual permanece | Não executado |
-| **TA-06** | RF-04 | — | 1. Tentar autenticar com senha errada<br>2. Autenticar corretamente<br>3. Consultar o registro de acessos | Ambas as tentativas constam, com data, origem e dispositivo | Não executado |
+| **TA-06** | RF-04 | - | 1. Tentar autenticar com senha errada<br>2. Autenticar corretamente<br>3. Consultar o registro de acessos | Ambas as tentativas constam, com data, origem e dispositivo | Não executado |
 
 ## 4. Custeio
 
@@ -81,7 +81,7 @@ autenticação.
 | **TA-13** | RF-26, RNF-01 | Espécies e recipientes cadastrados | 1. Registrar uma perda no celular, em campo | Registro concluído em **no máximo quatro campos**, sem digitação de texto livre | Não executado |
 | **TA-14** | RF-26, RNF-05 | Dispositivo em modo avião | 1. Registrar uma perda sem conexão<br>2. Observar a confirmação<br>3. Restabelecer a conexão | Confirmação aparece imediatamente mesmo sem rede; o registro aparece no sistema após a reconexão | Não executado |
 | **TA-15** | RF-28, RF-29 | Espécie com produção registrada e perdas acumuladas acima de 20% | 1. Registrar perda que ultrapasse o limite<br>2. Acessar o perfil de gerência | Alerta de mortalidade é exibido à gerência, identificando espécie e taxa | Não executado |
-| **TA-16** | RF-29 | — | 1. Verificar se o colaborador que registrou a perda em TA-15 recebeu alerta | **O colaborador não é interrompido.** O alerta dirige-se a quem pode agir | Não executado |
+| **TA-16** | RF-29 | - | 1. Verificar se o colaborador que registrou a perda em TA-15 recebeu alerta | **O colaborador não é interrompido.** O alerta dirige-se a quem pode agir | Não executado |
 
 ## 6. Precificação
 
@@ -93,7 +93,7 @@ autenticação.
 
 > **TA-19 tem uma característica incomum:** seu resultado esperado é encontrar um problema. Se
 > nenhuma margem negativa aparecer no primeiro relatório sobre dados reais, a hipótese mais provável
-> não é que a precificação esteja correta — é que o custo esteja subestimado, e o caso deve ser
+> não é que a precificação esteja correta: é que o custo esteja subestimado, e o caso deve ser
 > reexaminado junto com TA-09.
 
 ## 7. Clientes e pedidos
@@ -101,10 +101,10 @@ autenticação.
 | ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
 |---|---|---|---|---|---|
 | **TA-20** | RF-36 | Cliente inexistente no sistema | 1. Iniciar o cadastro de um pedido<br>2. Acionar o cadastro rápido<br>3. Informar apenas nome e telefone<br>4. Concluir o pedido | O pedido é concluído **sem sair da tela** e sem exigir dados fiscais | Não executado |
-| **TA-21** | RF-38 | — | 1. Informar um CPF inválido no cadastro completo | Documento é recusado no momento da digitação, preservando os demais campos preenchidos | Não executado |
+| **TA-21** | RF-38 | - | 1. Informar um CPF inválido no cadastro completo | Documento é recusado no momento da digitação, preservando os demais campos preenchidos | Não executado |
 | **TA-22** | RF-41 | Espécies e recipientes cadastrados | 1. Registrar um pedido com três itens<br>2. Consultar a lista de pedidos | Pedido aparece na lista, com número sequencial e os três itens | Não executado |
-| **TA-23** | RF-66, RF-67 | — | 1. Registrar item genérico com quantidade e recipiente, sem espécie<br>2. Definir a lista de espécies aceitas<br>3. Na verificação, tentar atender com espécie fora da lista | Item genérico é aceito sem espécie; a espécie fora da lista é recusada | Não executado |
-| **TA-24** | RF-42, RF-43 | Pedido no estado *cadastrado*; estoque menor que o pedido em um item | 1. Verificar a disponibilidade item a item<br>2. Informar a quantidade parcial disponível | Item é registrado como **parcial**, preservando a quantidade pedida e a disponível — e não como indisponível | Não executado |
+| **TA-23** | RF-66, RF-67 | - | 1. Registrar item genérico com quantidade e recipiente, sem espécie<br>2. Definir a lista de espécies aceitas<br>3. Na verificação, tentar atender com espécie fora da lista | Item genérico é aceito sem espécie; a espécie fora da lista é recusada | Não executado |
+| **TA-24** | RF-42, RF-43 | Pedido no estado *cadastrado*; estoque menor que o pedido em um item | 1. Verificar a disponibilidade item a item<br>2. Informar a quantidade parcial disponível | Item é registrado como **parcial**, preservando a quantidade pedida e a disponível, e não como indisponível | Não executado |
 | **TA-25** | RF-68 | Espécie disponível em recipiente diferente do pedido | 1. Na verificação, informar quantidade e recipiente realmente disponível | O sistema registra a quantidade e o recipiente ofertado | Não executado |
 | **TA-26** | RF-44, RF-46 | Pedido no estado *verificado* | 1. Aprovar o pedido | Pedido passa a *aprovado*, a carga de separação é gerada com os itens aprovados, e os responsáveis são notificados | Não executado |
 | **TA-27** | RF-40, RF-45 | Pedido de cliente cadastrado apenas com nome e telefone | 1. No fechamento, indicar que há nota fiscal a emitir | Sistema solicita os dados fiscais **na própria tela**, sem descartar o pedido em andamento | Não executado |
@@ -141,13 +141,13 @@ autenticação.
 
 | ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
 |---|---|---|---|---|---|
-| **TA-41** | RNF-01 | — | 1. Contar os campos de cada formulário destinado ao uso em campo | Nenhum excede cinco campos | Não executado |
-| **TA-42** | RNF-02 | — | 1. Inspecionar cada campo de categoria dos formulários | Nenhum admite entrada livre de texto | Não executado |
+| **TA-41** | RNF-01 | - | 1. Contar os campos de cada formulário destinado ao uso em campo | Nenhum excede cinco campos | Não executado |
+| **TA-42** | RNF-02 | - | 1. Inspecionar cada campo de categoria dos formulários | Nenhum admite entrada livre de texto | Não executado |
 | **TA-43** | RNF-06 | Celular de uso corrente | 1. Executar todas as rotinas de campo no celular | Nenhuma exige rolagem horizontal nem ampliação | Não executado |
 | **TA-44** | RNF-07 | Conexão móvel limitada | 1. Executar as rotinas de campo sob rede lenta | As rotinas se completam em tempo aceitável para uso real | Não executado |
 | **TA-45** | RNF-05 | Registro feito sem conexão | 1. Registrar<br>2. **Recarregar a página**<br>3. Restabelecer a conexão | O registro sobrevive ao recarregamento e é enviado ao reconectar | Não executado |
-| **TA-46** | RNF-12 | — | 1. Inspecionar o código entregue ao navegador | Nenhuma credencial de banco e nenhuma regra de autorização presentes | Não executado |
-| **TA-47** | RNF-09, RNF-10 | — | 1. Inspecionar o armazenamento de usuários e sessões | Nenhuma senha legível; identificadores de sessão apenas em forma protegida | Não executado |
+| **TA-46** | RNF-12 | - | 1. Inspecionar o código entregue ao navegador | Nenhuma credencial de banco e nenhuma regra de autorização presentes | Não executado |
+| **TA-47** | RNF-09, RNF-10 | - | 1. Inspecionar o armazenamento de usuários e sessões | Nenhuma senha legível; identificadores de sessão apenas em forma protegida | Não executado |
 
 ## 12. Casos acrescentados pela matriz de rastreabilidade
 
@@ -168,7 +168,7 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 
 > **TA-51 tem a mesma natureza de TA-09**: confronta o número do sistema com uma apuração manual
 > independente. É o que valida a decisão de manter o estoque como quantidade derivada em vez de
-> entidade armazenada — se os valores divergirem, a derivação está errada.
+> entidade armazenada: se os valores divergirem, a derivação está errada.
 
 ---
 
@@ -192,11 +192,11 @@ Requisitos sem caso de aceite correspondente são identificados pela matriz de r
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de
 prioridade *deve ter* é defeito de especificação, não do teste.
 
-**Sete *deve ter* estão hoje descobertos** — RF-69, RF-70, RF-71, RF-72, RF-73, RF-74 e RF-76,
+**Sete *deve ter* estão hoje descobertos**: RF-69, RF-70, RF-71, RF-72, RF-73, RF-74 e RF-76,
 todos da agenda de pessoal e do custo de mão de obra, acrescentados a `B2` em 19/08/2026. Pelo
 critério do parágrafo anterior, isso é defeito de especificação a corrigir, e está registrado como
 lacuna aberta em [`B5` §5.5](../B-requisitos/B5-matriz-rastreabilidade.md). Enquanto os casos não
-existirem, **o subsistema de agenda de pessoal não tem critério de aprovação declarado** — e a
+existirem, **o subsistema de agenda de pessoal não tem critério de aprovação declarado**, e a
 tabela acima não deve ser lida como cobertura completa.
 
 ---
@@ -204,7 +204,7 @@ tabela acima não deve ser lida como cobertura completa.
 ## 14. Registro de execução
 
 A execução preenche a coluna **Situação** e acrescenta, para cada caso reprovado: data, executor,
-observação e a decisão tomada — corrigir, aceitar com ressalva, ou reclassificar o requisito.
+observação e a decisão tomada: corrigir, aceitar com ressalva, ou reclassificar o requisito.
 
 Os casos de aceite são executados **pelos próprios usuários da empresa**, sob observação, o que os
 integra à mesma sessão de avaliação de usabilidade descrita em

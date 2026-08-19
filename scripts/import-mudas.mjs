@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Carrega .env.local se existir (node nao carrega automaticamente) — mesma logica de migrate.ts
+// Carrega .env.local se existir (node nao carrega automaticamente), mesma logica de migrate.ts
 const envPath = join(process.cwd(), '.env.local')
 if (existsSync(envPath)) {
   for (const line of readFileSync(envPath, 'utf-8').split('\n')) {

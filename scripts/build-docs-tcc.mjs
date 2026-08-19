@@ -87,33 +87,33 @@ const SECOES = [
   // Fora do Capitulo 4
   {
     arquivo: 'cap2-acrescimos-referencial.md',
-    titulo: 'Capítulo 2.5 — Acréscimos ao referencial teórico',
+    titulo: 'Capítulo 2.5, Acréscimos ao referencial teórico',
     fontes: ['E-qualidade/E5-E6-referencial-cap2.md'],
   },
   {
     arquivo: 'cap3-analise-de-riscos.md',
-    titulo: 'Capítulo 3 — Análise de riscos do projeto',
+    titulo: 'Capítulo 3, Análise de riscos do projeto',
     fontes: ['E-qualidade/E3-analise-de-riscos.md'],
   },
   // Apendices
   {
     arquivo: 'apendice-A-glossario.md',
-    titulo: 'Apêndice A — Glossário do domínio',
+    titulo: 'Apêndice A, Glossário do domínio',
     fontes: ['A-fundacao/A2-glossario-dominio.md'],
   },
   {
     arquivo: 'apendice-B-dicionario-de-dados.md',
-    titulo: 'Apêndice B — Dicionário de dados',
+    titulo: 'Apêndice B, Dicionário de dados',
     fontes: ['C-modelagem/C8-dicionario-de-dados.md'],
   },
   {
     arquivo: 'apendice-C-casos-de-teste.md',
-    titulo: 'Apêndice C — Casos de teste de aceite',
+    titulo: 'Apêndice C, Casos de teste de aceite',
     fontes: ['E-qualidade/E2-casos-de-teste-de-aceite.md'],
   },
   {
     arquivo: 'apendice-D-quadros.md',
-    titulo: 'Apêndice D — Quadros de regras de negócio e requisitos',
+    titulo: 'Apêndice D, Quadros de regras de negócio e requisitos',
     fontes: ['B-requisitos/B4-quadros-tcc.md'],
   },
 ]
@@ -131,7 +131,7 @@ function limpaCabecalho(md) {
   return linhas.slice(i).join('\n').trimStart()
 }
 
-/** Ultimo titulo markdown antes da posicao — vira legenda da figura. */
+/** Ultimo titulo markdown antes da posicao, vira legenda da figura. */
 function legendaAnterior(md, pos) {
   const antes = md.slice(0, pos).split('\n').reverse()
   for (const l of antes) {
@@ -156,7 +156,7 @@ function renderizaPng(codigo, nome) {
 function trocaDiagramas(md, prefixo) {
   // `\r?` porque no Windows o checkout entrega parte dos artefatos em CRLF
   // (core.autocrlf). Sem ele a regex nao casa e o diagrama some do Word em
-  // silencio — foi o que aconteceu com as seis figuras de D1 e D3 ate 19/08/2026.
+  // silencio: foi o que aconteceu com as seis figuras de D1 e D3 ate 19/08/2026.
   return md.replace(/```mermaid\r?\n([\s\S]*?)```/g, (bloco, codigo, offset) => {
     figura += 1
     const n = figura
@@ -168,9 +168,9 @@ function trocaDiagramas(md, prefixo) {
       process.stdout.write('ok\n')
     }
     return [
-      `![Figura ${n} — ${legenda}](img/${nome}.png)`,
+      `![Figura ${n}: ${legenda}](img/${nome}.png)`,
       '',
-      `**Figura ${n}** — ${legenda}. Fonte: elaborado pelo autor (2026).`,
+      `**Figura ${n}**: ${legenda}. Fonte: elaborado pelo autor (2026).`,
     ].join('\n')
   })
 }
@@ -193,7 +193,7 @@ for (const secao of SECOES) {
     `# ${secao.titulo}`,
     '',
     `> Gerado a partir de ${secao.fontes.map((f) => '`' + f + '`').join(', ')}.`,
-    '> **Não edite este arquivo** — edite o artefato de origem e rode `npm run docs:tcc`.',
+    '> **Não edite este arquivo**: edite o artefato de origem e rode `npm run docs:tcc`.',
     '',
     '---',
     '',
@@ -212,7 +212,7 @@ const apendices = indice.filter((s) => s.arquivo.startsWith('apendice'))
 
 const guia = `# Como montar o TCC a partir desta pasta
 
-> **Pasta gerada automaticamente.** Não edite nada aqui — edite o artefato de origem em
+> **Pasta gerada automaticamente.** Não edite nada aqui, edite o artefato de origem em
 > \`docs/engenharia/\` e rode \`npm run docs:tcc\`. Qualquer edição feita nesta pasta é perdida
 > na próxima geração.
 
@@ -231,7 +231,7 @@ ${fora.map((s) => `- \`${s.arquivo}\` → ${s.titulo}`).join('\n')}
 > acréscimo, o Capítulo 4 afirma o que o Capítulo 2 não sustenta.
 >
 > **\`cap3-analise-de-riscos.md\` não pertence ao Capítulo 4.** Análise de riscos do projeto é
-> elemento de metodologia — cabe como seção nova no Capítulo 3.
+> elemento de metodologia: cabe como seção nova no Capítulo 3.
 
 ## Apêndices
 
@@ -249,12 +249,12 @@ Ao colar no Word:
 
 1. Insira a imagem por **Inserir → Imagens → Este dispositivo**, apontando para o arquivo em \`img/\`.
 2. Aplique **Inserir legenda** na figura, para que o Word mantenha a numeração automática e permita
-   gerar a lista de figuras. A legenda já está escrita no texto — use-a como conteúdo.
+   gerar a lista de figuras. A legenda já está escrita no texto, use-a como conteúdo.
 3. Confira a largura: as imagens foram geradas a 1400 px e devem ser reduzidas à largura da mancha
    de texto.
 
 > A **Lista de Figuras** do trabalho hoje traz apenas os títulos de exemplo. Com ${figura} figuras,
-> ela passa a ser obrigatória — o próprio modelo indica que a lista é exigida acima de cinco figuras.
+> ela passa a ser obrigatória: o próprio modelo indica que a lista é exigida acima de cinco figuras.
 
 ## Tabelas
 

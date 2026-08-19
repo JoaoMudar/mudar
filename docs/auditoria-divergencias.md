@@ -1,4 +1,4 @@
-# Auditoria de divergências — docs × planos × código
+# Auditoria de divergências: docs × planos × código
 
 > Feita em **10/08/2026**, antes de retomar o desenvolvimento. Objetivo: colocar toda a
 > documentação na mesma linha, para que nenhum plano mande construir algo que o sistema
@@ -28,7 +28,7 @@
 
 ---
 
-## A — Stack fantasma (Supabase em 6 planos)
+## A: Stack fantasma (Supabase em 6 planos)
 
 O projeto **não usa Supabase**. Usa PostgreSQL direto (`pg` local / `@neondatabase/serverless`
 em produção) com Server Actions do Next.js. A própria migration diz isso:
@@ -58,7 +58,7 @@ Mesmo assim, seis planos ainda mandam construir sobre Supabase:
 de perfil na Server Action (é o que `D4` já especifica); Realtime → `revalidatePath` ou polling;
 Storage → `public/uploads/`; webhook do Supabase → chamada HTTP a partir da própria Server Action.
 
-## B — Tarefa marcada como feita que foi desfeita
+## B: Tarefa marcada como feita que foi desfeita
 
 `plans/P1-custeio-por-especie.md` linha 76:
 
@@ -66,35 +66,35 @@ Storage → `public/uploads/`; webhook do Supabase → chamada HTTP a partir da 
 - [x] **T1.8** Criar RLS policies: apenas usuários autenticados leem/escrevem. Admin full access.
 ```
 
-A migration correspondente não cria política nenhuma — remove o conceito. O `[x]` afirma uma
+A migration correspondente não cria política nenhuma, remove o conceito. O `[x]` afirma uma
 proteção que não existe. É o tipo de marca que, mantida, faz alguém assumir que o banco tem
 defesa própria e escrever uma Server Action sem checar perfil.
 
-## C — Cabeçalho de status mentindo
+## C: Cabeçalho de status mentindo
 
 | Plano | Cabeçalho diz | Caixas marcadas | Realidade |
 |---|---|---|---|
 | **P1** | `## Status: NÃO INICIADO` | 16 de 32 | tabelas, view e todos os CRUDs prontos; falta o motor de cálculo |
 | **P12** | Fase 0 concluída | 1 de 7 | correto |
-| **P11** | bloco `📌 STATUS`, datado e detalhado | 25 de 25 | correto — só não usa o formato `## Status:` dos demais |
+| **P11** | bloco `📌 STATUS`, datado e detalhado | 25 de 25 | correto: só não usa o formato `## Status:` dos demais |
 | P2…P10 | NÃO INICIADO | 0 | correto |
 
 Só o **P1** afirma algo falso. O P11 usa um formato próprio de status, mais rico que o dos
 outros; a inconsistência é de forma, não de conteúdo.
 
-## D — `colaborador` nos docs × `funcionario` no banco
+## D: `colaborador` nos docs × `funcionario` no banco
 
 ```sql
 -- migrations/20260521000001_auth_users_sessions.sql
 CREATE TYPE user_role AS ENUM ('admin', 'chefia', 'gerencia', 'funcionario');
 ```
 
-Toda a documentação — `00-mapa-de-rotinas`, `D4 Matriz RBAC`, `C1 Casos de uso`,
-`G2 Indicadores`, `B2 Requisitos` — chama esse perfil de **Colaborador**. A palavra
+Toda a documentação: `00-mapa-de-rotinas`, `D4 Matriz RBAC`, `C1 Casos de uso`,
+`G2 Indicadores`, `B2 Requisitos`: chama esse perfil de **Colaborador**. A palavra
 `colaborador` não aparece em uma linha de código.
 
 O problema piora com o [cadastro único](rotinas/1-cadastros/00-visao-geral.md): lá, `funcionario` é um
-**papel de cadastro** (`cadastro.party_roles`), que significa "é nosso empregado" — e existe
+**papel de cadastro** (`cadastro.party_roles`), que significa "é nosso empregado", e existe
 para gente que não tem login nenhum. Passa a haver dois `funcionario` com sentidos diferentes:
 
 | Termo | Onde | Significa |
@@ -105,7 +105,7 @@ para gente que não tem login nenhum. Passa a haver dois `funcionario` com senti
 Gilberto é chefia no primeiro sentido e funcionário no segundo. Sem desambiguar, a matriz RBAC
 e o cadastro vão brigar na primeira consulta que juntar os dois.
 
-## E — Roadmap desatualizado em três lugares
+## E: Roadmap desatualizado em três lugares
 
 O diagrama `P1 → P10` está copiado em `CLAUDE.md`, `docs/contexto-projeto.md` e
 `docs/README.md`. Nenhuma das três cópias inclui **P11** (concluído), **P12** (em curso) ou
@@ -113,23 +113,23 @@ O diagrama `P1 → P10` está copiado em `CLAUDE.md`, `docs/contexto-projeto.md`
 continuam mostrando só o encadeamento original.
 
 A ordem real de execução também não foi a planejada: o que se construiu primeiro foi
-Pedidos/Clientes/Fornecedores — que sequer existiam no roadmap original.
+Pedidos/Clientes/Fornecedores: que sequer existiam no roadmap original.
 
-## F — `EXECUTION-GUIDE` fossilizado
+## F: `EXECUTION-GUIDE` fossilizado
 
 `docs/EXECUTION-GUIDE.md` descreve um cronograma de 4 meses, sessão por sessão, de P1 a P10.
 Três problemas:
 
 1. **A realidade não seguiu.** "Sprint 1 Sessão 2: P2 Fase 1" nunca aconteceu; P2 está zerado
    e o que se construiu foi P11.
-2. **A árvore de arquivos está errada** — não mostra `migrations/`, `docs/rotinas/`,
+2. **A árvore de arquivos está errada**: não mostra `migrations/`, `docs/rotinas/`,
    `docs/engenharia/`, `data/seeds/`.
 3. **Não menciona** os testes obrigatórios nem o hook de pre-commit, que hoje são regra do
    `CLAUDE.md` e bloqueiam commit.
 
-## G — Dois documentos definindo os mesmos indicadores
+## G: Dois documentos definindo os mesmos indicadores
 
-| | `G2 — Fichas de indicadores` | `P6 — Dashboard` |
+| | `G2: Fichas de indicadores` | `P6: Dashboard` |
 |---|---|---|
 | Quantos | 9 (IND-01 a IND-09) | "5-7, a definir" |
 | Especificação | fórmula, fonte, janela, meta, faixas, responsável | lista de nomes |
@@ -139,19 +139,19 @@ Três problemas:
 São a mesma tela especificada duas vezes, e `P6` é a versão mais fraca e mais antiga. Quem
 implementar o dashboard lendo só o plano vai construir a coisa errada.
 
-## H — Pendências já registradas do P13
+## H: Pendências já registradas do P13
 
 Cadastro único e agenda de pessoal ainda não constam da engenharia: faltam ~8 RF em `B2`, o
 subsistema Cadastros em `C1`, quatro entidades em `C6`/`C8`, a regra do colaborador em `D4` e
 as linhas novas em `B5`. Lista completa em
 [`plans/P13-producao-agenda-cadastros.md`](../plans/P13-producao-agenda-cadastros.md).
 
-> ✅ **Resolvido em 19/08/2026** — RF-69 a RF-76 no `B2`, RN-48 a RN-55 no `B3`, UC-41 a UC-44 no
+> ✅ **Resolvido em 19/08/2026**: RF-69 a RF-76 no `B2`, RN-48 a RN-55 no `B3`, UC-41 a UC-44 no
 > `C1`, as quatro entidades da agenda em `C6`/`C8`, a regra §3.11 no `D4` e as linhas do `B5`.
 > Detalhe na terceira passada, no fim deste arquivo. Ficaram de fora, com motivo declarado, o `C2`
 > e os indicadores novos do `G2`.
 
-## I — O que **não** é divergência
+## I: O que **não** é divergência
 
 `C6`/`C8` especificam **45 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
 declarado em `docs/engenharia/00-indice.md`:
@@ -163,7 +163,7 @@ As entidades ainda não criadas (`production_activities`, `loss_events`, `stock_
 `accounts`, `cost_centers`, `categories`, `transactions`, `transaction_splits`,
 `classification_rules`, `periods`, `statement_imports`, `sale_channels`, `sale_prices` e, desde
 19/08/2026, `task_types`, `week_plans`, `assignments`, `labor_rates`) correspondem a P2, P3, P12 e
-P13 — projetos especificados e não implementados. `parties`, `party_roles` e `addresses` saíram
+P13: projetos especificados e não implementados. `parties`, `party_roles` e `addresses` saíram
 desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
 
 **Também conferido e consistente:**
@@ -175,7 +175,7 @@ desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
 - Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso. *(Em 19/08/2026 passaram a 76 RF e 44 casos de uso, com os requisitos da agenda de pessoal.)*
 - Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `4-financeiro/` e `C8`.
 
-## J — Migrations marcadas como aplicadas que nunca rodaram
+## J: Migrations marcadas como aplicadas que nunca rodaram
 
 > Achado em **11/08/2026**, fora da rodada anterior: só apareceu ao tentar acrescentar uma
 > coluna a `input_usages`.
@@ -187,41 +187,41 @@ desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
 20260413000004_p1_input_price_history.sql
 ```
 
-As duas tabelas **não existiam em nenhum dos dois bancos** — nem no Postgres local (24 tabelas)
+As duas tabelas **não existiam em nenhum dos dois bancos**, nem no Postgres local (24 tabelas)
 nem no Neon (23). Havia ainda um registro sem arquivo correspondente,
 `20260521100006_pedidos_partial_availability.sql`, confirmando uso de `--mark-applied` no
 passado.
 
 É a **lição nº 7 do post-mortem acontecendo de fato**: migration marcada sem ter sido executada.
-O histórico afirmava um schema que o banco não tinha, e nada acusou — porque migration marcada
+O histórico afirmava um schema que o banco não tinha, e nada acusou: porque migration marcada
 nunca mais é tentada.
 
 **O que estava quebrado em produção, silenciosamente:**
 
 | Tela | Tarefa no P1 | Sintoma |
 |---|---|---|
-| `/insumos/registrar` | T1.10–T1.12 (marcadas `[x]`) | todo envio falhava — tabela de destino inexistente |
+| `/insumos/registrar` | T1.10–T1.12 (marcadas `[x]`) | todo envio falhava: tabela de destino inexistente |
 | `/admin/insumos` → histórico de preço | T1.15 (marcada `[x]`) | `getPriceHistory` falhava |
 
 **Correção:** `migrations/20260811000002_repara_tabelas_p1_ausentes.sql` recria as duas com a
-definição original, sem `IF NOT EXISTS` — se algum banco já as tiver, deve falhar alto e parar o
+definição original, sem `IF NOT EXISTS`: se algum banco já as tiver, deve falhar alto e parar o
 deploy em vez de passar em silêncio. O registro fantasma foi mantido: apagar linha de
 `_migrations` à mão é o que produz este tipo de problema.
 
 **Prevenção:** o achado só existiu porque alguém foi mexer na tabela. Não há hoje nada que
 compare o schema declarado nas migrations com o schema real. Fica registrado como candidato a
-teste de CI — comparar `CREATE TABLE` das migrations com `pg_tables` do banco alvo.
+teste de CI: comparar `CREATE TABLE` das migrations com `pg_tables` do banco alvo.
 
 ---
 
-## Correções aplicadas — 10/08/2026
+## Correções aplicadas: 10/08/2026
 
 | # | Decisão | O que mudou |
 |---|---|---|
 | **A** | Marcar, não reescrever | Bloco de alerta no topo de P1, P2, P3, P5, P6, P7 e P9, com a tabela de tradução (Edge Function → Server Action, RLS → checagem de perfil, Storage → `public/uploads/`, Realtime → `revalidatePath`, webhook → chamada HTTP na própria action) |
 | **B** | Desmarcar | `P1 T1.8` voltou a `[ ]`, riscado, apontando para a migration que removeu RLS e para a `D4` como controle real |
-| **C** | Corrigir | `P1` passou a `Status: PARCIAL — 16 de 32`, com o que está feito e o que falta |
-| **D** | Renomear o banco | Migration `20260810000001` — `ALTER TYPE user_role RENAME VALUE 'funcionario' TO 'colaborador'`; 13 referências no código; `C8` e o apêndice B do TCC. **Aplicada no Postgres local; falta aplicar no Neon antes do próximo deploy.** |
+| **C** | Corrigir | `P1` passou a `Status: PARCIAL, 16 de 32`, com o que está feito e o que falta |
+| **D** | Renomear o banco | Migration `20260810000001`: `ALTER TYPE user_role RENAME VALUE 'funcionario' TO 'colaborador'`; 13 referências no código; `C8` e o apêndice B do TCC. **Aplicada no Postgres local; falta aplicar no Neon antes do próximo deploy.** |
 | **E** | Roadmap único | `contexto-projeto.md` passou a ser a fonte, com estado real por projeto e P13 antes do P1; `CLAUDE.md` e `docs/README.md` apontam para lá |
 | **F** | Reescrever | `EXECUTION-GUIDE.md` refeito a partir de onde o projeto está, com a ordem nova, os comandos reais e a distinção Neon × Supabase |
 | **G** | `G2` é a fonte | Alerta no topo do `P6`: implementar pelas 9 fichas do `G2`; as listas de KPI do plano ficam como histórico |
@@ -230,7 +230,7 @@ teste de CI — comparar `CREATE TABLE` das migrations com `pg_tables` do banco 
 ### Por que "marcar" e não "reescrever" nos planos Supabase
 
 Reescrever as tarefas de infraestrutura de sete planos não implementados produziria muito
-texto novo sobre decisões que ainda não foram tomadas — e que serão tomadas melhor no momento
+texto novo sobre decisões que ainda não foram tomadas, e que serão tomadas melhor no momento
 de implementar, com o código na frente. O alerta no topo resolve o risco real, que é alguém
 implementar sem perceber a troca de stack.
 
@@ -238,13 +238,13 @@ implementar sem perceber a troca de stack.
 
 **P13 passou na frente do P1.** O custo unitário depende da mão de obra, e a mão de obra só
 existe quando a agenda de pessoal registrar horas. Enquanto isso não acontecer, o motor de
-cálculo do P1 (T1.18–T1.20) só sabe somar insumo e custo fixo — devolveria um custo
+cálculo do P1 (T1.18–T1.20) só sabe somar insumo e custo fixo, devolveria um custo
 sistematicamente subestimado, que é exatamente o erro que o projeto existe para corrigir.
 
 
 ---
 
-## K — Sete taxonomias de módulo concorrentes
+## K: Sete taxonomias de módulo concorrentes
 
 > Encontrada em **19/08/2026**. Corrigida na mesma data.
 
@@ -268,7 +268,7 @@ documento; Custeio e Precificação ora eram "o que a produção gera", ora Fina
 fixos e Coleta de sementes estavam em três lugares ao mesmo tempo (tela em `/admin`,
 permissão sob Produção, mapa sob Cadastros); o fornecedor aparecia duas vezes no mapa v2,
 contra o cadastro único que o P12 Fase 1 estava construindo; e o `mapa-sistema-v2` não era
-referenciado por nenhum `.md` — o mapa de rotinas ainda embutia a v1.
+referenciado por nenhum `.md`: o mapa de rotinas ainda embutia a v1.
 
 **Correção.** Uma taxonomia só: **Cadastros · Produção · Comercial · Financeiro**, com Acesso
 transversal. Regra de corte de Cadastros mantida do `1-cadastros/00-visao-geral.md` (*é cadastro se, ao
@@ -278,11 +278,11 @@ e os Dashboards foram para o Financeiro; Indicadores deixou de ser módulo próp
 passou a nascer no Financeiro, com a seta de retorno para a Produção que faltava.
 
 **O que impede a divergência de voltar:** a lista de telas de cada módulo passou a viver em
-`src/lib/modules.ts` — uma fonte só, lida pelo painel inicial, pelos hubs e pelas abas — e
+`src/lib/modules.ts` (uma fonte só, lida pelo painel inicial, pelos hubs e pelas abas) e
 `src/lib/__tests__/modules.test.ts` confere cada link contra as rotas que existem em
 `src/app/` e contra a matriz de permissões.
 
-### Adendo — cliente e fornecedor viram papéis de uma pessoa
+### Adendo: cliente e fornecedor viram papéis de uma pessoa
 
 Na primeira passada eu deixei Clientes e Fornecedores como **duas abas irmãs** em
 `/cadastros`, o que reintroduzia em menor escala a mesma divergência: o modelo de dados diz
@@ -290,7 +290,7 @@ Na primeira passada eu deixei Clientes e Fornecedores como **duas abas irmãs** 
 
 Corrigido em 19/08/2026: `/cadastros/pessoas` é uma lista só de `cadastro.parties`, com
 filtro por papel e um selo por papel em cada linha. As telas `/clientes` e `/fornecedores`
-continuam sendo as telas **do papel** — é lá que vivem os campos que não são de identidade
+continuam sendo as telas **do papel**: é lá que vivem os campos que não são de identidade
 (dados fiscais e CNPJ de um lado; espécies, confiabilidade e geocodificação do outro).
 
 Dois efeitos colaterais que valem registro:
@@ -298,21 +298,21 @@ Dois efeitos colaterais que valem registro:
 - O recurso **`funcionario`** entrou na matriz de permissões (`src/lib/permissions.ts`),
   declarado como pendência do D4 no mesmo molde de `tarefa`. Sem ele, o filtro de
   funcionário cairia numa permissão emprestada.
-- `ModuleLink.permission` passou a aceitar lista, avaliada com `canAny` — Pessoas reúne três
+- `ModuleLink.permission` passou a aceitar lista, avaliada com `canAny`, Pessoas reúne três
   recursos numa tela só. `canLink()` é o único lugar que decide se um atalho aparece.
 
 A ficha da pessoa (`/cadastros/pessoas/[id]`) nasceu junto, e com uma finalidade declarada: é
 onde *quanto compramos e quanto vendemos para esta pessoa* vai ser respondido. Hoje ela mostra
 volume de venda e valor cotado de compra, e diz na tela que o valor em reais depende da Fase 2
-do P12 — `order_items` não tem preço, então o número virá do extrato, apontando para a mesma
+do P12: `order_items` não tem preço, então o número virá do extrato, apontando para a mesma
 `party_id`. Ver também [`divida-tecnica.md`](divida-tecnica.md) §8, que registra o conserto que
 `mergeParties` vai precisar quando essa tabela existir.
 
-### Segunda passada — a documentação alcança o código (19/08/2026)
+### Segunda passada: a documentação alcança o código (19/08/2026)
 
 A reconciliação do achado K parou no código e nos diagramas. Uma comparação entre o mapa novo
 e o que estava planejado mostrou que **o resto da documentação continuava na taxonomia
-antiga** — e, em três pontos, dizendo coisa que o sistema já não fazia. Corrigido nesta
+antiga**: e, em três pontos, dizendo coisa que o sistema já não fazia. Corrigido nesta
 passada:
 
 | Onde | O que estava | O que ficou |
@@ -328,36 +328,36 @@ passada:
 
 **A correção de fundo: "o financeiro é exclusivo da chefia" era falso desde o reagrupamento.**
 `D4 §3.2` dizia restrição total do subsistema, mas o módulo 4 passou a abrigar custo unitário,
-margem, preço e indicadores — quatro recursos que a matriz sempre deu à gerência em leitura, e
+margem, preço e indicadores: quatro recursos que a matriz sempre deu à gerência em leitura, e
 que `src/lib/permissions.ts` de fato dá. A regra foi reescrita para o que é verdade e é
 defensável: **restringe-se o que expõe a base bancária; o que dela deriva permanece legível**.
 `RF-62`, `RN-44`, `TA-04` e o painel do `G2 §6` foram alinhados a esse enunciado.
 
 **Achado lateral, de ferramenta.** `npm run docs:tcc` vinha descartando **seis das vinte e uma
-figuras** — as de `D1` e `D3` — em silêncio: no Windows o checkout entrega esses artefatos em
+figuras** (as de `D1` e `D3`) em silêncio: no Windows o checkout entrega esses artefatos em
 CRLF (`core.autocrlf`) e a regex do gerador exigia `\n`. As figuras do Word estavam
 desatualizadas desde a reescrita do `D1`. Corrigido em `scripts/build-docs-tcc.mjs` com
 `\r?\n`; a pasta `word/` foi regerada com as 21.
 
-### Terceira passada — o resto (19/08/2026)
+### Terceira passada: o resto (19/08/2026)
 
 O que a segunda passada não alcançou, resolvido na mesma data.
 
 **A regra do módulo restrito não tinha chegado ao código.** `permissions.ts`, `modules.ts` e o
 comentário do próprio teste ainda diziam "exclusivo da chefia" a três linhas de `custo_unitario`,
 `margem_canal`, `preco_venda` e `indicador`, que dão `ler` à gerência. Corrigidos, e o teste ganhou
-as quatro asserções do lado que faltava — sem elas, "consertar" o módulo restrito fechando o que
+as quatro asserções do lado que faltava: sem elas, "consertar" o módulo restrito fechando o que
 nunca foi fechado passaria despercebido. A transcrição do `D4 §2` no teste também estava
 incompleta: `Funcionários` e `Tarefas` entraram.
 
 **Os mapas: cor na fonte, cinza na figura.** Os três diagramas de topo discordavam entre si sobre o
 status de Comercial e de Financeiro, e os sub-mapas usavam outro vocabulário de classes. Agora são
-oito arquivos com as mesmas três classes (`ok`/`meio`/`falta`), definidas **em cores** — e
+oito arquivos com as mesmas três classes (`ok`/`meio`/`falta`), definidas **em cores**, e
 `npm run docs:mapas` troca a paleta por escala de cinza só na hora de renderizar. O status passou a
 ser contado por critério verificável: quantas etapas da tabela de cada módulo têm tela
 (Cadastros 4/6, Produção 2/10, Comercial 6/8, Financeiro 1/9), com a fração no rótulo do nó.
 
-**`C6` e `C8` adotaram os quatro módulos** — as duas últimas peças em taxonomia própria. A objeção
+**`C6` e `C8` adotaram os quatro módulos**: as duas últimas peças em taxonomia própria. A objeção
 de perder arestas ao separar entidades relacionadas foi resolvida com a convenção de **caixa
 vazia**: a entidade de outro módulo aparece sem atributos, só para a aresta existir.
 
@@ -369,7 +369,7 @@ entidades da agenda, `D4` a regra **§3.11** (a tarefa é a primeira permissão 
 registro, não do perfil) e `B5` as linhas correspondentes.
 
 **Ficaram de fora, com motivo declarado:** `C2`, que detalha oito casos escolhidos e não os 44; e
-indicadores novos no `G2`, porque os três que o P13 sugeria eram *possíveis*, não pedidos — e cada
+indicadores novos no `G2`, porque os três que o P13 sugeria eram *possíveis*, não pedidos, e cada
 ficha do G2 exige meta e responsável, que teriam de ser inventados junto.
 
 **Contagens acertadas.** Várias estavam erradas e se repetiam por até sete arquivos: as entidades

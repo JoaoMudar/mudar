@@ -1,4 +1,4 @@
-# Fase 5: Analise e Fechamento de Pedido (Chefia — Desktop)
+# Fase 5: Analise e Fechamento de Pedido (Chefia, Desktop)
 
 ## Objetivo
 Apos a gerencia verificar disponibilidade (e atribuir especies em itens genericos),
@@ -13,13 +13,13 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 
 ## Tarefas
 
-### T5.1 — Server Actions de analise
+### T5.1: Server Actions de analise
 - [x] Adicionar em `src/app/pedidos/actions.ts`:
 - [x] `approveOrder(orderId, userId)`:
   1. Validar que status eh `verificado`
   2. Mudar status para `aprovado`
   3. Registrar historico
-  4. Notificar gerencia: "Pedido #47 aprovado — separar ate DD/MM"
+  4. Notificar gerencia: "Pedido #47 aprovado, separar ate DD/MM"
 - [x] `requestChanges(orderId, userId, notes?)`:
   1. Validar que status eh `verificado`
   2. Mudar status para `pendente_alteracao`
@@ -33,14 +33,14 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
   5. Se houver novos itens, inseri-los com `is_available = NULL`
   6. Para itens genericos alterados: remover filhos (serao re-atribuidos pela gerencia)
   7. Mudar status para `cadastrado` (volta pro ciclo de verificacao)
-  8. Notificar gerencia: "Pedido #47 alterado — verificar novamente"
+  8. Notificar gerencia: "Pedido #47 alterado, verificar novamente"
 - [x] `approvePartial(orderId, userId, keepItemIds)`:
   1. Remover itens nao incluidos em keepItemIds (e seus filhos se genericos)
   2. Mudar status para `aprovado`
   3. Registrar historico
   4. Notificar gerencia
 
-### T5.2 — Pagina de detalhes do pedido
+### T5.2: Pagina de detalhes do pedido
 - [x] Criar `src/app/pedidos/[id]/page.tsx` (server component)
 - [x] Acessivel para admin, chefia, gerencia
 - [x] Carregar pedido completo com `getOrderById(id)`
@@ -59,7 +59,7 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 - Colunas: Especie | Recipiente | Quantidade | Disponibilidade | Obs. Gerencia
 - Itens especificos: exibir especie + recipiente normalmente
 - Itens genericos: exibir com destaque diferente:
-  - Linha pai: "GENERICO — Min: Saco 10x18 — 1000 un" com badge
+  - Linha pai: "GENERICO (Min: Saco 10x18) 1000 un" com badge
   - Linhas filhas (indentadas): especies atribuidas pela gerencia com quantidades
   - Ex: "  -> Ipe Amarelo | Saco 10x18 | 300" / "  -> Araucaria | Saco 17x22 | 300"
 - Disponibilidade exibida como:
@@ -83,7 +83,7 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 | `separando` | gerencia | (ver fase 6) |
 | `pronto_envio` | chefia | (futuro: criar entrega) |
 
-### T5.3 — Componente de analise (chefia)
+### T5.3: Componente de analise (chefia)
 - [x] Criar `src/app/pedidos/[id]/OrderAnalysis.tsx` (client component)
 - [x] Visivel quando status = `verificado` e role = chefia/admin
 - [x] Mostrar tabela de itens com indicadores visuais claros:
@@ -97,10 +97,10 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 - [x] Se ALGUNS indisponiveis:
   - Destaque: "3 de 7 itens indisponiveis"
   - Botao: "Aprovar apenas disponiveis" (remove itens indisponiveis e aprova)
-  - Botao: "Editar pedido" (vai para modo edicao — trocar especie, quantidade, etc)
+  - Botao: "Editar pedido" (vai para modo edicao, trocar especie, quantidade, etc)
   - Botao: "Cancelar pedido"
 
-### T5.4 — Modo edicao de itens (para pendente_alteracao)
+### T5.4: Modo edicao de itens (para pendente_alteracao)
 - [x] Criar `src/app/pedidos/[id]/editar/page.tsx`
 - [x] Proteger com `requireRole('admin', 'chefia')`
 - [x] Reutilizar logica similar ao formulario de criacao (T3.4):
@@ -114,9 +114,9 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 - [x] Itens indisponiveis destacados em vermelho com observacao da gerencia
 - [x] Itens genericos mostram a composicao que a gerencia definiu (referencia visual)
 - [x] Ao salvar: chama `updateOrderAfterReview` que volta o pedido para verificacao
-- [x] Toast: "Pedido alterado — enviado para re-verificacao"
+- [x] Toast: "Pedido alterado, enviado para re-verificacao"
 
-### T5.5 — Fluxo de re-verificacao
+### T5.5: Fluxo de re-verificacao
 - [x] Garantir que ao voltar para `cadastrado` apos edicao:
   - Itens especificos que nao foram alterados manteem `is_available`
   - Itens especificos alterados recebem `is_available = NULL`
@@ -127,7 +127,7 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 - [x] Na tela de verificacao (Fase 4), itens ja verificados aparecem com marca mas editaveis
 - [x] Barra de progresso conta apenas itens com `is_available IS NULL`
 
-## Wireframe — Pagina de Detalhes com Genericos (Desktop)
+## Wireframe: Pagina de Detalhes com Genericos (Desktop)
 
 ```
 +====================================================================+
@@ -161,11 +161,11 @@ Se faltam itens: marca como pendente alteracao, ajusta itens, e reenvia ou cance
 ```
 
 ## Notas Tecnicas
-- A pagina de detalhes eh a "central" do pedido — usada em todas as fases
+- A pagina de detalhes eh a "central" do pedido, usada em todas as fases
 - Acoes mudam dinamicamente conforme status e role do usuario
 - A edicao de itens deve ser uma transacao atomica (tudo ou nada)
 - Ao aprovar parcial, os itens removidos devem constar no historico (notes)
 - Ao remover item generico, seus filhos sao removidos em cascata (ON DELETE CASCADE)
-- Considerar: Gilberto pode querer ligar pro cliente antes de decidir — o pedido pode ficar em `verificado` por horas/dias
-- A composicao do generico eh apenas informativa para a chefia — ele ve o que a gerencia escolheu mas nao altera as especies individuais (se quiser mudar, altera o item generico e reenvia)
-- **Nota Fiscal**: ao aprovar, a chefia responde "Precisa de Nota Fiscal?". Se sim, o cliente precisa estar fiscalmente completo (gate validado no servidor) — detalhes e complementacao inline na rotina de Clientes, `../../1-cadastros/clientes/04-integracao-pedidos-nf.md`
+- Considerar: Gilberto pode querer ligar pro cliente antes de decidir, o pedido pode ficar em `verificado` por horas/dias
+- A composicao do generico eh apenas informativa para a chefia: ele ve o que a gerencia escolheu mas nao altera as especies individuais (se quiser mudar, altera o item generico e reenvia)
+- **Nota Fiscal**: ao aprovar, a chefia responde "Precisa de Nota Fiscal?". Se sim, o cliente precisa estar fiscalmente completo (gate validado no servidor), detalhes e complementacao inline na rotina de Clientes, `../../1-cadastros/clientes/04-integracao-pedidos-nf.md`

@@ -1,4 +1,4 @@
-# 🗺️ Mapa da Documentação — Viveiro Mudar
+# 🗺️ Mapa da Documentação: Viveiro Mudar
 
 > Ponto de entrada único da documentação. Comece por aqui para se situar.
 > O `CLAUDE.md` (na raiz) é o contexto carregado em toda sessão e aponta para cá.
@@ -7,20 +7,20 @@
 
 | Local | O que é | Quando ler |
 |-------|---------|------------|
-| `CLAUDE.md` (raiz) | Regras, stack, convenções, workflow. Carregado sempre. | Sempre — é a fonte das regras. |
+| `CLAUDE.md` (raiz) | Regras, stack, convenções, workflow. Carregado sempre. | Sempre: é a fonte das regras. |
 | `docs/` | Documentação de referência (este diretório). | Para entender contexto, domínio e fluxo de trabalho. |
 | `plans/` (raiz) | Roadmaps de implementação P1–P10 (trabalho ativo). | Antes de implementar uma feature. |
 | `migrations/` (raiz) | Migrações SQL (`psql` puro), em ordem cronológica. | Ao mexer no schema do banco. |
-| `data/seeds/` (raiz) | Fontes de carga inicial (seed) — ex.: export das 142 espécies. Ver `data/seeds/README.md`. | Ao gerar/re-importar dados de catálogo. |
+| `data/seeds/` (raiz) | Fontes de carga inicial (seed): ex.: export das 142 espécies. Ver `data/seeds/README.md`. | Ao gerar/re-importar dados de catálogo. |
 | `src/` (raiz) | Código da aplicação (Next.js App Router). | Ao implementar. |
 
 ## Por onde começar (ordem de leitura para pegar contexto)
 
-1. **`CLAUDE.md`** (raiz) — regras e convenções inegociáveis.
-2. **`docs/contexto-projeto.md`** — visão geral, arquitetura dos projetos, histórico, princípios de UX de campo.
-3. **`docs/funcionarios-viveiro-mudar.md`** — quem é quem (perfis: chefia, gerência, colaborador).
-4. **`docs/rotinas/00-mapa-de-rotinas.md`** — os **quatro módulos** (Cadastros, Produção, Comercial, Financeiro), as rotinas de cada um e quais perfis tocam cada etapa.
-5. **`plans/`** — o plano da feature que você vai implementar.
+1. **`CLAUDE.md`** (raiz): regras e convenções inegociáveis.
+2. **`docs/contexto-projeto.md`**: visão geral, arquitetura dos projetos, histórico, princípios de UX de campo.
+3. **`docs/funcionarios-viveiro-mudar.md`**: quem é quem (perfis: chefia, gerência, colaborador).
+4. **`docs/rotinas/00-mapa-de-rotinas.md`**: os **quatro módulos** (Cadastros, Produção, Comercial, Financeiro), as rotinas de cada um e quais perfis tocam cada etapa.
+5. **`plans/`**: o plano da feature que você vai implementar.
 
 ## Conteúdo de `docs/`
 
@@ -37,8 +37,8 @@
 | [`banco-local-espelho.md`](banco-local-espelho.md) | Espelhar o Neon para um Postgres local descartável (`npm run db:refresh-local`) para testes seguros. |
 | [`EXECUTION-GUIDE.md`](EXECUTION-GUIDE.md) | Como conduzir as sessões de desenvolvimento e a ordem dos sprints. |
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
-| [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria 10/08/2026** — divergências entre docs, planos e código, com ordem de correção. Ler antes de retomar o desenvolvimento. |
-| [`divida-tecnica.md`](divida-tecnica.md) | **Trabalho futuro (11/08/2026)** — o que falta para a produção ser segura de operar: backup, teste contra banco real, drift de schema. Prontidão medida: ~85%. |
+| [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria 10/08/2026**: divergências entre docs, planos e código, com ordem de correção. Ler antes de retomar o desenvolvimento. |
+| [`divida-tecnica.md`](divida-tecnica.md) | **Trabalho futuro (11/08/2026)**: o que falta para a produção ser segura de operar: backup, teste contra banco real, drift de schema. Prontidão medida: ~85%. |
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
 > **Financeiro:** a abordagem nova (extrato bancário como fonte da verdade) está em
@@ -51,24 +51,24 @@
 Documentação **formal de engenharia**, produzida como base do **Capítulo 4 (Resultados)** do TCC.
 Distinta de `docs/rotinas/`, que é documentação de domínio em linguagem de negócio.
 
-Comece por [`engenharia/README.md`](engenharia/README.md) — explica a estrutura de pastas.
+Comece por [`engenharia/README.md`](engenharia/README.md), explica a estrutura de pastas.
 Índice completo, com status de cada artefato, em [`engenharia/00-indice.md`](engenharia/00-indice.md).
 
 | Bloco | Artefatos |
 |-------|-----------|
-| A — Fundação | Documento de Visão, Glossário do domínio |
-| B — Requisitos | Especificação de Requisitos (76 RF, 26 RNF), Regras de negócio (70 RN), Quadros do TCC, Matriz de rastreabilidade |
-| C — Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (45 entidades), Dicionário de dados |
-| D — Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
-| E — Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
-| F — Usabilidade | Plano de avaliação (5 atributos de Nielsen) |
-| G — Gestão | Fichas de indicadores (KPI) |
+| A: Fundação | Documento de Visão, Glossário do domínio |
+| B: Requisitos | Especificação de Requisitos (76 RF, 26 RNF), Regras de negócio (70 RN), Quadros do TCC, Matriz de rastreabilidade |
+| C: Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (45 entidades), Dicionário de dados |
+| D: Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
+| E: Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
+| F: Usabilidade | Plano de avaliação (5 atributos de Nielsen) |
+| G: Gestão | Fichas de indicadores (KPI) |
 
-> **Entrega para o TCC:** `npm run docs:tcc` regenera [`engenharia/word/`](engenharia/word/) — os
+> **Entrega para o TCC:** `npm run docs:tcc` regenera [`engenharia/word/`](engenharia/word/), os
 > arquivos na ordem do Capítulo 4, com os diagramas exportados em PNG. A pasta é **gerada**: editar
 > lá não adianta, edite o artefato de origem.
 
-### Domínio — rotinas de negócio (`docs/rotinas/`)
+### Domínio: rotinas de negócio (`docs/rotinas/`)
 Cada rotina descreve um processo do viveiro e quais perfis executam cada etapa.
 Mapa em [`rotinas/00-mapa-de-rotinas.md`](rotinas/00-mapa-de-rotinas.md).
 
@@ -83,10 +83,10 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 | **2 · Produção** | Perdas | [`rotinas/2-producao/03-perdas.md`](rotinas/2-producao/03-perdas.md) |
 | **3 · Comercial** | Comercial (visão geral do módulo) | [`rotinas/3-comercial/00-visao-geral.md`](rotinas/3-comercial/00-visao-geral.md) |
 | **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/3-comercial/pedidos.md`](rotinas/3-comercial/pedidos.md) e a pasta [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/) |
-| **3 · Comercial** | Cotação com fornecedores | sem rotina própria — está no plano [`P11`](../plans/P11-fornecedores-cotacao.md) |
+| **3 · Comercial** | Cotação com fornecedores | sem rotina própria: está no plano [`P11`](../plans/P11-fornecedores-cotacao.md) |
 | **3 · Comercial** | Entregas | [`rotinas/3-comercial/entregas.md`](rotinas/3-comercial/entregas.md) |
 | **4 · Financeiro** | Financeiro (visão geral + detalhamento) | [`rotinas/4-financeiro/00-visao-geral.md`](rotinas/4-financeiro/00-visao-geral.md) e a pasta [`rotinas/4-financeiro/`](rotinas/4-financeiro/) |
-| — | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/2-producao/99-tarefas-diarias-historico.md`](rotinas/2-producao/99-tarefas-diarias-historico.md) fica como histórico |
+| - | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/2-producao/99-tarefas-diarias-historico.md`](rotinas/2-producao/99-tarefas-diarias-historico.md) fica como histórico |
 
 A rotina de **Produção** tem detalhamento em [`rotinas/2-producao/`](rotinas/2-producao/):
 visão geral e a **agenda de pessoal** (grade semanal de quem faz o quê, base do custo de mão de obra).
@@ -104,7 +104,7 @@ visão geral do modelo (extrato como fonte da verdade), o cadastro único (`cada
 
 ## Roadmap de implementação (`plans/`)
 
-Projetos interdependentes — a ordem importa (detalhe em `docs/contexto-projeto.md`):
+Projetos interdependentes: a ordem importa (detalhe em `docs/contexto-projeto.md`):
 
 ```
 P1 (Custeio) ──┐

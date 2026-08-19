@@ -1,4 +1,4 @@
-# Fase 3: Cadastro de Pedido (Chefia — Desktop)
+# Fase 3: Cadastro de Pedido (Chefia, Desktop)
 
 ## Objetivo
 Tela onde Gilberto (chefia) cadastra rapidamente um pedido recebido via WhatsApp.
@@ -13,15 +13,15 @@ Suporta dois tipos de item: especifico (especie definida) e generico (gerencia e
 
 ## Tarefas
 
-### T3.1 — Server Actions de clientes
+### T3.1: Server Actions de clientes
 - [x] Criar `src/app/pedidos/actions.ts` com `'use server'`
-- [x] `getCustomers()` — retorna todos os clientes ativos, ordenados por nome
-- [x] `createCustomer(data)` — cria cliente rapido (nome obrigatorio, resto opcional)
-- [x] `searchCustomers(query)` — busca por nome (ILIKE '%query%'), limite 10
+- [x] `getCustomers()`: retorna todos os clientes ativos, ordenados por nome
+- [x] `createCustomer(data)`: cria cliente rapido (nome obrigatorio, resto opcional)
+- [x] `searchCustomers(query)`: busca por nome (ILIKE '%query%'), limite 10
 
-### T3.2 — Server Actions de pedidos
+### T3.2: Server Actions de pedidos
 - [x] No mesmo arquivo `src/app/pedidos/actions.ts`:
-- [x] `createOrder(data)` — cria pedido + itens em transacao:
+- [x] `createOrder(data)`: cria pedido + itens em transacao:
   1. INSERT em `orders` (customer_id, sale_channel, delivery_date, notes, created_by)
   2. INSERT em `order_items` para cada item:
      - Especifico: species_id, container_id, quantity, is_generic=false
@@ -29,17 +29,17 @@ Suporta dois tipos de item: especifico (especie definida) e generico (gerencia e
   3. INSERT em `order_status_history` (to_status='cadastrado', changed_by)
   4. Chamar `notifyRole('gerencia', 'novo_pedido', ...)` para avisar gerencia
   5. Retornar o pedido criado com order_number
-- [x] `getOrders(filters?)` — lista pedidos com joins (customer name, item count, status)
+- [x] `getOrders(filters?)`: lista pedidos com joins (customer name, item count, status)
   - Filtros opcionais: status, customer_id, periodo
   - Ordenar por created_at DESC
-- [x] `getOrderById(id)` — pedido completo com itens (species name, container name), cliente e historico
+- [x] `getOrderById(id)`: pedido completo com itens (species name, container name), cliente e historico
   - Incluir itens filhos de genericos (via parent_item_id)
-- [x] `updateOrderItems(orderId, items)` — atualizar itens do pedido (para edicao)
-- [x] `cancelOrder(orderId, userId)` — muda status para cancelado + historico
-- [x] `getSpeciesForSelect()` — retorna especies ativas (id, common_name) ordenadas por nome
-- [x] `getContainersForSelect()` — retorna recipientes ativos (id, name, volume_liters) ordenados por volume
+- [x] `updateOrderItems(orderId, items)`: atualizar itens do pedido (para edicao)
+- [x] `cancelOrder(orderId, userId)`: muda status para cancelado + historico
+- [x] `getSpeciesForSelect()`: retorna especies ativas (id, common_name) ordenadas por nome
+- [x] `getContainersForSelect()`: retorna recipientes ativos (id, name, volume_liters) ordenados por volume
 
-### T3.3 — Pagina de listagem de pedidos
+### T3.3: Pagina de listagem de pedidos
 - [x] Criar `src/app/pedidos/page.tsx` (server component, protegida por auth)
 - [x] Acessivel para roles: admin, chefia, gerencia
 - [x] Exibir tabela/lista com colunas:
@@ -62,8 +62,8 @@ Suporta dois tipos de item: especifico (especie definida) e generico (gerencia e
 - [x] Botao "Novo Pedido" (visivel apenas para chefia/admin)
 - [x] Clicar em um pedido abre a pagina de detalhes
 
-### T3.4 — Formulario de cadastro de pedido (componente principal)
-- [x] Criar `src/app/pedidos/novo/page.tsx` — pagina de novo pedido
+### T3.4: Formulario de cadastro de pedido (componente principal)
+- [x] Criar `src/app/pedidos/novo/page.tsx`, pagina de novo pedido
 - [x] Criar `src/app/pedidos/novo/OrderForm.tsx` (client component)
 - [x] Proteger com `requireRole('admin', 'chefia')`
 - [x] Layout desktop-first com secoes claras:
@@ -100,10 +100,10 @@ Suporta dois tipos de item: especifico (especie definida) e generico (gerencia e
 - [x] Textarea livre (opcional)
 
 **Acoes:**
-- [x] Botao "Cadastrar Pedido" — salva e redireciona para lista com toast de sucesso
-- [x] Botao "Cancelar" — volta para lista
+- [x] Botao "Cadastrar Pedido": salva e redireciona para lista com toast de sucesso
+- [x] Botao "Cancelar": volta para lista
 
-### T3.5 — Componente de autocomplete reutilizavel
+### T3.5: Componente de autocomplete reutilizavel
 - [x] Criar `src/components/Autocomplete.tsx` (client component)
 - [x] Props: items, onSelect, placeholder, allowCreate, onCreateNew
 - [x] Input com debounce (300ms)
@@ -112,11 +112,11 @@ Suporta dois tipos de item: especifico (especie definida) e generico (gerencia e
 - [x] Fechar ao clicar fora
 - [x] Usado para: busca de cliente e busca de especie
 
-### T3.6 — Navegacao e rotas
+### T3.6: Navegacao e rotas
 - [x] Adicionar link "Pedidos" no menu de navegacao (AdminNav ou nav principal)
-- [x] Rota `/pedidos` — lista de pedidos
-- [x] Rota `/pedidos/novo` — formulario de novo pedido
-- [x] Rota `/pedidos/[id]` — detalhes do pedido (usado nas fases seguintes)
+- [x] Rota `/pedidos`: lista de pedidos
+- [x] Rota `/pedidos/novo`: formulario de novo pedido
+- [x] Rota `/pedidos/[id]`: detalhes do pedido (usado nas fases seguintes)
 
 ## Wireframe do Formulario (Desktop)
 
@@ -164,7 +164,7 @@ Pode ser um icone ou as letras E/G com tooltip.
 - Usar `useTransition` para feedback durante o submit
 - Validacao client-side: pelo menos 1 item, cliente obrigatorio, quantidades > 0
 - Para itens especificos: especie obrigatoria. Para genericos: especie deve ser NULL
-- A busca de especies deve ser rapida — carregar todas as ativas no mount (sao ~150) e filtrar no client
-- Recipientes sao poucos (~6), carregar todos uma vez — incluir volume_liters para ordenar por tamanho
+- A busca de especies deve ser rapida: carregar todas as ativas no mount (sao ~150) e filtrar no client
+- Recipientes sao poucos (~6), carregar todos uma vez, incluir volume_liters para ordenar por tamanho
 - O formulario deve ser resetavel apos sucesso (caso queira cadastrar outro pedido)
-- O toggle E/G deve ser simples e intuitivo — Gilberto nao pode perder tempo pensando nele
+- O toggle E/G deve ser simples e intuitivo, Gilberto nao pode perder tempo pensando nele

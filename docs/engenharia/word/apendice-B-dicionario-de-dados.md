@@ -1,7 +1,7 @@
-# Apêndice B — Dicionário de dados
+# Apêndice B, Dicionário de dados
 
 > Gerado a partir de `C-modelagem/C8-dicionario-de-dados.md`.
-> **Não edite este arquivo** — edite o artefato de origem e rode `npm run docs:tcc`.
+> **Não edite este arquivo**: edite o artefato de origem e rode `npm run docs:tcc`.
 
 ---
 
@@ -20,19 +20,19 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 **Convenções gerais**, aplicadas a todas as entidades e não repetidas em cada tabela:
 
-- `id` — identificador universal, chave primária, gerado pelo próprio banco. A escolha por
+- `id`: identificador universal, chave primária, gerado pelo próprio banco. A escolha por
   identificador universal em vez de sequencial permite gerar a chave no dispositivo antes da
   gravação, requisito do funcionamento sem conexão (RNF-05).
-- `created_at` — momento da criação, preenchido automaticamente.
-- `updated_at` — momento da última alteração, mantido automaticamente pelo banco.
-- `active` — indicador de arquivamento. Registro inativo desaparece das listagens sem ser removido,
+- `created_at`: momento da criação, preenchido automaticamente.
+- `updated_at`: momento da última alteração, mantido automaticamente pelo banco.
+- `active`: indicador de arquivamento. Registro inativo desaparece das listagens sem ser removido,
   preservando a integridade das referências históricas.
 
 ---
 
-# Acesso — transversal aos quatro módulos
+# Acesso: transversal aos quatro módulos
 
-## `users` — usuário do sistema
+## `users`: usuário do sistema
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -47,7 +47,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `locked_until` | timestamptz | ○ | | Bloqueio temporário após tentativas sucessivas |
 | `party_id` | uuid | ○ | FK | Pessoa do cadastro a que esta credencial pertence. **Opcional:** há funcionário sem login e administrador sem vínculo (RN-54) |
 
-## `sessions` — sessão ativa
+## `sessions`: sessão ativa
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -59,7 +59,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `ip` | text | ○ | | Endereço de origem, para identificar o aparelho |
 | `user_agent` | text | ○ | | Descrição do dispositivo e navegador |
 
-## `login_events` — auditoria de acesso
+## `login_events`: auditoria de acesso
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -70,7 +70,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `ip` | text | ○ | | Endereço de origem |
 | `user_agent` | text | ○ | | Dispositivo e navegador |
 
-## `notifications` — notificação interna
+## `notifications`: notificação interna
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -86,7 +86,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 # Módulo 1 · Cadastros
 
-## `species` — espécie *(entidade central)*
+## `species`: espécie *(entidade central)*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -100,16 +100,16 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `photo_url` | text | ○ | | Caminho da fotografia |
 | `active` | boolean | ● | | Espécie em catálogo |
 
-## `species_popular_names` — nome popular adicional
+## `species_popular_names`: nome popular adicional
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `species_id` | uuid | ● | FK → `species` | Espécie designada |
 | `name` | text | ● | | Nome tal como escrito |
-| `name_normalized` | text | ● | UK | Forma normalizada — sem acentos, minúscula, espaços colapsados. A unicidade garante que **um nome popular aponta para uma única espécie** |
+| `name_normalized` | text | ● | UK | Forma normalizada: sem acentos, minúscula, espaços colapsados. A unicidade garante que **um nome popular aponta para uma única espécie** |
 
-## `containers` — recipiente
+## `containers`: recipiente
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -120,7 +120,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `unit_cost` | numeric(10,2) | ○ | | Custo do recipiente vazio |
 | `active` | boolean | ● | | Em uso |
 
-## `inputs` — insumo
+## `inputs`: insumo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -134,7 +134,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `last_purchase_date` | date | ○ | | Data da última compra |
 | `active` | boolean | ● | | Em uso |
 
-## `input_price_history` — histórico de preço de insumo
+## `input_price_history`: histórico de preço de insumo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -144,10 +144,10 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `changed_at` | timestamptz | ● | | Momento da alteração |
 | `notes` | text | ○ | | Motivo |
 
-> Existe para impedir que a atualização de preço reescreva retroativamente o custo já apurado —
+> Existe para impedir que a atualização de preço reescreva retroativamente o custo já apurado.
 > anomalia de atualização que a normalização busca evitar.
 
-## `customers` — cliente
+## `customers`: cliente
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -175,7 +175,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 > rápido interromperia o registro do pedido durante a negociação. A complementação ocorre no
 > fechamento, e apenas quando há nota fiscal a emitir (RF-40).
 
-## `suppliers` — fornecedor
+## `suppliers`: fornecedor
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -187,7 +187,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `email` | text | ○ | | Correio eletrônico |
 | `instagram` | text | ○ | | Perfil em rede social |
 | `city` | text | ○ | | Município |
-| `state` | varchar(2) | ○ | | Unidade federativa. **Sem valor padrão** — fornecedor é de qualquer estado |
+| `state` | varchar(2) | ○ | | Unidade federativa. **Sem valor padrão**: fornecedor é de qualquer estado |
 | `reliability_score` | smallint | ○ | | Grau de confiabilidade, de 0 a 5 |
 | `status` | varchar(20) | ● | | `lead`, `active`, `inactive`, `do_not_contact` |
 | `last_contacted_at` | timestamptz | ○ | | Último contato |
@@ -200,9 +200,9 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 > **`active` e `status` são informações distintas**, não redundância acidental: `active` falso é
 > arquivamento do registro; `status` inativo é fornecedor que parou de vender, mas cujo histórico
 > interessa. `do_not_contact` registra **oposição do titular** ao contato comercial e o exclui de
-> qualquer cotação — ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
+> qualquer cotação: ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
 
-## `supplier_species` — oferta do fornecedor
+## `supplier_species`: oferta do fornecedor
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -210,7 +210,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `supplier_id` | uuid | ● | FK → `suppliers` | Fornecedor |
 | `species_id` | uuid | ● | FK → `species` | Espécie ofertada, do catálogo canônico |
 | `size` | text | ○ | | Porte ofertado, em texto livre |
-| `container` | text | ○ | | Embalagem do fornecedor, em **texto livre** — raiz nua, lata, saco de um metro |
+| `container` | text | ○ | | Embalagem do fornecedor, em **texto livre**, raiz nua, lata, saco de um metro |
 | `unit_price` | numeric(10,2) | ○ | | Preço unitário informado |
 | `min_quantity` | integer | ○ | | Quantidade mínima de compra |
 | `availability` | varchar(15) | ● | | `in_stock`, `on_order`, `unknown` |
@@ -219,14 +219,14 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 > **Sem restrição de unicidade por fornecedor e espécie:** o mesmo fornecedor oferece a espécie em
 > portes e preços diferentes, e cada combinação é uma oferta distinta.
 
-## `cadastro.parties` — identidade
+## `cadastro.parties`: identidade
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `kind` | varchar(2) | ○ | | **Natureza da pessoa**: `pf` ou `pj`. NULL quando não informado — o cadastro simples legado não preenchia, e presumir pessoa física para uma prefeitura seria pior que registrar a ausência |
+| `kind` | varchar(2) | ○ | | **Natureza da pessoa**: `pf` ou `pj`. NULL quando não informado, o cadastro simples legado não preenchia, e presumir pessoa física para uma prefeitura seria pior que registrar a ausência |
 | `document` | varchar(14) | ○ | | CPF ou CNPJ, só dígitos. UNIQUE parcial `WHERE document IS NOT NULL` |
-| `name` | text | ● | | Nome usual — o que aparece nas listas |
+| `name` | text | ● | | Nome usual: o que aparece nas listas |
 | `legal_name` | text | ○ | | Razão social (PJ) |
 | `trade_name` | text | ○ | | Nome fantasia (PJ) |
 | `email`, `phone`, `whatsapp` | text/varchar | ○ | | Contato. `whatsapp` só dígitos |
@@ -235,11 +235,11 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 > **Correção de 11/08/2026.** Este dicionário descrevia `kind` como *natureza do vínculo*
 > (cliente, fornecedor, funcionário). Estava errado: um `kind` único não representa o caso que
-> motivou a tabela — a mesma pessoa que vende muda e também compra. O vínculo passou para
+> motivou a tabela: a mesma pessoa que vende muda e também compra. O vínculo passou para
 > `party_roles`, que admite N papéis por identidade; `kind` ficou com a natureza da pessoa.
 > Fonte canônica: [`docs/rotinas/4-financeiro/01-cadastro-unico.md`](../../rotinas/4-financeiro/01-cadastro-unico.md).
 
-## `cadastro.party_roles` — papéis da identidade
+## `cadastro.party_roles`: papéis da identidade
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -250,20 +250,20 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 > `users.role`, cujo valor foi renomeado para `colaborador` na migration `20260810000001`
 > justamente para desfazer essa ambiguidade.
 
-## `cadastro.addresses` — endereços da identidade
+## `cadastro.addresses`: endereços da identidade
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `party_id` | uuid | ● | FK → `cadastro.parties` | Identidade |
-| `label` | varchar(20) | ● | | `principal`, `entrega`, `cobranca` ou `outro` — endereço de cobrança diferente do de entrega não cabia como coluna em `customers` |
+| `label` | varchar(20) | ● | | `principal`, `entrega`, `cobranca` ou `outro`, endereço de cobrança diferente do de entrega não cabia como coluna em `customers` |
 | `zip_code`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `ibge_code` | | ○ | | Endereço. `number` corresponde a `customers.address_number` |
 | `lat`, `lng`, `geocoded_at` | numeric/timestamptz | ○ | | Coordenadas do mapa de fornecedores (P11 F4) |
 | `is_primary` | boolean | ● | | UNIQUE parcial: no máximo um principal por identidade |
 
 # Módulo 2 · Produção
 
-## `task_types` — tipo de tarefa
+## `task_types`: tipo de tarefa
 
 Vocabulário fechado da agenda de pessoal (RF-70). O tempo médio por unidade é o que liga a tarefa
 de campo ao custo de mão de obra.
@@ -271,7 +271,7 @@ de campo ao custo de mão de obra.
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `name` | text | ● | | Nome da tarefa — semeadura, repicagem, irrigação, adubação, separação |
+| `name` | text | ● | | Nome da tarefa: semeadura, repicagem, irrigação, adubação, separação |
 | `category` | text | ● | | Agrupamento para leitura da agenda |
 | `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição exige espécie |
 | `requires_container` | boolean | ● | | Quando verdadeiro, a atribuição exige recipiente |
@@ -279,7 +279,7 @@ de campo ao custo de mão de obra.
 | `avg_minutes_per_unit` | numeric | ○ | | Tempo médio por unidade; alimenta a estimativa de custo |
 | `active` | boolean | ● | | Tipo em uso |
 
-## `input_usages` — consumo de insumo
+## `input_usages`: consumo de insumo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -294,7 +294,7 @@ de campo ao custo de mão de obra.
 > Alimentado pelo formulário de campo do colaborador (RF-14). É a entidade de maior volume de
 > escrita do sistema e a que mais depende do funcionamento sem conexão.
 
-## `seed_collection_costs` — custo de coleta de sementes
+## `seed_collection_costs`: custo de coleta de sementes
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -307,10 +307,10 @@ de campo ao custo de mão de obra.
 | `labor_cost_per_hour` | numeric(10,2) | ○ | | Custo da hora |
 | `total_cost` | numeric(12,2) | ● | | Custo total da coleta |
 | `seeds_collected_qty` | integer | ○ | | Sementes obtidas |
-| `cost_per_seed` | numeric(10,4) | ○ | | **Derivado** — custo total dividido pelas sementes obtidas. Mantido pelo banco |
+| `cost_per_seed` | numeric(10,4) | ○ | | **Derivado**: custo total dividido pelas sementes obtidas. Mantido pelo banco |
 | `collection_date` | date | ● | | Data da coleta |
 
-## `production_activities` — atividade de produção
+## `production_activities`: atividade de produção
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -326,7 +326,7 @@ de campo ao custo de mão de obra.
 > Registros de `semeadura` e `repicagem` são os que **somam ao estoque**; irrigação e adubação são
 > atividades de manejo que não alteram quantidade.
 
-## `loss_events` — perda
+## `loss_events`: perda
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -341,13 +341,13 @@ de campo ao custo de mão de obra.
 
 > **Quatro campos no formulário de campo**, e não cinco: espécie, recipiente, quantidade e causa. A
 > data assume o dia corrente e o autor vem da sessão. Registrar o local da perda dentro do viveiro
-> melhoraria a análise e foi descartado — ver a nota de projeto em
+> melhoraria a análise e foi descartado: ver a nota de projeto em
 > [`C2`, UC-17](C2-especificacao-casos-de-uso.md).
 >
 > A causa é lista fechada porque causa digitada à mão inviabiliza a análise por causa, que é
 > justamente o que o indicador de mortalidade precisa produzir.
 
-## `stock_counts` — contagem física de estoque
+## `stock_counts`: contagem física de estoque
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -358,15 +358,15 @@ de campo ao custo de mão de obra.
 | `counted_at` | date | ● | | Data da contagem |
 | `counted_by` | uuid | ● | FK → `users` | Quem contou |
 
-> **Não armazena o estoque** — armazena o evento de contagem. O estoque permanece derivado de
+> **Não armazena o estoque**: armazena o evento de contagem. O estoque permanece derivado de
 > produção menos perdas menos saídas; quando a contagem diverge do calculado, prevalece a contagem, e
 > a divergência é ela própria informação: indica registro de produção ou de perda não realizado.
 
 ---
 
-## `week_plans` — semana de trabalho
+## `week_plans`: semana de trabalho
 
-A semana é a unidade real de decisão do viveiro (RF-71, RF-73). Fechada, não se altera — sem isso
+A semana é a unidade real de decisão do viveiro (RF-71, RF-73). Fechada, não se altera: sem isso
 o custo do período mudaria depois de apurado (RN-50).
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
@@ -377,7 +377,7 @@ o custo do período mudaria depois de apurado (RN-50).
 | `published_by` | uuid | ○ | FK | Quem publicou a semana para a equipe |
 | `closed_at` | timestamptz | ○ | | Momento do fechamento; a partir dele a semana é imutável |
 
-## `assignments` — atribuição de tarefa
+## `assignments`: atribuição de tarefa
 
 A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui que saem as horas
 (RF-71), e um turno vale quatro horas por convenção (RN-48).
@@ -386,7 +386,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `week_plan_id` | uuid | ● | FK | Semana a que pertence |
-| `party_id` | uuid | ● | FK | Quem executa — pessoa com papel `funcionario`, com ou sem usuário |
+| `party_id` | uuid | ● | FK | Quem executa: pessoa com papel `funcionario`, com ou sem usuário |
 | `work_date` | date | ● | | Dia da tarefa |
 | `shift` | text | ● | | `manha` ou `tarde`. Nunca hora marcada (RN-48) |
 | `task_type_id` | uuid | ● | FK | Tipo de tarefa |
@@ -394,12 +394,12 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `container_id` | uuid | ○ | FK | Recipiente, quando o tipo de tarefa o exigir |
 | `planned_quantity` | integer | ○ | | Quantidade planejada, quando aplicável |
 | `is_recurring` | boolean | ● | | Tarefa fixa: renasce em toda semana nova (RF-72) |
-| `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada` — a última é a que o fechamento assume como realizada (RN-51) |
+| `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada`: a última é a que o fechamento assume como realizada (RN-51) |
 | `notes` | text | ○ | | Observação livre; único campo aberto da agenda |
 
 # Módulo 3 · Comercial
 
-## `orders` — pedido
+## `orders`: pedido
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -407,7 +407,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `order_number` | serial | ● | | Número sequencial legível, usado na comunicação com o cliente |
 | `customer_id` | uuid | ● | FK → `customers` | Cliente |
 | `sale_channel` | varchar(50) | ● | | Canal de venda. Determina a margem aplicada |
-| `status` | varchar(30) | ● | | Estado no ciclo. Lista fechada — ver abaixo |
+| `status` | varchar(30) | ● | | Estado no ciclo. Lista fechada: ver abaixo |
 | `needs_invoice` | boolean | ● | | Exige nota fiscal. Definido no fechamento |
 | `delivery_date` | date | ○ | | Data prevista de entrega |
 | `notes` | text | ○ | | Observações |
@@ -416,7 +416,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 **Estados admitidos:** `cadastrado`, `verificando_disponibilidade`, `verificado`,
 `pendente_alteracao`, `aprovado`, `separando`, `pronto_envio`, `cancelado`.
 
-## `order_items` — item de pedido
+## `order_items`: item de pedido
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -446,17 +446,17 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | Parcial | falso | 1 até a quantidade pedida | recipiente real |
 | Indisponível | falso | 0 | nulo |
 
-## `order_item_allowed_species` — espécies aceitas em item genérico
+## `order_item_allowed_species`: espécies aceitas em item genérico
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `order_item_id` | uuid | ● | PK, FK → `order_items` | Item genérico |
 | `species_id` | uuid | ● | PK, FK → `species` | Espécie aceita pelo cliente |
 
-> Tabela associativa de chave composta. **Ausência de linhas significa aberto** — qualquer espécie
+> Tabela associativa de chave composta. **Ausência de linhas significa aberto**, qualquer espécie
 > atende o item.
 
-## `order_loads` — carga
+## `order_loads`: carga
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -468,7 +468,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 
 **Restrição de unicidade:** número de carga único dentro do pedido.
 
-## `order_load_items` — item de carga
+## `order_load_items`: item de carga
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -478,7 +478,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `quantity` | integer | ● | | Quantidade nesta carga. Permite dividir um item entre viagens |
 | `is_separated` | boolean | ● | | Separação física concluída |
 
-## `order_status_history` — histórico de estados
+## `order_status_history`: histórico de estados
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -491,7 +491,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 
 ---
 
-## `supplier_quotes` — cotação
+## `supplier_quotes`: cotação
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -507,7 +507,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `raw_response` | text | ○ | | Resposta recebida, como transcrita |
 | `created_by` | uuid | ● | FK → `users` | Autor da cotação |
 
-## `supplier_quote_items` — item de cotação
+## `supplier_quote_items`: item de cotação
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -526,7 +526,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 
 # Módulo 4 · Financeiro
 
-## `fixed_costs` — custo fixo mensal
+## `fixed_costs`: custo fixo mensal
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -536,7 +536,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `reference_month` | date | ● | | Mês de referência, sempre o primeiro dia |
 | `notes` | text | ○ | | Observação |
 
-## `production_costs` — custo variável por espécie e recipiente
+## `production_costs`: custo variável por espécie e recipiente
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -548,12 +548,12 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `input_costs_json` | jsonb | ● | | Demais insumos aplicados, com quantidade e custo por insumo |
 | `labor_minutes` | numeric(8,2) | ● | | Minutos de mão de obra |
 | `labor_cost` | numeric(10,2) | ● | | Custo da mão de obra |
-| `total_variable_cost` | numeric(12,2) | ● | | **Derivado** — soma de substrato, semente e mão de obra |
+| `total_variable_cost` | numeric(12,2) | ● | | **Derivado**: soma de substrato, semente e mão de obra |
 | `calculated_at` | timestamptz | ● | | Momento do último cálculo |
 
 **Restrição de unicidade:** uma única linha por combinação de espécie e recipiente.
 
-## `species_unit_cost` — visão de custo unitário *(não é tabela)*
+## `species_unit_cost`: visão de custo unitário *(não é tabela)*
 
 Visão que compõe o custo variável apurado com o rateio do custo fixo mensal, entregando o **custo
 unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17). Não armazena dados:
@@ -570,7 +570,7 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ---
 
-## `labor_rates` — valor-hora do período
+## `labor_rates`: valor-hora do período
 
 Um registro por mês: folha dividida por horas (RN-53). Guarda o custo da hora **da equipe**, nunca
 o salário individual.
@@ -584,7 +584,7 @@ o salário individual.
 | `hours_total` | numeric(10,2) | ● | | Horas apuradas na agenda do mês |
 | `hourly_rate` | numeric(12,4) | ● | | Derivado: `payroll_total / hours_total` |
 
-## `accounts` — conta
+## `accounts`: conta
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -599,7 +599,7 @@ o salário individual.
 > Inclui uma conta de **dinheiro em espécie**, para que a regra "nenhum lançamento sem conta" não
 > empurre o gasto em dinheiro para fora do sistema.
 
-## `cost_centers` — centro de custo
+## `cost_centers`: centro de custo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -609,11 +609,11 @@ o salário individual.
 | `nature` | text | ● | | `negocio` ou `pessoal` |
 | `active` | boolean | ● | | Oferecido em novos lançamentos |
 
-> **É o centro de custo que separa negócio de pessoal.** Não há campo de natureza no lançamento —
+> **É o centro de custo que separa negócio de pessoal.** Não há campo de natureza no lançamento.
 > a natureza deriva do centro. Foi a natureza digitada linha a linha que produziu, na planilha
 > anterior, classificação errada nos dois sentidos.
 
-## `category_groups` e `categories` — classificação
+## `category_groups` e `categories`: classificação
 
 | `category_groups` | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -627,7 +627,7 @@ o salário individual.
 | `name` | text | ● | | Nome da categoria |
 | `direction` | text | ● | | `saida`, `entrada` ou `ambos`. Restringe o que a lista oferece conforme o sinal do valor |
 
-## `statement_imports` — importação de extrato
+## `statement_imports`: importação de extrato
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -642,7 +642,7 @@ o salário individual.
 | `rows_duplicated` | integer | ● | | Linhas já existentes, descartadas |
 | `imported_by` | uuid | ● | FK → `users` | Autor da importação |
 
-## `transactions` — lançamento *(entidade central do financeiro)*
+## `transactions`: lançamento *(entidade central do financeiro)*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -652,7 +652,7 @@ o salário individual.
 | `posted_at` | date | ● | | Quando o banco moveu. **Nunca editado** |
 | `competence_date` | date | ● | | Mês a que o gasto pertence. Assume a data de movimentação por padrão |
 | `amount` | numeric(14,2) | ● | | Valor. **Negativo é saída, positivo é entrada** |
-| `description_raw` | text | ● | | Descrição do banco. **Nunca editada — é a prova** |
+| `description_raw` | text | ● | | Descrição do banco. **Nunca editada: é a prova** |
 | `fitid` | text | ○ | | Identificador do movimento no arquivo do banco |
 | `dedupe_key` | text | ● | | Chave de deduplicação, quando o formato não traz identificador |
 | `balance_after` | numeric(14,2) | ○ | | Saldo após o movimento, quando informado |
@@ -670,14 +670,14 @@ o salário individual.
 | `classified_by` | uuid | ○ | FK → `users` | Autor da classificação |
 | `classified_at` | timestamptz | ○ | | Momento da classificação |
 
-**Restrições de unicidade** — o que torna a reimportação segura: identificador do movimento único por
+**Restrições de unicidade**: o que torna a reimportação segura: identificador do movimento único por
 conta, quando existir; chave de deduplicação única por conta, sempre. Reimportar o mesmo arquivo não
 cria nada.
 
 **Por que o sinal no valor em vez de uma coluna de direção:** é como o extrato entrega, e faz a soma
 dos valores do período ser o saldo diretamente.
 
-## `transaction_splits` — rateio
+## `transaction_splits`: rateio
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -690,7 +690,7 @@ dos valores do período ser o saldo diretamente.
 **Invariante:** havendo rateio, a soma das partes iguala o valor do lançamento. Validada na camada de
 aplicação, onde a mensagem de erro é legível e o comportamento é verificável por teste automatizado.
 
-## `classification_rules` — regra de classificação
+## `classification_rules`: regra de classificação
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -708,7 +708,7 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 > É a entidade que faz a fila de pendências **encolher** a cada mês, em vez de crescer: cada
 > classificação manual vira regra para as próximas.
 
-## `periods` — fechamento mensal
+## `periods`: fechamento mensal
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -721,11 +721,11 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 | `closed_at` | timestamptz | ○ | | Momento do fechamento |
 
 > Mês fechado não aceita alteração, e **só mês fechado vira indicador** (RF-61). Período incompleto
-> exibe travessão, não número — comparar um mês parcial com um mês cheio inventa variação.
+> exibe travessão, não número: comparar um mês parcial com um mês cheio inventa variação.
 
 ---
 
-## `sale_channels` — canal de venda
+## `sale_channels`: canal de venda
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -738,7 +738,7 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 
 > A margem é atributo do canal, não do preço: alterá-la deve refletir-se em todos os preços do canal.
 
-## `sale_prices` — preço de venda vigente
+## `sale_prices`: preço de venda vigente
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -754,7 +754,7 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 | `valid_to` | date | ○ | | Fim da vigência. Nulo indica preço vigente |
 | `defined_by` | uuid | ● | FK → `users` | Quem definiu o preço |
 
-**Restrição de unicidade:** um único preço vigente por espécie, recipiente e canal — garantida pela
+**Restrição de unicidade:** um único preço vigente por espécie, recipiente e canal, garantida pela
 ausência de sobreposição entre períodos de vigência.
 
 > O preço efetivamente acordado é registrado no item do pedido, e pode diferir do sugerido dentro do

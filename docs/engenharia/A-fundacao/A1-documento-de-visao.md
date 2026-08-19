@@ -1,7 +1,7 @@
-# A1 — Documento de Visão
+# A1: Documento de Visão
 
-> **Artefato:** Documento de Visão · **Bloco:** A — Fundação e escopo
-> **Destino no TCC:** Capítulo 4, seção 4.1 — Visão geral da solução
+> **Artefato:** Documento de Visão · **Bloco:** A, Fundação e escopo
+> **Destino no TCC:** Capítulo 4, seção 4.1, Visão geral da solução
 > **Fundamentação:** Sommerville (2011) situa a definição de escopo e de restrições como parte da
 > engenharia de requisitos, anterior à especificação. Pressman e Maxim (2016) acrescentam que a
 > delimitação explícita do que o software **não** fará é tão determinante quanto a do que ele fará.
@@ -13,7 +13,7 @@
 | Campo | Conteúdo |
 |---|---|
 | **Produto** | Sistema de gestão para viveiro florestal |
-| **Organização** | Viveiro Mudar — Agrolândia, Santa Catarina |
+| **Organização** | Viveiro Mudar: Agrolândia, Santa Catarina |
 | **Natureza** | Protótipo funcional, desenvolvido como Trabalho de Conclusão de Curso |
 | **Domínio** | Produção e comercialização de mudas de árvores nativas |
 | **Usuários previstos** | 9 pessoas, distribuídas em 3 perfis de acesso |
@@ -40,7 +40,7 @@ Duas consequências decorrem diretamente desse quadro:
 2. **Não há previsibilidade de receita.** Sem histórico estruturado de pedidos, de tempo de produção
    e de estoque, não é possível projetar o que estará disponível para venda nem quando.
 
-O problema não é de escala nem de tecnologia disponível — é de **ausência de registro**. Todo dado
+O problema não é de escala nem de tecnologia disponível, é de **ausência de registro**. Todo dado
 necessário à gestão é gerado diariamente pela operação e descartado no mesmo dia.
 
 ---
@@ -50,11 +50,11 @@ necessário à gestão é gerado diariamente pela operação e descartado no mes
 O Alto Vale do Itajaí concentra a maior densidade de viveiros florestais de Santa Catarina, e o
 diagnóstico do setor aponta a ausência de protocolos e as falhas de gestão como causas de
 ineficiência produtiva. Trata-se, em sua maioria, de microempresas cuja continuidade depende da
-geração de valor — para as quais a adoção de tecnologia da informação é fator de competitividade e,
+geração de valor: para as quais a adoção de tecnologia da informação é fator de competitividade e,
 frequentemente, de sobrevivência.
 
 A oportunidade consiste em capturar, no ponto em que ela ocorre, a informação que a operação já
-produz — e convertê-la em custo apurado, margem visível e previsão de disponibilidade.
+produz: e convertê-la em custo apurado, margem visível e previsão de disponibilidade.
 
 ---
 
@@ -81,11 +81,11 @@ Derivados dos objetivos específicos do trabalho:
 | **Colaborador** | 6 | Execução em campo: produção, perdas, separação de cargas | Baixo, sem formação técnica | Celular |
 
 **Alcance da primeira implantação.** Os usuários efetivos da primeira etapa são a **chefia e a
-gerência** — três pessoas. O uso do sistema em campo pelos colaboradores está previsto para iteração
+gerência**: três pessoas. O uso do sistema em campo pelos colaboradores está previsto para iteração
 posterior. Os requisitos e casos de uso desse perfil permanecem especificados, porque o projeto
 antecede a implantação, mas a avaliação de usabilidade
 ([`F3`](../F-ux/F3-plano-avaliacao-usabilidade.md)) tem chefia e gerência como sujeitos. A condição
-exigida pela metodologia — usuários sem formação técnica — permanece atendida: nenhum dos três a
+exigida pela metodologia (usuários sem formação técnica) permanece atendida: nenhum dos três a
 possui.
 
 **Stakeholders sem acesso ao sistema, mas com influência sobre os requisitos:** o contador da
@@ -93,12 +93,12 @@ empresa (formato dos dados fiscais), os clientes de compensação ambiental (exi
 e de nome científico) e os órgãos ambientais (rastreabilidade de espécies nativas).
 
 **Condição do autor:** o autor do trabalho integra a gerência da empresa. A imersão no domínio é uma
-vantagem de elicitação e, simultaneamente, um risco metodológico de viés — tratado explicitamente em
-[`E3 — Análise de riscos`](../E-qualidade/E3-analise-de-riscos.md).
+vantagem de elicitação e, simultaneamente, um risco metodológico de viés, tratado explicitamente em
+[`E3: Análise de riscos`](../E-qualidade/E3-analise-de-riscos.md).
 
 ---
 
-## 6. Escopo — o que o sistema fará
+## 6. Escopo: o que o sistema fará
 
 Organizado pelos **quatro módulos** do sistema, com Acesso à frente por atravessar os quatro
 ([`00-mapa-de-rotinas`](../../rotinas/00-mapa-de-rotinas.md)).
@@ -106,7 +106,7 @@ Organizado pelos **quatro módulos** do sistema, com Acesso à frente por atrave
 | Módulo | Entrega |
 |---|---|
 | *(transversal)* **Acesso** | Autenticação, quatro perfis de acesso e controle de permissão por operação |
-| **1 · Cadastros** | Espécies, recipientes e insumos; pessoas — cliente, fornecedor e funcionário como papéis de uma identidade só —, com dados fiscais de pessoa física e jurídica e cadastro rápido durante o pedido; tipos de tarefa |
+| **1 · Cadastros** | Espécies, recipientes e insumos; pessoas (cliente, fornecedor e funcionário como papéis de uma identidade só), com dados fiscais de pessoa física e jurídica e cadastro rápido durante o pedido; tipos de tarefa |
 | **2 · Produção** | Registro de semeadura, repicagem e demais atividades; coleta de sementes; consumo de insumo em campo; agenda semanal de pessoal; acompanhamento do ciclo produtivo; registro de perda com causa, com alerta acima do limite de mortalidade; estoque disponível por espécie e recipiente, derivado de produção, perdas e vendas |
 | **3 · Comercial** | Pedido do registro à separação, passando por verificação de disponibilidade e aprovação; cotação e comparação de propostas de fornecedor para complementar a produção própria; calendário de entregas por carga |
 | **4 · Financeiro** *(restrito)* | Importação de extrato bancário, classificação de lançamentos, compras, custos fixos e fechamento mensal; cálculo do custo unitário por espécie e recipiente; preço por canal de venda com piso mínimo e frete incorporado; painel de indicadores por perfil |
@@ -119,13 +119,13 @@ encadeamento por projeto está em
 
 ---
 
-## 7. Escopo — o que o sistema **não** fará
+## 7. Escopo: o que o sistema **não** fará
 
 Delimitação deliberada. Cada exclusão tem motivo declarado.
 
 | Fora do escopo | Motivo |
 |---|---|
-| **Emissão de nota fiscal** | Permanece no sistema fiscal externo já em uso. O sistema registra a necessidade de emissão e o número da nota, mas não gera o documento — emissão fiscal exige certificação e homologação fora do alcance de um protótipo. |
+| **Emissão de nota fiscal** | Permanece no sistema fiscal externo já em uso. O sistema registra a necessidade de emissão e o número da nota, mas não gera o documento, emissão fiscal exige certificação e homologação fora do alcance de um protótipo. |
 | **Contabilidade** | Não substitui o contador nem gera obrigação acessória. O módulo financeiro é gerencial, não contábil. |
 | **Folha de pagamento e gestão de pessoal** | Fora do problema de pesquisa. |
 | **Reconstituição do histórico financeiro anterior a 2026** | O sistema parte de um marco zero. Dados anteriores servem a análise de tendência, não a conciliação. |
@@ -143,7 +143,7 @@ Condições assumidas como verdadeiras. Se alguma se mostrar falsa, o escopo pre
 
 | # | Premissa |
 |---|---|
-| **PR-1** | A equipe fornecerá os dados primários necessários — catálogo de espécies, mapa de recipientes, consumo de insumos, tempos de produção e custos fixos. Sem eles, o sistema funciona vazio. |
+| **PR-1** | A equipe fornecerá os dados primários necessários, catálogo de espécies, mapa de recipientes, consumo de insumos, tempos de produção e custos fixos. Sem eles, o sistema funciona vazio. |
 | **PR-2** | Os usuários dispõem de celular com navegador atualizado e acesso à internet, ainda que instável. |
 | **PR-3** | A chefia manterá a rotina de classificação financeira semanal e o fechamento mensal. |
 | **PR-4** | A negociação comercial continuará ocorrendo por WhatsApp, com registro posterior no sistema. |
@@ -163,7 +163,7 @@ Limites impostos ao projeto, não escolhidos por ele.
 | **RE-4** | Uso com as mãos sujas, sob sol e chuva | Ambiente físico | Alvos de toque grandes, contraste alto, resposta visual imediata a cada ação |
 | **RE-5** | Orçamento de microempresa | Porte da organização | Adoção de serviços de custo baixo ou nulo; sem licenças proprietárias |
 | **RE-6** | Prazo até novembro de 2026 | Calendário acadêmico | Escopo entregue de forma incremental, com projetos priorizados por dependência |
-| **RE-7** | Base financeira mistura gasto de negócio e gasto pessoal | Histórico da empresa | Acesso à base bancária restrito à chefia — o que dela deriva (custo, preço, indicador) a gerência lê; separação por centro de custo é pré-requisito de qualquer indicador |
+| **RE-7** | Base financeira mistura gasto de negócio e gasto pessoal | Histórico da empresa | Acesso à base bancária restrito à chefia: o que dela deriva (custo, preço, indicador) a gerência lê; separação por centro de custo é pré-requisito de qualquer indicador |
 | **RE-8** | Dados pessoais de clientes sujeitos à legislação de proteção de dados | Legal | Tratamento mapeado, acesso controlado e retenção definida |
 
 ---
@@ -171,7 +171,7 @@ Limites impostos ao projeto, não escolhidos por ele.
 ## 10. Critérios de sucesso
 
 Verificáveis. O detalhamento de cada verificação está em
-[`E2 — Casos de teste de aceite`](../E-qualidade/E2-casos-de-teste-de-aceite.md).
+[`E2: Casos de teste de aceite`](../E-qualidade/E2-casos-de-teste-de-aceite.md).
 
 | # | Critério | Como se verifica |
 |---|---|---|

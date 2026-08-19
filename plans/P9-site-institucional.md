@@ -1,23 +1,23 @@
-# P9 — Site Institucional
+# P9: Site Institucional
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
 > Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
-> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão — ela lê
+> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão: ela lê
 > dos quatro módulos (espécie e foto de Cadastros, disponibilidade da Produção, preço do
 > Financeiro) e não é um deles. Rotas públicas na raiz, nunca sob `/cadastros`, `/producao`,
 > `/comercial` ou `/financeiro`.
 
 ## Status: NÃO INICIADO
 ## Prioridade: MÉDIA
-## Dependências: P7 (catálogo — será embutido no site), P8 (identidade visual)
-## Bloqueia: P10 (E-commerce — loja no site)
+## Dependências: P7 (catálogo, será embutido no site), P8 (identidade visual)
+## Bloqueia: P10 (E-commerce, loja no site)
 
 ---
 
@@ -38,9 +38,9 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 
 ## Dados que a Equipe de Campo Precisa Levantar (PARALELO)
 
-- [ ] **Textos institucionais**: João + Gilberto escreverem rascunhos sobre a empresa — história, missão, diferenciais, área de atuação (pode ser tosco, eu refino)
+- [ ] **Textos institucionais**: João + Gilberto escreverem rascunhos sobre a empresa, história, missão, diferenciais, área de atuação (pode ser tosco, eu refino)
 - [ ] **Fotos profissionais**: João selecionar 10-15 melhores fotos do viveiro, equipe, mudas, entregas
-- [ ] **Depoimentos de clientes**: Gilberto pedir por WhatsApp — prints ou texto escrito (pelo menos 3)
+- [ ] **Depoimentos de clientes**: Gilberto pedir por WhatsApp, prints ou texto escrito (pelo menos 3)
 - [ ] **Registro de domínio**: João registrar viveiromudar.com.br no Registro.br (~R$40/ano)
 - [ ] **Google Business Profile**: João criar/atualizar perfil com endereço, horário, fotos, categoria "Viveiro de plantas"
 - [ ] **Listar serviços oferecidos**: produção de mudas nativas, fornecimento para compensação ambiental, projetos de restauração, paisagismo nativo, consultoria em espécies (Gilberto)
@@ -51,8 +51,8 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 
 ### Fase 1: Estrutura e Setup
 
-- [ ] **T9.1** Criar projeto Next.js (App Router) — pode ser o mesmo projeto do dashboard ou separado
-  - Se mesmo projeto: rotas públicas `/`, `/sobre`, `/catalogo` e a área autenticada nos quatro módulos (`/cadastros`, `/producao`, `/comercial`, `/financeiro`) — não existe prefixo `/app`
+- [ ] **T9.1** Criar projeto Next.js (App Router), pode ser o mesmo projeto do dashboard ou separado
+  - Se mesmo projeto: rotas públicas `/`, `/sobre`, `/catalogo` e a área autenticada nos quatro módulos (`/cadastros`, `/producao`, `/comercial`, `/financeiro`), não existe prefixo `/app`
   - Se separado: deploy independente
   - Decisão recomendada: mesmo projeto, domínio único
 - [ ] **T9.2** Configurar domínio no Vercel (viveiromudar.com.br)
@@ -86,7 +86,7 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
   - Mapa do Google Maps com localização
   - Botão WhatsApp flutuante
   - Informações: endereço, telefone, email, horário
-- [ ] **T9.9** Criar página de links (`/links`) — substituir Linktree do P8
+- [ ] **T9.9** Criar página de links (`/links`), substituir Linktree do P8
   - WhatsApp, Instagram, Catálogo, Contato
   - Design alinhado com identidade visual
 
@@ -129,6 +129,6 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 ## Notas Técnicas
 - Usar mesmo projeto Next.js do ecossistema. Rotas públicas (site) convivendo com a área autenticada dos quatro módulos (`/cadastros`, `/producao`, `/comercial`, `/financeiro`).
 - Deploy na Vercel (gratuito para o tráfego esperado).
-- Fotos são o ativo mais importante — investir tempo em boas fotos do viveiro.
+- Fotos são o ativo mais importante: investir tempo em boas fotos do viveiro.
 - O site é vitrine, não sistema. Deve ser simples, bonito e rápido.
-- Google Business Profile é gratuito e aparece no Maps — muito valioso para buscas locais.
+- Google Business Profile é gratuito e aparece no Maps, muito valioso para buscas locais.

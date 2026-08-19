@@ -1,23 +1,23 @@
-# P6 — Dashboard de Gestão
+# P6: Dashboard de Gestão
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 📊 **Os indicadores deste painel estão especificados em
-> [`G2 — Fichas de indicadores`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md),
+> [`G2: Fichas de indicadores`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md),
 > que é a fonte da verdade.** São 9 (IND-01 a IND-09), cada um com fórmula, fonte, janela, meta,
 > faixas e responsável, mais o painel por perfil e a regra de que mês não fechado exibe travessão
-> e nunca zero (RF-61). As listas de KPI deste plano são anteriores ao G2 e ficam como histórico —
+> e nunca zero (RF-61). As listas de KPI deste plano são anteriores ao G2 e ficam como histórico.
 > **não implemente por elas.** Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md),
 > achado G.
 
 > 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Indicadores deixaram de ser
 > módulo próprio: são os painéis do Financeiro, em `/financeiro/indicadores`. **Isso não os
-> fecha para a gerência** — o Financeiro restringe *por recurso*, não pela porta do módulo:
+> fecha para a gerência**: o Financeiro restringe *por recurso*, não pela porta do módulo:
 > a base bancária é de chefia/admin, e o painel operacional (IND-01, 02, 03 e 05) segue
 > aberto à gerência, como o `G2 §6` já previa. Mês não fechado exibe travessão (RF-61).
 
@@ -29,7 +29,7 @@
 ---
 
 ## Objetivo
-Criar painel visual único para Gilberto e João acompanharem o negócio em tempo real — faturamento, margem, mortalidade, estoque, pedidos — e tomarem decisões baseadas em dados.
+Criar painel visual único para Gilberto e João acompanharem o negócio em tempo real (faturamento, margem, mortalidade, estoque, pedidos) e tomarem decisões baseadas em dados.
 
 ## Contexto
 Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cabeça. Débora sabe de produção de olho. Ninguém sabe mortalidade, margem real ou tendência. Decisões são intuitivas. O dashboard é onde todos os dados dos projetos P1-P5 se encontram e viram informação acionável.
@@ -45,7 +45,7 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 
 ## Dados que a Equipe de Campo Precisa Levantar (PARALELO)
 
-- [ ] **KPIs prioritários**: João + Gilberto escolherem os 5-7 indicadores mais importantes — sugestão: faturamento mensal, margem média, mortalidade média, estoque total, pedidos em aberto, ticket médio, mix de canais
+- [ ] **KPIs prioritários**: João + Gilberto escolherem os 5-7 indicadores mais importantes, sugestão: faturamento mensal, margem média, mortalidade média, estoque total, pedidos em aberto, ticket médio, mix de canais
 - [ ] **Frequência de consulta**: definir se vão olhar diariamente, semanalmente ou sob demanda
 - [ ] **Auditoria de dados**: Débora validar nas primeiras 4 semanas se os dados dos P1-P3 estão sendo preenchidos corretamente
 
@@ -126,20 +126,20 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 
 - [ ] **T6.7** Criar página `/financeiro/indicadores` (tela principal)
   - **Header**: período selecionado + filtros rápidos
-  - **Linha 1 — KPI Cards** (6 cards):
+  - **Linha 1: KPI Cards** (6 cards):
     - Faturamento (R$ + % vs mês anterior)
     - Margem Média (% + indicador cor)
     - Estoque Disponível (unidades)
     - Valor em Estoque (R$)
     - Pedidos em Aberto (qtd)
     - Mortalidade Média (%)
-  - **Linha 2 — Gráficos**:
+  - **Linha 2: Gráficos**:
     - Faturamento mensal (barras, últimos 12 meses)
     - Distribuição por canal (pizza/donut)
-  - **Linha 3 — Rankings**:
+  - **Linha 3: Rankings**:
     - Top espécies por faturamento (barra horizontal)
     - Piores espécies por mortalidade (barra horizontal vermelha)
-  - **Linha 4 — Tabela resumo**:
+  - **Linha 4: Tabela resumo**:
     - Espécie | Estoque | Custo | Preço | Margem | Mortalidade
     - Ordenável por qualquer coluna
 - [ ] **T6.8** Implementar filtros globais:
@@ -184,7 +184,7 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 ## Notas Técnicas
 - Dashboard é consumidor, não produtor de dados. Depende de P1-P3 terem dados.
 - Começar com dados mockados se P1-P3 ainda não tiverem dados reais suficientes.
-- Usar Supabase views para agregar dados — não calcular no frontend.
+- Usar Supabase views para agregar dados: não calcular no frontend.
 - Cache de 5 minutos para queries pesadas (via Edge Function ou React Query staleTime).
 - O dashboard vai crescer progressivamente: começa com KPIs de P1-P3, depois adiciona métricas de P4-P5 quando implementados.
-- Gilberto vai querer ver isso no celular durante o café da manhã — precisa ser rápido e claro.
+- Gilberto vai querer ver isso no celular durante o café da manhã, precisa ser rápido e claro.

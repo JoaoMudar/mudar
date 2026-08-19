@@ -1,7 +1,7 @@
-# D1 — Documento de arquitetura
+# D1: Documento de arquitetura
 
-> **Artefato:** Documento de arquitetura (modelo C4) · **Bloco:** D — Arquitetura
-> **Destino no TCC:** Capítulo 4, seção 4.6 — Arquitetura da solução
+> **Artefato:** Documento de arquitetura (modelo C4) · **Bloco:** D, Arquitetura
+> **Destino no TCC:** Capítulo 4, seção 4.6, Arquitetura da solução
 > **Fundamentação:** Sommerville (2011) descreve a arquitetura cliente-servidor como conjunto de
 > serviços e servidores acessados por clientes, e apresenta o sistema de informação genérico
 > estruturado em **três camadas**: comunicação com o usuário, lógica da aplicação, e gerenciamento do
@@ -23,13 +23,13 @@ genérico de Sommerville (2011). Antes de detalhar, convém fixar o que cada cam
 
 **A decisão arquitetural mais determinante é a fronteira entre a primeira e a segunda camada.** As
 regras de acesso a dados são executadas no servidor e nunca no navegador (RNF-12). O navegador
-recebe apenas o resultado já filtrado pelo perfil do usuário — nunca a credencial de banco, nunca a
+recebe apenas o resultado já filtrado pelo perfil do usuário, nunca a credencial de banco, nunca a
 regra que decide o que ele pode ver. Um usuário que inspecione o código entregue ao seu dispositivo
 não encontra ali nada que lhe permita contornar a autorização.
 
 ---
 
-## 2. Nível 1 — Contexto
+## 2. Nível 1: Contexto
 
 Quem usa o sistema e com que sistemas externos ele troca informação.
 
@@ -61,23 +61,23 @@ graph TB
 **Nenhuma das integrações externas é automática.** O envio da cotação é sempre clique do usuário; o
 extrato é arquivo que a chefia baixa e importa; a nota fiscal é emitida no sistema externo e o número
 é informado de volta. É decisão de projeto compatível com a restrição de orçamento e com a
-inexistência de interface programática nos sistemas envolvidos — e, no caso da mensageria, também de
+inexistência de interface programática nos sistemas envolvidos, e, no caso da mensageria, também de
 conformidade (ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md)).
 
 ---
 
-## 3. Nível 2 — Contêineres
+## 3. Nível 2: Contêineres
 
 As unidades executáveis e de armazenamento, e a correspondência com as três camadas.
 
 ```mermaid
 graph TB
-  subgraph disp["Dispositivo do usuário — camada de apresentação"]
+  subgraph disp["Dispositivo do usuário: camada de apresentação"]
     PWA["<b>Aplicação web progressiva</b><br/>Interface móvel<br/>Instalável, funciona sem conexão"]
     FILA["<b>Fila local de sincronização</b><br/>Armazenamento no navegador<br/>Guarda registros feitos sem rede"]
   end
 
-  subgraph srv["Servidor — camada de lógica"]
+  subgraph srv["Servidor: camada de lógica"]
     REND["<b>Renderização no servidor</b><br/>Monta as telas já com os dados"]
     ACOES["<b>Ações de servidor</b><br/>Regras de negócio, validações<br/>e verificação de permissão"]
     AUTH["<b>Controle de acesso</b><br/>Sessão, perfil e autorização<br/>por operação"]
@@ -106,7 +106,7 @@ graph TB
 | Contêiner | Por que existe |
 |---|---|
 | **Aplicação web progressiva** | Atende ao uso móvel (RE-2) sem exigir instalação por loja de aplicativos (RNF-26), o que elimina custo e fricção de distribuição para nove usuários |
-| **Fila local de sincronização** | A conexão no viveiro é instável (RE-3). Sem ela, o registro em campo falharia justamente onde mais ocorre — e seria substituído por papel |
+| **Fila local de sincronização** | A conexão no viveiro é instável (RE-3). Sem ela, o registro em campo falharia justamente onde mais ocorre, e seria substituído por papel |
 | **Renderização no servidor** | Permite que a tela chegue ao celular já com os dados, reduzindo o número de idas e voltas sob rede lenta (RNF-07) |
 | **Ações de servidor** | Concentram regra de negócio e verificação de permissão do lado do servidor, atendendo ao RNF-12 |
 | **Controle de acesso** | Verificação por operação, e não apenas ocultação de elementos na interface (RF-06) |
@@ -114,14 +114,14 @@ graph TB
 
 ---
 
-## 4. Nível 3 — Componentes da camada de lógica
+## 4. Nível 3: Componentes da camada de lógica
 
 Decomposição interna do servidor, organizada pelos **quatro módulos** do sistema 
 (`docs/rotinas/00-mapa-de-rotinas.md`), com Acesso transversal.
 
 ```mermaid
 graph TB
-  subgraph acesso["Acesso — transversal"]
+  subgraph acesso["Acesso: transversal"]
     A1["Autenticação de sessão"]
     A2["Autorização por perfil"]
     A3["Auditoria de acesso"]
@@ -184,7 +184,7 @@ graph TB
 **O motor de custeio é a raiz, e ele mora no Financeiro.** Precificação depende dele, e ele
 depende apenas do catálogo de Cadastros e das compras. É a tradução arquitetural da ordem de
 implementação declarada no §3.5 da metodologia: o custeio é o primeiro projeto porque nada mais
-funciona sem ele. Custo e preço são dinheiro — ficam no módulo do dinheiro, não num "núcleo"
+funciona sem ele. Custo e preço são dinheiro, ficam no módulo do dinheiro, não num "núcleo"
 à parte.
 
 **A apuração de estoque depende de produção e perdas, e o ciclo de pedidos depende dela.** A cadeia
@@ -194,7 +194,7 @@ campo estarem em uso: o estoque é derivado, não digitado.
 **O Financeiro alimenta a Produção de volta**, por dois caminhos: a compra de insumo, que nasce
 lá e fica disponível para uso no campo, e o custo fixo efetivamente saído da conta, em lugar de
 um valor estimado. São as dependências que atravessam a fronteira do módulo restrito, e por
-isso são de leitura agregada — o custeio recebe o total do período, nunca o lançamento
+isso são de leitura agregada: o custeio recebe o total do período, nunca o lançamento
 individual. É esse retorno que fecha o ciclo; sem ele, o preço volta a ser estimativa.
 
 ---
@@ -218,11 +218,11 @@ individual. É esse retorno que fecha o ciclo; sem ele, o preço volta a ser est
 
 | Requisito | Como a arquitetura o atende |
 |---|---|
-| RNF-05 — registro sem conexão | Fila local no dispositivo, com reenvio automático |
-| RNF-06 — concepção móvel | Camada de apresentação projetada para o celular, não adaptada de tela maior |
-| RNF-07 — conexão lenta | Renderização no servidor reduz idas e voltas |
-| RNF-09, RNF-10 — senha e sessão | Armazenadas apenas como resumo criptográfico |
-| RNF-11 — cookies de sessão | Marcações que restringem uso a canal cifrado e impedem leitura por código de página |
-| RNF-12 — regras no servidor | Componente de autorização na camada de lógica, verificando a cada operação |
-| RNF-13 — cifra em trânsito | Comunicação cifrada obrigatória entre as três camadas |
-| RNF-19 — esquema versionado | Migrações aplicadas de forma controlada na publicação (ver [`D3`](D3-diagrama-implantacao.md)) |
+| RNF-05: registro sem conexão | Fila local no dispositivo, com reenvio automático |
+| RNF-06: concepção móvel | Camada de apresentação projetada para o celular, não adaptada de tela maior |
+| RNF-07: conexão lenta | Renderização no servidor reduz idas e voltas |
+| RNF-09, RNF-10: senha e sessão | Armazenadas apenas como resumo criptográfico |
+| RNF-11: cookies de sessão | Marcações que restringem uso a canal cifrado e impedem leitura por código de página |
+| RNF-12: regras no servidor | Componente de autorização na camada de lógica, verificando a cada operação |
+| RNF-13: cifra em trânsito | Comunicação cifrada obrigatória entre as três camadas |
+| RNF-19: esquema versionado | Migrações aplicadas de forma controlada na publicação (ver [`D3`](D3-diagrama-implantacao.md)) |

@@ -4,12 +4,12 @@
  * docs/engenharia/B-requisitos/B4-quadros-tcc.md.
  *
  * Por que existe: a versao anterior desse .docx foi montada a mao e ficou dois
- * meses defasada dos artefatos — RN-44 e RF-62 com o texto antigo, 23 regras
+ * meses defasada dos artefatos: RN-44 e RF-62 com o texto antigo, 23 regras
  * faltando, totais errados. Enquanto o arquivo for derivado, isso nao se repete.
  *
  * A formatacao reproduz a do .docx anterior: Arial, corpo 10 pt, titulo de
  * quadro 12 pt, bordas simples, cabecalho sombreado em D9D9D9, pagina A4 com
- * margens ABNT. Sem dependencia externa — o .docx e um zip de XML, e tanto o
+ * margens ABNT. Sem dependencia externa: o .docx e um zip de XML, e tanto o
  * zip quanto o XML sao escritos aqui.
  *
  * Uso: node scripts/build-quadros-docx.mjs [-o caminho/saida.docx]
@@ -46,7 +46,7 @@ const LARGURAS = {
 
 /**
  * Alinhamento por coluna. Os valores vao direto para <w:jc w:val="..."/>, entao
- * precisam ser os do enum ST_Jc do OOXML — 'center' e 'left', nao abreviacoes.
+ * precisam ser os do enum ST_Jc do OOXML: 'center' e 'left', nao abreviacoes.
  * Diante de um w:val invalido o Word recusa o documento inteiro, e nenhum leitor
  * tolerante (python-docx, por exemplo) acusa o problema.
  * Sem entrada aqui, a 1a coluna vai centralizada e em negrito, as demais a esquerda.
@@ -61,7 +61,7 @@ const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, 
 /**
  * Valores aceitos por <w:jc>. A checagem existe porque um w:val invalido nao
  * degrada: o Word recusa o arquivo inteiro com uma mensagem generica, e os
- * leitores tolerantes abrem sem reclamar — ou seja, o erro so aparece na mao do
+ * leitores tolerantes abrem sem reclamar: ou seja, o erro so aparece na mao do
  * usuario. Melhor quebrar o build.
  */
 const JC_VALIDOS = new Set(['left', 'center', 'right', 'both', 'start', 'end', 'distribute'])
@@ -246,7 +246,7 @@ const RELS_DOC = XML
 
 /**
  * Data fixa, de proposito. O .docx e versionado, e um carimbo de "agora" faria
- * o arquivo mudar de bytes a cada execucao — o git acusaria alteracao mesmo
+ * o arquivo mudar de bytes a cada execucao: o git acusaria alteracao mesmo
  * quando nada no conteudo mudou. Com data fixa, mesma entrada gera saida
  * identica, e um diff no .docx significa que os quadros mudaram de verdade.
  */
@@ -268,7 +268,7 @@ const coreXml = (agora) => XML
 
 /**
  * Data/hora MS-DOS das entradas do zip: 01/01/2026 00:00, fixa pelo mesmo
- * motivo de DATA_DOC. Zero NAO serve aqui — em MS-DOS o zero significa mes 0 e
+ * motivo de DATA_DOC. Zero NAO serve aqui: em MS-DOS o zero significa mes 0 e
  * dia 0, que sao invalidos, e o Word recusa o pacote inteiro por causa disso.
  * Formato: data = (ano-1980)<<9 | mes<<5 | dia; hora = h<<11 | min<<5 | seg/2.
  */

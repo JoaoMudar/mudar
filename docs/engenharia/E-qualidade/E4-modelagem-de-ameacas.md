@@ -1,9 +1,9 @@
-# E4 — Modelagem de ameaças e controles
+# E4: Modelagem de ameaças e controles
 
-> **Artefato:** Modelagem de ameaças · **Bloco:** E — Qualidade, riscos e segurança
-> **Destino no TCC:** Capítulo 4, seção 4.7 — Segurança e controle de acesso
-> **Fundamentação:** Sommerville (2011) classifica as ameaças em três tipos — à
-> **confidencialidade**, à **integridade** e à **disponibilidade** — e os controles em três
+> **Artefato:** Modelagem de ameaças · **Bloco:** E, Qualidade, riscos e segurança
+> **Destino no TCC:** Capítulo 4, seção 4.7, Segurança e controle de acesso
+> **Fundamentação:** Sommerville (2011) classifica as ameaças em três tipos, à
+> **confidencialidade**, à **integridade** e à **disponibilidade**, e os controles em três
 > categorias: **prevenção de vulnerabilidade**, **detecção e neutralização de ataques** e
 > **limitação de exposição e recuperação**. O autor apresenta, ainda, a análise de risco de ciclo de
 > vida de um sistema cliente-servidor com autenticação por login e senha, identificando
@@ -18,12 +18,12 @@ Antes das ameaças, o que há a perder. A coluna de sensibilidade orienta a prio
 
 | Ativo | Conteúdo | Sensibilidade |
 |---|---|---|
-| **Dados financeiros** | Lançamentos de nove contas, incluindo gasto pessoal da família e da clínica | **Máxima** — dado pessoal de terceiros não usuários do sistema |
-| **Dados pessoais de clientes** | Nome, documento, telefone, endereço, correio eletrônico | **Alta** — sujeitos à legislação de proteção de dados |
-| **Estrutura de custo e margem** | Custo unitário por espécie e margem por canal | **Alta** — informação concorrencialmente sensível |
-| **Cadastro de fornecedores** | Contatos e preços da rede de terceiros | **Alta** — construída ao longo de anos, de difícil reconstituição |
-| **Dados operacionais** | Produção, perdas, estoque | **Média** — sem valor externo, mas irreprodutíveis |
-| **Credenciais de acesso** | Senhas e identificadores de sessão | **Máxima** — chave de todo o restante |
+| **Dados financeiros** | Lançamentos de nove contas, incluindo gasto pessoal da família e da clínica | **Máxima**: dado pessoal de terceiros não usuários do sistema |
+| **Dados pessoais de clientes** | Nome, documento, telefone, endereço, correio eletrônico | **Alta**: sujeitos à legislação de proteção de dados |
+| **Estrutura de custo e margem** | Custo unitário por espécie e margem por canal | **Alta**: informação concorrencialmente sensível |
+| **Cadastro de fornecedores** | Contatos e preços da rede de terceiros | **Alta**: construída ao longo de anos, de difícil reconstituição |
+| **Dados operacionais** | Produção, perdas, estoque | **Média**: sem valor externo, mas irreprodutíveis |
+| **Credenciais de acesso** | Senhas e identificadores de sessão | **Máxima**: chave de todo o restante |
 
 ---
 
@@ -42,13 +42,13 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Alta |
 
 **Controles:**
-- *Prevenção* — política de senha verificada no momento da definição, recusando as previsíveis.
-- *Prevenção* — troca obrigatória no primeiro acesso (RF-02), para que a senha temporária comunicada
+- *Prevenção*: política de senha verificada no momento da definição, recusando as previsíveis.
+- *Prevenção*: troca obrigatória no primeiro acesso (RF-02), para que a senha temporária comunicada
   verbalmente não permaneça em uso.
-- *Detecção* — contagem de tentativas malsucedidas consecutivas, com bloqueio temporário.
+- *Detecção*: contagem de tentativas malsucedidas consecutivas, com bloqueio temporário.
 
 > **Não adotada:** troca periódica obrigatória. Sommerville usa exatamente este caso como exemplo de
-> falha originada em decisão de projeto — a senha trocada com frequência é anotada em papel, e o
+> falha originada em decisão de projeto: a senha trocada com frequência é anotada em papel, e o
 > controle produz a vulnerabilidade que pretendia evitar.
 
 ### A-02 · Vazamento de credencial
@@ -61,10 +61,10 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Média |
 
 **Controles:**
-- *Prevenção* — senha individual por pessoa, jamais compartilhada por perfil.
-- *Detecção* — registro de toda tentativa de autenticação com origem e dispositivo (RF-04),
+- *Prevenção*: senha individual por pessoa, jamais compartilhada por perfil.
+- *Detecção*: registro de toda tentativa de autenticação com origem e dispositivo (RF-04),
   permitindo identificar acesso de local ou aparelho incomum.
-- *Limitação* — lista de sessões ativas com encerramento à distância (RF-07).
+- *Limitação*: lista de sessões ativas com encerramento à distância (RF-07).
 
 ### A-03 · Aparelho perdido com sessão ativa
 
@@ -73,19 +73,19 @@ pelo tipo de controle de Sommerville.
 | **Tipo de ameaça** | Confidencialidade |
 | **Vulnerabilidade** | Sessão de duração longa nos dispositivos de campo, adotada por razão de usabilidade |
 | **Impacto** | Acesso ao perfil até que a sessão seja encerrada |
-| **Probabilidade** | Média — celular em ambiente de trabalho rural |
+| **Probabilidade** | Média: celular em ambiente de trabalho rural |
 
 **Controles:**
-- *Limitação* — encerramento de sessão à distância pelo próprio usuário, sem depender de
+- *Limitação*: encerramento de sessão à distância pelo próprio usuário, sem depender de
   administrador (RF-07).
-- *Detecção* — registro de dispositivo e origem em cada sessão, que permite reconhecer o aparelho na
+- *Detecção*: registro de dispositivo e origem em cada sessão, que permite reconhecer o aparelho na
   lista.
-- *Prevenção* — o perfil colaborador não acessa preço, custo nem financeiro (ver
+- *Prevenção*: o perfil colaborador não acessa preço, custo nem financeiro (ver
   [`D4`](../D-arquitetura/D4-matriz-rbac.md)), o que limita o alcance de um aparelho de campo
   comprometido.
 
 > Este é o caso em que o compromisso entre proteção e produtividade foi resolvido a favor da
-> produtividade — e o controle compensatório é o que torna a decisão defensável.
+> produtividade: e o controle compensatório é o que torna a decisão defensável.
 
 ### A-04 · Escalada de privilégio
 
@@ -97,10 +97,10 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Baixa, dado o controle adotado |
 
 **Controles:**
-- *Prevenção* — verificação de permissão **a cada operação**, e não por ocultação de elementos da
+- *Prevenção*: verificação de permissão **a cada operação**, e não por ocultação de elementos da
   interface (RF-06). Ocultar um botão não é controle de acesso.
-- *Prevenção* — regras de acesso executadas exclusivamente no servidor (RNF-12).
-- *Prevenção* — nenhum perfil de negócio administra usuários ou perfis, o que remove a escalada do
+- *Prevenção*: regras de acesso executadas exclusivamente no servidor (RNF-12).
+- *Prevenção*: nenhum perfil de negócio administra usuários ou perfis, o que remove a escalada do
   conjunto de caminhos de uso normal.
 
 ### A-05 · Injeção de comando em consulta ao banco
@@ -113,9 +113,9 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Baixa, dado o controle adotado |
 
 **Controles:**
-- *Prevenção* — consultas parametrizadas em todo acesso ao banco, sem exceção. Entrada de usuário é
+- *Prevenção*: consultas parametrizadas em todo acesso ao banco, sem exceção. Entrada de usuário é
   sempre parâmetro, nunca texto concatenado à consulta.
-- *Prevenção* — validação de tipo nas entradas antes de chegarem à camada de dados.
+- *Prevenção*: validação de tipo nas entradas antes de chegarem à camada de dados.
 
 ### A-06 · Exposição de credencial de banco no código
 
@@ -124,17 +124,17 @@ pelo tipo de controle de Sommerville.
 | **Tipo de ameaça** | Confidencialidade |
 | **Vulnerabilidade** | Credencial versionada por engano, ou entregue ao navegador |
 | **Impacto** | Acesso direto ao banco, contornando todo o controle da aplicação |
-| **Probabilidade** | Média — é erro comum e de consequência máxima |
+| **Probabilidade** | Média: é erro comum e de consequência máxima |
 
 **Controles:**
-- *Prevenção* — credenciais em configuração de ambiente, jamais no código (RNF-22).
-- *Prevenção* — acesso ao banco restrito à camada de servidor; o navegador nunca recebe credencial
+- *Prevenção*: credenciais em configuração de ambiente, jamais no código (RNF-22).
+- *Prevenção*: acesso ao banco restrito à camada de servidor; o navegador nunca recebe credencial
   (RNF-12).
-- *Detecção* — verificação automática antes de cada envio ao repositório, que bloqueia o envio ao
+- *Detecção*: verificação automática antes de cada envio ao repositório, que bloqueia o envio ao
   identificar arquivo sensível (RNF-21).
 
 > A detecção automática é o controle que importa aqui, porque este é um risco de **erro humano**, e
-> não de ataque. Sommerville observa que a maioria das falhas de segurança decorre de erro humano —
+> não de ataque. Sommerville observa que a maioria das falhas de segurança decorre de erro humano.
 > o controle eficaz é o que não depende de o humano lembrar.
 
 ### A-07 · Interceptação de tráfego
@@ -147,8 +147,8 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Baixa |
 
 **Controles:**
-- *Prevenção* — comunicação cifrada obrigatória em todas as fronteiras (RNF-13).
-- *Prevenção* — cookie de sessão marcado para trafegar somente por canal cifrado e para não ser
+- *Prevenção*: comunicação cifrada obrigatória em todas as fronteiras (RNF-13).
+- *Prevenção*: cookie de sessão marcado para trafegar somente por canal cifrado e para não ser
   legível por código de página (RNF-11).
 
 ### A-08 · Dado sensível retido no dispositivo
@@ -161,9 +161,9 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Média |
 
 **Controles:**
-- *Prevenção* — a fila local retém **apenas registros pendentes de envio**, e não cópia do banco. Um
+- *Prevenção*: a fila local retém **apenas registros pendentes de envio**, e não cópia do banco. Um
   registro de perda em fila não revela custo, margem nem dado de cliente.
-- *Prevenção* — o dispositivo do colaborador não recebe dado financeiro nem de precificação, por
+- *Prevenção*: o dispositivo do colaborador não recebe dado financeiro nem de precificação, por
   decisão da matriz de acesso.
 
 > É a razão de a sincronização ser por fila e não por réplica local do banco. A réplica seria mais
@@ -176,13 +176,13 @@ pelo tipo de controle de Sommerville.
 | **Tipo de ameaça** | Integridade |
 | **Vulnerabilidade** | Edição de lançamento de período já conferido |
 | **Impacto** | Divergência entre saldo do sistema e saldo do banco, que invalida os indicadores |
-| **Probabilidade** | Média — o risco é de erro, não de má-fé |
+| **Probabilidade** | Média: o risco é de erro, não de má-fé |
 
 **Controles:**
-- *Prevenção* — mês fechado não aceita alteração (RF-60). A reabertura é ato explícito e registrado.
-- *Prevenção* — descrição e data de movimentação nunca são editáveis: são a prova de que a linha veio
+- *Prevenção*: mês fechado não aceita alteração (RF-60). A reabertura é ato explícito e registrado.
+- *Prevenção*: descrição e data de movimentação nunca são editáveis: são a prova de que a linha veio
   do banco.
-- *Detecção* — conferência do saldo calculado contra o saldo do extrato no fechamento.
+- *Detecção*: conferência do saldo calculado contra o saldo do extrato no fechamento.
 
 ### A-10 · Perda de dados por falha de infraestrutura
 
@@ -193,7 +193,7 @@ pelo tipo de controle de Sommerville.
 | **Impacto** | Perda do levantamento primário, irreprodutível a custo razoável |
 | **Probabilidade** | Baixa |
 
-**Controles:** *limitação de exposição e recuperação* — ver
+**Controles:** *limitação de exposição e recuperação*, ver
 [`E6`](E6-plano-backup-recuperacao.md).
 
 ### A-11 · Indisponibilidade temporária do sistema
@@ -206,8 +206,8 @@ pelo tipo de controle de Sommerville.
 | **Probabilidade** | Média |
 
 **Controles:**
-- *Limitação* — a fila local permite continuar registrando em campo durante a indisponibilidade.
-- *Aceitação declarada* — o sistema é ferramenta de gestão, não de controle de processo em tempo
+- *Limitação*: a fila local permite continuar registrando em campo durante a indisponibilidade.
+- *Aceitação declarada*: o sistema é ferramenta de gestão, não de controle de processo em tempo
   real. Algumas horas fora do ar adiam registro, não param a produção de mudas.
 
 ---
@@ -217,11 +217,11 @@ pelo tipo de controle de Sommerville.
 | Tipo (Sommerville) | Ameaças | Concentração dos controles |
 |---|---|---|
 | **Confidencialidade** | A-01, A-02, A-03, A-04, A-05, A-06, A-07, A-08 | Prevenção, com detecção onde o erro humano é a causa provável |
-| **Integridade** | A-04, A-05, A-09 | Prevenção por restrição estrutural — o dado consolidado simplesmente não é editável |
+| **Integridade** | A-04, A-05, A-09 | Prevenção por restrição estrutural: o dado consolidado simplesmente não é editável |
 | **Disponibilidade** | A-10, A-11 | Limitação e recuperação; nenhuma prevenção, por decisão de custo |
 
 **Oito das onze ameaças são de confidencialidade.** A concentração reflete a natureza do sistema:
-seu ativo mais sensível não é a operação, é o dado financeiro que mistura empresa e família — e o
+seu ativo mais sensível não é a operação, é o dado financeiro que mistura empresa e família, e o
 risco predominante é de acesso indevido, não de destruição.
 
 ---
@@ -243,7 +243,7 @@ Registrar os controles **descartados** e o motivo evita que a ausência seja lid
 | Controle não adotado | Motivo |
 |---|---|
 | **Autenticação em dois fatores** | Nove usuários sem formação técnica, em ambiente rural com conexão instável. O custo em produtividade excede o ganho, e a alternativa provável seria o compartilhamento de aparelho |
-| **Troca periódica obrigatória de senha** | Produz a vulnerabilidade que pretende evitar — o próprio Sommerville o exemplifica |
+| **Troca periódica obrigatória de senha** | Produz a vulnerabilidade que pretende evitar: o próprio Sommerville o exemplifica |
 | **Restrição de acesso por dispositivo previamente aprovado** | Sommerville a menciona como redução de risco possível. Descartada porque a equipe troca de aparelho sem aviso e a administração recairia sobre quem não tem perfil técnico |
 | **Cifra dos dados em repouso, além da já provida pelo serviço** | O ganho marginal não compensa a complexidade de gestão de chaves num projeto sem administrador dedicado |
 | **Redundância de infraestrutura** | Ponto único de falha aceito e declarado, por incompatibilidade com o orçamento de uma microempresa |

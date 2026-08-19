@@ -1,12 +1,12 @@
-# Comercial — visão geral
+# Comercial: visão geral
 
 > Módulo 3 de 4. O que acontece entre o cliente pedir e a muda sair do viveiro.
 > Mapa dos quatro módulos em [`../00-mapa-de-rotinas.md`](../00-mapa-de-rotinas.md).
 
 ## O que este módulo é
 
-Tudo aqui é **movimento**: acontece uma vez e vira histórico. O que é estável — cliente,
-espécie, fornecedor — é Cadastros, e o Comercial só consome.
+Tudo aqui é **movimento**: acontece uma vez e vira histórico. O que é estável, cliente,
+espécie, fornecedor: é Cadastros, e o Comercial só consome.
 
 A negociação continua sendo por WhatsApp, conduzida por pessoa. O sistema não substitui a
 conversa; ele registra o que ficou combinado e encadeia as etapas seguintes com notificação,
@@ -31,7 +31,7 @@ cadastro (chefia)  →  verificação (gerência)  →  aprovação (chefia)  �
 ```
 
 **Entrega não é a 5ª etapa do pedido.** Uma carga é uma viagem, e viagem tem calendário
-próprio — por isso entregas é rotina irmã, e não o último estado do pedido.
+próprio: por isso entregas é rotina irmã, e não o último estado do pedido.
 
 ## Relação com os outros módulos
 
@@ -43,6 +43,6 @@ próprio — por isso entregas é rotina irmã, e não o último estado do pedid
 
 ## Onde estão as telas
 
-Área `/comercial`. As telas seguem nas URLs de origem — `/pedidos/*` e `/fornecedores/*` —
+Área `/comercial`. As telas seguem nas URLs de origem (`/pedidos/*` e `/fornecedores/*`)
 porque a rotina de pedidos aponta para elas e `notifications.link` guarda caminho já gravado
 no banco. O agrupamento é de navegação, não de rota.

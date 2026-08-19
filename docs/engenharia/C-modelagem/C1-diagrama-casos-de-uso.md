@@ -1,10 +1,10 @@
-# C1 — Diagrama de casos de uso
+# C1: Diagrama de casos de uso
 
-> **Artefato:** Diagrama de casos de uso (UML) · **Bloco:** C — Modelagem
-> **Destino no TCC:** Capítulo 4, seção 4.4 — Modelagem do sistema
+> **Artefato:** Diagrama de casos de uso (UML) · **Bloco:** C, Modelagem
+> **Destino no TCC:** Capítulo 4, seção 4.4, Modelagem do sistema
 > **Fundamentação:** Sommerville (2011) define o caso de uso como cenário que descreve o que o
 > usuário espera do sistema, representando uma interação externa. Pressman e Maxim (2016) indicam
-> que a construção parte da **definição dos atores** — todo elemento externo que se comunica com o
+> que a construção parte da **definição dos atores**: todo elemento externo que se comunica com o
 > sistema e possui uma meta ao utilizá-lo.
 
 ---
@@ -28,14 +28,14 @@ de nenhuma rotina de negócio e seus casos de uso limitam-se à gestão de usuá
 representado à parte para que os casos de uso de negócio reflitam exclusivamente a operação real do
 viveiro.
 
-**Atores externos ao sistema** — sistemas com os quais há troca de informação, sem serem operados por
+**Atores externos ao sistema**: sistemas com os quais há troca de informação, sem serem operados por
 usuário do viveiro: o **emissor de nota fiscal** (sistema fiscal externo, que recebe os dados da
 venda e devolve o número da nota), o **serviço de mensageria** (WhatsApp, por onde a negociação
 ocorre) e o **serviço de geocodificação** (que converte cidade e estado do fornecedor em coordenadas).
 
 ---
 
-## 2. Visão geral — atores e subsistemas
+## 2. Visão geral: atores e subsistemas
 
 ```mermaid
 graph LR
@@ -98,14 +98,14 @@ Os subsistemas estão agrupados nos **quatro módulos** do sistema
 Três leituras que o diagrama torna imediatas:
 
 - **O colaborador toca quatro subsistemas, sempre pela ponta do registro.** Ele alimenta o sistema e
-  não consulta resultado — não acessa preço, custo nem indicador. É o que justifica o rigor dos
+  não consulta resultado: não acessa preço, custo nem indicador. É o que justifica o rigor dos
   requisitos não funcionais de usabilidade: para esse ator, o sistema **é** o formulário.
 - **Custeio e precificação são do Financeiro, não da Produção.** A gerência toca o custeio para
-  consultar, mas quem o alimenta é o extrato bancário — e é por isso que o preço do viveiro
+  consultar, mas quem o alimenta é o extrato bancário, e é por isso que o preço do viveiro
   é estimativa enquanto o módulo 4 não rodar.
 - **O subsistema Financeiro conecta-se a um único ator.** Não é omissão do diagrama, é regra de
   negócio: a base bancária mistura gasto do viveiro com gasto pessoal da família, e o acesso é
-  restrito à chefia. Repare que **o módulo 4 não é restrito por inteiro** — a gerência toca
+  restrito à chefia. Repare que **o módulo 4 não é restrito por inteiro**: a gerência toca
   Custeio, Precificação e Indicadores, que dele derivam sem o expor. A restrição é do recurso,
   não da porta do módulo ([`D4 §3.2`](../D-arquitetura/D4-matriz-rbac.md)).
 
@@ -186,7 +186,7 @@ graph LR
 ```
 
 A concentração é acentuada: **vinte e seis dos quarenta e quatro casos de uso pertencem à chefia.** Não é
-falha de distribuição — é o retrato de uma microempresa em que uma única pessoa responde por venda,
+falha de distribuição: é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
 
@@ -234,7 +234,7 @@ graph LR
 
 A gerência concentra-se no que **só é possível estando no viveiro**: contar estoque, planejar
 produção e verificar disponibilidade. Nenhuma dessas tarefas pode ser executada à distância sem
-virar adivinhação registrada como fato — que é precisamente o problema que o sistema existe para
+virar adivinhação registrada como fato: que é precisamente o problema que o sistema existe para
 eliminar.
 
 ### 3.3 Colaborador
@@ -289,50 +289,50 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 
 | Código | Caso de uso | Módulo | Ator principal | Requisitos | Detalhado em C2 |
 |---|---|---|---|---|---|
-| **UC-01** | Autenticar-se | Acesso | Todos | RF-01 | — |
-| **UC-02** | Trocar senha | Acesso | Todos | RF-02 | — |
-| **UC-03** | Gerenciar usuários e perfis | Acesso | Administrador | RF-05, RF-06 | — |
-| **UC-04** | Gerenciar sessões ativas | Acesso | Todos | RF-03, RF-04, RF-07 | — |
-| **UC-05** | Manter catálogo de espécies | 1 · Cad. | Chefia | RF-08, RF-09 | — |
-| **UC-06** | Manter recipientes | 1 · Cad. | Chefia | RF-10 | — |
-| **UC-07** | Manter insumos | 1 · Cad. | Chefia | RF-11 | — |
-| **UC-08** | Registrar custos fixos | 4 · Fin. | Chefia | RF-12 | — |
-| **UC-09** | Registrar coleta de sementes | 2 · Prod. | Chefia | RF-13 | — |
-| **UC-10** | Registrar consumo de insumo | 2 · Prod. | Colaborador | RF-14 | — |
-| **UC-11** | Consultar custo unitário | 4 · Fin. | Chefia, Gerência | RF-15, RF-16, RF-17, RF-18 | — |
-| **UC-12** | Registrar atividade de produção | 2 · Prod. | Colaborador | RF-19 | — |
-| **UC-13** | Planejar e atribuir produção | 2 · Prod. | Gerência | RF-20 | — |
-| **UC-14** | Acompanhar ciclo produtivo | 2 · Prod. | Gerência | RF-21 | — |
-| **UC-15** | Consultar estoque | 2 · Prod. | Chefia, Gerência | RF-22, RF-24 | — |
-| **UC-16** | Registrar contagem de estoque | 2 · Prod. | Gerência | RF-23, RF-25 | — |
+| **UC-01** | Autenticar-se | Acesso | Todos | RF-01 | - |
+| **UC-02** | Trocar senha | Acesso | Todos | RF-02 | - |
+| **UC-03** | Gerenciar usuários e perfis | Acesso | Administrador | RF-05, RF-06 | - |
+| **UC-04** | Gerenciar sessões ativas | Acesso | Todos | RF-03, RF-04, RF-07 | - |
+| **UC-05** | Manter catálogo de espécies | 1 · Cad. | Chefia | RF-08, RF-09 | - |
+| **UC-06** | Manter recipientes | 1 · Cad. | Chefia | RF-10 | - |
+| **UC-07** | Manter insumos | 1 · Cad. | Chefia | RF-11 | - |
+| **UC-08** | Registrar custos fixos | 4 · Fin. | Chefia | RF-12 | - |
+| **UC-09** | Registrar coleta de sementes | 2 · Prod. | Chefia | RF-13 | - |
+| **UC-10** | Registrar consumo de insumo | 2 · Prod. | Colaborador | RF-14 | - |
+| **UC-11** | Consultar custo unitário | 4 · Fin. | Chefia, Gerência | RF-15, RF-16, RF-17, RF-18 | - |
+| **UC-12** | Registrar atividade de produção | 2 · Prod. | Colaborador | RF-19 | - |
+| **UC-13** | Planejar e atribuir produção | 2 · Prod. | Gerência | RF-20 | - |
+| **UC-14** | Acompanhar ciclo produtivo | 2 · Prod. | Gerência | RF-21 | - |
+| **UC-15** | Consultar estoque | 2 · Prod. | Chefia, Gerência | RF-22, RF-24 | - |
+| **UC-16** | Registrar contagem de estoque | 2 · Prod. | Gerência | RF-23, RF-25 | - |
 | **UC-17** | Registrar perda | 2 · Prod. | Colaborador | RF-26 | **✔ sim** |
-| **UC-18** | Analisar perdas | 2 · Prod. | Gerência, Chefia | RF-27, RF-28, RF-29, RF-30 | — |
-| **UC-19** | Definir margem por canal | 4 · Fin. | Chefia | RF-31 | — |
-| **UC-20** | Consultar preço por canal | 4 · Fin. | Chefia, Gerência | RF-32, RF-33, RF-34, RF-35 | — |
-| **UC-21** | Cadastrar cliente rápido | 1 · Cad. | Chefia | RF-36 | — |
-| **UC-22** | Manter cadastro completo de cliente | 1 · Cad. | Chefia | RF-37, RF-38, RF-40 | — |
-| **UC-23** | Consultar cliente | 1 · Cad. | Chefia | RF-39 | — |
+| **UC-18** | Analisar perdas | 2 · Prod. | Gerência, Chefia | RF-27, RF-28, RF-29, RF-30 | - |
+| **UC-19** | Definir margem por canal | 4 · Fin. | Chefia | RF-31 | - |
+| **UC-20** | Consultar preço por canal | 4 · Fin. | Chefia, Gerência | RF-32, RF-33, RF-34, RF-35 | - |
+| **UC-21** | Cadastrar cliente rápido | 1 · Cad. | Chefia | RF-36 | - |
+| **UC-22** | Manter cadastro completo de cliente | 1 · Cad. | Chefia | RF-37, RF-38, RF-40 | - |
+| **UC-23** | Consultar cliente | 1 · Cad. | Chefia | RF-39 | - |
 | **UC-24** | Cadastrar pedido | 3 · Com. | Chefia | RF-41, RF-66, RF-67 | **✔ sim** |
 | **UC-25** | Verificar disponibilidade | 3 · Com. | Gerência | RF-42, RF-43, RF-68 | **✔ sim** |
 | **UC-26** | Fechar pedido | 3 · Com. | Chefia | RF-44, RF-45, RF-46 | **✔ sim** |
 | **UC-27** | Separar carga | 3 · Com. | Colaborador | RF-47 | **✔ sim** |
-| **UC-28** | Acompanhar pedidos | 3 · Com. | Chefia, Gerência | RF-48, RF-49 | — |
-| **UC-29** | Organizar agenda de entregas | 3 · Com. | Chefia | RF-50 | — |
-| **UC-30** | Confirmar entrega | 3 · Com. | Chefia | RF-51 | — |
-| **UC-31** | Manter fornecedor | 1 · Cad. | Chefia | RF-52 | — |
+| **UC-28** | Acompanhar pedidos | 3 · Com. | Chefia, Gerência | RF-48, RF-49 | - |
+| **UC-29** | Organizar agenda de entregas | 3 · Com. | Chefia | RF-50 | - |
+| **UC-30** | Confirmar entrega | 3 · Com. | Chefia | RF-51 | - |
+| **UC-31** | Manter fornecedor | 1 · Cad. | Chefia | RF-52 | - |
 | **UC-32** | Emitir cotação | 3 · Com. | Chefia | RF-53 | **✔ sim** |
 | **UC-33** | Escolher proposta | 3 · Com. | Chefia | RF-54 | **✔ sim** |
-| **UC-34** | Consultar mapa de fornecedores | 3 · Com. | Chefia | RF-55 | — |
-| **UC-35** | Importar extrato bancário | 4 · Fin. | Chefia | RF-56 | — |
+| **UC-34** | Consultar mapa de fornecedores | 3 · Com. | Chefia | RF-55 | - |
+| **UC-35** | Importar extrato bancário | 4 · Fin. | Chefia | RF-56 | - |
 | **UC-36** | Classificar lançamentos | 4 · Fin. | Chefia | RF-57, RF-58, RF-59 | **✔ sim** |
-| **UC-37** | Fechar o mês | 4 · Fin. | Chefia | RF-60, RF-61 | — |
-| **UC-38** | Consultar faturamento | 4 · Fin. | Chefia | RF-61, RF-62 | — |
-| **UC-39** | Acompanhar indicadores | 4 · Fin. | Chefia, Gerência | RF-63, RF-64, RF-65 | — |
-| **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-74 | — |
-| **UC-41** | Manter cadastro de funcionário | 1 · Cad. | Chefia | RF-69 | — |
-| **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70 | — |
-| **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | — |
-| **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | — |
+| **UC-37** | Fechar o mês | 4 · Fin. | Chefia | RF-60, RF-61 | - |
+| **UC-38** | Consultar faturamento | 4 · Fin. | Chefia | RF-61, RF-62 | - |
+| **UC-39** | Acompanhar indicadores | 4 · Fin. | Chefia, Gerência | RF-63, RF-64, RF-65 | - |
+| **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-74 | - |
+| **UC-41** | Manter cadastro de funcionário | 1 · Cad. | Chefia | RF-69 | - |
+| **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70 | - |
+| **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | - |
+| **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | - |
 
 **44 casos de uso.** Os oito marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
@@ -344,7 +344,7 @@ aqueles cujo erro tem maior custo operacional.
 O Mermaid, empregado para versionar os diagramas em texto junto ao código, não implementa a notação
 UML de caso de uso (ator como figura de palito, caso como elipse, sistema como retângulo delimitador).
 Os diagramas acima representam **atores como círculos** e **casos de uso como formas arredondadas**,
-preservando a semântica — ator, caso, associação e fronteira de subsistema — ainda que não a
+preservando a semântica (ator, caso, associação e fronteira de subsistema) ainda que não a
 representação gráfica canônica.
 
 As figuras publicadas no trabalho são geradas em notação UML padrão a partir do mesmo conteúdo, e

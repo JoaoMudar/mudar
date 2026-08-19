@@ -1,10 +1,10 @@
-# P3 — Modelo de Precificação Inteligente
+# P3: Modelo de Precificação Inteligente
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Preço, margem e rentabilidade
@@ -16,7 +16,7 @@
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (custo unitário calculado), P2 (mortalidade para custo real)
-## Bloqueia: P4 (WhatsApp — orçamento automático), P6 (Dashboard — margem), P10 (E-commerce — preço)
+## Bloqueia: P4 (WhatsApp, orçamento automático), P6 (Dashboard, margem), P10 (E-commerce, preço)
 
 ---
 
@@ -38,9 +38,9 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 
 - [ ] **Preços atuais praticados**: Gilberto registrar preços que cobra hoje por espécie e recipiente, mesmo que aproximado
 - [ ] **Pesquisa de concorrentes**: João levantar preços de 3-5 concorrentes para as 10 espécies mais vendidas
-- [ ] **Classificação de clientes**: Gilberto classificar clientes atuais por perfil — prefeitura, construtora, compensação ambiental, paisagismo, revenda, pessoa física
+- [ ] **Classificação de clientes**: Gilberto classificar clientes atuais por perfil, prefeitura, construtora, compensação ambiental, paisagismo, revenda, pessoa física
 - [ ] **Top espécies**: João extrair das notas Excel as 10 mais vendidas e 10 menos vendidas dos últimos 2 anos
-- [ ] **Margem mínima por canal**: Gilberto + João definirem piso de margem — ex: atacado 30%, compensação 50%, varejo 80%
+- [ ] **Margem mínima por canal**: Gilberto + João definirem piso de margem, ex: atacado 30%, compensação 50%, varejo 80%
 - [ ] **Tabela de frete**: João documentar custo de frete por faixa de km (atual R$/km)
 
 ---
@@ -108,7 +108,7 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
   - Comparar preço da tabela com preços de concorrentes
   - Retornar flag: abaixo_mercado, no_mercado, acima_mercado
 
-### Fase 3: Interface — Tabela de Preços
+### Fase 3: Interface, Tabela de Preços
 
 - [ ] **T3.11** Criar página `/financeiro/precos`
   - Grid: espécie × recipiente com preço por canal
@@ -140,7 +140,7 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 - [ ] **T3.15** Criar página `/financeiro/rentabilidade`
   - Ranking de espécies por margem real (% e R$ absoluto)
   - Ranking de espécies por volume vendido
-  - Matriz: margem × volume (quadrante estratégico — estrelas, vacas leiteiras, abacaxis)
+  - Matriz: margem × volume (quadrante estratégico, estrelas, vacas leiteiras, abacaxis)
   - Evolução de preço médio praticado vs custo ao longo do tempo
 - [ ] **T3.16** Criar página `/financeiro/concorrencia`
   - Comparativo: nosso preço vs concorrentes por espécie

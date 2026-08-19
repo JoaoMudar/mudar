@@ -1,4 +1,4 @@
-# Rotina de Clientes — Visão Geral
+# Rotina de Clientes: Visão Geral
 
 ## Contexto de Negócio
 
@@ -7,7 +7,7 @@ Quando a rotina de Pedidos foi digitalizada, o cliente passou a ser criado **inl
 no formulário de pedido: a chefia digita o nome, e o `createCustomer()` grava um
 registro mínimo em `customers` (`name`, `phone`, `city`, `state`, `notes`, `active`).
 
-Esse cadastro rápido é proposital e deve ser preservado — Gilberto não pode perder
+Esse cadastro rápido é proposital e deve ser preservado, Gilberto não pode perder
 tempo preenchendo formulário fiscal toda vez que recebe um pedido pelo WhatsApp.
 
 O que muda: o sistema vai **emitir Nota Fiscal** no futuro. NF exige dados fiscais
@@ -22,10 +22,10 @@ quando o pedido realmente precisar de NF.
 | Admin | Sim | Tudo |
 | Chefia | Sim | Cadastra/edita clientes, decide NF no fechamento |
 | Gerência | Não | Apenas **vê** o cliente dentro do pedido; não gerencia a área nem edita cadastros |
-| Colaborador | Não | — |
+| Colaborador | Não | - |
 
 A área `/clientes` é **top-level** (rota própria, fora de Administração), com card
-próprio na home — visível só para `admin`/`chefia` (a gerência continua vendo a seção
+próprio na home: visível só para `admin`/`chefia` (a gerência continua vendo a seção
 Pedidos, mas sem o card Clientes). A gerência acessa os dados do cliente apenas pela
 leitura dentro do pedido (`getCustomerById`), nunca pelas actions de gestão.
 
@@ -50,12 +50,12 @@ O tipo de pessoa (`person_type`) define os campos obrigatórios para NF:
 |---|----|----|
 | Documento | CPF (11 dígitos) | CNPJ (14 dígitos) |
 | Nome | nome completo (`name`) | razão social (`legal_name`) + nome fantasia (`trade_name`) |
-| Inscrição Estadual | — | IE **ou** marcação "isento de IE" |
+| Inscrição Estadual | - | IE **ou** marcação "isento de IE" |
 | Endereço + e-mail | obrigatórios | obrigatórios |
 
 `person_type = NULL` significa cadastro legado/simples (ainda não classificado).
 
-## Gate fiscal — regra de completude
+## Gate fiscal: regra de completude
 
 Regra adotada: **mínimo legal brasileiro + e-mail obrigatório**. Um cliente é
 "fiscalmente completo" (`isFiscallyComplete`) quando:
@@ -66,7 +66,7 @@ Regra adotada: **mínimo legal brasileiro + e-mail obrigatório**. Um cliente é
 - **PJ**: `person_type='pj'`, `legal_name` preenchido, `document` = CNPJ válido,
   `state_registration` informado **ou** `ie_exempt = true`.
 
-> A completude **não** é constraint do banco — o banco continua permissivo para não
+> A completude **não** é constraint do banco: o banco continua permissivo para não
 > quebrar o cadastro simples. O gate é cobrado na aplicação, somente quando há NF.
 
 ## Fluxo completo
@@ -99,12 +99,12 @@ Regra adotada: **mínimo legal brasileiro + e-mail obrigatório**. Um cliente é
 
 ## Arquivos de Implementação (ordem de execução)
 
-1. `01-banco-de-dados.md` — Migração aditiva: campos fiscais em `customers` + `orders.needs_invoice`.
-2. `02-validacoes.md` — Lib pura `src/lib/customers.ts` (validadores + completude) e testes.
-3. `03-area-clientes.md` — Área `/clientes`: server actions, CRUD, formulário fiscal, card na home.
-4. `04-integracao-pedidos-nf.md` — Flag `needs_invoice`, pergunta de NF no fechamento, complementação inline.
-5. `05-testes.md` — Testes automatizados + roteiro manual.
-6. `06-futuro-emissao-nf-api.md` — Fora de escopo: o que fica pronto e o que falta para emitir NF de verdade.
+1. `01-banco-de-dados.md`: Migração aditiva: campos fiscais em `customers` + `orders.needs_invoice`.
+2. `02-validacoes.md`: Lib pura `src/lib/customers.ts` (validadores + completude) e testes.
+3. `03-area-clientes.md`: Área `/clientes`: server actions, CRUD, formulário fiscal, card na home.
+4. `04-integracao-pedidos-nf.md`: Flag `needs_invoice`, pergunta de NF no fechamento, complementação inline.
+5. `05-testes.md`: Testes automatizados + roteiro manual.
+6. `06-futuro-emissao-nf-api.md`: Fora de escopo: o que fica pronto e o que falta para emitir NF de verdade.
 
 ## Decisões técnicas (resumo)
 
@@ -124,5 +124,5 @@ Regra adotada: **mínimo legal brasileiro + e-mail obrigatório**. Um cliente é
 - **Emissão de NF via API** (`06-futuro-emissao-nf-api.md`): provedor (Focus NF-e,
   NFe.io, PlugNotas, eNotas) ou SEFAZ direto, dados do emitente, dados fiscais do
   produto, persistência de chave/XML/DANFE.
-- **Autofill de endereço por CEP** (ViaCEP) na área `/clientes` — melhoria de UX.
-- **Busca por telefone/razão social** com `pg_trgm` — melhoria de performance.
+- **Autofill de endereço por CEP** (ViaCEP) na área `/clientes`, melhoria de UX.
+- **Busca por telefone/razão social** com `pg_trgm`, melhoria de performance.

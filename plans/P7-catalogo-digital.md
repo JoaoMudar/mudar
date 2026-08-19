@@ -1,15 +1,15 @@
-# P7 — Catálogo Digital de Espécies
+# P7: Catálogo Digital de Espécies
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
 > **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
+> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
 > Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
-> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão — ela lê
+> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão: ela lê
 > dos quatro módulos (espécie e foto de Cadastros, disponibilidade da Produção, preço do
 > Financeiro) e não é um deles. Rotas públicas na raiz, nunca sob `/cadastros`, `/producao`,
 > `/comercial` ou `/financeiro`.
@@ -17,7 +17,7 @@
 ## Status: NÃO INICIADO
 ## Prioridade: MÉDIA
 ## Dependências: P1 (espécies), P3 (preços), P2 (estoque via lotes)
-## Bloqueia: P9 (Site — catálogo embutido), P10 (E-commerce — vitrine)
+## Bloqueia: P9 (Site, catálogo embutido), P10 (E-commerce, vitrine)
 
 ---
 
@@ -25,7 +25,7 @@
 Criar catálogo online público das espécies disponíveis com fotos, descrições técnicas, disponibilidade em tempo real e botão de orçamento via WhatsApp. Profissionalizar a venda e permitir que o cliente veja o que tem sem precisar ligar.
 
 ## Contexto
-Clientes ligam ou mandam WhatsApp perguntando "vocês têm ipê amarelo?" — Gilberto responde de cabeça. Não existe catálogo impresso nem digital. Paisagistas e engenheiros florestais querem ver ficha técnica antes de comprar. Um catálogo online é ferramenta de venda passiva 24h.
+Clientes ligam ou mandam WhatsApp perguntando "vocês têm ipê amarelo?", Gilberto responde de cabeça. Não existe catálogo impresso nem digital. Paisagistas e engenheiros florestais querem ver ficha técnica antes de comprar. Um catálogo online é ferramenta de venda passiva 24h.
 
 ## Resultado Esperado
 - Página web pública com todas as espécies
@@ -38,8 +38,8 @@ Clientes ligam ou mandam WhatsApp perguntando "vocês têm ipê amarelo?" — Gi
 
 ## Dados que a Equipe de Campo Precisa Levantar (PARALELO)
 
-- [ ] **Fotos de espécies**: João fotografar cada espécie — muda jovem, luz natural, fundo limpo (celular bom basta)
-- [ ] **Descrições técnicas**: Gilberto escrever para cada espécie — uso, porte adulto, bioma, velocidade de crescimento, tipo (pioneira/secundária/clímax)
+- [ ] **Fotos de espécies**: João fotografar cada espécie, muda jovem, luz natural, fundo limpo (celular bom basta)
+- [ ] **Descrições técnicas**: Gilberto escrever para cada espécie, uso, porte adulto, bioma, velocidade de crescimento, tipo (pioneira/secundária/clímax)
 - [ ] **Classificação por categoria**: frutífera, ornamental, madeira, restauração, outros (Gilberto)
 - [ ] **Informações adicionais**: época de coleta de sementes, regiões onde ocorre naturalmente, dicas de plantio (Gilberto)
 
@@ -107,8 +107,8 @@ Clientes ligam ou mandam WhatsApp perguntando "vocês têm ipê amarelo?" — Gi
 ---
 
 ## Notas Técnicas
-- Catálogo é público (sem auth) — dados sensíveis (custo, margem) nunca expostos.
+- Catálogo é público (sem auth): dados sensíveis (custo, margem) nunca expostos.
 - Usar ISR (Incremental Static Regeneration) do Next.js para performance + dados atualizados.
-- Fotos: otimizar com sharp ou next/image — servir webp, max 800px largura.
-- O "carrinho de interesse" não é carrinho de compra — é lista para facilitar o orçamento. E-commerce vem no P10.
+- Fotos: otimizar com sharp ou next/image, servir webp, max 800px largura.
+- O "carrinho de interesse" não é carrinho de compra, é lista para facilitar o orçamento. E-commerce vem no P10.
 - URL amigável: `/catalogo/ipe-amarelo` (slug gerado do nome popular).

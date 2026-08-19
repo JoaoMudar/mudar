@@ -1,7 +1,7 @@
 # Guia de Execução
 
 > Reescrito em **10/08/2026**. A versão anterior descrevia um cronograma de 4 meses (P1→P10,
-> sessão por sessão) que a realidade não seguiu — o que se construiu primeiro foi
+> sessão por sessão) que a realidade não seguiu: o que se construiu primeiro foi
 > Pedidos/Clientes/Fornecedores, que nem constava do roadmap. Este guia parte de onde o projeto
 > **está**, não de onde se planejou que estivesse.
 >
@@ -61,13 +61,13 @@ P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
 1. **Confirmar a branch.** `git branch --show-current`. Se estiver em `main`, parar e criar
    `git checkout -b feat/nome-da-tarefa`. Nunca editar direto na main.
 2. **Ler o plan file da fase** e a rotina de domínio correspondente em `docs/rotinas/`.
-3. **Conferir a auditoria.** Vários planos foram escritos para Supabase — traduzir antes de
+3. **Conferir a auditoria.** Vários planos foram escritos para Supabase, traduzir antes de
    implementar. Ver [`auditoria-divergencias.md`](auditoria-divergencias.md).
 4. **Uma task por vez**, marcando `[x]` no plan file ao concluir. O plan file é o checkpoint
    entre sessões.
 5. **Testes junto com o código.** Vitest em `__tests__/` ao lado do arquivo. Server Action que
    depende do banco: mockar com `vi.mock`.
-6. **`npm test` antes de commitar** — o hook de pre-commit roda lint + testes e bloqueia se falhar.
+6. **`npm test` antes de commitar**: o hook de pre-commit roda lint + testes e bloqueia se falhar.
 7. **Fechar com resumo**: o que foi feito, arquivos alterados, decisões técnicas e pendências.
 
 ## Comandos
@@ -84,7 +84,7 @@ P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
 
 ## Bancos
 
-**São dois, e o driver é escolhido pelo host da `DATABASE_URL`** — não pelo `NODE_ENV`:
+**São dois, e o driver é escolhido pelo host da `DATABASE_URL`**: não pelo `NODE_ENV`:
 
 | Ambiente | Banco | Driver |
 |---|---|---|
@@ -92,7 +92,7 @@ P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
 | Produção (Vercel) | Neon, `sa-east-1` | `@neondatabase/serverless` |
 
 > **Neon é só o banco.** Não tem Edge Functions, Storage, Realtime nem RLS ligado a
-> autenticação — nada da plataforma Supabase, que o projeto chegou a considerar e abandonou.
+> autenticação: nada da plataforma Supabase, que o projeto chegou a considerar e abandonou.
 > Controle de acesso é checagem de perfil dentro da Server Action, conforme a
 > [Matriz RBAC (D4)](engenharia/D-arquitetura/D4-matriz-rbac.md).
 
@@ -100,7 +100,7 @@ Toda migration aplicada no local precisa ser aplicada também no Neon antes do d
 
 ## Trabalho de campo em paralelo
 
-Parte de cada plano não depende de código — é levantamento que a equipe faz no viveiro, na
+Parte de cada plano não depende de código, é levantamento que a equipe faz no viveiro, na
 seção "Dados que a Equipe de Campo Precisa Levantar" de cada plan file. O levantamento de
 custos do P1 é o mais crítico de todos: é a dependência-raiz do indicador IND-02 e, por
 tabela, de toda a análise de margem

@@ -1,14 +1,14 @@
-# P10 — E-commerce + Kits Temáticos
+# P10: E-commerce + Kits Temáticos
 
 > 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
 > Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
-> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão — ela lê
+> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão: ela lê
 > dos quatro módulos (espécie e foto de Cadastros, disponibilidade da Produção, preço do
 > Financeiro) e não é um deles. Rotas públicas na raiz, nunca sob `/cadastros`, `/producao`,
 > `/comercial` ou `/financeiro`.
 
 ## Status: NÃO INICIADO
-## Prioridade: BAIXA (Futuro — Mês 6+)
+## Prioridade: BAIXA (Futuro, Mês 6+)
 ## Dependências: P1 (custeio), P3 (preços), P5 (pedidos), P7 (catálogo), P9 (site)
 ## Bloqueia: Nenhum
 
@@ -18,7 +18,7 @@
 Abrir canal de vendas direto ao consumidor (varejo online) com margem 2-3x maior que atacado. Vender kits temáticos de mudas que simplificam a compra para pessoa física e agregam valor percebido.
 
 ## Contexto
-Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho crescente — consumidores conscientes querem plantar árvores em casa, sítio, chácara. Kits temáticos (ex: "Kit Mata Atlântica", "Kit Frutíferas") eliminam a barreira de "não sei o que comprar". Margem no varejo pode ser 80-150% vs 30-50% no atacado. PORÉM: logística de envio de plantas vivas é delicada e precisa ser testada antes de escalar.
+Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho crescente, consumidores conscientes querem plantar árvores em casa, sítio, chácara. Kits temáticos (ex: "Kit Mata Atlântica", "Kit Frutíferas") eliminam a barreira de "não sei o que comprar". Margem no varejo pode ser 80-150% vs 30-50% no atacado. PORÉM: logística de envio de plantas vivas é delicada e precisa ser testada antes de escalar.
 
 ## Resultado Esperado
 - Loja online integrada ao site (P9)
@@ -42,7 +42,7 @@ Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho cresc
   - Kit Abelhas (espécies melíferas)
 - [ ] **Logística de envio**: João testar envio de 5-10 pedidos para diferentes estados
   - Embalagem: testar caixa com proteção (papel, jornal, esponja)
-  - Transportadora: Correios (PAC/Sedex), Jadlog, Loggi — comparar preço/prazo
+  - Transportadora: Correios (PAC/Sedex), Jadlog, Loggi, comparar preço/prazo
   - Mortalidade no transporte: testar se mudas chegam vivas após 3-5 dias
   - Melhor recipiente para envio: tubete ou saco pequeno (10x18)
 - [ ] **Requisitos legais**: Gilberto verificar:
@@ -56,7 +56,7 @@ Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho cresc
   - Reenvio ou crédito?
   - Limite de temperatura/estação para envio
 - [ ] **Precificação varejo**: aplicar margem de varejo (80-150%) sobre custo real
-- [ ] **Embalagem especial**: para kits presente — pesquisar opções de caixa kraft com logo
+- [ ] **Embalagem especial**: para kits presente, pesquisar opções de caixa kraft com logo
 
 ---
 
@@ -176,7 +176,7 @@ Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho cresc
 - [ ] Estoque atualiza automaticamente após venda
 - [ ] Emails pós-venda enviados automaticamente
 - [ ] Kits exibem composição de espécies
-- [ ] Mobile-first — checkout funciona perfeitamente no celular
+- [ ] Mobile-first: checkout funciona perfeitamente no celular
 - [ ] Pelo menos 5 pedidos de teste concluídos com sucesso
 
 ---
@@ -184,8 +184,8 @@ Hoje 100% das vendas são atacado. Varejo online de mudas nativas é nicho cresc
 ## Notas Técnicas
 - NÃO iniciar antes de validar logística de envio com 5-10 pedidos manuais.
 - Começar com poucos produtos (3-5 kits + 10 espécies individuais) e escalar.
-- Mercado Pago é a opção mais simples para PJ brasileira — taxa ~4% no crédito, ~1% Pix.
+- Mercado Pago é a opção mais simples para PJ brasileira, taxa ~4% no crédito, ~1% Pix.
 - Melhor Envio agrega Correios + Jadlog + Loggi e dá preços melhores que contratar direto.
 - Considerar sazonalidade: algumas espécies não devem ser enviadas no verão extremo (mortalidade no transporte).
-- Embalagem é parte da experiência — caixa kraft com logo + guia de cuidados impresso = diferencial.
+- Embalagem é parte da experiência: caixa kraft com logo + guia de cuidados impresso = diferencial.
 - RENASEM é obrigatório para venda de mudas. Verificar se cobre varejo online.

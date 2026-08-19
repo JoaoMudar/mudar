@@ -1,7 +1,7 @@
-# B4 — Quadros de regras de negócio e requisitos
+# B4: Quadros de regras de negócio e requisitos
 
-> **Artefato:** Quadros formatados para o texto do TCC · **Bloco:** B — Engenharia de requisitos
-> **Destino no TCC:** Apêndice D — Quadros de regras de negócio e requisitos
+> **Artefato:** Quadros formatados para o texto do TCC · **Bloco:** B, Engenharia de requisitos
+> **Destino no TCC:** Apêndice D, Quadros de regras de negócio e requisitos
 > **Fonte do conteúdo:** transcrito de [`B3`](B3-regras-de-negocio.md) §3, §4, §5 e §6.2 e de
 > [`B2`](B2-especificacao-requisitos.md). Em qualquer divergência, **`B3` e `B2` mandam**.
 > **Saída em Word:** `npm run docs:quadros` gera `quadros-regras-de-negocio-e-requisitos.docx`
@@ -13,8 +13,8 @@
 
 Este arquivo existe por uma razão de formato, não de conteúdo: os artefatos `B2` e `B3` são
 documentos de engenharia, com colunas de tipo, origem, prioridade e verificação que não cabem
-no corpo do trabalho. Os quadros abaixo são a **redução desses artefatos ao que vai impresso** —
-duas ou quatro colunas —, prontos para colar no Word como tabela.
+no corpo do trabalho. Os quadros abaixo são a **redução desses artefatos ao que vai impresso**.
+duas ou quatro colunas, prontos para colar no Word como tabela.
 
 Nada aqui se edita por conta própria. Alterou uma regra? Altere em `B3` e transcreva para cá.
 A numeração dos quadros é a que já está no texto do TCC e **não muda**, mesmo quando um quadro
@@ -27,7 +27,7 @@ npm run docs:quadros
 ```
 
 O comando lê este arquivo e escreve `quadros-regras-de-negocio-e-requisitos.docx` na raiz do
-repositório, com os 13 quadros já formatados — é só abrir e colar cada tabela no lugar. O `.docx`
+repositório, com os 13 quadros já formatados, é só abrir e colar cada tabela no lugar. O `.docx`
 é **saída descartável**: some e volta a cada execução, e editar dentro dele é a mesma armadilha de
 editar dentro de `word/`.
 
@@ -37,17 +37,17 @@ de linhas que o comando imprime.
 
 ---
 
-# Quadros — regras de negócio
+# Quadros: regras de negócio
 
 ## Quadro 1 – Regras de negócio da área de domínio e produto
 
 | Código | Descrição |
 |---|---|
-| RN-01 | Toda informação do viveiro — custo, preço, estoque, perda, pedido — refere-se a uma espécie; a espécie é a unidade em torno da qual a operação se organiza |
+| RN-01 | Toda informação do viveiro (custo, preço, estoque, perda, pedido) refere-se a uma espécie; a espécie é a unidade em torno da qual a operação se organiza |
 | RN-02 | A espécie possui um nome científico e vários nomes populares regionais; a mesma espécie é chamada por nomes diferentes conforme a região e o interlocutor |
-| RN-03 | Uma espécie admite várias características simultâneas — nativa, exótica, frutífera, ornamental, madeireira, forrageira. Uma nativa pode ser ao mesmo tempo frutífera e madeireira |
+| RN-03 | Uma espécie admite várias características simultâneas, nativa, exótica, frutífera, ornamental, madeireira, forrageira. Uma nativa pode ser ao mesmo tempo frutífera e madeireira |
 | RN-04 | O recipiente determina o porte da muda e, por consequência, seu custo e seu preço. Espécie e recipiente formam o par que identifica um produto comercializável: a mesma espécie em dois recipientes são dois produtos |
-| RN-05 | O ciclo produtivo — semeadura, germinação, repicagem, rustificação — tem duração conhecida por espécie e recipiente; a data de disponibilidade decorre da data de semeadura somada a essa duração |
+| RN-05 | O ciclo produtivo (semeadura, germinação, repicagem, rustificação) tem duração conhecida por espécie e recipiente; a data de disponibilidade decorre da data de semeadura somada a essa duração |
 | RN-06 | Só a muda pronta compõe estoque comercializável. Muda em produção não é estoque de venda |
 
 Fonte: Elaborado pelo autor (2026).
@@ -57,12 +57,12 @@ Fonte: Elaborado pelo autor (2026).
 | Código | Descrição |
 |---|---|
 | RN-07 | O custo unitário de uma muda é o custo variável (substrato, semente, recipiente, demais insumos e mão de obra) somado ao custo fixo do período rateado sobre a produção, sempre específico por espécie e recipiente |
-| RN-08 | O preço do insumo varia ao longo do tempo, e o custo apurado em um período permanece válido para aquele período — o valor anterior não é descartado |
+| RN-08 | O preço do insumo varia ao longo do tempo, e o custo apurado em um período permanece válido para aquele período: o valor anterior não é descartado |
 | RN-09 | Alteração em insumo, custo fixo ou consumo invalida o custo unitário anterior das espécies afetadas |
-| RN-10 | A mão de obra compõe o custo por tempo médio estimado por atividade, e não por apontamento individual de horas — precisão suficiente para revelar margem negativa, sem impor controle de ponto por tarefa |
-| RN-11 | A semente coletada em campo tem custo próprio — deslocamento, combustível e horas —, rateado pela quantidade obtida. Nem toda espécie tem semente comprada |
+| RN-10 | A mão de obra compõe o custo por tempo médio estimado por atividade, e não por apontamento individual de horas, precisão suficiente para revelar margem negativa, sem impor controle de ponto por tarefa |
+| RN-11 | A semente coletada em campo tem custo próprio (deslocamento, combustível e horas), rateado pela quantidade obtida. Nem toda espécie tem semente comprada |
 | RN-12 | O gasto pertence ao mês de competência, não ao mês em que o dinheiro saiu: o substrato comprado em fevereiro e pago em abril é custo de fevereiro, porque foi em fevereiro que virou muda |
-| RN-53 | A mão de obra entra no custo por um valor-hora médio da equipe — folha do mês dividida pelas horas do mês —, e não pelo salário de cada um. O que varia entre espécies é o tempo gasto, não quem o gastou; e o custo fica real sem expor remuneração individual |
+| RN-53 | A mão de obra entra no custo por um valor-hora médio da equipe (folha do mês dividida pelas horas do mês), e não pelo salário de cada um. O que varia entre espécies é o tempo gasto, não quem o gastou; e o custo fica real sem expor remuneração individual |
 | RN-56 | A tarefa que não se refere a uma espécie é custo indireto e entra no rateio geral, junto dos custos fixos. Limpar canteiro e consertar cerca são trabalho do viveiro inteiro, e atribuí-los a uma espécie qualquer falsearia o custo dela |
 
 Fonte: Elaborado pelo autor (2026).
@@ -74,12 +74,12 @@ Fonte: Elaborado pelo autor (2026).
 | RN-13 | A quantidade disponível de uma espécie é produção registrada menos perdas menos vendas |
 | RN-14 | A contagem física prevalece sobre a quantidade calculada: onde os dois divergem, o que vale é o que foi contado no viveiro |
 | RN-15 | Espécie zerada ou abaixo da quantidade mínima compromete o atendimento e precisa ser sinalizada antes que o pedido chegue |
-| RN-16 | A perda é evento normal da produção e exige causa classificada em lista fechada — seca, praga, geada, manuseio, outro. Campo livre inviabiliza a análise por causa |
+| RN-16 | A perda é evento normal da produção e exige causa classificada em lista fechada, seca, praga, geada, manuseio, outro. Campo livre inviabiliza a análise por causa |
 | RN-17 | A mortalidade é a razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de 20% a situação é anormal e exige providência |
 | RN-18 | A muda perdida carrega o custo já incorrido: a perda tem valor financeiro, não apenas quantidade |
 | RN-48 | O trabalho do viveiro é planejado por turno, não por horário: a unidade da agenda é dia × turno (manhã, tarde), e um turno vale quatro horas. Ninguém ali trabalha com hora marcada, e exigir horário exato garantiria agenda não preenchida |
 | RN-49 | A semana do viveiro repete a anterior: replanejar do zero é a exceção, copiar e ajustar é a regra |
-| RN-50 | A semana fecha e, fechada, não se altera — sem isso o custo do período muda depois de apurado |
+| RN-50 | A semana fecha e, fechada, não se altera: sem isso o custo do período muda depois de apurado |
 | RN-51 | Tarefa planejada e não confirmada conta como realizada ao fechar a semana, com a condição registrada. Agenda com buraco não serve para calcular custo, e assumir o planejado sinalizando a dúvida é mais honesto do que não ter dado |
 | RN-52 | O colaborador responde pelas suas tarefas: vê e conclui as que lhe foram atribuídas, e nenhuma outra |
 | RN-57 | Só semeadura e repicagem somam ao estoque; irrigação, adubação e rustificação são manejo e não alteram quantidade. É o que define o que conta como produção em RN-13 |
@@ -90,13 +90,13 @@ Fonte: Elaborado pelo autor (2026).
 
 | Código | Descrição |
 |---|---|
-| RN-19 | O preço de venda é custo unitário real mais a margem do canal — nunca estimativa intuitiva |
-| RN-20 | O canal de venda é lista fechada de cinco — atacado (padrão), compensação ambiental, paisagismo, prefeitura, varejo — e determina a margem. O mesmo produto tem preços diferentes por canal, e isso é regra, não exceção |
+| RN-19 | O preço de venda é custo unitário real mais a margem do canal, nunca estimativa intuitiva |
+| RN-20 | O canal de venda é lista fechada de cinco, atacado (padrão), compensação ambiental, paisagismo, prefeitura, varejo, e determina a margem. O mesmo produto tem preços diferentes por canal, e isso é regra, não exceção |
 | RN-21 | Nenhuma venda ocorre abaixo do piso mínimo de segurança, independentemente da negociação |
-| RN-22 | O piso mínimo varia por canal e por espécie — não é constante única do sistema |
+| RN-22 | O piso mínimo varia por canal e por espécie: não é constante única do sistema |
 | RN-23 | O frete é calculado por R$/km e incorporado ao preço, não cobrado à parte |
-| RN-24 | Margem negativa é venda com prejuízo e precisa ser detectada e destacada — hoje ela ocorre sem que ninguém perceba |
-| RN-58 | O preço vale por um período, e a margem de uma venda se afere contra o custo vigente no dia em que ela foi feita — sobrescrever o custo apagaria a resposta para "qual era a margem quando eu vendi" |
+| RN-24 | Margem negativa é venda com prejuízo e precisa ser detectada e destacada: hoje ela ocorre sem que ninguém perceba |
+| RN-58 | O preço vale por um período, e a margem de uma venda se afere contra o custo vigente no dia em que ela foi feita, sobrescrever o custo apagaria a resposta para "qual era a margem quando eu vendi" |
 | RN-59 | O preço calculado é sugestão: o valor acordado pode diferir dele, desde que não desça abaixo do piso. A negociação por WhatsApp existe, e tratar o preço como imposto falsearia o que de fato se cobrou |
 
 Fonte: Elaborado pelo autor (2026).
@@ -107,12 +107,12 @@ Fonte: Elaborado pelo autor (2026).
 |---|---|
 | RN-25 | O cliente é pessoa física ou jurídica; a venda com nota fiscal exige o conjunto fiscal completo e documento válido |
 | RN-26 | A negociação nasce no WhatsApp e o cliente frequentemente é novo: nome e telefone bastam para registrar o pedido, sem interromper a venda |
-| RN-27 | Toda contraparte do viveiro é uma identidade única — quem compra, quem vende, quem trabalha, o sócio, o banco, o governo, o contador —, e o vínculo com o viveiro é papel acumulável dessa identidade, escolhido em lista fechada. A mesma pessoa pode ser cliente e fornecedor; a identidade é uma só, os papéis é que são múltiplos |
+| RN-27 | Toda contraparte do viveiro é uma identidade única (quem compra, quem vende, quem trabalha, o sócio, o banco, o governo, o contador), e o vínculo com o viveiro é papel acumulável dessa identidade, escolhido em lista fechada. A mesma pessoa pode ser cliente e fornecedor; a identidade é uma só, os papéis é que são múltiplos |
 | RN-28 | A nota fiscal é emitida em sistema externo. O viveiro registra a exigência e o número; a emissão não pertence a este sistema |
 | RN-29 | A venda para compensação ambiental exige o nome científico da espécie e, em geral, nota fiscal |
 | RN-30 | Dado pessoal de cliente é tratado sob a Lei nº 13.709/2018, com finalidade, base legal e prazo de retenção declarados |
 | RN-54 | Funcionário é vínculo de trabalho, não acesso ao sistema: o diarista que aparece duas semanas por ano existe na agenda e no custo sem nunca abrir o aplicativo |
-| RN-55 | O tipo de tarefa é vocabulário fechado, e carrega o tempo médio por unidade — é ele que liga a atividade de campo ao custo |
+| RN-55 | O tipo de tarefa é vocabulário fechado, e carrega o tempo médio por unidade, é ele que liga a atividade de campo ao custo |
 | RN-60 | A pessoa que se opõe ao contato comercial fica fora de qualquer cotação ou abordagem, e essa oposição é registro permanente, não estado operacional que se desfaz sozinho |
 | RN-61 | Declarar que dois cadastros são a mesma pessoa é decisão de quem conhece as pessoas: coincidência de nome ou de documento levanta a pergunta, não a conclui. A ambiguidade é aceita, não resolvida automaticamente |
 | RN-62 | Uma pessoa tem mais de um endereço, e o de entrega pode não ser o de cobrança. É o endereço de entrega que responde pela distância, e portanto pelo frete |
@@ -123,18 +123,18 @@ Fonte: Elaborado pelo autor (2026).
 
 | Código | Descrição |
 |---|---|
-| RN-31 | O pedido percorre uma sequência de estados até a entrega, e cada transição tem um responsável — quem conclui uma etapa aciona a seguinte |
+| RN-31 | O pedido percorre uma sequência de estados até a entrega, e cada transição tem um responsável: quem conclui uma etapa aciona a seguinte |
 | RN-32 | O cliente pode comprar quantidade e porte sem definir espécie (item genérico): "500 mudas nativas" é pedido válido, e a escolha das espécies cabe ao viveiro |
 | RN-33 | No item genérico, o cliente pode restringir a lista de espécies aceitas e declarar especificação de qualidade; espécie fora da lista não atende o item |
 | RN-34 | A disponibilidade parcial é atendimento válido: parte da quantidade pedida é resultado real da operação, e tratá-la como indisponibilidade falseia o pedido |
 | RN-35 | Pode-se ofertar recipiente diferente do solicitado, desde que registrado qual foi efetivamente ofertado |
 | RN-36 | O preço só se firma com a aprovação da chefia; nenhum pedido avança ao fechamento sem ela |
-| RN-37 | A carga é gerada a partir dos itens aprovados e separada fisicamente em campo; é ela, e não o pedido, a unidade que sai do viveiro. Um pedido pode gerar mais de uma carga, e a entrega da última não fecha o ciclo por si só — ver RN-63 e RN-70 |
+| RN-37 | A carga é gerada a partir dos itens aprovados e separada fisicamente em campo; é ela, e não o pedido, a unidade que sai do viveiro. Um pedido pode gerar mais de uma carga, e a entrega da última não fecha o ciclo por si só, ver RN-63 e RN-70 |
 | RN-38 | Quando a produção própria não atende o pedido, completa-se com muda de fornecedor, mediante cotação comparável entre propostas |
-| RN-39 | A revenda de muda de terceiro também respeita o piso mínimo — o custo de aquisição substitui o custo de produção, a regra do piso permanece |
+| RN-39 | A revenda de muda de terceiro também respeita o piso mínimo: o custo de aquisição substitui o custo de produção, a regra do piso permanece |
 | RN-63 | Cada carga é uma viagem, com data própria. Cargas de um mesmo pedido saem em dias diferentes, e a data do pedido é referência, não a data de cada carga |
 | RN-64 | No item genérico, o recipiente informado é o mínimo aceitável: atende-se com porte igual ou maior, nunca menor |
-| RN-65 | O fornecedor que não responde deixa de ser consultado — a confiabilidade se mede pela taxa de resposta, e a cotação deixa de ser disparo cego |
+| RN-65 | O fornecedor que não responde deixa de ser consultado: a confiabilidade se mede pela taxa de resposta, e a cotação deixa de ser disparo cego |
 | RN-66 | O carregamento acontece no dia útil anterior à entrega: o caminhão é carregado na véspera, e é isso que define o prazo real da separação |
 | RN-67 | Item ainda não verificado e item indisponível são situações opostas, não a mesma: "não tem" e "ninguém olhou ainda" pedem providências diferentes |
 
@@ -145,11 +145,11 @@ Fonte: Elaborado pelo autor (2026).
 | Código | Descrição |
 |---|---|
 | RN-40 | O extrato bancário é a fonte da verdade do financeiro: gasto que não passou por conta alguma não existe para o sistema |
-| RN-41 | O centro de custo separa gasto de negócio de gasto pessoal da família — lista fechada de cinco: viveiro, sítio, clínica, casa, floricultura. A separação é pré-requisito de qualquer indicador confiável |
-| RN-42 | Lançamento equivalente a outro já classificado recebe a mesma classificação — o gasto recorrente não se reclassifica todo mês |
+| RN-41 | O centro de custo separa gasto de negócio de gasto pessoal da família, lista fechada de cinco: viveiro, sítio, clínica, casa, floricultura. A separação é pré-requisito de qualquer indicador confiável |
+| RN-42 | Lançamento equivalente a outro já classificado recebe a mesma classificação: o gasto recorrente não se reclassifica todo mês |
 | RN-43 | O fechamento do mês confere o saldo calculado contra o saldo do extrato e trava o período; indicador financeiro só se calcula sobre mês fechado |
-| RN-44 | A base bancária é assunto exclusivo da chefia — decorrência direta de ela misturar gasto de negócio e gasto pessoal. O que dela deriva e não a expõe — custo, margem, preço, indicador — segue em leitura para a gerência |
-| RN-68 | Transferência entre contas do próprio viveiro não é despesa nem receita — sem pareá-las, o mesmo dinheiro conta duas vezes |
+| RN-44 | A base bancária é assunto exclusivo da chefia, decorrência direta de ela misturar gasto de negócio e gasto pessoal. O que dela deriva e não a expõe (custo, margem, preço, indicador) segue em leitura para a gerência |
+| RN-68 | Transferência entre contas do próprio viveiro não é despesa nem receita: sem pareá-las, o mesmo dinheiro conta duas vezes |
 | RN-69 | Um mesmo gasto pode servir a mais de um centro de custo e então se reparte entre eles; a soma das partes é o valor total. A energia do imóvel que abriga casa e clínica não pertence a um centro só |
 | RN-70 | Pedido entregue não é pedido pago: o recebimento é evento próprio, e só o extrato o comprova. O ciclo comercial e o ciclo do dinheiro fecham em momentos diferentes |
 
@@ -159,7 +159,7 @@ Fonte: Elaborado pelo autor (2026).
 
 | Código | Descrição |
 |---|---|
-| RN-45 | Cada pessoa tem um perfil — chefia, gerência, colaborador, administrador — que determina o que ela vê e o que pode fazer |
+| RN-45 | Cada pessoa tem um perfil (chefia, gerência, colaborador, administrador) que determina o que ela vê e o que pode fazer |
 | RN-46 | Todo registro tem autor identificado: quem registrou a produção, a perda, a separação ou a mudança de estado responde pelo registro |
 | RN-47 | Indicador sem comparação com o período anterior e sem meta não orienta decisão, e cada perfil acompanha os indicadores da sua responsabilidade |
 
@@ -184,7 +184,7 @@ Fonte: Elaborado pelo autor (2026).
 
 ---
 
-# Quadros — requisitos e vínculo com as regras de negócio
+# Quadros: requisitos e vínculo com as regras de negócio
 
 ## Quadro 10 – Requisitos funcionais e as regras de negócio que os originam
 
@@ -208,7 +208,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-16 | Rateio do custo fixo | O sistema deve ratear o custo fixo mensal sobre a produção do período | RN-07, RN-12, RN-56 |
 | RF-17 | Consulta do custo unitário | O sistema deve apresentar o custo unitário por espécie e recipiente | RN-07, RN-19, RN-58 |
 | RF-18 | Recálculo do custo unitário | O sistema deve recalcular o custo unitário quando houver alteração em insumo, custo fixo ou consumo | RN-08, RN-09 |
-| RF-19 | Registro de atividade de produção | O sistema deve permitir registrar atividade de produção — semeadura, repicagem, irrigação, adubação — com espécie, recipiente e quantidade | RN-01, RN-04, RN-05, RN-10, RN-13, RN-57 |
+| RF-19 | Registro de atividade de produção | O sistema deve permitir registrar atividade de produção (semeadura, repicagem, irrigação, adubação) com espécie, recipiente e quantidade | RN-01, RN-04, RN-05, RN-10, RN-13, RN-57 |
 | RF-20 | Atribuição de atividades | O sistema deve permitir à gerência atribuir atividades de produção a colaboradores | RN-10, RN-46 |
 | RF-21 | Acompanhamento do ciclo produtivo | O sistema deveria apresentar o acompanhamento do ciclo produtivo por espécie, com previsão de disponibilidade a partir do tempo de produção | RN-05, RN-06 |
 | RF-22 | Consulta de estoque disponível | O sistema deve apresentar a quantidade disponível por espécie e recipiente | RN-04, RN-06, RN-13, RN-57 |
@@ -251,18 +251,18 @@ Fonte: Elaborado pelo autor (2026).
 | RF-59 | Registro de data de competência | O sistema deve permitir informar data de competência distinta da data de movimentação | RN-12 |
 | RF-60 | Fechamento mensal | O sistema deve permitir fechar o mês após conferência do saldo calculado contra o saldo do extrato, travando o período | RN-43 |
 | RF-61 | Restrição de indicador a mês fechado | O sistema não deve apresentar indicador financeiro calculado sobre mês ainda não fechado | RN-43 |
-| RF-62 | Restrição de acesso ao financeiro | O sistema deve restringir a base bancária — extratos, lançamentos, compras, custos fixos e fechamento — aos perfis chefia e administrador | RN-41, RN-44, RN-45 |
+| RF-62 | Restrição de acesso ao financeiro | O sistema deve restringir a base bancária (extratos, lançamentos, compras, custos fixos e fechamento) aos perfis chefia e administrador | RN-41, RN-44, RN-45 |
 | RF-63 | Painel de indicadores por perfil | O sistema deve apresentar painel de indicadores com o conteúdo correspondente ao perfil do usuário | RN-45, RN-47 |
 | RF-64 | Comparação do indicador com período anterior e meta | O sistema deve apresentar cada indicador comparado ao período anterior e à meta definida | RN-24, RN-43, RN-47 |
 | RF-65 | Sinalização visual do indicador | O sistema deve sinalizar visualmente se o valor do indicador é favorável ou desfavorável | RN-17, RN-47 |
-| RF-66 | Registro de item genérico | O sistema deve permitir registrar item genérico — quantidade e recipiente sem espécie definida —, atendido posteriormente por uma ou mais espécies | RN-32, RN-64 |
+| RF-66 | Registro de item genérico | O sistema deve permitir registrar item genérico (quantidade e recipiente sem espécie definida), atendido posteriormente por uma ou mais espécies | RN-32, RN-64 |
 | RF-67 | Delimitação de espécies aceitas | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida | RN-33, RN-64 |
 | RF-68 | Oferta de recipiente alternativo | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual | RN-04, RN-35, RN-64 |
-| RF-69 | Cadastro de funcionário | O sistema deve permitir cadastrar funcionário com contato e vínculo — fixo ou diarista —, inclusive quando ele não tem acesso ao sistema | RN-27, RN-54 |
+| RF-69 | Cadastro de funcionário | O sistema deve permitir cadastrar funcionário com contato e vínculo (fixo ou diarista), inclusive quando ele não tem acesso ao sistema | RN-27, RN-54 |
 | RF-70 | Catálogo de tipos de tarefa | O sistema deve permitir manter o catálogo de tipos de tarefa, com unidade de medida, tempo médio por unidade e quais tipos exigem espécie e recipiente | RN-55 |
-| RF-71 | Montagem da agenda da semana | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno — manhã ou tarde | RN-48 |
+| RF-71 | Montagem da agenda da semana | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno, manhã ou tarde | RN-48 |
 | RF-72 | Cópia da semana e tarefas recorrentes | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas | RN-49 |
-| RF-73 | Situação da semana | O sistema deve controlar a situação da semana — rascunho, publicada e fechada — e impedir alteração depois do fechamento | RN-50 |
+| RF-73 | Situação da semana | O sistema deve controlar a situação da semana (rascunho, publicada e fechada) e impedir alteração depois do fechamento | RN-50 |
 | RF-74 | Conclusão de tarefa pelo colaborador | O sistema deve apresentar ao colaborador apenas as tarefas atribuídas a ele no dia, e permitir concluí-las informando somente a quantidade realizada | RN-52 |
 | RF-75 | Fechamento de tarefa não confirmada | O sistema deve assumir como realizada, ao fechar a semana, a tarefa planejada que não foi confirmada, registrando essa condição | RN-51 |
 | RF-76 | Apuração do custo de mão de obra | O sistema deve apurar o custo de mão de obra por espécie e período, a partir das horas da agenda e de um valor-hora médio do período, e incorporá-lo ao custo unitário | RN-48, RN-53, RN-56 |
@@ -319,7 +319,7 @@ Fonte: Elaborado pelo autor (2026).
 
 ## Quadro 13 – Síntese da origem dos requisitos do sistema
 
-| Origem | Requisitos funcionais — Qtd. | Requisitos funcionais — % | Requisitos não funcionais — Qtd. | Requisitos não funcionais — % |
+| Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
 | Regra de negócio | 73 | 96,1 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
@@ -334,10 +334,10 @@ Fonte: Elaborado pelo autor (2026).
 
 - **A ordem é sempre `B3`/`B2` primeiro, este arquivo depois.** Editar um quadro sem editar o
   artefato produz exatamente a divergência que motivou esta revisão.
-- **Identificador não se reutiliza** — nem de RN, nem de RF, nem de RNF (`B3` §8, `B2` §1).
+- **Identificador não se reutiliza**: nem de RN, nem de RF, nem de RNF (`B3` §8, `B2` §1).
 - Os totais do Quadro 9 e do Quadro 13 são derivados: ao acrescentar regra ou requisito,
   recontar antes de publicar. `B3` §3.10 e `B2` §4 são as contagens de referência.
-- Os **nomes** dos requisitos (coluna *Nome* dos Quadros 10 e 11) só existem aqui — `B2` não
+- Os **nomes** dos requisitos (coluna *Nome* dos Quadros 10 e 11) só existem aqui, `B2` não
   tem coluna de nome. Nome novo entra junto com o requisito. É por isso que o gerador do `.docx`
   lê este arquivo, e não `B2` e `B3` diretamente.
 - O **Quadro 13** tem cabeçalho de dois níveis no Word (*Origem* mesclada na vertical, *Requisitos

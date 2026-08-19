@@ -29,10 +29,10 @@ Cada carga vira uma entrega independente na rotina de entregas.
 
 | # | Arquivo | Fase | Tarefas |
 |---|---------|------|---------|
-| 0 | `pedidos/00-visao-geral.md` | Visao geral, statuses, fluxo, conceitos | — |
+| 0 | `pedidos/00-visao-geral.md` | Visao geral, statuses, fluxo, conceitos | - |
 | 1 | `pedidos/01-banco-de-dados.md` | Migracoes SQL (clientes, pedidos, itens, cargas, notificacoes) | 8 tarefas |
 | 2 | `pedidos/02-notificacoes.md` | Sistema de notificacoes in-app | 5 tarefas |
-| 3 | `pedidos/03-cadastro-pedido.md` | Cadastro de pedido (chefia, desktop) — especificos e genericos | 6 tarefas |
+| 3 | `pedidos/03-cadastro-pedido.md` | Cadastro de pedido (chefia, desktop): especificos e genericos | 6 tarefas |
 | 4 | `pedidos/04-verificacao-disponibilidade.md` | Checklist + atribuicao de especies (gerencia, mobile) | 6 tarefas |
 | 5 | `pedidos/05-analise-fechamento.md` | Analise e aprovacao (chefia, desktop) | 5 tarefas |
 | 6 | `pedidos/06-separacao-pedido.md` | Divisao em cargas + separacao com calendario (gerencia, mobile) | 7 tarefas |
@@ -41,14 +41,14 @@ Cada carga vira uma entrega independente na rotina de entregas.
 
 ## Telas por perfil
 
-### Chefia (Gilberto — Desktop)
+### Chefia (Gilberto: Desktop)
 - **Cadastro de pedido**: formulario rapido com autocomplete, itens especificos e genericos
 - **Lista de pedidos**: tabela com filtros por status, cliente, periodo
 - **Detalhes do pedido**: visualizacao completa com composicao de genericos e cargas
 - **Analise pos-verificacao**: aprovar, aprovar parcial, solicitar alteracao
 - **Edicao de pedido**: ajustar itens apos feedback da gerencia
 
-### Gerencia (Debora — Mobile)
+### Gerencia (Debora: Mobile)
 - **Notificacao de novo pedido**: sino com badge no header
 - **Verificacao de disponibilidade**: checklist mobile com botoes grandes
 - **Atribuicao de especies**: para itens genericos, escolher especie e quantidade

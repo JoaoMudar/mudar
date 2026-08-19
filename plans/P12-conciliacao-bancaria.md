@@ -1,11 +1,11 @@
-# P12 — Financeiro sobre extratos bancários
+# P12: Financeiro sobre extratos bancários
 
 > Substitui a tentativa anterior de BI sobre a planilha (`DESPESAS AAAA.xls`), abandonada
 > em 05/08/2026. **Leia o [post-mortem](../docs/postmortem-financeiro-bi.md) antes de
-> escrever qualquer linha** — ele mede, com números da base real, por que a planilha não
+> escrever qualquer linha**: ele mede, com números da base real, por que a planilha não
 > pode ser a fonte da verdade.
 >
-> Origem: conversa João — "encruzilhada organização financeira" (05/08/2026).
+> Origem: conversa João, "encruzilhada organização financeira" (05/08/2026).
 > Detalhamento por fase em [`docs/rotinas/4-financeiro/`](../docs/rotinas/4-financeiro/).
 
 **Status: Fase 0 ✅ concluída (05/08/2026). Fase 1 pronta para começar.**
@@ -18,20 +18,20 @@
 **O extrato do banco vira a verdade. A planilha vira só a explicação dele.**
 
 Hoje é o contrário: tenta-se encaixar a planilha (errada, incompleta) no extrato (real).
-Nunca fecha. Invertendo, o erro de digitação e a omissão morrem sozinhos — porque nada
+Nunca fecha. Invertendo, o erro de digitação e a omissão morrem sozinhos: porque nada
 existe se não bater com um movimento do banco.
 
 ---
 
-## Fase 0 — as 4 decisões (fechadas)
+## Fase 0: as 4 decisões (fechadas)
 
 ### 1. Marco zero: **01/01/2026**
 Reconcilia 100% dali pra frente. Carrega **jan–jul/2026 primeiro** e retrocede depois.
-Passado não se reconstrói à mão — já está no banco `notas_despesas` pra tendência.
+Passado não se reconstrói à mão: já está no banco `notas_despesas` pra tendência.
 
 ### 2. Extrato manda
 Todo lançamento nasce do extrato. Nada solto. Gasto em dinheiro entra pela conta `CAIXA`.
-Concilia-se **entradas e saídas** — só assim o saldo fecha com o banco, que é a única
+Concilia-se **entradas e saídas**: só assim o saldo fecha com o banco, que é a única
 prova de que nenhuma linha ficou de fora.
 
 ### 3. Pessoal vs. empresa: pelo centro de custo
@@ -53,13 +53,13 @@ Tudo é lista fechada (dropdown). Sem campo aberto = sem typo.
 
 | code | Nome | Natureza | Ativo |
 |---|---|---|---|
-| `viveiro` | Viveiro — matriz (Agrolândia) | negócio | sim |
-| `sitio` | Sítio — filial (Itapema) | negócio | sim |
+| `viveiro` | Viveiro: matriz (Agrolândia) | negócio | sim |
+| `sitio` | Sítio: filial (Itapema) | negócio | sim |
 | `clinica` | Clínica de fonoaudiologia (em casa) | pessoal | sim |
-| `casa` | Casa — gastos da família | pessoal | sim |
-| `floricultura` | Floricultura (extinta) | negócio | **não** — só aparece em extrato antigo |
+| `casa` | Casa: gastos da família | pessoal | sim |
+| `floricultura` | Floricultura (extinta) | negócio | **não**: só aparece em extrato antigo |
 
-**As 35 categorias em 14 grupos** — transcritas em
+**As 35 categorias em 14 grupos**: transcritas em
 [`docs/rotinas/4-financeiro/02-schema-financeiro.md`](../docs/rotinas/4-financeiro/02-schema-financeiro.md).
 
 ---
@@ -76,12 +76,12 @@ data do banco | valor | descrição que o banco escreveu   ← imutável, é a p
   + status: a-classificar | classificado | conciliado | ignorado
 ```
 
-Só se gasta energia no que **não** casou. O resto o sistema casa sozinho — e o que você
+Só se gasta energia no que **não** casou. O resto o sistema casa sozinho, e o que você
 classificar uma vez vira regra, então da próxima ele já vem preenchido.
 
 ---
 
-## Caixa e competência — por que existem duas datas
+## Caixa e competência: por que existem duas datas
 
 **Regime de caixa** é quando o dinheiro se moveu; é o que o extrato registra.
 **Regime de competência** é a que mês o gasto pertence; é o que a nota fiscal registra.
@@ -92,7 +92,7 @@ onde o custo se concentra na semeadura e a receita vem meses depois, essa difere
 **inventa e apaga meses inteiros de custo**.
 
 Por isso `transactions` tem **duas datas**: `posted_at` (do banco, imutável) e
-`competence_date` (default = `posted_at`, só se mexe quando diverge — 99% das linhas ficam
+`competence_date` (default = `posted_at`, só se mexe quando diverge, 99% das linhas ficam
 no default). Custa quase nada na classificação e é **irreversível se não for feito agora**:
 daqui a dois anos, com milhares de linhas conciliadas, ninguém reconstrói a que mês cada uma
 pertencia.
@@ -100,7 +100,7 @@ pertencia.
 O BI passa a responder as duas perguntas, que são perguntas diferentes:
 
 - *"Quanto saiu do caixa em março?"* → soma por `posted_at`. Pergunta de sobrevivência.
-- *"Quanto custou produzir em março?"* → soma por `competence_date`. Pergunta de margem —
+- *"Quanto custou produzir em março?"* → soma por `competence_date`. Pergunta de margem.
   é ela que alimenta o custeio (P1).
 
 ## Extrato é a espinha dorsal; lançamento na origem é a exceção
@@ -109,7 +109,7 @@ Empresa organizada lança pela competência (a nota vira contas a pagar) e usa o
 **controle**, não como origem. Aqui a ordem se inverte de propósito, porque a origem manual
 já foi testada e falhou: a planilha *era* o lançamento na origem, e faltavam R$299 mil só em
 2026. **Lançamento manual falha por omissão, e omissão é invisível. Extrato falha por falta
-de contexto, e contexto faltando é visível** — a linha está lá, pedindo classificação.
+de contexto, e contexto faltando é visível**: a linha está lá, pedindo classificação.
 
 O lançamento na origem entra em **três lugares só**, onde a falta dele estraga o BI:
 
@@ -117,7 +117,7 @@ O lançamento na origem entra em **três lugares só**, onde a falta dele estrag
 |---|---|
 | Notas de compra de insumo (substrato, tubete, semente, adubo) | É o que vira custo por muda. O extrato diz "R$3.400 Agro Comercial"; a nota diz 40 sacos a R$85. |
 | Gasto parcelado (financiamento, IPVA, seguro, maquinário) | Uma parcela é 1/12 de uma decisão. Sem o total, o custo mensal não explica nada. Resolvido pelos campos de parcela. |
-| Pagamento que atravessa o mês | Nota de dezembro paga em janeiro. 5 ou 6 casos por ano — exceção tratada, não rotina. |
+| Pagamento que atravessa o mês | Nota de dezembro paga em janeiro. 5 ou 6 casos por ano, exceção tratada, não rotina. |
 
 Todo o resto (mercado, combustível, energia, mesada, pedágio) nasce e morre no extrato.
 
@@ -125,15 +125,15 @@ Todo o resto (mercado, combustível, energia, mesada, pedágio) nasce e morre no
 
 ## Rotina: semanal para classificar, mensal para fechar
 
-**Toda sexta-feira, 5 min** — classificar o que entrou na semana.
+**Toda sexta-feira, 5 min**: classificar o que entrou na semana.
 Não é preciosismo: é memória. Um PIX de R$1.200 para "JOSE M SILVA" você sabe o que foi na
-terça. No dia 32 você não sabe, chuta, ou joga em `Outros/Extraordinário` — que é onde a
+terça. No dia 32 você não sabe, chuta, ou joga em `Outros/Extraordinário`, que é onde a
 informação morre. A carga total é a mesma; a qualidade da classificação não.
 
-**Dia 1 de cada mês, 15 min** — o fechamento formal:
+**Dia 1 de cada mês, 15 min**: o fechamento formal:
 
 1. Baixa o extrato do mês fechado (OFX de preferência).
-2. Importa — não digita, o arquivo entra inteiro.
+2. Importa: não digita, o arquivo entra inteiro.
 3. Sistema casa automático por valor + data + regras aprendidas.
 4. O que sobrou (pouco, se a rotina semanal rodou): classifica no dropdown.
 5. Zerou a fila → confere o saldo contra o extrato → **fecha o mês. Trava.**
@@ -168,13 +168,13 @@ Detalhe de cada tabela em
 
 ---
 
-## Regras invioláveis (do post-mortem — não repetir os erros)
+## Regras invioláveis (do post-mortem: não repetir os erros)
 
-1. `description_raw` e `posted_at` **nunca** são editados — são a prova de que a linha veio
+1. `description_raw` e `posted_at` **nunca** são editados, são a prova de que a linha veio
    do banco.
 2. **Saldo se apura por `posted_at`; custo se apura por `competence_date`.**
 3. **Zero campo de texto livre** em classificação. Dropdown ou não existe.
-4. **Transferência entre contas próprias não é despesa** — senão o mesmo R$ conta duas vezes.
+4. **Transferência entre contas próprias não é despesa**, senão o mesmo R$ conta duas vezes.
 5. **Nenhum lançamento sem conta.** Dinheiro em espécie → conta `CAIXA`.
 6. **Período aberto não vira indicador.**
 7. **Agregação em CTE**, nunca subquery escalar correlacionada sobre view empilhada
@@ -186,24 +186,24 @@ Detalhe de cada tabela em
 
 ## Fases
 
-- [x] **Fase 0 — João:** contas, centros de custo, categorias e marco zero. *(05/08/2026)*
-- [ ] ✅ **Fase 1 concluída em 11/08/2026** (feita pelo P13 T13.1–T13.2 — era a mesma fase).
+- [x] **Fase 0: João:** contas, centros de custo, categorias e marco zero. *(05/08/2026)*
+- [ ] ✅ **Fase 1 concluída em 11/08/2026** (feita pelo P13 T13.1–T13.2, era a mesma fase).
 
-**Fase 1 — schema `cadastro`:** `parties`, `party_roles`, `addresses`, `party_id` em
+**Fase 1: schema `cadastro`:** `parties`, `party_roles`, `addresses`, `party_id` em
       `customers`/`suppliers` + backfill. `src/lib/parties.ts` + testes.
-      **Não depende dos extratos — pode começar já.**
-- [ ] **Fase 2 — schema `financeiro`:** as 9 tabelas + seed das listas fechadas
+      **Não depende dos extratos: pode começar já.**
+- [ ] **Fase 2: schema `financeiro`:** as 9 tabelas + seed das listas fechadas
       (5 centros, 14 grupos, 44 categorias, 10 contas). Nenhuma tela ainda.
       **Também não depende dos extratos.**
-      ⚠️ **Junto com a tabela, corrigir `mergeParties`** — ver a 4ª armadilha abaixo.
-- [ ] **Fase 3 — entrada de dados:** ⏸ *aguarda João juntar os extratos das 9 contas.*
+      ⚠️ **Junto com a tabela, corrigir `mergeParties`**, ver a 4ª armadilha abaixo.
+- [ ] **Fase 3: entrada de dados:** ⏸ *aguarda João juntar os extratos das 9 contas.*
       Formatos prováveis: OFX na maioria, CSV/Excel em algumas. O desenho só é escrito
-      com os arquivos reais na mesa — a tabela já aceita qualquer origem.
-- [ ] **Fase 4 — a fila:** `/financeiro/lancamentos`, classificação em 3 toques, rateio,
+      com os arquivos reais na mesa: a tabela já aceita qualquer origem.
+- [ ] **Fase 4: a fila:** `/financeiro/lancamentos`, classificação em 3 toques, rateio,
       transferência. É aqui que o trabalho humano acontece; o resto é suporte.
-- [ ] **Fase 5 — automação e trava:** `classification_rules` + fechamento mensal +
+- [ ] **Fase 5: automação e trava:** `classification_rules` + fechamento mensal +
       conferência de saldo calculado × saldo do extrato.
-- [ ] **Fase 6 — amarração:** vínculo com `orders` e cotações; custo mensal do centro
+- [ ] **Fase 6: amarração:** vínculo com `orders` e cotações; custo mensal do centro
       `viveiro` alimentando P1 (custeio); primeiros painéis, só sobre meses fechados.
 
 ---
@@ -220,7 +220,7 @@ Detalhe de cada tabela em
 ## A armadilha 4, por extenso: `mergeParties` × `transactions.party_id`
 
 > Encontrada em 19/08/2026, ao desenhar `/cadastros/pessoas`. **Ainda não dá para corrigir**
-> — a tabela não existe. Fica registrada aqui para a Fase 2 não tropecçar nela.
+>: a tabela não existe. Fica registrada aqui para a Fase 2 não tropecçar nela.
 
 `mergeParties` (`src/lib/parties.ts`) termina com `DELETE FROM cadastro.parties`, e o passo
 anterior repointa **apenas** `customers` e `suppliers`:
@@ -233,26 +233,26 @@ anterior repointa **apenas** `customers` e `suppliers`:
 `financeiro.transactions.party_id` será uma terceira FK para a mesma linha. Fundir duas
 identidades depois da Fase 2 vai dar num de dois lugares, os dois ruins:
 
-- **FK RESTRICT** — o merge falha com erro de integridade, e o usuário fica sem entender por
+- **FK RESTRICT**: o merge falha com erro de integridade, e o usuário fica sem entender por
   que "unir a Márcio Kuhar" parou de funcionar;
-- **`ON DELETE SET NULL`**, se alguém escolher isso para "resolver" — as transações perdem a
+- **`ON DELETE SET NULL`**, se alguém escolher isso para "resolver": as transações perdem a
   contraparte **em silêncio**. O dinheiro continua no saldo e some do histórico da pessoa. É a
   pior das duas, porque não reclama.
 
 **O que fazer na Fase 2:**
 
-1. `transactions.party_id` FK **sem** `ON DELETE` automático — RESTRICT explícito, para que
+1. `transactions.party_id` FK **sem** `ON DELETE` automático, RESTRICT explícito, para que
    esquecer o passo 5 quebre alto e cedo, no teste, e não baixo e tarde, no histórico.
 2. Acrescentar ao passo 5 de `mergeParties`:
    `UPDATE financeiro.transactions SET party_id = $2 WHERE party_id = $1`.
-   Vale para toda tabela nova que ganhar `party_id` — `classification_rules` também tem.
+   Vale para toda tabela nova que ganhar `party_id`, `classification_rules` também tem.
 3. Um teste em `src/lib/__tests__/parties.test.ts` que falhe se `mergeParties` deletar uma
    party ainda referenciada. O arquivo já exercita o SQL emitido; é mais um caso.
 
-**Por que importa mais do que parece:** a fusão de identidades não é caso raro — é a rotina
+**Por que importa mais do que parece:** a fusão de identidades não é caso raro, é a rotina
 que o cadastro único existe para servir. `PartyMatchPrompt` oferece unir toda vez que um
 fornecedor conhecido é cadastrado como cliente. E é exatamente a pessoa **com os dois papéis**
-— de quem se compra e para quem se vende — cujo histórico financeiro tem mais valor.
+de quem se compra e para quem se vende, cujo histórico financeiro tem mais valor.
 
 ---
 

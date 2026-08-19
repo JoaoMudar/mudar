@@ -1,41 +1,41 @@
-# Fase 2: Validações — `src/lib/customers.ts`
+# Fase 2: Validações, `src/lib/customers.ts`
 
 ## Objetivo
 Criar a lib pura do domínio de Clientes, espelhando `src/lib/orders.ts`: tipos,
 constantes e helpers de validação (CPF, CNPJ, CEP, UF, e-mail) e a lógica de
 completude fiscal (`isFiscallyComplete`, `getMissingFiscalFields`). Sem acesso a banco,
-sem `'use server'` — importável por Server Actions e Client Components, e 100% testável.
+sem `'use server'`: importável por Server Actions e Client Components, e 100% testável.
 
 ## Pré-requisitos
 - Padrão de referência: `src/lib/orders.ts` (helpers puros + tipos + `validate*`).
-- Campos fiscais já definidos na Fase 1 (mesmo que a migração ainda não tenha rodado —
+- Campos fiscais já definidos na Fase 1 (mesmo que a migração ainda não tenha rodado.
   a lib é pura e independe do banco).
 - Vitest configurado (testes em `__tests__/` ao lado do código).
 
 ## Tarefas
 
-### T2.1 — Tipos e constantes
+### T2.1: Tipos e constantes
 - [x] Criar `src/lib/customers.ts` (sem `'use server'`, igual a `orders.ts`)
 - [x] `export type PersonType = 'pf' | 'pj'`
 - [x] Interface `FiscalCustomer` com os campos da Fase 1 (`person_type`, `document`,
   `email`, `legal_name`, `trade_name`, `state_registration`, `ie_exempt`, `zip_code`,
   `street`, `address_number`, `complement`, `neighborhood`, `city`, `state`, `name`).
-- [x] `export const UFS: string[]` — as 27 UFs brasileiras.
+- [x] `export const UFS: string[]`, as 27 UFs brasileiras.
 
-### T2.2 — Helpers de formato (puros)
-- [x] `onlyDigits(s: string): string` — remove tudo que não é dígito.
-- [x] `isValidCPF(doc: string): boolean` — 11 dígitos + dígitos verificadores; rejeita repetidos (`111...`).
-- [x] `isValidCNPJ(doc: string): boolean` — 14 dígitos + dígitos verificadores; rejeita repetidos.
-- [x] `isValidEmail(email: string): boolean` — regex simples e segura.
-- [x] `isValidCEP(cep: string): boolean` — 8 dígitos.
-- [x] `isValidUF(uf: string): boolean` — pertence a `UFS`.
+### T2.2: Helpers de formato (puros)
+- [x] `onlyDigits(s: string): string`, remove tudo que não é dígito.
+- [x] `isValidCPF(doc: string): boolean`, 11 dígitos + dígitos verificadores; rejeita repetidos (`111...`).
+- [x] `isValidCNPJ(doc: string): boolean`, 14 dígitos + dígitos verificadores; rejeita repetidos.
+- [x] `isValidEmail(email: string): boolean`, regex simples e segura.
+- [x] `isValidCEP(cep: string): boolean`, 8 dígitos.
+- [x] `isValidUF(uf: string): boolean`, pertence a `UFS`.
 - [x] (Opcional) formatadores de exibição: `formatCPF`, `formatCNPJ`, `formatCEP`.
 
-### T2.3 — Completude fiscal + testes
-- [x] `getMissingFiscalFields(c: FiscalCustomer): string[]` — devolve a lista de campos
+### T2.3: Completude fiscal + testes
+- [x] `getMissingFiscalFields(c: FiscalCustomer): string[]`, devolve a lista de campos
   faltantes/ inválidos em **rótulos legíveis** (ex.: `['CPF inválido', 'E-mail', 'CEP']`),
   para a UI e a mensagem de bloqueio no fechamento.
-- [x] `isFiscallyComplete(c: FiscalCustomer): boolean` — `getMissingFiscalFields(c).length === 0`.
+- [x] `isFiscallyComplete(c: FiscalCustomer): boolean`, `getMissingFiscalFields(c).length === 0`.
 - [x] Regra (mínimo legal + e-mail):
   - **Comum**: e-mail válido + endereço completo (`zip_code` válido, `street`,
     `address_number`, `neighborhood`, `city`, `state` UF válida).
@@ -91,10 +91,10 @@ export function isFiscallyComplete(c: FiscalCustomer): boolean {
 ## Notas Técnicas
 - **Por que lib pura**: o gate de completude precisa rodar **no client** (feedback do
   formulário em tempo real) e **no servidor** (defesa em profundidade no `approveOrder`).
-  Manter fora de `'use server'` permite os dois usos — exatamente como `orders.ts`.
+  Manter fora de `'use server'` permite os dois usos, exatamente como `orders.ts`.
 - **`getMissingFiscalFields` é a fonte única da verdade**: a UI usa para destacar campos
   e o servidor usa para montar a mensagem de bloqueio ("Faltam: CPF, e-mail, CEP").
-- **Dígitos verificadores reais** de CPF/CNPJ (não só contar dígitos) — é o ponto mais
+- **Dígitos verificadores reais** de CPF/CNPJ (não só contar dígitos), é o ponto mais
   testado da fase.
 - **Normalização**: validar sempre sobre `onlyDigits(...)`; a máscara é só visual.
 - **Não** acessar `pool` nem `next/*` aqui. Qualquer coisa que toque o banco vai para

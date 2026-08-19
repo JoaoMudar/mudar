@@ -11,9 +11,9 @@ uma futura emissão de NF exige (PF/PJ, CPF/CNPJ, endereço fiscal, e-mail).
 Uma rotina completa de clientes que **não atrapalha** o fluxo rápido de hoje e ainda
 prepara o terreno para a NF:
 
-1. **Cadastro rápido** continua igual — nome + telefone direto no pedido.
+1. **Cadastro rápido** continua igual: nome + telefone direto no pedido.
 2. **Área dedicada `/clientes`** com CRUD e campos fiscais (PF/PJ, documento, endereço, e-mail).
-3. **Dados completos só são exigidos quando o pedido precisa de NF** — validados no fechamento.
+3. **Dados completos só são exigidos quando o pedido precisa de NF**, validados no fechamento.
 
 ```
 [Cadastro rápido]  Chefia digita nome no pedido  ──►  cliente mínimo (como hoje)
@@ -32,7 +32,7 @@ prepara o terreno para a NF:
 - **Simples**: só `name` (+ telefone). É o estado de todo cliente legado e de quem
   compra sem NF. Os campos fiscais ficam `NULL`.
 - **Completo (fiscalmente)**: tem todos os dados exigidos para emitir NF. A completude
-  **não é uma trava do banco** — é uma regra de aplicação, cobrada só quando há NF.
+  **não é uma trava do banco**: é uma regra de aplicação, cobrada só quando há NF.
 
 ### Pessoa Física (PF) × Pessoa Jurídica (PJ)
 Define quais campos são obrigatórios para a NF: PF exige CPF; PJ exige CNPJ, razão
@@ -46,13 +46,13 @@ Regra adotada: **mínimo legal brasileiro + e-mail obrigatório** (para enviar D
 
 | # | Arquivo | Fase | Tarefas |
 |---|---------|------|---------|
-| 0 | `clientes/00-visao-geral.md` | Visão geral, conceitos, fluxo sem NF × com NF, decisões | — |
+| 0 | `clientes/00-visao-geral.md` | Visão geral, conceitos, fluxo sem NF × com NF, decisões | - |
 | 1 | `clientes/01-banco-de-dados.md` | Migração aditiva: campos fiscais em `customers` + `orders.needs_invoice` | 3 tarefas |
 | 2 | `clientes/02-validacoes.md` | Lib pura `src/lib/customers.ts` (CPF/CNPJ/CEP/UF/e-mail + completude) | 3 tarefas |
 | 3 | `clientes/03-area-clientes.md` | Área `/clientes`: actions + CRUD + formulário fiscal | 5 tarefas |
 | 4 | `clientes/04-integracao-pedidos-nf.md` | Flag `needs_invoice` + pergunta de NF no fechamento + complementação inline | 4 tarefas |
 | 5 | `clientes/05-testes.md` | Testes automatizados (vitest) + roteiro manual | 4 tarefas |
-| 6 | `clientes/06-futuro-emissao-nf-api.md` | Fora de escopo: o que fica pronto e o que falta para emitir NF via API | — |
+| 6 | `clientes/06-futuro-emissao-nf-api.md` | Fora de escopo: o que fica pronto e o que falta para emitir NF via API | - |
 
 **Total: 19 tarefas**
 
@@ -70,6 +70,6 @@ Regra adotada: **mínimo legal brasileiro + e-mail obrigatório** (para enviar D
 
 ## Dependências com outras rotinas
 - **Pedidos** (`../3-comercial/pedidos.md`): o fechamento passa a perguntar sobre NF e a
-  validar a completude do cliente — ver `clientes/04-integracao-pedidos-nf.md`.
+  validar a completude do cliente: ver `clientes/04-integracao-pedidos-nf.md`.
 - **Financeiro** (`../4-financeiro/00-visao-geral.md`): a etapa "Emissão de nota fiscal" (Chefia)
-  é o destino natural dos dados estruturados aqui — ver `clientes/06-futuro-emissao-nf-api.md`.
+  é o destino natural dos dados estruturados aqui, ver `clientes/06-futuro-emissao-nf-api.md`.

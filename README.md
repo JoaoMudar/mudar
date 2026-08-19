@@ -1,10 +1,10 @@
-# Viveiro Mudar — Ecossistema de Gestão
+# Viveiro Mudar: Ecossistema de Gestão
 
 Sistema integrado de gestão para um viveiro de mudas nativas no Alto Vale do Itajaí (SC).
 Área de ~10.000 m², equipe de 7 pessoas e venda no atacado via WhatsApp.
 
 O foco é trocar o "tudo de cabeça" por **dados estruturados**, com interfaces extremamente
-simples e **mobile-first** — os usuários finais não são técnicos e o celular é o dispositivo
+simples e **mobile-first**: os usuários finais não são técnicos e o celular é o dispositivo
 principal de uso no campo.
 
 ---
@@ -15,7 +15,7 @@ principal de uso no campo.
 | ----------------- | ----------------------------------------------------------------- |
 | Frontend          | Next.js 16 (App Router) + React 19 + Tailwind CSS                 |
 | Backend           | Server Actions com SQL direto (`pool.query`)                      |
-| Banco de dados    | PostgreSQL — **local em dev**, **Neon (cloud) na produção/Vercel**; driver escolhido pelo host |
+| Banco de dados    | PostgreSQL: **local em dev**, **Neon (cloud) na produção/Vercel**; driver escolhido pelo host |
 | Autenticação      | Sessão própria por cookie (scrypt + tokens SHA-256)               |
 | Mobile            | PWA (manifest + service worker, fila de sync offline)             |
 | Linguagem         | TypeScript                                                        |
@@ -26,7 +26,7 @@ principal de uso no campo.
 ## Como rodar localmente
 
 Pré-requisitos: **Node.js 20+** e um **PostgreSQL local** acessível (ex.: instância do pgAdmin).
-Na produção (Vercel) o banco é o **Neon** — basta apontar a `DATABASE_URL` de cada ambiente;
+Na produção (Vercel) o banco é o **Neon**: basta apontar a `DATABASE_URL` de cada ambiente;
 o driver certo é escolhido automaticamente pelo host (`*.neon.tech` → driver serverless).
 
 ```bash
@@ -70,7 +70,7 @@ A aplicação fica disponível em `http://localhost:3000`. O login é exigido em
 ## Estrutura do projeto
 
 ```
-docs/              Documentação de referência (ver docs/README.md — mapa de tudo)
+docs/              Documentação de referência (ver docs/README.md, mapa de tudo)
 migrations/        Migrações SQL (psql puro), aplicadas em ordem cronológica
 data/seeds/        Fontes de carga inicial (seed), ex.: export das 142 espécies
 plans/             Planos de implementação por projeto (P1–P10)
@@ -95,10 +95,10 @@ src/
 
 São quatro papéis, com visibilidade progressiva no menu inicial:
 
-- **admin** — acesso total, incluindo gestão de usuários
-- **chefia** — administração e pedidos (sem gestão de usuários)
-- **gerencia** — pedidos
-- **funcionario** — operações de campo (ex.: registrar insumo)
+- **admin**: acesso total, incluindo gestão de usuários
+- **chefia**: administração e pedidos (sem gestão de usuários)
+- **gerencia**: pedidos
+- **funcionario**: operações de campo (ex.: registrar insumo)
 
 ---
 
@@ -143,7 +143,7 @@ Pedidos** (cadastro → verificação → fechamento → separação por cargas)
 - O schema é **compartilhado entre todos os projetos**.
 - Toda alteração deve ser um arquivo `.sql` em `migrations/` (compatível com `psql` puro),
   manter compatibilidade retroativa e ser documentada.
-- A entidade central é a **espécie** — quase tudo se relaciona a ela.
+- A entidade central é a **espécie**: quase tudo se relaciona a ela.
 - PostgreSQL: **local no desenvolvimento** (pgAdmin/`localhost`) e **Neon (cloud) na produção/Vercel**.
 - Conexão via `DATABASE_URL`; pool singleton em `src/lib/db.ts`. O driver é escolhido pelo
   **host** da URL: `*.neon.tech` → `@neondatabase/serverless`; qualquer outro → `pg`
@@ -158,7 +158,7 @@ Pedidos** (cadastro → verificação → fechamento → separação por cargas)
 - Tabelas: `snake_case` no plural (ex.: `species`, `loss_events`).
 - Commits: Conventional Commits em português (ex.: `feat(pedidos): adiciona separação por cargas`).
 - **Toda alteração de código deve incluir testes** (`*.test.ts` em `__tests__/`).
-  O pre-commit hook roda lint e testes — commits são bloqueados se algo falhar.
+  O pre-commit hook roda lint e testes: commits são bloqueados se algo falhar.
 - Formulários de campo: no máximo 5 campos por tela, dropdowns pré-definidos, botões grandes
   e feedback visual imediato.
 

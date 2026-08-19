@@ -1,13 +1,13 @@
-# Fase 1 — Cadastro único (schema `cadastro`)
+# Fase 1: Cadastro único (schema `cadastro`)
 
-> Pré-requisito do financeiro. **Não depende dos extratos — pode ser implementado já.**
+> Pré-requisito do financeiro. **Não depende dos extratos, pode ser implementado já.**
 
 ## O problema
 
 Hoje o cadastro de pessoas está partido em duas tabelas sem ligação, ambas em `public`:
 
-- `customers` — quem compra. Tem campos fiscais completos (PF/PJ, documento, endereço).
-- `suppliers` — quem vende muda para revenda. Tem só cidade/UF, sem documento nem endereço.
+- `customers`: quem compra. Tem campos fiscais completos (PF/PJ, documento, endereço).
+- `suppliers`: quem vende muda para revenda. Tem só cidade/UF, sem documento nem endereço.
 
 Três consequências:
 
@@ -18,7 +18,7 @@ Três consequências:
 3. **Endereço é coluna, não entidade.** `customers` tem um endereço embutido; um cliente com
    endereço de cobrança diferente do de entrega não cabe.
 
-O financeiro precisa apontar "com quem foi" em cada linha do extrato — e essa contraparte
+O financeiro precisa apontar "com quem foi" em cada linha do extrato, e essa contraparte
 pode ser qualquer um dos seis papéis acima.
 
 ## A solução: aditiva, não migratória
@@ -44,7 +44,7 @@ cadastro.addresses          endereços (N por party)
 |---|---|---|
 | `id` | UUID PK | `gen_random_uuid()` |
 | `kind` | `'pf'` \| `'pj'` | CHECK |
-| `document` | VARCHAR(14) | só dígitos; **UNIQUE parcial** `WHERE document IS NOT NULL` — mesmo padrão do `idx_customers_document` |
+| `document` | VARCHAR(14) | só dígitos; **UNIQUE parcial** `WHERE document IS NOT NULL`, mesmo padrão do `idx_customers_document` |
 | `name` | TEXT NOT NULL | nome usual (o que aparece nas listas) |
 | `legal_name`, `trade_name` | TEXT | razão social / fantasia (PJ) |
 | `email`, `phone`, `whatsapp` | | whatsapp só dígitos, como em `suppliers` |
@@ -58,7 +58,7 @@ cadastro.addresses          endereços (N por party)
 `cliente` · `fornecedor` · `funcionario` · `socio` · `familiar` · `banco` · `governo` ·
 `contador` · `outro`
 
-Um party pode acumular papéis — é exatamente o caso do Márcio Kuhar.
+Um party pode acumular papéis: é exatamente o caso do Márcio Kuhar.
 
 ### `cadastro.addresses`
 
@@ -84,23 +84,23 @@ Na própria migration, **sem guarda condicional** (lição nº 7 do post-mortem:
 4. Grava o `party_id` de volta em `customers` e `suppliers`.
 
 **Ambiguidade é aceita, não resolvida:** mesmo nome com documentos diferentes vira duas
-parties. A fusão é manual depois — `src/app/clientes/actions.ts` já tem `mergeCustomers`
+parties. A fusão é manual depois: `src/app/clientes/actions.ts` já tem `mergeCustomers`
 como precedente de UX para isso.
 
 ## O casamento é uma regra, não um evento (corrigido em 19/08/2026)
 
 O backfill acima roda **uma vez**. Durante os primeiros dias, `createCustomer` e
 `createSupplier` continuaram criando uma party nova a cada cadastro, sem procurar identidade
-existente — então um fornecedor que virasse cliente ganhava um segundo registro e a
+existente: então um fornecedor que virasse cliente ganhava um segundo registro e a
 duplicidade voltava sozinha. Isso foi corrigido:
 
 - **Procura antes de criar.** `findPartyMatch` (em `src/lib/parties.ts`) busca por `document`
   quando existe e por `lower(trim(name))` quando não, e **só devolve resultado se a identidade
-  encontrada ainda não tiver o papel** que está sendo cadastrado — do contrário seria duplicata
+  encontrada ainda não tiver o papel** que está sendo cadastrado, do contrário seria duplicata
   do mesmo papel, caso que o `idx_customers_document` já trata.
 - **O sistema nunca une sozinho**, nem quando o documento bate. A tela pergunta *"É a mesma
-  pessoa?"* e só liga se alguém confirmar. Mantém a linha do backfill — ambiguidade é aceita,
-  não resolvida — e deixa a decisão com quem conhece as pessoas.
+  pessoa?"* e só liga se alguém confirmar. Mantém a linha do backfill, ambiguidade é aceita,
+  não resolvida: e deixa a decisão com quem conhece as pessoas.
 - **A pergunta também aparece ao editar**, não só ao cadastrar. É o caminho de conserto dos
   duplicados criados entre o backfill e a correção: abrir e salvar levanta a questão, sem
   precisar de tela de manutenção.
@@ -116,15 +116,15 @@ Depois do backfill, o mesmo nome existe em dois lugares: em `parties` e na colun
 `customers`/`suppliers`. Isso é dívida deliberada e temporária, com uma trava:
 
 - **`parties` é a verdade de identidade** (nome, documento, contato, endereço).
-- **`customers`/`suppliers` guardam o que é do papel** — `reliability_score`, `status` de
+- **`customers`/`suppliers` guardam o que é do papel**, `reliability_score`, `status` de
   outreach, notas comerciais.
 - Enquanto as telas não migram, **toda escrita passa por um único arquivo**,
   `src/lib/parties.ts` (`upsertPartyFromCustomer`, `upsertPartyFromSupplier`), coberto por
   teste. Um ponto de estrangulamento é um lugar só onde a duplicidade pode divergir.
 - **`undefined` ≠ `null` na identidade.** Chave ausente quer dizer "este formulário não conhece
   o campo" e preserva o que existe (o de fornecedor não tem documento); `null` quer dizer "o
-  usuário apagou" e grava NULL. Antes as duas coisas eram a mesma — um COALESCE em todas as
-  colunas —, e o efeito era que apagar um telefone errado em `/clientes` zerava
+  usuário apagou" e grava NULL. Antes as duas coisas eram a mesma, um COALESCE em todas as
+  colunas, e o efeito era que apagar um telefone errado em `/clientes` zerava
   `customers.phone` e **mantinha o valor errado** em `parties.phone`.
 - **Exceção na hora de ligar:** ao vincular um cadastro a uma identidade que já existia,
   `fillOnly` desliga o apagar. O formulário preenchido ali nunca mostrou os dados do outro
@@ -133,7 +133,7 @@ Depois do backfill, o mesmo nome existe em dois lugares: em `parties` e na colun
 
 ## O que muda para quem usa
 
-Na Fase 1, **nada**: era só fundação. Depois da correção de 19/08/2026, uma coisa só —
+Na Fase 1, **nada**: era só fundação. Depois da correção de 19/08/2026, uma coisa só.
 cadastrar (ou salvar) alguém cujo nome ou documento já existe em outro papel mostra um aviso
 perguntando se é a mesma pessoa, com dois botões. Respondeu, o cadastro segue normalmente.
 `/clientes`, `/fornecedores` e `/pedidos` continuam idênticos no resto.
@@ -151,7 +151,7 @@ SELECT document, count(*) FROM cadastro.parties
 ```
 
 Candidatos a duplicata que ainda restem (nomes repetidos nesta lista são a mesma pessoa em
-duas identidades — a fusão é manual, abrindo o cadastro e salvando):
+duas identidades: a fusão é manual, abrindo o cadastro e salvando):
 
 ```sql
 SELECT p.id, p.name, array_agg(r.role) AS papeis

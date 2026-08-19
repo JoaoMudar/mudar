@@ -1,4 +1,4 @@
-# Rotina de Pedidos — Visao Geral
+# Rotina de Pedidos: Visao Geral
 
 ## Contexto de Negocio
 
@@ -97,12 +97,12 @@ Pedido #47 (o que o cliente quer)
 
 ## Arquivos de Implementacao (ordem de execucao)
 
-1. `01-banco-de-dados.md` — Migracoes SQL (clientes, pedidos, itens, cargas, notificacoes)
-2. `02-notificacoes.md` — Sistema de notificacoes in-app
-3. `03-cadastro-pedido.md` — Tela de cadastro (chefia, desktop) — itens especificos e genericos
-4. `04-verificacao-disponibilidade.md` — Checklist + atribuicao de especies (gerencia, mobile)
-5. `05-analise-fechamento.md` — Analise e aprovacao (chefia, desktop)
-6. `06-separacao-pedido.md` — Divisao em cargas + separacao com calendario (gerencia, mobile)
+1. `01-banco-de-dados.md`: Migracoes SQL (clientes, pedidos, itens, cargas, notificacoes)
+2. `02-notificacoes.md`: Sistema de notificacoes in-app
+3. `03-cadastro-pedido.md`: Tela de cadastro (chefia, desktop), itens especificos e genericos
+4. `04-verificacao-disponibilidade.md`: Checklist + atribuicao de especies (gerencia, mobile)
+5. `05-analise-fechamento.md`: Analise e aprovacao (chefia, desktop)
+6. `06-separacao-pedido.md`: Divisao em cargas + separacao com calendario (gerencia, mobile)
 
 ## Integracoes Futuras
 

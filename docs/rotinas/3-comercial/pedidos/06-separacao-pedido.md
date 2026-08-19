@@ -1,4 +1,4 @@
-# Fase 6: Separacao de Pedido com Cargas (Gerencia — Mobile)
+# Fase 6: Separacao de Pedido com Cargas (Gerencia, Mobile)
 
 ## Objetivo
 Apos aprovacao, a gerencia (Debora) organiza o pedido em cargas (viagens) e separa
@@ -17,7 +17,7 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
 
 ## Tarefas
 
-### T6.1 — Server Actions de cargas e separacao
+### T6.1: Server Actions de cargas e separacao
 - [x] Adicionar em `src/app/pedidos/actions.ts`:
 - [x] `createDefaultLoad(orderId, userId)`:
   1. Criar 1 carga (load_number=1) com TODOS os itens do pedido (quantidade total)
@@ -39,11 +39,11 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   3. Verificar se TODAS as cargas do pedido estao `pronto`:
      - Se sim: mudar status do pedido para `pronto_envio` + notificar chefia
      - Se nao: nao muda status do pedido (ainda tem cargas pendentes)
-- [x] `getOrderLoads(orderId)` — retorna cargas com itens, status e progresso
-- [x] `getDeliveryCalendarData(startDate, endDate)` — retorna pedidos com delivery_date no periodo
+- [x] `getOrderLoads(orderId)`: retorna cargas com itens, status e progresso
+- [x] `getDeliveryCalendarData(startDate, endDate)`, retorna pedidos com delivery_date no periodo
   - Para cada pedido: order_number, customer name, delivery_date, status, qtd cargas, cargas prontas
 
-### T6.2 — Tela de organizacao de cargas
+### T6.2: Tela de organizacao de cargas
 - [x] Criar `src/app/pedidos/[id]/separar/page.tsx`
 - [x] Proteger com `requireRole('admin', 'gerencia')`
 - [x] Carregar pedido com itens via `getOrderById(id)` e cargas via `getOrderLoads(orderId)`
@@ -53,8 +53,8 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
 **Tela de organizacao (primeira vez):**
 - [x] Mostrar todos os itens do pedido (para genericos, mostrar os filhos)
 - [x] Dois botoes grandes:
-  - "Cabe em 1 viagem" — chama `createDefaultLoad`, vai para separacao
-  - "Dividir em cargas" — abre modo de divisao
+  - "Cabe em 1 viagem": chama `createDefaultLoad`, vai para separacao
+  - "Dividir em cargas": abre modo de divisao
 - [x] **Modo de divisao em cargas (mobile-friendly):**
   ```
   +------------------------------------------+
@@ -90,7 +90,7 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   - Botao "+ Adicionar Carga" para adicionar mais viagens
   - Botao "Confirmar Divisao" ativo quando todas as quantidades batem
 
-### T6.3 — Componente de checklist de separacao por carga
+### T6.3: Componente de checklist de separacao por carga
 - [x] Criar `src/app/pedidos/[id]/separar/LoadSeparation.tsx` (client component)
 - [x] Exibir cargas como abas ou cards expansiveis:
   ```
@@ -130,35 +130,35 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   - Se era a ultima carga: toast "Pedido #47 pronto para envio!"
   - Se ainda tem cargas: toast "Carga 1 pronta! Falta(m) carga(s) 2"
 
-### T6.4 — Calendario de entregas na lista de pedidos
+### T6.4: Calendario de entregas na lista de pedidos
 - [x] Criar `src/app/pedidos/DeliveryCalendar.tsx` (client component)
 - [x] Exibir na pagina `/pedidos` para gerencia (acima da lista)
 - [x] Visualizacao de calendario mensal simples (grade de dias)
 - [x] Cada dia que tem entrega: marcador com quantidade de pedidos
 - [x] Codigo de cores nos dias:
-  - **Verde** (dia util antes da entrega): dia de CARREGAMENTO — precisa separar/carregar
+  - **Verde** (dia util antes da entrega): dia de CARREGAMENTO, precisa separar/carregar
   - **Amarelo** (dia da entrega): SAIDA do caminhao
   - **Vermelho**: entregas atrasadas (delivery_date < hoje e status != pronto_envio)
 - [x] Clicar em um dia mostra os pedidos daquele dia (lista abaixo do calendario)
 - [x] Dia atual destacado com borda
 - [x] Navegacao entre meses (< Junho 2026 >)
 
-### T6.5 — Logica de dia util anterior
+### T6.5: Logica de dia util anterior
 - [x] Criar funcao `getPreviousBusinessDay(date)` em `src/lib/date-utils.ts`
 - [x] Considerar dias uteis = segunda a sexta
 - [x] Se entrega eh segunda -> carregamento eh sexta anterior
 - [x] Se entrega eh terca a sabado -> carregamento eh dia anterior
 - [x] Nao considerar feriados por enquanto (simplicidade)
 
-### T6.6 — Barra de progresso geral e urgencia
+### T6.6: Barra de progresso geral e urgencia
 - [x] Se pedido tem 1 carga: progresso = "4 de 7 separados"
 - [x] Se pedido tem N cargas: progresso = "Carga 1: 5/5 V | Carga 2: 2/3"
 - [x] Informacoes do pedido no cabecalho: cliente, data de entrega, order_number
 - [x] Destaque se a entrega eh urgente (amanha ou hoje): banner vermelho "ENTREGA AMANHA"
 - [x] Banner de carregamento: "CARREGAR HOJE" se hoje == dia util antes da delivery_date
 
-### T6.7 — Indicadores na lista de pedidos para gerencia
-- [x] Pedidos aprovados (sem cargas): tag "ORGANIZAR" — precisa dividir em cargas
+### T6.7: Indicadores na lista de pedidos para gerencia
+- [x] Pedidos aprovados (sem cargas): tag "ORGANIZAR", precisa dividir em cargas
 - [x] Pedidos separando: tag "SEPARANDO" com progresso de cargas (ex: "Carga 1/2")
 - [x] Urgencia visual baseada na data de entrega:
   - Entrega em >3 dias: cor azul
@@ -167,7 +167,7 @@ Pedidos grandes sao divididos pela gerencia em N cargas.
   - Entrega hoje: cor vermelho "URGENTE"
 - [x] Ordenar por urgencia (data de entrega mais proxima primeiro)
 
-## Design Mobile — Fluxo Completo
+## Design Mobile: Fluxo Completo
 
 **1. Pedido aprovado → decisao de cargas:**
 ```
@@ -245,11 +245,11 @@ Numeros dentro = qtd de pedidos
 ```
 
 ## Notas Tecnicas
-- O calendario deve ser leve — construir com CSS grid ou flexbox, sem bibliotecas
-- A decisao "1 viagem ou dividir" eh o primeiro passo apos aprovacao — nao pular
+- O calendario deve ser leve: construir com CSS grid ou flexbox, sem bibliotecas
+- A decisao "1 viagem ou dividir" eh o primeiro passo apos aprovacao: nao pular
 - Se gerencia clica "Cabe em 1 viagem", cria 1 carga automatica e ja entra na separacao
 - A divisao em cargas exige que TODAS as quantidades batam antes de confirmar
-- Cargas prontas nao podem ser revertidas (se precisar, cancelar e refazer — caso raro)
+- Cargas prontas nao podem ser revertidas (se precisar, cancelar e refazer, caso raro)
 - O calendario mostra apenas pedidos com status `aprovado`, `separando` ou `pronto_envio`
 - Cada carga pronta alimenta independentemente a rotina de entregas futura
 - Pedido so muda para `pronto_envio` quando a ultima carga ficar pronta

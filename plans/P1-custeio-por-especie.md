@@ -1,19 +1,19 @@
-# P1 — Custeio por Espécie
+# P1: Custeio por Espécie
 
 > ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
 > leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
 > Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**. O banco é PostgreSQL
-> puro (local no dev, Neon em produção) — o Neon é só o banco, não tem nada da plataforma
+> puro (local no dev, Neon em produção): o Neon é só o banco, não tem nada da plataforma
 > Supabase. Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
 > 🩹 **Correção de 11/08/2026.** As tabelas `input_usages` e `input_price_history` constavam de
 > `_migrations` como aplicadas, mas **não existiam nem no Postgres local nem no Neon**. Na
-> prática, `/producao/consumo-insumos` — na época `/insumos/registrar` — (T1.10–T1.12) falhava em todo envio em produção e
-> `getPriceHistory` (T1.15) também — as caixas estavam marcadas, o código existia, e o destino
+> prática, `/producao/consumo-insumos` (na época `/insumos/registrar`) (T1.10–T1.12) falhava em todo envio em produção e
+> `getPriceHistory` (T1.15) também: as caixas estavam marcadas, o código existia, e o destino
 > não. Reparado pela migration `20260811000002_repara_tabelas_p1_ausentes.sql`. As tarefas
 > continuam `[x]` porque o código estava certo; o que faltava era o schema.
 
-> 🗂️ **Reorganização de 19/08/2026 — as telas deste plano mudaram de endereço.** O sistema
+> 🗂️ **Reorganização de 19/08/2026: as telas deste plano mudaram de endereço.** O sistema
 > passou a ter quatro módulos (Cadastros · Produção · Comercial · Financeiro), e as telas do
 > P1 se espalharam por três deles. As rotas abaixo já estão atualizadas; as antigas
 > continuam funcionando por redirect (`next.config.mjs`).
@@ -26,17 +26,17 @@
 > | T1.15 | `/admin/insumos` | `/cadastros/insumos` | 1 · Cadastros |
 > | T1.16 | `/admin/custos-fixos` | `/financeiro/custos-fixos` | 4 · Financeiro |
 > | T1.17 | `/admin/coleta-sementes` | `/producao/coleta-sementes` | 2 · Produção |
-> | T1.18–T1.20 | — (não feitas) | `/financeiro/custeio` | 4 · Financeiro |
+> | T1.18–T1.20 |: (não feitas) | `/financeiro/custeio` | 4 · Financeiro |
 >
 > **O custeio é do Financeiro, não da Produção.** Custo é dinheiro, e quem o alimenta é o
-> extrato bancário. O que a Produção faz é entregar as duas medidas de campo — consumo de
+> extrato bancário. O que a Produção faz é entregar as duas medidas de campo, consumo de
 > insumo e horas da agenda. Ver [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md)
 > e o achado K de [`auditoria-divergencias.md`](../docs/auditoria-divergencias.md).
 
-## Status: PARCIAL — 16 de 32 tarefas
+## Status: PARCIAL, 16 de 32 tarefas
 **Feito:** todas as tabelas, a view `species_unit_cost`, os 5 CRUDs administrativos e o
 formulário mobile de insumos com fila offline.
-**Falta:** o motor de cálculo (T1.18–T1.20) — que depende da mão de obra vinda do
+**Falta:** o motor de cálculo (T1.18–T1.20), que depende da mão de obra vinda do
 [P13 · agenda de pessoal](P13-producao-agenda-cadastros.md).
 
 ## Prioridade: CRÍTICA
@@ -65,8 +65,8 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
 - [ ] **Catálogo de espécies**: lista completa com nome popular + científico (Gilberto + Débora)
 - [ ] **Mapa de recipientes**: para cada espécie, quais recipientes são usados (Débora)
 - [ ] **Consumo de substrato**: volume de substrato por tipo de recipiente, medido com unidade padrão (Débora)
-- [ ] **Tempo de produção**: meses médios da semente à muda pronta, por espécie (Débora — estimativa inicial)
-- [ ] **Custo de insumos**: levantar notas de compra dos últimos 6 meses — substrato, adubo, defensivos, sacos, tubetes (Gilberto)
+- [ ] **Tempo de produção**: meses médios da semente à muda pronta, por espécie (Débora, estimativa inicial)
+- [ ] **Custo de insumos**: levantar notas de compra dos últimos 6 meses, substrato, adubo, defensivos, sacos, tubetes (Gilberto)
 - [ ] **Custos fixos mensais**: salários, energia, água, manutenção, combustível, depreciação (Gilberto)
 - [ ] **Custo de coleta de sementes**: deslocamento + horas por espécie/região de coleta (Gilberto + João)
 
@@ -112,7 +112,7 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
   custo_unitário = custo_variável + (custo_fixo_mensal_rateado / produção_mensal_estimada)
   ```
 - [ ] **T1.8** ~~Criar RLS policies~~ → **não se aplica.** A migration `20260413000002_p1_rls.sql`
-  removeu o conceito: *"RLS removido — projeto usa PostgreSQL local sem autenticação Supabase.
+  removeu o conceito: *"RLS removido, projeto usa PostgreSQL local sem autenticação Supabase.
   Controle de acesso será feito na camada de aplicação (Next.js)"*. O controle real é a checagem
   de perfil dentro de cada Server Action, especificada na
   [Matriz RBAC (D4)](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md).
