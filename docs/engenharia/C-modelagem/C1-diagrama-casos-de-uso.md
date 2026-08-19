@@ -45,6 +45,7 @@ graph LR
   AD(("Administrador"))
 
   subgraph M1["1 · Cadastros"]
+    S13["Catálogo &mdash; espécies,<br/>recipientes, insumos"]
     S6["Clientes"]
     S9["Fornecedores"]
   end
@@ -65,6 +66,7 @@ graph LR
   end
   S12["Acesso &mdash; transversal"]
 
+  CH --- S13
   CH --- S1
   CH --- S5
   CH --- S6
@@ -74,6 +76,7 @@ graph LR
   CH --- S10
   CH --- S11
 
+  GE --- S13
   GE --- S1
   GE --- S2
   GE --- S3
@@ -81,7 +84,7 @@ graph LR
   GE --- S7
   GE --- S11
 
-  CO --- S1
+  CO --- S13
   CO --- S2
   CO --- S4
   CO --- S7
@@ -100,8 +103,11 @@ Três leituras que o diagrama torna imediatas:
 - **Custeio e precificação são do Financeiro, não da Produção.** A gerência toca o custeio para
   consultar, mas quem o alimenta é o extrato bancário — e é por isso que o preço do viveiro
   é estimativa enquanto o módulo 4 não rodar.
-- **O financeiro conecta-se a um único ator.** Não é omissão do diagrama, é regra de negócio: a base
-  mistura gasto do viveiro com gasto pessoal da família, e o acesso é restrito à chefia.
+- **O subsistema Financeiro conecta-se a um único ator.** Não é omissão do diagrama, é regra de
+  negócio: a base bancária mistura gasto do viveiro com gasto pessoal da família, e o acesso é
+  restrito à chefia. Repare que **o módulo 4 não é restrito por inteiro** — a gerência toca
+  Custeio, Precificação e Indicadores, que dele derivam sem o expor. A restrição é do recurso,
+  não da porta do módulo ([`D4 §3.2`](../D-arquitetura/D4-matriz-rbac.md)).
 
 ---
 
@@ -113,49 +119,40 @@ Três leituras que o diagrama torna imediatas:
 graph LR
   CH(("Chefia"))
 
-  subgraph Catálogo
+  subgraph M1["1 · Cadastros"]
     UC05(["UC-05 · Manter catálogo de espécies"])
     UC06(["UC-06 · Manter recipientes"])
     UC07(["UC-07 · Manter insumos"])
-    UC08(["UC-08 · Registrar custos fixos"])
-    UC09(["UC-09 · Registrar coleta de sementes"])
-  end
-
-  subgraph Comercial
     UC21(["UC-21 · Cadastrar cliente rápido"])
     UC22(["UC-22 · Manter cadastro de cliente"])
     UC23(["UC-23 · Consultar cliente"])
+    UC31(["UC-31 · Manter fornecedor"])
+  end
+
+  subgraph M2["2 · Produção"]
+    UC09(["UC-09 · Registrar coleta de sementes"])
+    UC18(["UC-18 · Analisar perdas"])
+  end
+
+  subgraph M3["3 · Comercial"]
     UC24(["UC-24 · Cadastrar pedido"])
     UC26(["UC-26 · Fechar pedido"])
     UC28(["UC-28 · Acompanhar pedidos"])
-  end
-
-  subgraph Preço
-    UC19(["UC-19 · Definir margem por canal"])
-    UC20(["UC-20 · Consultar preço por canal"])
-    UC11(["UC-11 · Consultar custo unitário"])
-  end
-
-  subgraph Fornecedores
-    UC31(["UC-31 · Manter fornecedor"])
     UC32(["UC-32 · Emitir cotação"])
     UC33(["UC-33 · Escolher proposta"])
     UC34(["UC-34 · Consultar mapa"])
-  end
-
-  subgraph Entrega
     UC29(["UC-29 · Organizar agenda de entregas"])
     UC30(["UC-30 · Confirmar entrega"])
   end
 
-  subgraph Financeiro
+  subgraph M4["4 · Financeiro"]
+    UC08(["UC-08 · Registrar custos fixos"])
+    UC11(["UC-11 · Consultar custo unitário"])
+    UC19(["UC-19 · Definir margem por canal"])
+    UC20(["UC-20 · Consultar preço por canal"])
     UC35(["UC-35 · Importar extrato bancário"])
     UC36(["UC-36 · Classificar lançamentos"])
     UC37(["UC-37 · Fechar o mês"])
-  end
-
-  subgraph Gestão
-    UC18(["UC-18 · Analisar perdas"])
     UC39(["UC-39 · Acompanhar indicadores"])
   end
 
@@ -197,20 +194,20 @@ verificável a que já existe.
 graph LR
   GE(("Gerência"))
 
-  subgraph Operação
+  subgraph M2["2 · Produção"]
     UC13(["UC-13 · Planejar e atribuir produção"])
     UC14(["UC-14 · Acompanhar ciclo produtivo"])
     UC15(["UC-15 · Consultar estoque"])
     UC16(["UC-16 · Registrar contagem de estoque"])
+    UC18b(["UC-18 · Analisar perdas"])
   end
 
-  subgraph Pedido
+  subgraph M3["3 · Comercial"]
     UC25(["UC-25 · Verificar disponibilidade"])
     UC28b(["UC-28 · Acompanhar pedidos"])
   end
 
-  subgraph Análise
-    UC18b(["UC-18 · Analisar perdas"])
+  subgraph M4["4 · Financeiro &mdash; só o que deriva"]
     UC39b(["UC-39 · Acompanhar indicadores"])
     UC11b(["UC-11 · Consultar custo unitário"])
   end
@@ -275,57 +272,58 @@ anteriores: todo caso de uso do sistema tem como pré-condição uma sessão aut
 ## 4. Catálogo completo de casos de uso
 
 A coluna **requisitos** faz a ligação com [`B2`](../B-requisitos/B2-especificacao-requisitos.md) e
-alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md).
+alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). A coluna
+**módulo** situa cada caso de uso na taxonomia de quatro módulos descrita em
+[`00-mapa-de-rotinas`](../../rotinas/00-mapa-de-rotinas.md).
 
-| Código | Caso de uso | Ator principal | Requisitos | Detalhado em C2 |
-|---|---|---|---|---|
-| **UC-01** | Autenticar-se | Todos | RF-01 | — |
-| **UC-02** | Trocar senha | Todos | RF-02 | — |
-| **UC-03** | Gerenciar usuários e perfis | Administrador | RF-05, RF-06 | — |
-| **UC-04** | Gerenciar sessões ativas | Todos | RF-03, RF-04, RF-07 | — |
-| **UC-05** | Manter catálogo de espécies | Chefia | RF-08, RF-09 | — |
-| **UC-06** | Manter recipientes | Chefia | RF-10 | — |
-| **UC-07** | Manter insumos | Chefia | RF-11 | — |
-| **UC-08** | Registrar custos fixos | Chefia | RF-12 | — |
-| **UC-09** | Registrar coleta de sementes | Chefia | RF-13 | — |
-| **UC-10** | Registrar consumo de insumo | Colaborador | RF-14 | — |
-| **UC-11** | Consultar custo unitário | Chefia, Gerência | RF-15, RF-16, RF-17, RF-18 | — |
-| **UC-12** | Registrar atividade de produção | Colaborador | RF-19 | — |
-| **UC-13** | Planejar e atribuir produção | Gerência | RF-20 | — |
-| **UC-14** | Acompanhar ciclo produtivo | Gerência | RF-21 | — |
-| **UC-15** | Consultar estoque | Chefia, Gerência | RF-22, RF-24 | — |
-| **UC-16** | Registrar contagem de estoque | Gerência | RF-23, RF-25 | — |
-| **UC-17** | Registrar perda | Colaborador | RF-26 | **✔ sim** |
-| **UC-18** | Analisar perdas | Gerência, Chefia | RF-27, RF-28, RF-29, RF-30 | — |
-| **UC-19** | Definir margem por canal | Chefia | RF-31 | — |
-| **UC-20** | Consultar preço por canal | Chefia, Gerência | RF-32, RF-33, RF-34, RF-35 | — |
-| **UC-21** | Cadastrar cliente rápido | Chefia | RF-36 | — |
-| **UC-22** | Manter cadastro completo de cliente | Chefia | RF-37, RF-38, RF-40 | — |
-| **UC-23** | Consultar cliente | Chefia | RF-39 | — |
-| **UC-24** | Cadastrar pedido | Chefia | RF-41, RF-66, RF-67 | **✔ sim** |
-| **UC-25** | Verificar disponibilidade | Gerência | RF-42, RF-43, RF-68 | **✔ sim** |
-| **UC-26** | Fechar pedido | Chefia | RF-44, RF-45, RF-46 | **✔ sim** |
-| **UC-27** | Separar carga | Colaborador | RF-47 | **✔ sim** |
-| **UC-28** | Acompanhar pedidos | Chefia, Gerência | RF-48, RF-49 | — |
-| **UC-29** | Organizar agenda de entregas | Chefia | RF-50 | — |
-| **UC-30** | Confirmar entrega | Chefia | RF-51 | — |
-| **UC-31** | Manter fornecedor | Chefia | RF-52 | — |
-| **UC-32** | Emitir cotação | Chefia | RF-53 | **✔ sim** |
-| **UC-33** | Escolher proposta | Chefia | RF-54 | **✔ sim** |
-| **UC-34** | Consultar mapa de fornecedores | Chefia | RF-55 | — |
-| **UC-35** | Importar extrato bancário | Chefia | RF-56 | — |
-| **UC-36** | Classificar lançamentos | Chefia | RF-57, RF-58, RF-59 | **✔ sim** |
-| **UC-37** | Fechar o mês | Chefia | RF-60, RF-61 | — |
-| **UC-38** | Consultar faturamento | Chefia | RF-61, RF-62 | — |
-| **UC-39** | Acompanhar indicadores | Chefia, Gerência | RF-63, RF-64, RF-65 | — |
-| **UC-40** | Consultar tarefas do dia | Colaborador | RF-20 | — |
+| Código | Caso de uso | Módulo | Ator principal | Requisitos | Detalhado em C2 |
+|---|---|---|---|---|---|
+| **UC-01** | Autenticar-se | Acesso | Todos | RF-01 | — |
+| **UC-02** | Trocar senha | Acesso | Todos | RF-02 | — |
+| **UC-03** | Gerenciar usuários e perfis | Acesso | Administrador | RF-05, RF-06 | — |
+| **UC-04** | Gerenciar sessões ativas | Acesso | Todos | RF-03, RF-04, RF-07 | — |
+| **UC-05** | Manter catálogo de espécies | 1 · Cad. | Chefia | RF-08, RF-09 | — |
+| **UC-06** | Manter recipientes | 1 · Cad. | Chefia | RF-10 | — |
+| **UC-07** | Manter insumos | 1 · Cad. | Chefia | RF-11 | — |
+| **UC-08** | Registrar custos fixos | 4 · Fin. | Chefia | RF-12 | — |
+| **UC-09** | Registrar coleta de sementes | 2 · Prod. | Chefia | RF-13 | — |
+| **UC-10** | Registrar consumo de insumo | 2 · Prod. | Colaborador | RF-14 | — |
+| **UC-11** | Consultar custo unitário | 4 · Fin. | Chefia, Gerência | RF-15, RF-16, RF-17, RF-18 | — |
+| **UC-12** | Registrar atividade de produção | 2 · Prod. | Colaborador | RF-19 | — |
+| **UC-13** | Planejar e atribuir produção | 2 · Prod. | Gerência | RF-20 | — |
+| **UC-14** | Acompanhar ciclo produtivo | 2 · Prod. | Gerência | RF-21 | — |
+| **UC-15** | Consultar estoque | 2 · Prod. | Chefia, Gerência | RF-22, RF-24 | — |
+| **UC-16** | Registrar contagem de estoque | 2 · Prod. | Gerência | RF-23, RF-25 | — |
+| **UC-17** | Registrar perda | 2 · Prod. | Colaborador | RF-26 | **✔ sim** |
+| **UC-18** | Analisar perdas | 2 · Prod. | Gerência, Chefia | RF-27, RF-28, RF-29, RF-30 | — |
+| **UC-19** | Definir margem por canal | 4 · Fin. | Chefia | RF-31 | — |
+| **UC-20** | Consultar preço por canal | 4 · Fin. | Chefia, Gerência | RF-32, RF-33, RF-34, RF-35 | — |
+| **UC-21** | Cadastrar cliente rápido | 1 · Cad. | Chefia | RF-36 | — |
+| **UC-22** | Manter cadastro completo de cliente | 1 · Cad. | Chefia | RF-37, RF-38, RF-40 | — |
+| **UC-23** | Consultar cliente | 1 · Cad. | Chefia | RF-39 | — |
+| **UC-24** | Cadastrar pedido | 3 · Com. | Chefia | RF-41, RF-66, RF-67 | **✔ sim** |
+| **UC-25** | Verificar disponibilidade | 3 · Com. | Gerência | RF-42, RF-43, RF-68 | **✔ sim** |
+| **UC-26** | Fechar pedido | 3 · Com. | Chefia | RF-44, RF-45, RF-46 | **✔ sim** |
+| **UC-27** | Separar carga | 3 · Com. | Colaborador | RF-47 | **✔ sim** |
+| **UC-28** | Acompanhar pedidos | 3 · Com. | Chefia, Gerência | RF-48, RF-49 | — |
+| **UC-29** | Organizar agenda de entregas | 3 · Com. | Chefia | RF-50 | — |
+| **UC-30** | Confirmar entrega | 3 · Com. | Chefia | RF-51 | — |
+| **UC-31** | Manter fornecedor | 1 · Cad. | Chefia | RF-52 | — |
+| **UC-32** | Emitir cotação | 3 · Com. | Chefia | RF-53 | **✔ sim** |
+| **UC-33** | Escolher proposta | 3 · Com. | Chefia | RF-54 | **✔ sim** |
+| **UC-34** | Consultar mapa de fornecedores | 3 · Com. | Chefia | RF-55 | — |
+| **UC-35** | Importar extrato bancário | 4 · Fin. | Chefia | RF-56 | — |
+| **UC-36** | Classificar lançamentos | 4 · Fin. | Chefia | RF-57, RF-58, RF-59 | **✔ sim** |
+| **UC-37** | Fechar o mês | 4 · Fin. | Chefia | RF-60, RF-61 | — |
+| **UC-38** | Consultar faturamento | 4 · Fin. | Chefia | RF-61, RF-62 | — |
+| **UC-39** | Acompanhar indicadores | 4 · Fin. | Chefia, Gerência | RF-63, RF-64, RF-65 | — |
+| **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-20 | — |
 
 **40 casos de uso.** Os oito marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
 
 ---
-
 ## 5. Nota sobre a notação
 
 O Mermaid, empregado para versionar os diagramas em texto junto ao código, não implementa a notação

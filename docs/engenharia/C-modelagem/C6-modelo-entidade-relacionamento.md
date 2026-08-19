@@ -15,19 +15,51 @@ fornecedor referenciam-na por chave estrangeira. Essa centralidade não é prefe
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
 O modelo é apresentado em **sete áreas**. Um diagrama único com as 39 entidades seria ilegível em
-página impressa, e a divisão por área corresponde aos subsistemas dos requisitos, o que preserva a
-correspondência com [`B2`](../B-requisitos/B2-especificacao-requisitos.md).
+página impressa.
 
 | Área | Entidades | Papel |
 |---|---|---|
 | **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
-| **Núcleo e custeio** | 9 | Catálogo e apuração de custo — fundação de todo o resto |
-| **Operação** | 3 | Produção, perdas e contagem de estoque |
+| **Catálogo e custeio** | 9 | Catálogo e apuração de custo — fundação de todo o resto |
+| **Produção** | 3 | Produção, perdas e contagem de estoque |
 | **Comercial** | 7 | Cliente, pedido, item, carga |
 | **Precificação** | 2 | Canal de venda e preço vigente |
-| **Fornecedores** | 4 | Rede externa e cotação |
+| **Fornecedores** | 4 | Cadastro do fornecedor e cotação |
 | **Financeiro** | 10 | Extrato como fonte da verdade |
 | **Total** | **39** | |
+
+### Área de dados não é módulo
+
+O sistema é organizado em **quatro módulos** — Cadastros, Produção, Comercial, Financeiro
+([`00-mapa-de-rotinas`](../../rotinas/00-mapa-de-rotinas.md)) —, e as áreas acima **não são**
+esses módulos. A divergência é deliberada, e vale explicá-la porque é o tipo de coisa que a
+banca pergunta.
+
+O módulo agrupa por **propósito**: onde a tela mora e quem pode abri-la. A área de dados
+agrupa por **vizinhança de chave estrangeira**: o que precisa ser lido no mesmo diagrama para
+o diagrama fazer sentido. `input_usages` é do módulo Produção (é o colaborador quem a
+preenche, no celular), mas aponta para `species`, `containers` e `inputs`, que são do módulo
+Cadastros — desenhá-la longe deles produziria uma figura com três setas para fora e nenhuma
+informação dentro.
+
+O mapa entre as duas decomposições:
+
+| Módulo | Onde suas entidades estão |
+|---|---|
+| *(transversal)* **Acesso** | área **Acesso**, integralmente |
+| **1 · Cadastros** | `species`, `species_popular_names`, `containers`, `inputs`, `input_price_history` (área Catálogo e custeio); `customers` (área Comercial); `suppliers`, `supplier_species` (área Fornecedores); `parties`, `party_roles`, `addresses` (área Financeiro — esquema `cadastro`) |
+| **2 · Produção** | área **Produção**, integralmente; mais `input_usages` e `seed_collection_costs` (área Catálogo e custeio) |
+| **3 · Comercial** | resto da área **Comercial** (`orders`, `order_items`, `order_loads`, …); `supplier_quotes`, `supplier_quote_items` (área Fornecedores) |
+| **4 · Financeiro** | resto da área **Financeiro**; `fixed_costs`, `production_costs`, `species_unit_cost` (área Catálogo e custeio); área **Precificação**, integralmente |
+
+Duas leituras que esse mapa torna imediatas:
+
+- **O esquema `cadastro` (`parties`, `party_roles`, `addresses`) nasceu dentro do financeiro e
+  serve o módulo 1.** Foi desenhado para dar contraparte a cada linha do extrato, mas o que ele
+  resolve é anterior: cliente, fornecedor e funcionário são papéis de **uma identidade só**.
+- **O custeio atravessa os três primeiros módulos e desemboca no quarto.** Consome catálogo
+  (Cadastros) e consumo de campo (Produção), e o resultado — custo, margem, preço — é do
+  Financeiro. É a razão de o custo do viveiro depender de rotina que ninguém associa a dinheiro.
 
 Convenções adotadas, conforme Elmasri e Navathe (2011): tabelas nomeadas no **plural**, chaves
 primárias e estrangeiras declaradas explicitamente, e identificadores universais como chave
@@ -77,7 +109,7 @@ inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas no
 
 Quatro leituras que o modelo conceitual já entrega:
 
-- **A espécie participa de seis relacionamentos**, em cinco áreas distintas — custeio, operação,
+- **A espécie participa de seis relacionamentos**, em cinco áreas distintas — custeio, produção,
   precificação, comercial e fornecedores. É a confirmação estrutural da centralidade declarada no
   §3.4 da metodologia: nenhuma outra entidade aparece em mais de duas áreas.
 - **Produção e perda são simétricas em torno da espécie.** Uma soma, a outra subtrai, e o estoque é
@@ -94,7 +126,7 @@ Quatro leituras que o modelo conceitual já entrega:
 
 ## 3. Modelo lógico por área
 
-### 3.1 Acesso
+### 3.1 Acesso *(transversal)*
 
 ```mermaid
 erDiagram
@@ -149,7 +181,7 @@ Três decisões de modelagem que respondem a requisitos não funcionais de segur
 - **`ip` e `user_agent` na sessão** existem para que o usuário identifique o aparelho na lista de
   sessões ativas e encerre um celular perdido (RF-07).
 
-### 3.2 Núcleo e custeio
+### 3.2 Catálogo e custeio — módulos 1, 2 e 4
 
 ```mermaid
 erDiagram
@@ -253,7 +285,7 @@ mantidos pelo próprio banco. Armazená-los é desnormalização deliberada: evi
 cada leitura de relatório, sem risco de divergência, porque o banco não permite gravá-los
 diretamente.
 
-### 3.3 Operação — produção, perdas e estoque
+### 3.3 Produção — atividade, perdas e estoque *(módulo 2)*
 
 ```mermaid
 erDiagram
@@ -313,7 +345,7 @@ indicador de mortalidade precisa produzir.
 a soma da produção do período, por espécie — e é dela que decorre o alerta acima de 20%, que é regra
 de negócio e não configuração de painel.
 
-### 3.4 Comercial
+### 3.4 Comercial *(módulo 3; `customers` é do módulo 1)*
 
 ```mermaid
 erDiagram
@@ -409,7 +441,7 @@ viagem, ou a perder o controle da separação parcial.
 indisponível e ainda não verificado. Um único campo booleano confundiria "não tem" com "ninguém
 olhou ainda", que são operacionalmente opostos.
 
-### 3.5 Fornecedores
+### 3.5 Fornecedores *(cadastro no módulo 1; cotação no módulo 3)*
 
 ```mermaid
 erDiagram
@@ -478,7 +510,7 @@ teria atributo próprio algum — seria uma tabela de uma coluna. O agrupamento 
 tratamento de seus dados para contato comercial, e não um estado operacional. Ver
 [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
 
-### 3.6 Financeiro
+### 3.6 Financeiro *(módulo 4; o esquema `cadastro` serve o módulo 1)*
 
 O subsistema financeiro é modelado em **esquema próprio**, separado do restante. A separação é de
 segurança, não de organização: a base mistura gasto do viveiro com gasto pessoal da família e da
@@ -642,7 +674,7 @@ atualização evitadas em cada passo, **não integra o conjunto de artefatos sel
 
 ---
 
-## 5. Precificação
+## 5. Precificação *(módulo 4 · Financeiro)*
 
 A precificação é a ponte entre o custeio e o comercial: consome o custo unitário apurado e entrega o
 preço praticado no pedido. Duas entidades a compõem.

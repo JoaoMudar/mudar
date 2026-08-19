@@ -6,7 +6,7 @@
 > pode ser a fonte da verdade.
 >
 > Origem: conversa João — "encruzilhada organização financeira" (05/08/2026).
-> Detalhamento por fase em [`docs/rotinas/rotina-financeiro/`](../docs/rotinas/rotina-financeiro/).
+> Detalhamento por fase em [`docs/rotinas/4-financeiro/`](../docs/rotinas/4-financeiro/).
 
 **Status: Fase 0 ✅ concluída (05/08/2026). Fase 1 pronta para começar.**
 **Branch: `feat/conciliacao-bancaria`.**
@@ -60,7 +60,7 @@ Tudo é lista fechada (dropdown). Sem campo aberto = sem typo.
 | `floricultura` | Floricultura (extinta) | negócio | **não** — só aparece em extrato antigo |
 
 **As 35 categorias em 14 grupos** — transcritas em
-[`docs/rotinas/rotina-financeiro/02-schema-financeiro.md`](../docs/rotinas/rotina-financeiro/02-schema-financeiro.md).
+[`docs/rotinas/4-financeiro/02-schema-financeiro.md`](../docs/rotinas/4-financeiro/02-schema-financeiro.md).
 
 ---
 
@@ -164,7 +164,7 @@ financeiro.transactions     ← A LINHA DO EXTRATO. A verdade.
 ```
 
 Detalhe de cada tabela em
-[`docs/rotinas/rotina-financeiro/02-schema-financeiro.md`](../docs/rotinas/rotina-financeiro/02-schema-financeiro.md).
+[`docs/rotinas/4-financeiro/02-schema-financeiro.md`](../docs/rotinas/4-financeiro/02-schema-financeiro.md).
 
 ---
 

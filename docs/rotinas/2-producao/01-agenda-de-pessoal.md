@@ -130,7 +130,7 @@ geral, junto dos custos fixos.
 
 | Entidade | Papel |
 |---|---|
-| `task_types` | catálogo de tipos de tarefa — vive nos [Cadastros](../rotina-cadastros.md) |
+| `task_types` | catálogo de tipos de tarefa — vive nos [Cadastros](../1-cadastros/00-visao-geral.md) |
 | `week_plans` | a semana: `week_start`, `status` (rascunho · publicada · fechada) |
 | `assignments` | a célula da grade: funcionário (party), data, turno, tipo de tarefa, espécie?, recipiente?, quantidade planejada, observação |
 | `production_activities` | o realizado — já previsto no MER; ganha `assignment_id` **opcional**, para permitir registro avulso |

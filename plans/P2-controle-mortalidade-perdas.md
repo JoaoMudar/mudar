@@ -7,6 +7,12 @@
 > Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🗂️ **Módulo 2 · Produção** (reorganização de 19/08/2026). Lotes, contagens, perdas, análise
+> de perdas e alerta de mortalidade são registro de campo — ficam em `/producao/*`. As rotas
+> deste plano já estão atualizadas; o `/app/...` de antes nunca existiu como prefixo real.
+> Mapa em [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md);
+> domínio em [`docs/rotinas/2-producao/03-perdas.md`](../docs/rotinas/2-producao/03-perdas.md).
+
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (tabelas species, containers)
@@ -87,7 +93,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 
 ### Fase 2: Formulário Mobile — Registro de Lote
 
-- [ ] **T2.9** Criar página `/app/lotes/novo`
+- [ ] **T2.9** Criar página `/producao/lotes/novo`
   - Dropdown de espécie (da tabela `species` de P1)
   - Dropdown de recipiente
   - Campo numérico: quantidade inicial
@@ -95,7 +101,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
   - Campo texto: localização no viveiro
   - Gerar `batch_code` automaticamente no formato definido
   - Botão "Criar Lote" → salva e mostra plaquinha para imprimir/anotar
-- [ ] **T2.10** Criar página `/app/lotes` (lista de lotes ativos)
+- [ ] **T2.10** Criar página `/producao/lotes` (lista de lotes ativos)
   - Cards com: código, espécie, recipiente, quantidade atual, % mortalidade, idade
   - Filtros: espécie, status, recipiente
   - Ordenar por mortalidade (piores primeiro)
@@ -103,7 +109,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 
 ### Fase 3: Formulário Mobile — Contagem e Registro de Perda
 
-- [ ] **T2.11** Criar página `/app/lotes/[id]/contagem`
+- [ ] **T2.11** Criar página `/producao/lotes/[id]/contagem`
   - Exibe dados do lote (espécie, quantidade anterior, idade)
   - Campo numérico: "Quantas mudas vivas?" (foco principal)
   - Cálculo automático de perdas desde última contagem
@@ -121,7 +127,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
   - Roda diariamente (cron)
   - Compara mortalidade de cada lote com threshold da espécie
   - Se ultrapassou: cria notificação no sistema + envia mensagem WhatsApp para João/Débora
-- [ ] **T2.15** Criar página `/app/admin/alertas-mortalidade`
+- [ ] **T2.15** Criar página `/producao/alertas-mortalidade`
   - Configurar threshold por espécie (default: 20%)
   - Ligar/desligar alertas
   - Histórico de alertas disparados
@@ -133,7 +139,7 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
   custo_real = custo_produção / (1 - taxa_mortalidade)
   ```
   Exemplo: se custo é R$2,00 e mortalidade é 30%, custo real = R$2,00 / 0,7 = R$2,86
-- [ ] **T2.17** Criar relatório `/app/relatorios/mortalidade`:
+- [ ] **T2.17** Criar relatório `/producao/perdas/analise`:
   - Ranking de espécies por taxa de mortalidade
   - Distribuição de causas de perda (gráfico pizza)
   - Evolução temporal da mortalidade (gráfico linha)

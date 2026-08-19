@@ -159,7 +159,7 @@ existe; e não dá para esquecer, porque no dia em que existir a falha é silenc
 
 `mergeParties` (`src/lib/parties.ts`) termina com `DELETE FROM cadastro.parties` e, antes disso,
 repointa **só** `customers` e `suppliers`. `financeiro.transactions.party_id` (P12 Fase 2,
-`docs/rotinas/rotina-financeiro/02-schema-financeiro.md:50`) será uma terceira FK para a mesma
+`docs/rotinas/4-financeiro/02-schema-financeiro.md:50`) será uma terceira FK para a mesma
 linha. Fundir duas identidades depois disso ou **falha na FK**, ou — se alguém usar
 `ON DELETE SET NULL` para destravar — **desliga as transações da pessoa sem avisar**: o dinheiro
 segue no saldo e some do histórico dela.

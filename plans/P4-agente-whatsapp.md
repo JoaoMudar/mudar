@@ -1,5 +1,9 @@
 # P4 — Agente WhatsApp
 
+> 🗂️ **Módulo 3 · Comercial** (reorganização de 19/08/2026). O painel de atendimento fica em
+> `/comercial/atendimento`. O bot consulta preço e estoque, que são de outros módulos —
+> preço vem do Financeiro (P3) e estoque da Produção (P2).
+
 ## Status: NÃO INICIADO
 ## Prioridade: ALTA
 ## Dependências: P1 (espécies/estoque), P3 (tabela de preços, simulador de orçamento)
@@ -97,13 +101,13 @@ Criar um agente de atendimento via WhatsApp que responde perguntas frequentes, c
 
 ### Fase 4: Painel de Atendimento
 
-- [ ] **T4.12** Criar página `/app/atendimento`
+- [ ] **T4.12** Criar página `/comercial/atendimento`
   - Lista de conversas ativas (bot e humano)
   - Filtros: status, período, atendente
   - Clicar na conversa → ver histórico de mensagens
   - Campo para enviar mensagem manual (modo humano)
   - Botão "Devolver ao Bot" quando resolver
-- [ ] **T4.13** Criar página `/app/atendimento/metricas`
+- [ ] **T4.13** Criar página `/comercial/atendimento/metricas`
   - Tempo médio de resposta (bot e humano)
   - Taxa de resolução pelo bot vs escalação
   - Volume de conversas por dia/semana

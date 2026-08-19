@@ -7,6 +7,12 @@
 > Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🗂️ **Módulo 3 · Comercial** (reorganização de 19/08/2026). As telas de pedido já existem em
+> `/pedidos/*` — cadastro, verificação, aprovação e separação — construídas pela
+> [rotina de pedidos](../docs/rotinas/3-comercial/pedidos.md), não por este plano. O que o P5
+> acrescenta é a automação em volta delas. **Entrega não é o 5º estado do pedido:** cada carga
+> vira uma viagem, com calendário próprio ([`3-comercial/entregas.md`](../docs/rotinas/3-comercial/entregas.md)).
+
 ## Status: NÃO INICIADO
 ## Prioridade: ALTA
 ## Dependências: P3 (orçamentos/quotes), P4 (WhatsApp — canal de entrada)
@@ -66,13 +72,13 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 
 ### Fase 2: Interface de Pedidos
 
-- [ ] **T5.6** Criar página `/app/pedidos` (kanban ou lista)
+- [ ] **T5.6** Criar página `/pedidos` (kanban ou lista)
   - Visualização kanban: colunas por status
   - Cada card: cliente, total, data, prazo
   - Drag and drop para mudar status (ou botão "Avançar Etapa")
   - Filtros: status, período, cliente
   - Badge de alerta se pedido está atrasado (passou do SLA)
-- [ ] **T5.7** Criar página `/app/pedidos/[id]`
+- [ ] **T5.7** Criar página `/pedidos/[id]`
   - Dados do cliente e entrega
   - Lista de itens (espécie, recipiente, qtd, preço)
   - Timeline de status (histórico visual)
@@ -121,7 +127,7 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
   - Lista: espécie | recipiente | quantidade | lote sugerido (baseado em FIFO — primeiro a plantar, primeiro a sair)
   - Campo para Débora marcar "separado" à mão
   - QR code que linka para o pedido no sistema
-- [ ] **T5.16** Criar página `/app/pedidos/[id]/separacao` (versão digital da ordem)
+- [ ] **T5.16** Criar página `/pedidos/[id]/separar` (versão digital da ordem)
 
 ---
 

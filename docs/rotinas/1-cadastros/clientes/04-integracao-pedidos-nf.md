@@ -15,7 +15,7 @@ NF continua sendo aprovado exatamente como hoje (atrito zero).
 - Ponto de integração na UI: `src/app/pedidos/[id]/OrderAnalysis.tsx` (botão "Aprovar"),
   `OrderDetailClient.tsx` e `PedidosList.tsx` (badges).
 - Cross-ref: este é o complemento da etapa de análise/fechamento descrita em
-  `../rotina-pedidos/05-analise-fechamento.md`.
+  `../../3-comercial/pedidos/05-analise-fechamento.md`.
 
 ## Tarefas
 

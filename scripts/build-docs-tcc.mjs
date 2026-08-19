@@ -144,7 +144,10 @@ function renderizaPng(codigo, nome) {
 
 /** Substitui blocos mermaid por referencia de figura e gera o PNG. */
 function trocaDiagramas(md, prefixo) {
-  return md.replace(/```mermaid\n([\s\S]*?)```/g, (bloco, codigo, offset) => {
+  // `\r?` porque no Windows o checkout entrega parte dos artefatos em CRLF
+  // (core.autocrlf). Sem ele a regex nao casa e o diagrama some do Word em
+  // silencio — foi o que aconteceu com as seis figuras de D1 e D3 ate 19/08/2026.
+  return md.replace(/```mermaid\r?\n([\s\S]*?)```/g, (bloco, codigo, offset) => {
     figura += 1
     const n = figura
     const nome = `${prefixo}-fig${String(n).padStart(2, '0')}`

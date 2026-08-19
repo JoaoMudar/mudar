@@ -4,7 +4,7 @@
 > como a rotina de Produção é executada. Os documentos de engenharia já tratavam assim
 > (UC-40 "Consultar tarefas do dia" aponta para RF-20, de atribuição de atividade de produção).
 >
-> Vá para → **[`rotina-producao/01-agenda-de-pessoal.md`](rotina-producao/01-agenda-de-pessoal.md)**
+> Vá para → **[`01-agenda-de-pessoal.md`](01-agenda-de-pessoal.md)**
 
 ## Conteúdo original (histórico)
 

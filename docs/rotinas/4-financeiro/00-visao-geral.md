@@ -110,11 +110,42 @@ efetivamente saiu da conta. Esse número alimenta o custeio (P1), que alimenta o
   calculado sobre mês incompleto leva a decisão errada — foi assim que a planilha produziu
   uma margem falsa de 74,1%.
 
-## Quem vê
+## Quem vê — este é o módulo restrito do sistema
 
-**Só chefia e admin.** A base tem gasto pessoal da família e da clínica de fonoaudiologia
-misturado ao do viveiro — separá-los é justamente o objetivo, mas até lá (e mesmo depois) o
-acesso é restrito. Gerência e colaborador não entram em `/financeiro`.
+**A base bancária é só de chefia e admin.** Ela tem gasto pessoal da família e da clínica de
+fonoaudiologia misturado ao do viveiro — separá-los é justamente o objetivo, mas até lá (e
+mesmo depois) o acesso é restrito, porque a natureza pessoal do dado não some com a
+classificação. Gerência e colaborador não abrem extrato, lançamento, fechamento nem compra.
+
+**A restrição é por recurso, não pela porta do módulo.** Com a reorganização em quatro
+módulos, custeio, precificação e os painéis passaram a morar aqui — são dinheiro, e quem os
+alimenta é o extrato. Nenhum deles, porém, expõe a base bancária: são números derivados, que
+a gerência precisa para operar e sempre pôde ler. A regra completa está em
+[`D4 §3.2`](../../engenharia/D-arquitetura/D4-matriz-rbac.md#32-o-núcleo-bancário-do-financeiro-é-exclusivo-da-chefia).
+
+### Telas por perfil
+
+**Chefia / admin** — o módulo inteiro:
+
+- **Lançamentos**: a fila do extrato; classificar em 3 toques (centro → categoria → quem)
+- **Importação de extrato**: sobe o arquivo do banco, não digita
+- **Compras**: a nota do insumo e a de mudas de terceiros; é aqui que a compra nasce, e é
+  daqui que ela fica disponível para a Produção usar
+- **Fechamento mensal**: confere saldo calculado × saldo do extrato e trava o mês
+- **Custos fixos**: hoje digitados; passam a vir do mês fechado
+- **Configuração**: contas, centros de custo, categorias, regras de classificação
+- **Emissão de NF**: segue no sistema do Sebrae — o app registra o número, não emite
+- **Faturamento e margem**: por período, cliente, canal e espécie *(só sobre mês fechado)*
+
+**Gerência** — só o que é derivado, em leitura:
+
+- **Consulta de preço**: tabela por espécie, recipiente e canal
+- **Custo unitário** e **margem por canal**: leitura, sem poder alterar
+- **Indicadores operacionais** (IND-01, 02, 03 e 05, conforme
+  [`G2 §6`](../../engenharia/G-gestao/G2-fichas-de-indicadores.md))
+- **Sem acesso** a extrato, lançamento, compra, custo fixo, fechamento ou faturamento.
+
+**Colaborador** — nada. Não vê custo, preço nem margem (D4 §3.1).
 
 ## Fases desta rotina
 

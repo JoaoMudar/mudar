@@ -18,7 +18,7 @@
 
 ## 1. Pedidos — o ciclo que hoje para na entrega
 
-A rotina de pedidos (`docs/rotinas/rotina-pedidos/`) vai de WhatsApp → verificação →
+A rotina de pedidos (`docs/rotinas/3-comercial/pedidos/`) vai de WhatsApp → verificação →
 aprovação → separação → carga. E termina aí. Se o cliente pagou, isso mora no extrato e na
 memória do Gilberto.
 
@@ -91,7 +91,7 @@ extrato → transaction (centro=viveiro, categoria=Energia) → soma mensal por 
 guardam o valor cheio da compra, então o custeio pode escolher entre olhar a parcela do mês
 ou a decisão inteira — sem precisar de tabela de contratos.
 
-## 6. Rotina financeiro (`rotina-financeiro.md`)
+## 6. Rotina financeiro (`00-visao-geral.md`)
 
 O documento antigo descrevia a situação de fato: "NF pelo sistema do Sebrae, dados em Excel,
 sem controle de margem, custo real ou faturamento estruturado". Continua verdade até a Fase 4

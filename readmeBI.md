@@ -22,7 +22,7 @@ clientes e geografia.
 >
 > O schema **`financeiro` que existe hoje no app é outra coisa**: são as transações
 > importadas dos extratos bancários (P12 nova abordagem), nada a ver com esta
-> planilha. Ver [`docs/rotinas/rotina-financeiro/02-schema-financeiro.md`](docs/rotinas/rotina-financeiro/02-schema-financeiro.md).
+> planilha. Ver [`docs/rotinas/4-financeiro/02-schema-financeiro.md`](docs/rotinas/4-financeiro/02-schema-financeiro.md).
 >
 > **Este banco (`notas_despesas`, schema `viveiro`) segue separado e intacto**, como
 > descrito no resto do documento. Onde se lê `viveiro.tabela`, é `viveiro.tabela` mesmo.

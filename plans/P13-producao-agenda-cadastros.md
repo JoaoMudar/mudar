@@ -1,8 +1,8 @@
 # P13 — Cadastro único + Agenda de pessoal
 
 > Origem: conversa João — revisão das rotinas do sistema (10/08/2026).
-> Domínio em [`docs/rotinas/rotina-cadastros.md`](../docs/rotinas/rotina-cadastros.md) e
-> [`docs/rotinas/rotina-producao/`](../docs/rotinas/rotina-producao/).
+> Domínio em [`docs/rotinas/1-cadastros/00-visao-geral.md`](../docs/rotinas/1-cadastros/00-visao-geral.md) e
+> [`docs/rotinas/2-producao/`](../docs/rotinas/2-producao/).
 
 **Status: desenho fechado. Implementação não iniciada.**
 
@@ -43,16 +43,16 @@ Estas incongruências foram encontradas e **precisam de revisão** antes da entr
 
 | Doc | O que muda | Gravidade |
 |---|---|---|
-| **B2 §2.3 Produção** | Faltam RFs para agenda semanal, catálogo de tipos de tarefa, cadastro de funcionário e custo de mão de obra. Estimados **~8 RF novos** (RF-69…RF-76). | alta |
-| **B2 §4 Conflitos** | A resolução "mão de obra por tempo médio estimado por atividade" precisa ser **reescrita** para "horas planejadas na agenda × valor-hora médio da equipe". A tensão continua a mesma; a solução ficou melhor. | alta |
-| **C1 §2 Subsistemas** | Os 12 subsistemas não incluem **Cadastros**. Entra como S13, ligado a Chefia e Gerência. | média |
+| **B2 §2.2.2, §2.3.1 e §2.5.1** | Faltam RFs para agenda semanal (§2.3.1), catálogo de tipos de tarefa e cadastro de funcionário (§2.2.2) e custo de mão de obra (§2.5.1). Estimados **~8 RF novos** (RF-69…RF-76). A numeração das seções mudou em 19/08/2026, com o reagrupamento em quatro módulos. | alta |
+| **B2 §5 Conflitos** | A resolução "mão de obra por tempo médio estimado por atividade" precisa ser **reescrita** para "horas planejadas na agenda × valor-hora médio da equipe". A tensão continua a mesma; a solução ficou melhor. | alta |
+| **C1 §2 Subsistemas** | ✅ resolvido em 19/08/2026 — os subsistemas passaram a ser agrupados nos quatro módulos e **Cadastros** virou o módulo 1, com Clientes e Fornecedores dentro. Falta só ligar a ele os UCs novos da linha seguinte. | — |
 | **C1 §4 / C2** | UC-40 "Consultar tarefas do dia" hoje aponta para RF-20. Precisa de UCs novos: montar agenda da semana, concluir tarefa, cadastrar funcionário, cadastrar tipo de tarefa. | média |
 | **C6 MER** | Entidades novas: `task_types`, `week_plans`, `assignments`, `labor_rates`. `production_activities` ganha `assignment_id` opcional. `users` ganha `party_id` opcional. | alta |
 | **C8 Dicionário** | Idem — documentar as 4 entidades novas. | alta |
 | **D4 RBAC** | Regra nova: colaborador lê/edita só as próprias tarefas; grade da semana é gerência/chefia. | média |
 | **G2 Indicadores** | Indicadores novos possíveis: horas por espécie, planejado × realizado, % de tarefas não confirmadas. | baixa |
 | **B5 Rastreabilidade** | Refazer as linhas dos RFs novos. | média |
-| **`docs/rotinas/rotina-tarefas.md`** | ✅ já resolvido — absorvido pela Produção, arquivo mantido como histórico. | — |
+| **`docs/rotinas/2-producao/99-tarefas-diarias-historico.md`** | ✅ já resolvido — absorvido pela Produção, arquivo mantido como histórico. | — |
 
 > **Nota para o TCC:** a absorção de "Tarefas Diárias" pela Produção **corrige uma
 > incongruência que já existia**: `docs/rotinas/` tratava tarefas como rotina separada,
@@ -91,7 +91,7 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 >
 > Suíte: 557 → 581 testes.
 
-- [x] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`rotina-financeiro/01-cadastro-unico.md`](../docs/rotinas/rotina-financeiro/01-cadastro-unico.md))
+- [x] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`4-financeiro/01-cadastro-unico.md`](../docs/rotinas/4-financeiro/01-cadastro-unico.md))
 - [x] **T13.2** `src/lib/parties.ts` como ponto único de escrita, com testes
 - [ ] **T13.3** Migration: `users.party_id` UUID NULL → `cadastro.parties`, com backfill dos usuários existentes — **é o que faz o filtro Funcionários de `/cadastros/pessoas` deixar de vir vazio**
 

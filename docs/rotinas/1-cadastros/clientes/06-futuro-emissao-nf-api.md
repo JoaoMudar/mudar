@@ -35,6 +35,6 @@
   `danfe_url`, `provider`, `error`, timestamps).
 
 ## Cross-references
-- `../rotina-financeiro.md` — etapa "Emissão de nota fiscal" (perfil **Chefia**).
-- `../rotina-pedidos/05-analise-fechamento.md` — onde `needs_invoice` é definido.
+- `../../4-financeiro/00-visao-geral.md` — etapa "Emissão de nota fiscal" (perfil **Chefia**).
+- `../../3-comercial/pedidos/05-analise-fechamento.md` — onde `needs_invoice` é definido.
 - `04-integracao-pedidos-nf.md` — o gate de completude que habilita esta fase.

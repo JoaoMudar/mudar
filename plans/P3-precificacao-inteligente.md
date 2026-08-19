@@ -7,6 +7,12 @@
 > Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Preço, margem e rentabilidade
+> são dinheiro: vivem em `/financeiro/*`, junto do custeio que os alimenta. A exceção é o
+> **simulador de orçamento**, que é conversa com cliente e fica no Comercial
+> (`/comercial/orcamento`). A gerência **lê** preço, custo unitário e margem; não os altera
+> (D4 §2). Mapa em [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md).
+
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (custo unitário calculado), P2 (mortalidade para custo real)
@@ -104,7 +110,7 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 
 ### Fase 3: Interface — Tabela de Preços
 
-- [ ] **T3.11** Criar página `/app/precos/tabela`
+- [ ] **T3.11** Criar página `/financeiro/precos`
   - Grid: espécie × recipiente com preço por canal
   - Células editáveis para ajuste manual (override do cálculo)
   - Indicador visual de margem: verde (>40%), amarelo (20-40%), vermelho (<20%)
@@ -114,7 +120,7 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 
 ### Fase 4: Simulador de Orçamento
 
-- [ ] **T3.12** Criar página `/app/orcamento/novo`
+- [ ] **T3.12** Criar página `/comercial/orcamento/novo`
   - Campo: nome do cliente, telefone, canal de venda
   - Buscador de espécies com autocomplete
   - Para cada espécie adicionada: selecionar recipiente + quantidade
@@ -123,7 +129,7 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
   - Total final = subtotal + frete
   - Botão "Salvar Orçamento" → salva como `quote` status rascunho
   - Botão "Enviar por WhatsApp" → abre link wa.me com texto formatado
-- [ ] **T3.13** Criar página `/app/orcamento` (lista de orçamentos)
+- [ ] **T3.13** Criar página `/comercial/orcamento` (lista de orçamentos)
   - Cards com: cliente, data, total, status
   - Filtros: status, canal, período
   - Ação: duplicar, editar, marcar como aprovado/recusado
@@ -131,12 +137,12 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 
 ### Fase 5: Relatórios de Rentabilidade
 
-- [ ] **T3.15** Criar página `/app/relatorios/rentabilidade`
+- [ ] **T3.15** Criar página `/financeiro/rentabilidade`
   - Ranking de espécies por margem real (% e R$ absoluto)
   - Ranking de espécies por volume vendido
   - Matriz: margem × volume (quadrante estratégico — estrelas, vacas leiteiras, abacaxis)
   - Evolução de preço médio praticado vs custo ao longo do tempo
-- [ ] **T3.16** Criar página `/app/relatorios/concorrencia`
+- [ ] **T3.16** Criar página `/financeiro/concorrencia`
   - Comparativo: nosso preço vs concorrentes por espécie
   - Indicador de competitividade
 

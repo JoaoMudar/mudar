@@ -8,10 +8,30 @@
 
 > 🩹 **Correção de 11/08/2026.** As tabelas `input_usages` e `input_price_history` constavam de
 > `_migrations` como aplicadas, mas **não existiam nem no Postgres local nem no Neon**. Na
-> prática, `/insumos/registrar` (T1.10–T1.12) falhava em todo envio em produção e
+> prática, `/producao/consumo-insumos` — na época `/insumos/registrar` — (T1.10–T1.12) falhava em todo envio em produção e
 > `getPriceHistory` (T1.15) também — as caixas estavam marcadas, o código existia, e o destino
 > não. Reparado pela migration `20260811000002_repara_tabelas_p1_ausentes.sql`. As tarefas
 > continuam `[x]` porque o código estava certo; o que faltava era o schema.
+
+> 🗂️ **Reorganização de 19/08/2026 — as telas deste plano mudaram de endereço.** O sistema
+> passou a ter quatro módulos (Cadastros · Produção · Comercial · Financeiro), e as telas do
+> P1 se espalharam por três deles. As rotas abaixo já estão atualizadas; as antigas
+> continuam funcionando por redirect (`next.config.mjs`).
+>
+> | Tarefa | Rota antiga | Rota atual | Módulo |
+> |---|---|---|---|
+> | T1.10–T1.12 | `/insumos/registrar` | `/producao/consumo-insumos` | 2 · Produção |
+> | T1.13 | `/admin/especies` | `/cadastros/especies` | 1 · Cadastros |
+> | T1.14 | `/admin/recipientes` | `/cadastros/recipientes` | 1 · Cadastros |
+> | T1.15 | `/admin/insumos` | `/cadastros/insumos` | 1 · Cadastros |
+> | T1.16 | `/admin/custos-fixos` | `/financeiro/custos-fixos` | 4 · Financeiro |
+> | T1.17 | `/admin/coleta-sementes` | `/producao/coleta-sementes` | 2 · Produção |
+> | T1.18–T1.20 | — (não feitas) | `/financeiro/custeio` | 4 · Financeiro |
+>
+> **O custeio é do Financeiro, não da Produção.** Custo é dinheiro, e quem o alimenta é o
+> extrato bancário. O que a Produção faz é entregar as duas medidas de campo — consumo de
+> insumo e horas da agenda. Ver [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md)
+> e o achado K de [`auditoria-divergencias.md`](../docs/auditoria-divergencias.md).
 
 ## Status: PARCIAL — 16 de 32 tarefas
 **Feito:** todas as tabelas, a view `species_unit_cost`, os 5 CRUDs administrativos e o
@@ -101,7 +121,7 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
 ### Fase 2: Formulário Mobile de Registro de Insumos
 > Interface para funcionários registrarem consumo de insumos no dia a dia.
 
-- [x] **T1.10** Criar página `/app/insumos/registrar`
+- [x] **T1.10** Criar página `/producao/consumo-insumos` *(criada como `/insumos/registrar`; movida para a Produção em 19/08/2026, com redirect)*
   - Dropdown de insumo (pré-carregado da tabela `inputs`)
   - Dropdown de espécie
   - Dropdown de recipiente
@@ -114,11 +134,11 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
 ### Fase 3: Cadastros Administrativos
 > Telas para João/Gilberto gerenciarem os dados mestres.
 
-- [x] **T1.13** CRUD de espécies (`/app/admin/especies`) com upload de foto
-- [x] **T1.14** CRUD de recipientes (`/app/admin/recipientes`)
-- [x] **T1.15** CRUD de insumos (`/app/admin/insumos`) com histórico de preço
-- [x] **T1.16** Registro de custos fixos mensais (`/app/admin/custos-fixos`)
-- [x] **T1.17** Registro de coleta de sementes (`/app/admin/coleta-sementes`)
+- [x] **T1.13** CRUD de espécies (`/cadastros/especies`) com upload de foto
+- [x] **T1.14** CRUD de recipientes (`/cadastros/recipientes`)
+- [x] **T1.15** CRUD de insumos (`/cadastros/insumos`) com histórico de preço
+- [x] **T1.16** Registro de custos fixos mensais (`/financeiro/custos-fixos`)
+- [x] **T1.17** Registro de coleta de sementes (`/producao/coleta-sementes`)
 
 ### Fase 4: Motor de Cálculo de Custo
 - [ ] **T1.18** Implementar Edge Function `calculate-species-cost` que:
@@ -126,7 +146,7 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
   2. Rateia custos fixos pela produção mensal estimada
   3. Retorna custo unitário por espécie × recipiente
 - [ ] **T1.19** Criar job agendado (cron) para recalcular custos diariamente
-- [ ] **T1.20** Criar relatório `/app/relatorios/custeio`:
+- [ ] **T1.20** Criar relatório `/financeiro/custeio`:
   - Tabela: espécie | recipiente | custo variável | custo fixo rateado | custo total | preço atual | margem %
   - Ordenável por qualquer coluna
   - Destaque vermelho para margens negativas

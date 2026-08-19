@@ -202,7 +202,8 @@ saber se havia conexão.
 | **Impacto** | **Alto** |
 | **Exposição** | **Média** |
 
-O escopo abrange doze subsistemas, e o prazo termina em novembro de 2026.
+O escopo abrange quatro módulos e cerca de vinte e cinco telas, e o prazo termina em novembro de
+2026.
 
 **Mitigação:** escopo priorizado por dependência e não por interesse. O custeio é fundacional e vem
 primeiro; os subsistemas classificados como *deveria ter* e *poderia ter* em
@@ -217,8 +218,8 @@ classificação foi feita **antes** de o prazo apertar, e não durante.
 | **Impacto** | **Médio** |
 | **Exposição** | **Média** |
 
-Trinta e seis entidades e doze subsistemas excedem o que se espera de um protótipo acadêmico. O risco
-é de largura sem profundidade — muitos módulos, nenhum utilizável.
+Trinta e nove entidades e quatro módulos excedem o que se espera de um protótipo acadêmico. O risco
+é de largura sem profundidade — muitas telas, nenhuma utilizável.
 
 **Mitigação:** critério declarado de que um subsistema só conta como entregue quando atende a seus
 critérios de aceite em [`E2`](E2-casos-de-teste-de-aceite.md). Módulo iniciado e não validado é

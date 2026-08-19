@@ -409,4 +409,4 @@ relevantes. Especificá-los produziria repetição sem ganho analítico.
 
 Dois merecem registro por já estarem descritos em linguagem de negócio na documentação de domínio:
 **UC-35 (importar extrato)** e **UC-37 (fechar o mês)**, ambos em
-[`docs/rotinas/rotina-financeiro/`](../../rotinas/rotina-financeiro/).
+[`docs/rotinas/4-financeiro/`](../../rotinas/4-financeiro/).

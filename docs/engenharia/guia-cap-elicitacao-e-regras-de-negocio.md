@@ -60,7 +60,7 @@ requisito é a resposta do software a ela.
 | `B2` | §5 Conflitos e resolução (l. 254-263) | **O melhor material do capítulo.** Três conflitos reais entre *stakeholders*, com a negociação e o desfecho. É análise de requisitos em estado puro |
 | [`B5-matriz-rastreabilidade.md`](B-requisitos/B5-matriz-rastreabilidade.md) | §5 O que a matriz revelou (l. 197-251) | **Validação de requisitos**: 25 lacunas encontradas por verificação sistemática, não por acaso |
 | [`E3-analise-de-riscos.md`](E-qualidade/E3-analise-de-riscos.md) | risco de viés do autor | O tratamento formal do problema de ser gerente e analista ao mesmo tempo |
-| [`docs/rotinas/`](../rotinas/) | seções "Situação atual" / "Fluxo atual" | O **registro do processo como-é**, em linguagem de negócio. `rotina-pedidos.md` l. 3 ("Fluxo atual analógico"), `rotina-cadastros.md` §"O problema", `rotina-financeiro.md` §"Situação atual" |
+| [`docs/rotinas/`](../rotinas/) | seções "Situação atual" / "Fluxo atual" | O **registro do processo como-é**, em linguagem de negócio. `3-comercial/pedidos.md` l. 3 ("Fluxo atual analógico"), `1-cadastros/00-visao-geral.md` §"O problema", `4-financeiro/00-visao-geral.md` §"Situação atual" |
 | [`docs/contexto-projeto.md`](../contexto-projeto.md) | §Formulários de campo | Os princípios de UX derivados da observação em campo |
 
 ## 1.2 Tabela pronta — requisitos por técnica de elicitação

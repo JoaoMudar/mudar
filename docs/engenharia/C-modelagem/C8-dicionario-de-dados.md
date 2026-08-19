@@ -85,7 +85,7 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 
 ---
 
-# Área 2 — Núcleo e custeio
+# Área 2 — Catálogo e custeio
 
 ## `species` — espécie *(entidade central)*
 
@@ -223,7 +223,7 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ---
 
-# Área 3 — Operação
+# Área 3 — Produção
 
 ## `production_activities` — atividade de produção
 
@@ -545,7 +545,7 @@ Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, 
 > (cliente, fornecedor, funcionário). Estava errado: um `kind` único não representa o caso que
 > motivou a tabela — a mesma pessoa que vende muda e também compra. O vínculo passou para
 > `party_roles`, que admite N papéis por identidade; `kind` ficou com a natureza da pessoa.
-> Fonte canônica: [`docs/rotinas/rotina-financeiro/01-cadastro-unico.md`](../../rotinas/rotina-financeiro/01-cadastro-unico.md).
+> Fonte canônica: [`docs/rotinas/4-financeiro/01-cadastro-unico.md`](../../rotinas/4-financeiro/01-cadastro-unico.md).
 
 ## `cadastro.party_roles` — papéis da identidade
 
@@ -711,8 +711,8 @@ ausência de sobreposição entre períodos de vigência.
 | Área | Entidades | Observação |
 |---|---:|---|
 | Acesso | 4 | |
-| Núcleo e custeio | 9 | mais 1 visão derivada |
-| Operação | 3 | produção, perdas e contagem |
+| Catálogo e custeio | 9 | mais 1 visão derivada |
+| Produção | 3 | atividade, perdas e contagem |
 | Comercial | 7 | |
 | Precificação | 2 | |
 | Fornecedores | 4 | |

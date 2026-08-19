@@ -15,6 +15,12 @@
 > **não implemente por elas.** Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md),
 > achado G.
 
+> 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Indicadores deixaram de ser
+> módulo próprio: são os painéis do Financeiro, em `/financeiro/indicadores`. **Isso não os
+> fecha para a gerência** — o Financeiro restringe *por recurso*, não pela porta do módulo:
+> a base bancária é de chefia/admin, e o painel operacional (IND-01, 02, 03 e 05) segue
+> aberto à gerência, como o `G2 §6` já previa. Mês não fechado exibe travessão (RF-61).
+
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (custeio), P2 (mortalidade), P3 (preços/orçamentos)
@@ -118,7 +124,7 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 
 ### Fase 2: Interface do Dashboard
 
-- [ ] **T6.7** Criar página `/app/dashboard` (tela principal)
+- [ ] **T6.7** Criar página `/financeiro/indicadores` (tela principal)
   - **Header**: período selecionado + filtros rápidos
   - **Linha 1 — KPI Cards** (6 cards):
     - Faturamento (R$ + % vs mês anterior)

@@ -93,7 +93,7 @@ Toda a documentação — `00-mapa-de-rotinas`, `D4 Matriz RBAC`, `C1 Casos de u
 `G2 Indicadores`, `B2 Requisitos` — chama esse perfil de **Colaborador**. A palavra
 `colaborador` não aparece em uma linha de código.
 
-O problema piora com o [cadastro único](rotinas/rotina-cadastros.md): lá, `funcionario` é um
+O problema piora com o [cadastro único](rotinas/1-cadastros/00-visao-geral.md): lá, `funcionario` é um
 **papel de cadastro** (`cadastro.party_roles`), que significa "é nosso empregado" — e existe
 para gente que não tem login nenhum. Passa a haver dois `funcionario` com sentidos diferentes:
 
@@ -161,12 +161,12 @@ correspondem a P2, P3, P12 e P13 — projetos especificados e não implementados
 
 **Também conferido e consistente:**
 
-- Os 8 estados de pedido (`cadastrado` → `pronto_envio`) batem entre código, `rotinas/rotina-pedidos/`,
+- Os 8 estados de pedido (`cadastrado` → `pronto_envio`) batem entre código, `rotinas/3-comercial/pedidos/`,
   `C2`, `C8`, `D4` e `E2`. É a área mais bem mantida do projeto.
 - Os 5 canais de venda batem entre `CLAUDE.md`, `orders.ts` e o banco.
 - O limite de mortalidade de 20% bate entre `CLAUDE.md`, `RF-29` e `IND-01`.
 - Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso.
-- Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `rotina-financeiro/` e `C8`.
+- Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `4-financeiro/` e `C8`.
 
 ## J — Migrations marcadas como aplicadas que nunca rodaram
 
@@ -264,7 +264,7 @@ contra o cadastro único que o P12 Fase 1 estava construindo; e o `mapa-sistema-
 referenciado por nenhum `.md` — o mapa de rotinas ainda embutia a v1.
 
 **Correção.** Uma taxonomia só: **Cadastros · Produção · Comercial · Financeiro**, com Acesso
-transversal. Regra de corte de Cadastros mantida do `rotina-cadastros.md` (*é cadastro se, ao
+transversal. Regra de corte de Cadastros mantida do `1-cadastros/00-visao-geral.md` (*é cadastro se, ao
 apagá-lo, um movimento passado ficar sem sentido*), o que tirou Custos fixos (→ Financeiro) e
 Coleta de sementes (→ Produção) de lá. Estoque voltou para a Produção; Custeio, Precificação
 e os Dashboards foram para o Financeiro; Indicadores deixou de ser módulo próprio; Compras
@@ -300,3 +300,34 @@ volume de venda e valor cotado de compra, e diz na tela que o valor em reais dep
 do P12 — `order_items` não tem preço, então o número virá do extrato, apontando para a mesma
 `party_id`. Ver também [`divida-tecnica.md`](divida-tecnica.md) §8, que registra o conserto que
 `mergeParties` vai precisar quando essa tabela existir.
+
+### Segunda passada — a documentação alcança o código (19/08/2026)
+
+A reconciliação do achado K parou no código e nos diagramas. Uma comparação entre o mapa novo
+e o que estava planejado mostrou que **o resto da documentação continuava na taxonomia
+antiga** — e, em três pontos, dizendo coisa que o sistema já não fazia. Corrigido nesta
+passada:
+
+| Onde | O que estava | O que ficou |
+|---|---|---|
+| `docs/rotinas/` | 8 arquivos `rotina-*.md` soltos na raiz, herança das rotinas planas | quatro pastas, `1-cadastros/` a `4-financeiro/`; `rotina-producao.md` e `rotina-financeiro.md` (índices redundantes) absorvidos pelos `00-visao-geral.md` |
+| `B2 §2` · `B5 §2` | 12 seções por subsistema | Acesso + os quatro módulos, sem renumerar RF nenhum |
+| `C1 §2, §3` | Cadastros sem o catálogo; subgrafos por rótulo informal | catálogo entra no módulo 1; subgrafos por módulo; catálogo de UC ganha coluna **Módulo** |
+| `C6 §1` · `C8` | "a divisão por área corresponde aos subsistemas" | declarado que **área de dados não é módulo**, com o mapa entre as duas decomposições. Área 2 e 3 renomeadas (`Núcleo`→`Catálogo`, `Operação`→`Produção`) |
+| `D4 §2` | 29 recursos em ordem histórica | 31 recursos agrupados por módulo; `Funcionários` e `Tarefas` saem de "pendente" e entram na matriz |
+| `A1 §6` | escopo por subsistema | escopo pelos quatro módulos |
+| `plans/P1…P10` | rotas `/app/admin/*`, `/app/relatorios/*`, `/app/lotes/*` | rotas reais, com tabela de-para no P1 e faixa de módulo em cada plano |
+| `contexto-projeto.md` | roadmap só por projeto | módulos primeiro, tabela projeto × módulo × situação, e o ciclo com o elo que falta |
+
+**A correção de fundo: "o financeiro é exclusivo da chefia" era falso desde o reagrupamento.**
+`D4 §3.2` dizia restrição total do subsistema, mas o módulo 4 passou a abrigar custo unitário,
+margem, preço e indicadores — quatro recursos que a matriz sempre deu à gerência em leitura, e
+que `src/lib/permissions.ts` de fato dá. A regra foi reescrita para o que é verdade e é
+defensável: **restringe-se o que expõe a base bancária; o que dela deriva permanece legível**.
+`RF-62`, `RN-44`, `TA-04` e o painel do `G2 §6` foram alinhados a esse enunciado.
+
+**Achado lateral, de ferramenta.** `npm run docs:tcc` vinha descartando **seis das vinte e uma
+figuras** — as de `D1` e `D3` — em silêncio: no Windows o checkout entrega esses artefatos em
+CRLF (`core.autocrlf`) e a regex do gerador exigia `\n`. As figuras do Word estavam
+desatualizadas desde a reescrita do `D1`. Corrigido em `scripts/build-docs-tcc.mjs` com
+`\r?\n`; a pasta `word/` foi regerada com as 21.

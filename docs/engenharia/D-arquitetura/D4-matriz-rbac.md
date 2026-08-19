@@ -50,46 +50,73 @@ decisão de implantação, declarada aqui e em um único ponto do código.
 
 Legenda: **C** criar · **L** ler · **A** atualizar · **E** excluir · **—** sem acesso
 
+Os recursos estão agrupados pelos **quatro módulos** do sistema, com Acesso à frente por ser
+transversal — o mesmo agrupamento de [`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md)
+e de [`src/lib/permissions.ts`](../../../src/lib/permissions.ts), onde esta matriz vira código.
+
+**A permissão é do recurso, não do módulo.** Nenhuma linha abaixo é concedida por a tela ficar
+sob `/financeiro` ou `/producao`: a guarda é por recurso, em toda operação (§4). O agrupamento
+serve para ler a matriz, não para decidir acesso — é o que permite que o módulo restrito
+contenha, sem contradição, recursos que a gerência lê (§3.2).
+
 | Recurso | Chefia | Gerência | Colaborador | Administrador |
 |---|:--:|:--:|:--:|:--:|
+| **1 · Cadastros** | | | | |
 | **Espécies** | C L A E | L | L | C L A E |
 | **Recipientes** | C L A E | L | L | C L A E |
 | **Insumos** | C L A E | L | L | C L A E |
+| **Clientes** | C L A E | L | — | C L A E |
+| **Dados fiscais de cliente** | C L A | L | — | C L A |
+| **Fornecedores** | C L A E | — | — | C L A E |
+| **Funcionários** ² | C L A E | L | — | C L A E |
+| **Tarefas** ² | C L | C L A E | L A ³ | L |
+| **2 · Produção** | | | | |
 | **Consumo de insumo** | L ¹ | L | **C L** | L |
-| **Custos fixos** | C L A E | — | — | C L A E |
 | **Coleta de sementes** | C L A E | L | — | C L A E |
-| **Custo unitário** | L | L | **—** | L |
 | **Atividades de produção** | L ¹ | C L A | **C L** | L |
 | **Estoque** | L | C L A | L | L |
 | **Perdas** | L ¹ | L A | **C L** | L |
 | **Análise de perdas** | L | L | — | L |
-| **Margem por canal** | C L A | L | **—** | L |
-| **Preço de venda** | C L A | L | **—** | L |
-| **Clientes** | C L A E | L | — | C L A E |
-| **Dados fiscais de cliente** | C L A | L | — | C L A |
+| **3 · Comercial** | | | | |
 | **Pedidos** | C L A E | L A | L | C L A E |
 | **Aprovação de pedido** | **A** | — | — | A |
 | **Verificação de disponibilidade** | L | **C L A** | — | L |
 | **Cargas** | L | C L A | L | L |
 | **Separação de carga** | L | L A | **A** | L |
 | **Entregas** | C L A | L | — | C L A |
-| **Fornecedores** | C L A E | — | — | C L A E |
 | **Cotações** | C L A | — | — | C L A |
 | **Escolha de proposta** | **A** | — | — | A |
+| **4 · Financeiro — módulo restrito** | | | | |
+| **Custos fixos** | C L A E | — | — | C L A E |
 | **Financeiro — todos os recursos** | **C L A E** | **—** | **—** | C L A E |
+| **Custo unitário** | L | L | **—** | L |
+| **Margem por canal** | C L A | L | **—** | L |
+| **Preço de venda** | C L A | L | **—** | L |
 | **Indicadores** | L | L (parcial) | — | L |
+| **Acesso — transversal aos quatro módulos** | | | | |
 | **Usuários e perfis** | — | — | — | **C L A E** |
 | **Sessões próprias** | L E | L E | L E | L E |
 | **Auditoria de acesso** | — | — | — | L |
 
 ¹ **Emenda de 11/08/2026 — a chefia também cria.** Ver [§3.10](#310-emenda-a-chefia-registra-em-campo-enquanto-o-colaborador-não-usa-o-sistema).
 
+² **Recursos do [P13](../../../plans/P13-producao-agenda-cadastros.md), declarados antes da tela.**
+`funcionario` e `tarefa` já existem em `src/lib/permissions.ts` — o primeiro porque a lista de
+pessoas precisa saber quem pode ver o papel, o segundo porque a agenda de pessoal traz a
+primeira regra que depende do registro e não só do perfil. As tabelas e as telas vêm nas
+Fases 2 e 3 do P13; os requisitos correspondentes (RF-69…RF-76) ainda não foram escritos.
+
+³ **O colaborador atualiza apenas a tarefa atribuída a ele** — é a única regra da matriz que
+depende do registro, e não do perfil. Ver §3.11.
+
 ---
 
-## 3. As oito regras de exceção
+## 3. As regras de exceção
 
-A matriz não se explica sozinha. Oito decisões merecem justificativa, porque em cada uma a permissão
-restringe alguém que aparentemente deveria ter acesso.
+A matriz não se explica sozinha. Dez decisões merecem justificativa: em oito delas a permissão
+restringe alguém que aparentemente deveria ter acesso; as duas últimas (§3.10 e §3.11) são emendas
+posteriores, datadas, feitas quando a transcrição para código revelou o que a especificação não
+tinha previsto.
 
 ### 3.1 O colaborador não vê custo nem preço
 
@@ -100,15 +127,37 @@ A razão não é desconfiança, é escopo: o colaborador não toma decisão de p
 margem não o ajuda em nenhuma de suas cinco tarefas. Expô-la aumentaria a superfície de dado sensível
 em seis dispositivos que circulam em campo, sem contrapartida operacional.
 
-### 3.2 O financeiro é exclusivo da chefia
+### 3.2 O núcleo bancário do financeiro é exclusivo da chefia
 
-Restrição total, e não parcial: a gerência não acessa nenhuma tela financeira, nem em modo de
-leitura.
+Restrição total, e não parcial, sobre **a base bancária**: extrato, lançamento, compra, custo fixo
+e fechamento não são acessíveis à gerência nem em modo de leitura. É a linha
+**Financeiro — todos os recursos** da matriz, somada a **Custos fixos**.
 
 A base mistura gasto do viveiro com gasto pessoal da família e da clínica. Separá-los por centro de
 custo é justamente o objetivo do subsistema — mas, até que a separação exista e mesmo depois, o
 acesso permanece restrito, porque a natureza pessoal do dado não desaparece com a classificação. É a
 única restrição da matriz cuja motivação é de privacidade e não de escopo funcional.
+
+**Por que a regra não diz "o módulo 4 é exclusivo da chefia".** Com o reagrupamento de
+19/08/2026, o módulo Financeiro passou a abrigar também custo unitário, margem por canal, preço
+de venda e indicadores — que a matriz sempre deu à gerência em leitura, e que a gerência precisa
+para verificar pedido, cotar com fornecedor e acompanhar a produção. Enunciar a restrição pela
+porta do módulo produziria uma de duas coisas ruins: ou fecharia para a gerência informação que
+ela sempre teve, ou obrigaria a espalhar essas telas por módulos onde não pertencem, só para
+escapar da regra.
+
+A restrição, portanto, **é do recurso**, e o critério é preciso: fica restrito o que **expõe a
+base bancária**; fica em leitura o que é **derivado dela**. Custo unitário é uma soma que não
+revela para quem se pagou; o extrato revela. Essa é toda a diferença, e é o mesmo critério que o
+§4 aplica — a verificação acontece na operação, e nenhuma tela é liberada por estar sob
+determinado caminho de URL.
+
+| No módulo 4, é… | Recursos | Quem |
+|---|---|---|
+| **base bancária** — restrito | Financeiro (extratos, lançamentos, compras, fechamento), Custos fixos | chefia, admin |
+| **derivado** — leitura para a gerência | Custo unitário, Margem por canal, Preço de venda, Indicadores | chefia, gerência, admin |
+
+O colaborador não vê nenhum dos dois grupos (§3.1).
 
 ### 3.3 Aprovar pedido é privativo da chefia
 
@@ -158,9 +207,9 @@ espécies e recipientes, e para acompanhar um pedido é necessário saber de que
 As três linhas marcadas com ¹ — **Consumo de insumo**, **Atividades de produção** e **Perdas** —
 davam `C` exclusivamente ao colaborador. Combinada com o §3.9, que declara que o uso em campo pelo
 colaborador é iteração posterior e que hoje os usuários efetivos são chefia e gerência, a
-especificação literal produz um resultado que ninguém pretendeu: **`/insumos/registrar` fica sem
-nenhum usuário capaz de usá-la**, e o registro de consumo — dependência-raiz do custeio — não
-acontece.
+especificação literal produz um resultado que ninguém pretendeu: **o registro de consumo em campo
+(`/producao/consumo-insumos`, à época `/insumos/registrar`) fica sem nenhum usuário capaz de
+usá-lo**, e o consumo — dependência-raiz do custeio — não acontece.
 
 A emenda concede `C` à chefia nessas três linhas. É restrição temporal, não permanente: vale
 enquanto os colaboradores não estiverem em campo com o sistema. Quando estiverem, a permissão da
@@ -170,6 +219,21 @@ o que o compõe.
 A alternativa considerada e descartada foi abrir exceção apenas no código. Seria reproduzir
 exatamente o problema que a matriz única existe para eliminar: uma regra que vale, mas que não
 está escrita onde as regras se leem.
+
+### 3.11 A tarefa é a primeira regra que depende do registro, e não do perfil
+
+*Acrescentada em 19/08/2026, junto do reagrupamento em quatro módulos.*
+
+Todas as demais linhas da matriz respondem a uma pergunta só: *que perfil é este usuário?* A
+linha **Tarefas** acrescenta uma segunda: *esta tarefa é dele?* O colaborador atualiza a tarefa
+que lhe foi atribuída na agenda da semana e nenhuma outra — pode concluir a sua, não a do
+colega.
+
+A distinção importa porque muda o mecanismo, não só o valor: a verificação deixa de ser uma
+consulta à tabela de perfis e passa a precisar do registro em mãos. Por isso o recurso foi
+declarado em `src/lib/permissions.ts` **antes** de existirem a tabela e a tela (P13 Fase 3) —
+para que o mecanismo nasça exercitado por teste, em vez de ser improvisado na primeira tela que
+precisar dele.
 
 ---
 
@@ -237,7 +301,7 @@ depender de administrador.
 | RF-06 | Seção 4 — verificação na execução da operação |
 | RF-07 | Linha *Sessões próprias*, com leitura e exclusão para todos os perfis |
 | RF-44 | Linha *Aprovação de pedido*, exclusiva da chefia (regra 3.3) |
-| RF-62 | Linha *Financeiro*, exclusiva da chefia (regra 3.2) |
+| RF-62 | Linhas *Financeiro — todos os recursos* e *Custos fixos*, exclusivas da chefia (regra 3.2) |
 | RNF-12 | Seção 4 — verificação no servidor, nunca no navegador |
 
 A matriz é insumo direto da modelagem de ameaças

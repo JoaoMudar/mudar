@@ -42,7 +42,7 @@
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
 > **Financeiro:** a abordagem nova (extrato bancário como fonte da verdade) está em
-> [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) e em
+> [`rotinas/4-financeiro/`](rotinas/4-financeiro/) e em
 > [`plans/P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md).
 > Leia o post-mortem acima **antes** de qualquer linha de código financeiro.
 
@@ -76,27 +76,29 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 
 | Módulo | Rotina | Arquivo |
 |--------|--------|---------|
-| **1 · Cadastros** | Cadastro único (agrupador) | [`rotinas/rotina-cadastros.md`](rotinas/rotina-cadastros.md) |
-| **1 · Cadastros** | Clientes (visão geral + detalhamento) | [`rotinas/rotina-clientes.md`](rotinas/rotina-clientes.md) e a pasta [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/) |
-| **2 · Produção** | Produção (visão geral + subrotinas) | [`rotinas/rotina-producao.md`](rotinas/rotina-producao.md) e a pasta [`rotinas/rotina-producao/`](rotinas/rotina-producao/) |
-| **2 · Produção** | Estoque | [`rotinas/rotina-estoque.md`](rotinas/rotina-estoque.md) |
-| **2 · Produção** | Perdas | [`rotinas/rotina-perdas.md`](rotinas/rotina-perdas.md) |
-| **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/rotina-pedidos.md`](rotinas/rotina-pedidos.md) e a pasta [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/) |
-| **3 · Comercial** | Entregas | [`rotinas/rotina-entregas.md`](rotinas/rotina-entregas.md) |
-| **4 · Financeiro** | Financeiro (visão geral + detalhamento) | [`rotinas/rotina-financeiro.md`](rotinas/rotina-financeiro.md) e a pasta [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/) |
-| — | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/rotina-tarefas.md`](rotinas/rotina-tarefas.md) fica como histórico |
+| **1 · Cadastros** | Cadastro único (agrupador) | [`rotinas/1-cadastros/00-visao-geral.md`](rotinas/1-cadastros/00-visao-geral.md) |
+| **1 · Cadastros** | Clientes (visão geral + detalhamento) | [`rotinas/1-cadastros/clientes.md`](rotinas/1-cadastros/clientes.md) e a pasta [`rotinas/1-cadastros/clientes/`](rotinas/1-cadastros/clientes/) |
+| **2 · Produção** | Produção (visão geral + subrotinas) | [`rotinas/2-producao/00-visao-geral.md`](rotinas/2-producao/00-visao-geral.md) e a pasta [`rotinas/2-producao/`](rotinas/2-producao/) |
+| **2 · Produção** | Estoque | [`rotinas/2-producao/02-estoque.md`](rotinas/2-producao/02-estoque.md) |
+| **2 · Produção** | Perdas | [`rotinas/2-producao/03-perdas.md`](rotinas/2-producao/03-perdas.md) |
+| **3 · Comercial** | Comercial (visão geral do módulo) | [`rotinas/3-comercial/00-visao-geral.md`](rotinas/3-comercial/00-visao-geral.md) |
+| **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/3-comercial/pedidos.md`](rotinas/3-comercial/pedidos.md) e a pasta [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/) |
+| **3 · Comercial** | Cotação com fornecedores | sem rotina própria — está no plano [`P11`](../plans/P11-fornecedores-cotacao.md) |
+| **3 · Comercial** | Entregas | [`rotinas/3-comercial/entregas.md`](rotinas/3-comercial/entregas.md) |
+| **4 · Financeiro** | Financeiro (visão geral + detalhamento) | [`rotinas/4-financeiro/00-visao-geral.md`](rotinas/4-financeiro/00-visao-geral.md) e a pasta [`rotinas/4-financeiro/`](rotinas/4-financeiro/) |
+| — | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/2-producao/99-tarefas-diarias-historico.md`](rotinas/2-producao/99-tarefas-diarias-historico.md) fica como histórico |
 
-A rotina de **Produção** tem detalhamento em [`rotinas/rotina-producao/`](rotinas/rotina-producao/):
+A rotina de **Produção** tem detalhamento em [`rotinas/2-producao/`](rotinas/2-producao/):
 visão geral e a **agenda de pessoal** (grade semanal de quem faz o quê, base do custo de mão de obra).
 
-A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/rotina-pedidos/`](rotinas/rotina-pedidos/):
+A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/):
 banco de dados, notificações, cadastro, verificação de disponibilidade, análise/fechamento e separação.
 
-A rotina de **Clientes** tem detalhamento por fase em [`rotinas/rotina-clientes/`](rotinas/rotina-clientes/):
+A rotina de **Clientes** tem detalhamento por fase em [`rotinas/1-cadastros/clientes/`](rotinas/1-cadastros/clientes/):
 banco de dados (campos fiscais), validações, área `/clientes`, integração com NF no fechamento de pedido,
 testes e o futuro de emissão de nota fiscal via API.
 
-A rotina de **Financeiro** tem detalhamento por fase em [`rotinas/rotina-financeiro/`](rotinas/rotina-financeiro/):
+A rotina de **Financeiro** tem detalhamento por fase em [`rotinas/4-financeiro/`](rotinas/4-financeiro/):
 visão geral do modelo (extrato como fonte da verdade), o cadastro único (`cadastro.parties`), o schema
 `financeiro` com suas listas fechadas e regras invioláveis, e a relação com pedidos, fornecedores e custeio.
 

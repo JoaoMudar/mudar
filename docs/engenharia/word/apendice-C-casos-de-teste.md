@@ -52,7 +52,7 @@ autenticação.
 | **TA-01** | RF-01 | Sem sessão ativa | 1. Acessar diretamente o endereço de uma tela interna | Acesso é recusado e o usuário conduzido à autenticação | Não executado |
 | **TA-02** | RF-02 | Usuário recém-criado com senha temporária | 1. Autenticar-se com a senha temporária<br>2. Tentar acessar qualquer outra tela | Sistema exige a definição de nova senha antes de permitir qualquer outra tela | Não executado |
 | **TA-03** | RF-06 | Sessão de perfil colaborador | 1. Acionar diretamente uma operação restrita à chefia | Operação é recusada, ainda que acionada fora da interface | Não executado |
-| **TA-04** | RF-62 | Sessão de perfil gerência | 1. Tentar acessar qualquer tela do subsistema financeiro | Acesso recusado em todas as telas financeiras | Não executado |
+| **TA-04** | RF-62 | Sessão de perfil gerência | 1. Tentar acessar extrato, lançamento, compra, custo fixo e fechamento — inclusive digitando o endereço direto | Acesso recusado nas cinco. Consulta de preço, custo unitário, margem e indicadores permanecem acessíveis (D4 §3.2) | Não executado |
 | **TA-05** | RF-07 | Duas sessões ativas do mesmo usuário, em aparelhos distintos | 1. Listar sessões ativas<br>2. Encerrar a sessão do outro aparelho<br>3. Tentar usar o outro aparelho | A sessão encerrada perde o acesso; a sessão atual permanece | Não executado |
 | **TA-06** | RF-04 | — | 1. Tentar autenticar com senha errada<br>2. Autenticar corretamente<br>3. Consultar o registro de acessos | Ambas as tentativas constam, com data, origem e dispositivo | Não executado |
 

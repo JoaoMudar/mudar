@@ -4,10 +4,19 @@
 > Acesso (login, senha, aparelhos, usuários, notificações) é **transversal** — atravessa os
 > quatro e não é módulo de negócio.
 >
-> Esta é a taxonomia única. Ela está espelhada em três lugares que não podem divergir:
-> os diagramas desta página, `src/lib/modules.ts` (a navegação do app) e os comentários de
-> seção de `src/lib/permissions.ts` (a matriz do D4). O teste
-> `src/lib/__tests__/modules.test.ts` quebra se a navegação sair de linha.
+> Esta é a taxonomia única. Ela está espelhada em quatro lugares que não podem divergir:
+> os diagramas desta página, as pastas desta própria pasta (`1-cadastros/` … `4-financeiro/`),
+> `src/lib/modules.ts` (a navegação do app) e os comentários de seção de
+> `src/lib/permissions.ts` (a matriz do D4). O teste `src/lib/__tests__/modules.test.ts`
+> quebra se a navegação sair de linha.
+>
+> Nos artefatos de engenharia, o mesmo agrupamento organiza os requisitos
+> ([`B2 §2`](../engenharia/B-requisitos/B2-especificacao-requisitos.md)), a rastreabilidade
+> ([`B5 §2`](../engenharia/B-requisitos/B5-matriz-rastreabilidade.md)), os casos de uso
+> ([`C1 §2`](../engenharia/C-modelagem/C1-diagrama-casos-de-uso.md)), o modelo de dados
+> ([`C6 §3`](../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md)), os componentes
+> ([`D1 §4`](../engenharia/D-arquitetura/D1-arquitetura-c4.md)) e a matriz de acesso
+> ([`D4 §2`](../engenharia/D-arquitetura/D4-matriz-rbac.md)).
 
 ## Perfis
 
@@ -77,7 +86,7 @@ Telas em `/login`, `/trocar-senha`, `/conta/sessoes`, `/notificacoes` e `/admin/
 
 ---
 
-## 1 · Cadastros (`rotina-cadastros.md`)
+## 1 · Cadastros ([`1-cadastros/`](1-cadastros/00-visao-geral.md))
 
 ![Cadastros](img/mapa-1-cadastros.png)
 
@@ -89,7 +98,7 @@ Rotina **agrupadora**, sem processo próprio. Reúne o que é estável e se repe
 |-------|--------|
 | Cadastrar/editar espécie, recipiente, insumo | Gerência |
 | Consultar pessoas por papel (`/cadastros/pessoas`) | Chefia / Gerência |
-| Cadastrar/editar cliente (`rotina-clientes.md`) | Chefia / Gerência |
+| Cadastrar/editar cliente ([`1-cadastros/clientes.md`](1-cadastros/clientes.md)) | Chefia / Gerência |
 | Cadastrar/editar fornecedor | Chefia |
 | Cadastrar/editar funcionário | Chefia |
 | Cadastrar/editar tipo de tarefa | Gerência |
@@ -109,7 +118,7 @@ chefia e admin, então a gerência não vê a rede de fornecedores nem de relanc
 `/fornecedores`) porque a rotina de pedidos aponta para elas e `notifications.link` guarda
 caminho gravado no banco; o agrupamento é de navegação, não de rota.
 
-## 2 · Produção (`rotina-producao/`)
+## 2 · Produção ([`2-producao/`](2-producao/00-visao-geral.md))
 
 ![Produção](img/mapa-2-producao.png)
 
@@ -124,14 +133,14 @@ Financeiro as compras que ficam disponíveis para uso.
 | Ver minhas tarefas de hoje / concluir | Colaborador |
 | Registro de atividade (semeadura, repicagem, irrigação, adubação) | Colaborador |
 | Acompanhamento de lotes e de execução | Gerência |
-| Registro de perda no campo (`rotina-perdas.md`) | Colaborador |
+| Registro de perda no campo ([`2-producao/03-perdas.md`](2-producao/03-perdas.md)) | Colaborador |
 | Análise de perdas por espécie/causa | Gerência |
-| Visão geral de estoque por espécie (`rotina-estoque.md`) | Chefia |
+| Visão geral de estoque por espécie ([`2-producao/02-estoque.md`](2-producao/02-estoque.md)) | Chefia |
 | Contagem e atualização de estoque | Gerência |
 
 Área `/producao`.
 
-## 3 · Comercial (`rotina-pedidos/`, `rotina-entregas.md`)
+## 3 · Comercial ([`3-comercial/`](3-comercial/00-visao-geral.md))
 
 ![Comercial](img/mapa-3-comercial.png)
 
@@ -148,12 +157,20 @@ Financeiro as compras que ficam disponíveis para uso.
 
 Área `/comercial`; as telas continuam em `/pedidos` e `/fornecedores/*`.
 
-## 4 · Financeiro (`rotina-financeiro/`)
+## 4 · Financeiro ([`4-financeiro/`](4-financeiro/00-visao-geral.md))
 
 ![Financeiro](img/mapa-4-financeiro.png)
 
-O acesso é **exclusivo de chefia/admin** — a base mistura gasto do viveiro com gasto pessoal
-da família e da clínica.
+**Este é o módulo restrito do sistema.** A base bancária mistura gasto do viveiro com gasto
+pessoal da família e da clínica — extrato, lançamento, compra, custo fixo e fechamento são
+de chefia/admin, e a gerência não os abre nem em leitura.
+
+A restrição vale para a **base**, não para tudo que mora aqui. Com os quatro módulos,
+custeio, precificação e os painéis vieram para cá — são dinheiro, e quem os alimenta é o
+extrato. Mas são números **derivados**: não expõem lançamento nenhum, a gerência precisa
+deles para operar e sempre pôde lê-los. É por isso que a matriz do
+[`D4`](../engenharia/D-arquitetura/D4-matriz-rbac.md) restringe **por recurso**, e não pela
+porta do módulo.
 
 | Etapa | Perfil |
 |-------|--------|
@@ -163,13 +180,50 @@ da família e da clínica.
 | Fechar o mês (conferir saldo × extrato e travar) | Chefia |
 | Manter custos fixos | Chefia |
 | Emissão de nota fiscal (sistema do Sebrae; app registra o número) | Chefia |
-| Ver dashboards de faturamento e margem (só sobre mês fechado) | Chefia |
-| Consulta de preço por espécie/canal | Gerência |
+| Ver faturamento e margem (só sobre mês fechado) | Chefia |
+| Consulta de preço, custo unitário e margem por canal | Gerência *(leitura)* |
+| Painel de indicadores operacionais — IND-01, 02, 03, 05 | Gerência *(leitura)* |
 
 Área `/financeiro`. **É aqui que a compra nasce** — e é de onde ela fica disponível para a
 Produção usar.
 
 ---
 
-> **Rotina de Tarefas Diárias:** absorvida pela Produção. `rotina-tarefas.md` permanece
-> apenas como registro histórico.
+> **Rotina de Tarefas Diárias:** absorvida pela Produção.
+> [`2-producao/99-tarefas-diarias-historico.md`](2-producao/99-tarefas-diarias-historico.md)
+> permanece apenas como registro histórico.
+
+---
+
+## Onde cada rotina mora
+
+As pastas seguem os módulos — uma por módulo, na ordem em que o fluxo os percorre. Antes os
+arquivos eram `rotina-*.md` soltos na raiz, herança das oito rotinas planas.
+
+```
+docs/rotinas/
+├── 00-mapa-de-rotinas.md          ← você está aqui
+├── img/                            ← os diagramas (.mmd é a fonte, .png é a leitura)
+├── 1-cadastros/
+│   ├── 00-visao-geral.md           a rotina agrupadora e a regra de corte
+│   ├── clientes.md  +  clientes/   cadastro fiscal e o portão da nota
+│   └── (fornecedores: plano P11)
+├── 2-producao/
+│   ├── 00-visao-geral.md           as três subrotinas e o ciclo
+│   ├── 01-agenda-de-pessoal.md     a fonte das horas
+│   ├── 02-estoque.md               derivado: produção − perdas − vendas
+│   ├── 03-perdas.md
+│   └── 99-tarefas-diarias-historico.md   absorvida; fica como registro
+├── 3-comercial/
+│   ├── 00-visao-geral.md           pedidos + cotação + entregas
+│   ├── pedidos.md  +  pedidos/     as quatro etapas, uma por documento
+│   └── entregas.md                 cada carga é uma viagem
+└── 4-financeiro/
+    ├── 00-visao-geral.md           o extrato é a verdade; quem vê o quê
+    ├── 01-cadastro-unico.md        o schema `cadastro`
+    ├── 02-schema-financeiro.md     tabelas, listas fechadas e as 7 regras
+    └── 03-relacao-com-rotinas.md   como amarra nos outros três módulos
+```
+
+**Acesso não tem pasta.** É transversal e não tem rotina de negócio própria: está descrito na
+seção 0 desta página e especificado em [`D4`](../engenharia/D-arquitetura/D4-matriz-rbac.md).

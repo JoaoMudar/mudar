@@ -7,6 +7,13 @@
 > Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
+> Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
+> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão — ela lê
+> dos quatro módulos (espécie e foto de Cadastros, disponibilidade da Produção, preço do
+> Financeiro) e não é um deles. Rotas públicas na raiz, nunca sob `/cadastros`, `/producao`,
+> `/comercial` ou `/financeiro`.
+
 ## Status: NÃO INICIADO
 ## Prioridade: MÉDIA
 ## Dependências: P1 (espécies), P3 (preços), P2 (estoque via lotes)

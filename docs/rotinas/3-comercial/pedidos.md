@@ -4,7 +4,7 @@
 Cliente envia mensagem no WhatsApp -> Gilberto recebe -> passa para Debora verificar -> Gilberto confirma venda -> Debora organiza separacao -> equipe separa -> Gilberto entrega.
 
 ## Fluxo digital (implementacao)
-Ver detalhes completos em `rotina-pedidos/00-visao-geral.md`
+Ver detalhes completos em `pedidos/00-visao-geral.md`
 
 ```
 Cadastro (Chefia/Desktop) -> Notificacao -> Verificacao (Gerencia/Mobile)
@@ -29,13 +29,13 @@ Cada carga vira uma entrega independente na rotina de entregas.
 
 | # | Arquivo | Fase | Tarefas |
 |---|---------|------|---------|
-| 0 | `rotina-pedidos/00-visao-geral.md` | Visao geral, statuses, fluxo, conceitos | — |
-| 1 | `rotina-pedidos/01-banco-de-dados.md` | Migracoes SQL (clientes, pedidos, itens, cargas, notificacoes) | 8 tarefas |
-| 2 | `rotina-pedidos/02-notificacoes.md` | Sistema de notificacoes in-app | 5 tarefas |
-| 3 | `rotina-pedidos/03-cadastro-pedido.md` | Cadastro de pedido (chefia, desktop) — especificos e genericos | 6 tarefas |
-| 4 | `rotina-pedidos/04-verificacao-disponibilidade.md` | Checklist + atribuicao de especies (gerencia, mobile) | 6 tarefas |
-| 5 | `rotina-pedidos/05-analise-fechamento.md` | Analise e aprovacao (chefia, desktop) | 5 tarefas |
-| 6 | `rotina-pedidos/06-separacao-pedido.md` | Divisao em cargas + separacao com calendario (gerencia, mobile) | 7 tarefas |
+| 0 | `pedidos/00-visao-geral.md` | Visao geral, statuses, fluxo, conceitos | — |
+| 1 | `pedidos/01-banco-de-dados.md` | Migracoes SQL (clientes, pedidos, itens, cargas, notificacoes) | 8 tarefas |
+| 2 | `pedidos/02-notificacoes.md` | Sistema de notificacoes in-app | 5 tarefas |
+| 3 | `pedidos/03-cadastro-pedido.md` | Cadastro de pedido (chefia, desktop) — especificos e genericos | 6 tarefas |
+| 4 | `pedidos/04-verificacao-disponibilidade.md` | Checklist + atribuicao de especies (gerencia, mobile) | 6 tarefas |
+| 5 | `pedidos/05-analise-fechamento.md` | Analise e aprovacao (chefia, desktop) | 5 tarefas |
+| 6 | `pedidos/06-separacao-pedido.md` | Divisao em cargas + separacao com calendario (gerencia, mobile) | 7 tarefas |
 
 **Total: 37 tarefas**
 
@@ -60,4 +60,4 @@ Cada carga vira uma entrega independente na rotina de entregas.
 - **Entregas**: CARGAS com status `pronto` alimentam agenda de entregas (cada carga = 1 viagem)
 - **Estoque**: verificacao de disponibilidade sera automatizada quando estoque existir
 - **Precificacao**: precos por canal podem ser exibidos nos itens (futuro)
-- **Clientes (NF)**: na analise/fechamento a chefia indica se o pedido precisa de Nota Fiscal; quando sim, o cliente precisa estar fiscalmente completo. Ver `rotina-clientes/04-integracao-pedidos-nf.md`
+- **Clientes (NF)**: na analise/fechamento a chefia indica se o pedido precisa de Nota Fiscal; quando sim, o cliente precisa estar fiscalmente completo. Ver `../1-cadastros/clientes/04-integracao-pedidos-nf.md`

@@ -84,10 +84,9 @@ const MATRIX = {
     // `users.party_id` (P13 T13.3) e a tela (P13 T13.7). Declarado desde ja
     // porque a lista de pessoas precisa saber quem pode ver funcionario, e sem
     // isto o filtro cairia numa permissao emprestada. Papeis conforme
-    // docs/rotinas/rotina-cadastros.md (cadastrar/editar e da chefia); a
-    // gerencia le porque e ela quem monta a agenda. O D4 precisa ganhar esta
-    // linha junto com a de `tarefa`.
-    d4: '(pendente — P13 T13.22)',
+    // docs/rotinas/1-cadastros/00-visao-geral.md (cadastrar/editar e da chefia); a
+    // gerencia le porque e ela quem monta a agenda.
+    d4: 'Funcionários',
     criar: ['chefia', 'admin'],
     ler: ['chefia', 'gerencia', 'admin'],
     atualizar: ['chefia', 'admin'],
@@ -97,9 +96,8 @@ const MATRIX = {
     // A agenda de pessoal (P13) traz a primeira regra que depende do REGISTRO
     // e nao so do papel: o colaborador enxerga apenas as tarefas atribuidas a
     // ele. Declarado desde ja, sem tabela nem tela, para que o mecanismo de
-    // subject nasca exercitado por teste. O D4 precisa ganhar esta linha
-    // (P13 Fase 6, T13.22).
-    d4: '(pendente — P13 T13.22)',
+    // subject nasca exercitado por teste. Regra em D4 §3.11.
+    d4: 'Tarefas',
     criar: ['chefia', 'gerencia'],
     ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
     atualizar: ['gerencia', 'colaborador'],

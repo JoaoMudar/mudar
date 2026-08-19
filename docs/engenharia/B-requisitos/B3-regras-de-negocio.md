@@ -133,7 +133,7 @@ Classificação adotada neste catálogo:
 |---|---|---|---|---|---|
 | **RN-25** | O cliente é **pessoa física ou jurídica**; a venda com nota fiscal exige o conjunto fiscal completo e documento válido | Restrição | `A2` §3; `C2` UC-26 FA-1 | RF-37, RF-38, RF-40, RF-45 | RNF-24 |
 | **RN-26** | A negociação nasce no WhatsApp e o cliente frequentemente é novo: **nome e telefone bastam** para registrar o pedido, sem interromper a venda | Restrição | `A1` §8 PR-4; `B2` RF-36 | RF-36, RF-39 | RNF-01 |
-| **RN-27** | A **mesma pessoa pode ser cliente e fornecedor** — a identidade da pessoa é única, os papéis é que são múltiplos | Fato | `A2` §3; [`rotina-cadastros.md`](../../rotinas/rotina-cadastros.md) | RF-39, RF-52 | — |
+| **RN-27** | A **mesma pessoa pode ser cliente e fornecedor** — a identidade da pessoa é única, os papéis é que são múltiplos | Fato | `A2` §3; [`1-cadastros/00-visao-geral.md`](../../rotinas/1-cadastros/00-visao-geral.md) | RF-39, RF-52 | — |
 | **RN-28** | A **nota fiscal é emitida em sistema externo**. O viveiro registra a exigência e o número; a emissão não pertence a este sistema | Restrição | `A2` §4 | RF-40, RF-45 | RNF-24 |
 | **RN-29** | A venda para **compensação ambiental** exige o nome científico da espécie e, em geral, nota fiscal | Restrição | `A2` §3 | RF-08, RF-45 | RNF-25 |
 | **RN-30** | Dado pessoal de cliente é tratado sob a **Lei nº 13.709/2018**, com finalidade, base legal e prazo de retenção declarados | Restrição | `E5`; `A1` §9 RE-8 | RF-37 | RNF-23 |
@@ -160,7 +160,7 @@ Classificação adotada neste catálogo:
 | **RN-41** | O **centro de custo** separa gasto de negócio de gasto pessoal da família — lista fechada de cinco: viveiro, sítio, clínica, casa, floricultura. A separação é pré-requisito de qualquer indicador confiável | Restrição | `A2` §4; `A1` §9 RE-7 | RF-57, RF-62 | RNF-02 |
 | **RN-42** | Lançamento **equivalente a outro já classificado recebe a mesma classificação** — o gasto recorrente não se reclassifica todo mês | Derivação | `B2` RF-58 | RF-58 | — |
 | **RN-43** | O **fechamento do mês** confere o saldo calculado contra o saldo do extrato e trava o período; **indicador financeiro só se calcula sobre mês fechado** | Restrição | `A2` §4 | RF-60, RF-61, RF-64 | — |
-| **RN-44** | O **financeiro é assunto exclusivo da chefia** — decorrência direta de a base misturar gasto de negócio e gasto pessoal | Restrição | `A1` §9 RE-7; `C1` §2; `D4` | RF-62 | RNF-12 |
+| **RN-44** | A **base bancária é assunto exclusivo da chefia** — decorrência direta de ela misturar gasto de negócio e gasto pessoal. O que dela deriva e não a expõe — custo, margem, preço, indicador — segue em leitura para a gerência | Restrição | `A1` §9 RE-7; `C1` §2; `D4` §3.2 | RF-62 | RNF-12 |
 
 ### 3.8 Área H — Acesso e responsabilidade
 
@@ -173,7 +173,7 @@ Classificação adotada neste catálogo:
 
 | RN | Enunciado | Tipo | Documentada em | RF originados | RNF vinculados |
 |---|---|---|---|---|---|
-| **RN-47** | Indicador **sem comparação com o período anterior e sem meta não orienta decisão**, e cada perfil acompanha os indicadores da sua responsabilidade | Restrição | `G2`; `B2` §2.12 | RF-63, RF-64, RF-65 | — |
+| **RN-47** | Indicador **sem comparação com o período anterior e sem meta não orienta decisão**, e cada perfil acompanha os indicadores da sua responsabilidade | Restrição | `G2`; `B2` §2.5.4 | RF-63, RF-64, RF-65 | — |
 
 ### 3.10 Síntese por área
 
@@ -431,7 +431,7 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-59 | O sistema deve permitir informar data de competência distinta da data de movimentação | D | AD |
 | RF-60 | O sistema deve permitir fechar o mês após conferência do saldo calculado contra o saldo do extrato, travando o período | D | AD |
 | RF-61 | O sistema não deve apresentar indicador financeiro calculado sobre mês ainda não fechado | D | AD |
-| RF-62 | O sistema deve restringir todo o subsistema financeiro aos perfis chefia e administrador | D | EN |
+| RF-62 | O sistema deve restringir a base bancária — extratos, lançamentos, compras, custos fixos e fechamento — aos perfis chefia e administrador | D | EN |
 | RF-63 | O sistema deve apresentar painel de indicadores com o conteúdo correspondente ao perfil do usuário | D | EN |
 | RF-64 | O sistema deve apresentar cada indicador comparado ao período anterior e à meta definida | D | EN |
 | RF-65 | O sistema deve sinalizar visualmente se o valor do indicador é favorável ou desfavorável | D | EN |

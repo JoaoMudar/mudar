@@ -53,7 +53,7 @@ São documentos de projeto, não relatórios de código.
 |---|---|---|---|
 | [D1](D-arquitetura/D1-arquitetura-c4.md) | Documento de arquitetura (C4) | 4.5 Arquitetura da solução | ✅ escrito — 3 níveis C4 |
 | [D3](D-arquitetura/D3-diagrama-implantacao.md) | Diagrama de implantação | 4.5 Arquitetura da solução | ✅ escrito |
-| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.6 Segurança e controle de acesso | ✅ escrito — 28 recursos |
+| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.6 Segurança e controle de acesso | ✅ escrito — 31 recursos, agrupados nos quatro módulos |
 
 ### E — Qualidade, riscos e segurança
 

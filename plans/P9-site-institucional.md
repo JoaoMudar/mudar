@@ -7,6 +7,13 @@
 > Neon em produção) — o Neon é só o banco, não traz nada da plataforma Supabase.
 > Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
 
+> 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
+> Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
+> e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão — ela lê
+> dos quatro módulos (espécie e foto de Cadastros, disponibilidade da Produção, preço do
+> Financeiro) e não é um deles. Rotas públicas na raiz, nunca sob `/cadastros`, `/producao`,
+> `/comercial` ou `/financeiro`.
+
 ## Status: NÃO INICIADO
 ## Prioridade: MÉDIA
 ## Dependências: P7 (catálogo — será embutido no site), P8 (identidade visual)
@@ -45,7 +52,7 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 ### Fase 1: Estrutura e Setup
 
 - [ ] **T9.1** Criar projeto Next.js (App Router) — pode ser o mesmo projeto do dashboard ou separado
-  - Se mesmo projeto: rotas públicas `/` e rotas autenticadas `/app`
+  - Se mesmo projeto: rotas públicas `/`, `/sobre`, `/catalogo` e a área autenticada nos quatro módulos (`/cadastros`, `/producao`, `/comercial`, `/financeiro`) — não existe prefixo `/app`
   - Se separado: deploy independente
   - Decisão recomendada: mesmo projeto, domínio único
 - [ ] **T9.2** Configurar domínio no Vercel (viveiromudar.com.br)
@@ -120,7 +127,7 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 ---
 
 ## Notas Técnicas
-- Usar mesmo projeto Next.js do ecossistema. Rotas públicas (site) e rotas `/app` (dashboard/gestão).
+- Usar mesmo projeto Next.js do ecossistema. Rotas públicas (site) convivendo com a área autenticada dos quatro módulos (`/cadastros`, `/producao`, `/comercial`, `/financeiro`).
 - Deploy na Vercel (gratuito para o tráfego esperado).
 - Fotos são o ativo mais importante — investir tempo em boas fotos do viveiro.
 - O site é vitrine, não sistema. Deve ser simples, bonito e rápido.

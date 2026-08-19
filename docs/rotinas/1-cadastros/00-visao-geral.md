@@ -4,7 +4,7 @@
 > *cadastro* (o que é estável e se repete) e separa do que é *movimento* (o que acontece
 > uma vez e vira histórico).
 >
-> Decisões desta rotina em [`plans/P13-producao-agenda-cadastros.md`](../../plans/P13-producao-agenda-cadastros.md).
+> Decisões desta rotina em [`plans/P13-producao-agenda-cadastros.md`](../../../plans/P13-producao-agenda-cadastros.md).
 
 ## O problema
 
@@ -74,7 +74,7 @@ pergunta exigiria casar `customers` com `suppliers` por nome a cada consulta.
 
 > ⚠️ **Antes da Fase 2 do P12, corrigir `mergeParties`** — ele apaga a party redundante
 > repointando só `customers` e `suppliers`, e vai deixar transação órfã ou quebrar na FK.
-> Detalhes em [`divida-tecnica.md`](../divida-tecnica.md) §8.
+> Detalhes em [`divida-tecnica.md`](../../divida-tecnica.md) §8.
 
 **A leitura não é uniforme, e a lista respeita isso.** `cliente:ler` é de chefia, gerência e
 admin; `fornecedor:ler` é só de chefia e admin (D4 §2). Os papéis são filtrados **no
@@ -108,7 +108,7 @@ lançamento financeiro e registro de perda **não** — são movimento, vivem na
 
 Por isso **"tarefas" no cadastro é o catálogo de tipos** (semeadura, repicagem, irrigação,
 limpeza de canteiro), não as tarefas atribuídas a alguém. As atribuídas são movimento e
-ficam na [agenda de pessoal](rotina-producao/01-agenda-de-pessoal.md).
+ficam na [agenda de pessoal](../2-producao/01-agenda-de-pessoal.md).
 
 ## Identidade única de pessoas
 
@@ -154,7 +154,7 @@ Campos mínimos — o formulário tem que caber numa tela de celular:
 | Documento, endereço | não | preenchidos quando o financeiro precisar |
 
 **Não há valor/hora individual.** O custo de mão de obra usa um valor-hora **médio da
-equipe** — decisão registrada na [agenda de pessoal](rotina-producao/01-agenda-de-pessoal.md)
+equipe** — decisão registrada na [agenda de pessoal](../2-producao/01-agenda-de-pessoal.md)
 e que preserva a resolução de conflito do documento de requisitos (B2 §4).
 
 ## Cadastro de tipos de tarefa (novo)

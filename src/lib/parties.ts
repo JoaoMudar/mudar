@@ -8,7 +8,7 @@
 // e a trava que a torna aceitavel e esta: TODA escrita passa por aqui. Um
 // ponto de estrangulamento e um lugar so onde a duplicidade pode divergir.
 //
-// Divisao de responsabilidade, conforme docs/rotinas/rotina-financeiro/
+// Divisao de responsabilidade, conforme docs/rotinas/4-financeiro/
 // 01-cadastro-unico.md:
 //   parties              -> a identidade (nome, documento, contato, endereco)
 //   customers/suppliers  -> o que e do papel (reliability_score, status de
