@@ -10,6 +10,7 @@ import {
   upsertPartyFromSupplier,
   findPartyMatch,
   listParties,
+  getPartyDetail,
   mergeParties,
   fillOnly,
   PARTY_ROLES,
@@ -468,5 +469,58 @@ describe('listParties', () => {
     expect(query.mock.calls[0][1][3]).toBe(200)
     await listParties(db, { roles: ['cliente'], limit: 10 })
     expect(query.mock.calls[1][1][3]).toBe(10)
+  })
+})
+
+describe('getPartyDetail', () => {
+  function dbCom(rows: Record<string, unknown>[]) {
+    const query = vi.fn().mockResolvedValue({ rows })
+    return { db: { query } as unknown as Queryable, query }
+  }
+
+  it('sem papel legível não vai ao banco', async () => {
+    const { db, query } = dbCom([{ id: 'p1', name: 'X', roles: ['cliente'] }])
+    await expect(getPartyDetail(db, 'p1', { roles: [] })).resolves.toBeNull()
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('some quem não tem nenhum papel legível — a ficha não pode abrir por fora', async () => {
+    // O JOIN por papel é o que garante isso: esconder os selos e deixar a ficha
+    // acessível por URL direta seria vazar pelo caminho de trás.
+    const { db, query } = dbCom([])
+    await expect(getPartyDetail(db, 'p1', { roles: ['cliente'] })).resolves.toBeNull()
+    expect(query.mock.calls[0][0]).toMatch(/r\.role = ANY\(\$2::text\[\]\)/)
+  })
+
+  it('traz identidade, papéis e os ids das telas de papel', async () => {
+    const { db } = dbCom([
+      {
+        id: 'p1',
+        name: 'Márcio Kuhar',
+        document: '12345678909',
+        kind: 'pf',
+        phone: null,
+        whatsapp: '47999998888',
+        legal_name: null,
+        trade_name: null,
+        email: null,
+        city: 'Rio do Sul',
+        state: 'SC',
+        roles: ['cliente', 'fornecedor'],
+        customer_id: 'c1',
+        supplier_id: 's1',
+      },
+    ])
+    const p = await getPartyDetail(db, 'p1', { roles: ['cliente', 'fornecedor'] })
+    expect(p?.roles).toEqual(['cliente', 'fornecedor'])
+    expect(p?.customer_id).toBe('c1')
+    expect(p?.supplier_id).toBe('s1')
+    expect(p?.city).toBe('Rio do Sul')
+  })
+
+  it('só pessoa ativa', async () => {
+    const { db, query } = dbCom([])
+    await getPartyDetail(db, 'p1', { roles: ['cliente'] })
+    expect(query.mock.calls[0][0]).toMatch(/p\.id = \$1 AND p\.active/)
   })
 })

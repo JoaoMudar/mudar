@@ -99,14 +99,20 @@ export default function PessoasList({ people, visibleRoles, creatableRoles }: Pr
               key={p.id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3"
             >
-              <p className="font-semibold text-gray-900">{p.name}</p>
+              <Link
+                href={`/cadastros/pessoas/${p.id}`}
+                className="font-semibold text-gray-900 active:text-green-700"
+              >
+                {p.name}
+              </Link>
               <p className="text-sm text-gray-500">
                 {p.document ? maskDocument(p.document) : 'sem documento'}
                 {p.whatsapp || p.phone ? ` · ${p.whatsapp || p.phone}` : ''}
               </p>
-              {/* Um selo por papel, e o selo E o link para a tela do papel.
-                  Quem vende muda e tambem compra tem dois selos e aparece uma
-                  vez so — que e o ponto da identidade unica. */}
+              {/* O NOME abre a ficha da pessoa (a identidade, com o historico
+                  dos dois lados). O SELO abre a tela do papel, onde se editam os
+                  campos daquele papel. Quem vende muda e tambem compra tem dois
+                  selos e aparece uma vez so — o ponto da identidade unica. */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {p.roles.map((role) => {
                   const href = telaDoPapel.get(role) ?? null

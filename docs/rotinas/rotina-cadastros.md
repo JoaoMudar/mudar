@@ -41,6 +41,7 @@ que existem de fato.
 ```
 /cadastros
 ├── pessoas           ← UMA lista, filtrada por papel
+│   ├── [id]          ← a ficha: identidade + histórico dos dois lados
 │   ├── cliente       → /clientes       (a tela do papel, URL antiga)
 │   ├── fornecedor    → /fornecedores   (a tela do papel, URL antiga)
 │   └── funcionário   → sem tela ainda  (P13 T13.3 e T13.7)
@@ -54,6 +55,26 @@ que existem de fato.
 Kuhar — que vende muda e às vezes compra — aparecia duas vezes, que é exatamente o problema
 que `cadastro.parties` foi criada para resolver. A lista mostra a pessoa uma vez, com um selo
 por papel; **o selo é o link** para a tela daquele papel.
+
+**A ficha é a identidade; a tela do papel é o papel.** Na lista, o **nome** abre
+`/cadastros/pessoas/[id]` — quem é a pessoa e o histórico dos dois lados. O **selo** abre a tela
+do papel, onde se editam os campos que são dele. A ficha não edita nada.
+
+**O que a ficha ainda não responde, e por quê.** A pergunta que motivou o cadastro único —
+*quanto compramos e quanto vendemos para esta pessoa* — **não tem resposta em dinheiro hoje**:
+`order_items` não tem coluna de preço e `orders` não tem total, então o pedido registra o que
+saiu, não por quanto. A ficha mostra **volume** na venda (mudas e número de pedidos) e o valor
+**cotado e escolhido** na compra — que é intenção, não pagamento — e diz isso na tela, porque
+número inventado é pior que número ausente.
+
+O valor vem quando `financeiro.transactions` existir (P12 Fase 2). E vem **do extrato**, não do
+pedido: a transação aponta para a mesma `party_id`, com `amount` assinado, e aí a resposta é
+uma soma que não se importa com papel algum. Foi por isso que unir valeu — sem `parties`, a
+pergunta exigiria casar `customers` com `suppliers` por nome a cada consulta.
+
+> ⚠️ **Antes da Fase 2 do P12, corrigir `mergeParties`** — ele apaga a party redundante
+> repointando só `customers` e `suppliers`, e vai deixar transação órfã ou quebrar na FK.
+> Detalhes em [`divida-tecnica.md`](../divida-tecnica.md) §8.
 
 **A leitura não é uniforme, e a lista respeita isso.** `cliente:ler` é de chefia, gerência e
 admin; `fornecedor:ler` é só de chefia e admin (D4 §2). Os papéis são filtrados **no

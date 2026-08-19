@@ -293,3 +293,10 @@ Dois efeitos colaterais que valem registro:
   funcionário cairia numa permissão emprestada.
 - `ModuleLink.permission` passou a aceitar lista, avaliada com `canAny` — Pessoas reúne três
   recursos numa tela só. `canLink()` é o único lugar que decide se um atalho aparece.
+
+A ficha da pessoa (`/cadastros/pessoas/[id]`) nasceu junto, e com uma finalidade declarada: é
+onde *quanto compramos e quanto vendemos para esta pessoa* vai ser respondido. Hoje ela mostra
+volume de venda e valor cotado de compra, e diz na tela que o valor em reais depende da Fase 2
+do P12 — `order_items` não tem preço, então o número virá do extrato, apontando para a mesma
+`party_id`. Ver também [`divida-tecnica.md`](divida-tecnica.md) §8, que registra o conserto que
+`mergeParties` vai precisar quando essa tabela existir.

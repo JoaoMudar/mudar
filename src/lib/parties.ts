@@ -390,6 +390,67 @@ export async function listParties(
   }))
 }
 
+/** A pessoa, com os papéis e os ids das telas de papel. */
+export interface PartyDetail extends PartyListRow {
+  legal_name: string | null
+  trade_name: string | null
+  email: string | null
+  city: string | null
+  state: string | null
+}
+
+/**
+ * Uma pessoa pelo id, com os mesmos cuidados de `listParties`: `roles` limita o
+ * que o chamador pode ver, e a pessoa some se ela nao tiver nenhum papel
+ * legivel — nao adianta esconder os selos e deixar a ficha aberta.
+ */
+export async function getPartyDetail(
+  db: Queryable,
+  id: string,
+  opts: { roles: PartyRole[] },
+): Promise<PartyDetail | null> {
+  if (opts.roles.length === 0) return null
+
+  const { rows } = await db.query(
+    `SELECT p.id, p.name, p.document, p.kind, p.phone, p.whatsapp,
+            p.legal_name, p.trade_name, p.email,
+            array_agg(DISTINCT r.role) AS roles,
+            MAX(c.id::text) AS customer_id,
+            MAX(s.id::text) AS supplier_id,
+            MAX(a.city)     AS city,
+            MAX(a.state)    AS state
+       FROM cadastro.parties p
+       JOIN cadastro.party_roles r
+         ON r.party_id = p.id AND r.role = ANY($2::text[])
+       LEFT JOIN customers c ON c.party_id = p.id AND c.active
+       LEFT JOIN suppliers s ON s.party_id = p.id AND s.active
+       LEFT JOIN cadastro.addresses a ON a.party_id = p.id AND a.is_primary
+      WHERE p.id = $1 AND p.active
+      GROUP BY p.id, p.name, p.document, p.kind, p.phone, p.whatsapp,
+               p.legal_name, p.trade_name, p.email`,
+    [id, opts.roles],
+  )
+  if (rows.length === 0) return null
+
+  const r = rows[0]
+  return {
+    id: r.id as string,
+    name: r.name as string,
+    document: (r.document as string | null) ?? null,
+    kind: (r.kind as PartyKind | null) ?? null,
+    phone: (r.phone as string | null) ?? null,
+    whatsapp: (r.whatsapp as string | null) ?? null,
+    legal_name: (r.legal_name as string | null) ?? null,
+    trade_name: (r.trade_name as string | null) ?? null,
+    email: (r.email as string | null) ?? null,
+    city: (r.city as string | null) ?? null,
+    state: (r.state as string | null) ?? null,
+    roles: (r.roles as PartyRole[]) ?? [],
+    customer_id: (r.customer_id as string | null) ?? null,
+    supplier_id: (r.supplier_id as string | null) ?? null,
+  }
+}
+
 /**
  * Funde duas identidades: `duplicateId` deixa de existir e tudo passa a apontar
  * para `originalId`. Roda na transacao de quem chama.

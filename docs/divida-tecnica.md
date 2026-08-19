@@ -120,6 +120,11 @@ mesmo já sendo uma identidade só no banco.
 Isso é a Fase 2 do P13 (T13.4–T13.8) e não é urgente: a duplicidade de *dado* está resolvida, o que
 resta é duplicidade de *exibição*.
 
+> **Parcialmente fechado em 19/08/2026.** `/cadastros/pessoas` lê de `parties` (via `listParties`)
+> e mostra a pessoa uma vez, com um selo por papel — a duplicidade de exibição acabou na porta de
+> entrada. `/clientes` e `/fornecedores` continuam lendo das colunas antigas, o que está certo:
+> são as telas **do papel**, e é lá que vivem os campos que não são de identidade.
+
 > Corrigido em 19/08/2026 (branch `feat/cadastro-unico-casamento-pessoa`), e que sai desta lista:
 > cadastro novo procurava identidade existente (não procurava — toda criação fazia party nova);
 > `mergeCustomers` deixava a party do duplicado viva e sem dono; e `upsertParty` não sabia apagar
@@ -147,9 +152,35 @@ existem e estão preenchidas; `users` ficou de fora. É pré-requisito para a ag
 
 ---
 
+## 8. `mergeParties` vai apagar histórico financeiro — **quando o financeiro existir**
+
+**Estado:** latente. Não dá para corrigir hoje, porque `financeiro.transactions` ainda não
+existe; e não dá para esquecer, porque no dia em que existir a falha é silenciosa.
+
+`mergeParties` (`src/lib/parties.ts`) termina com `DELETE FROM cadastro.parties` e, antes disso,
+repointa **só** `customers` e `suppliers`. `financeiro.transactions.party_id` (P12 Fase 2,
+`docs/rotinas/rotina-financeiro/02-schema-financeiro.md:50`) será uma terceira FK para a mesma
+linha. Fundir duas identidades depois disso ou **falha na FK**, ou — se alguém usar
+`ON DELETE SET NULL` para destravar — **desliga as transações da pessoa sem avisar**: o dinheiro
+segue no saldo e some do histórico dela.
+
+**Por que importa:** fundir identidade não é caso raro, é a rotina que o cadastro único existe
+para servir — `PartyMatchPrompt` oferece a fusão toda vez que um fornecedor conhecido é
+cadastrado como cliente. E é justamente a pessoa com os dois papéis, de quem se compra e para
+quem se vende, cujo histórico tem mais valor.
+
+**Correção:** está escrita na Fase 2 do P12, em "A armadilha 4, por extenso"
+([`plans/P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md)) — FK RESTRICT
+explícita, `UPDATE` das transações no passo 5, e um teste que falhe se sobrar referência.
+
+---
+
 ## Ordem sugerida
 
 **1** (backup) antes de qualquer coisa — é uma tarde de trabalho e é o único risco irreversível.
 Depois **3** (drift de schema), que é barato e cobre a falha mais provável. **2** e **7** entram
 quando houver folga; **5** entra com a Fase 2 do P13 e **6** com a Fase 3, que são quem precisa de
 cada um. **4** está fechado (resta só o source map, que é conforto).
+
+**8 não tem ordem: tem gatilho.** Ele não pode ser feito antes da Fase 2 do P12 nem depois dela
+— tem que ser feito **na mesma migration** que criar `financeiro.transactions`.

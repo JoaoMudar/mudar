@@ -97,7 +97,9 @@ Rotina **agrupadora**, sem processo próprio. Reúne o que é estável e se repe
 **Pessoas são uma identidade só.** Cliente, fornecedor e funcionário são papéis de
 `cadastro.parties` — quem vende muda e às vezes compra é um cadastro só. Por isso
 `/cadastros/pessoas` é **uma lista com filtro por papel**, e não uma aba por papel: a pessoa
-aparece uma vez, com um selo por papel que leva à tela daquele papel.
+aparece uma vez, com um selo por papel que leva à tela daquele papel. O nome abre a **ficha**
+(`/cadastros/pessoas/[id]`), com o histórico dos dois lados — é onde o *quanto compramos e
+quanto vendemos* vai aparecer quando o Financeiro existir.
 
 Os papéis vêm filtrados do servidor pelo que o usuário pode ler — `fornecedor:ler` é só de
 chefia e admin, então a gerência não vê a rede de fornecedores nem de relance. Funcionário
