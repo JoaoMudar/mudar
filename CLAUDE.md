@@ -30,6 +30,10 @@ Toda alteração no banco: (1) arquivo `.sql` em `migrations/` (psql puro), (2) 
 - Componentes React PascalCase (1 por arquivo); hooks `useNome.ts`; utils camelCase; rotas API kebab-case.
 - Commits: Conventional Commits em português (ex: `feat(custeio): adiciona cálculo de custo`).
 
+## Escrita
+- **Nunca usar travessão (—).** Vale para docs, comentários, commits e respostas. Use vírgula, dois-pontos, ponto ou parênteses.
+- Explicação curta. Diga o que mudou e o que o usuário precisa saber; corte o resto.
+
 ## Regras de negócio
 - **Espécie** é a entidade central — tudo gira em torno dela.
 - **Recipientes** (tubete, sacos 10x18 / 17x22 / 20x26 / 28x32, balde) definem o tamanho da muda → impactam custo e preço.
