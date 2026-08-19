@@ -16,6 +16,21 @@ Nada aqui se edita por conta própria. Alterou uma regra? Altere em `B3` e trans
 A numeração dos quadros é a que já está no texto do TCC e **não muda**, mesmo quando um quadro
 cresce: o Quadro 3, por exemplo, foi de 6 para 12 linhas sem virar dois.
 
+**Para levar ao Word**, não copie daqui à mão:
+
+```bash
+npm run docs:quadros
+```
+
+O comando lê este arquivo e escreve `quadros-regras-de-negocio-e-requisitos.docx` na raiz do
+repositório, com os 13 quadros já formatados — é só abrir e colar cada tabela no lugar. O `.docx`
+é **saída descartável**: some e volta a cada execução, e editar dentro dele é a mesma armadilha de
+editar dentro de `word/`.
+
+O parser é literal: ele espera `## Quadro N – Título`, a tabela markdown logo abaixo e a linha
+`Fonte: …` em seguida. Mudar esse formato quebra a geração em silêncio, então confira a contagem
+de linhas que o comando imprime.
+
 ---
 
 # Quadros — regras de negócio
@@ -319,5 +334,10 @@ Fonte: Elaborado pelo autor (2026).
 - Os totais do Quadro 9 e do Quadro 13 são derivados: ao acrescentar regra ou requisito,
   recontar antes de publicar. `B3` §3.10 e `B2` §4 são as contagens de referência.
 - Os **nomes** dos requisitos (coluna *Nome* dos Quadros 10 e 11) só existem aqui — `B2` não
-  tem coluna de nome. Nome novo entra junto com o requisito.
+  tem coluna de nome. Nome novo entra junto com o requisito. É por isso que o gerador do `.docx`
+  lê este arquivo, e não `B2` e `B3` diretamente.
+- O **Quadro 13** tem cabeçalho de dois níveis no Word (*Origem* mesclada na vertical, *Requisitos
+  funcionais* e *não funcionais* mescladas na horizontal). Aqui ele aparece achatado em cinco
+  colunas, porque markdown não mescla célula; quem remonta a mescla é
+  [`scripts/build-quadros-docx.mjs`](../../../scripts/build-quadros-docx.mjs).
 
