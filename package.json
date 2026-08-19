@@ -19,7 +19,8 @@
     "db:seed-suppliers": "tsx scripts/seed-supplier-network.ts",
     "db:verifica-cadastro": "tsx scripts/verifica-cadastro-unico.ts",
     "db:refresh-local": "powershell -ExecutionPolicy Bypass -File scripts/refresh-local-db.ps1",
-    "docs:tcc": "node scripts/build-docs-tcc.mjs"
+    "docs:tcc": "node scripts/build-docs-tcc.mjs",
+    "docs:mapas": "node scripts/render-mapas.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

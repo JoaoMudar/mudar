@@ -32,7 +32,10 @@
 
 ![Mapa do sistema — quatro módulos](img/mapa-sistema-v2.png)
 
-🟩 pronto · 🟨 começado · 🟥 não existe ainda
+**Como ler o status.** O critério é contado sobre a tabela de etapas de cada módulo, mais
+abaixo nesta página: **cinza sólido** = toda etapa tem tela · **tracejado largo** = parte tem ·
+**tracejado fino, sem preenchimento** = nenhuma tem. A fração aparece no próprio nó, porque
+"parte tem" cobre tanto o Comercial (6 de 8) quanto o Financeiro (1 de 9).
 
 **Três leituras que o diagrama torna imediatas:**
 
@@ -58,18 +61,24 @@ possível de horas. Sem ela, custeio e precificação continuam sendo estimativa
 <details>
 <summary>Fonte dos diagramas (Mermaid)</summary>
 
-Os arquivos `.mmd` ficam em [`img/`](img/). Para regenerar um PNG:
+Os arquivos `.mmd` ficam em [`img/`](img/). Para regenerar:
 
 ```bash
-npx -y @mermaid-js/mermaid-cli -i docs/rotinas/img/mapa-sistema-v2.mmd \
-  -o docs/rotinas/img/mapa-sistema-v2.png -w 1600 -b white
+npm run docs:mapas                    # todos
+npm run docs:mapas mapa-2-producao    # só um
 ```
 
-⚠️ **O `-w` não é o mesmo para todos os mapas** — cada um foi gerado com a largura que o seu
-conteúdo pedia, e o PNG sai com `-w` menos 16 px. Antes de regerar, confira a largura do PNG
-atual e use o `-w` correspondente (PNG de 1584 px ⇒ `-w 1600`; de 1784 px ⇒ `-w 1800`), senão
-a figura reescala e o diff fica com uma mudança que ninguém pediu. `mapa-4-financeiro` usa
-`-w 1800`.
+**A cor mora no `.mmd`; o cinza mora no `.png`.** Os arquivos-fonte usam verde, amarelo e
+vermelho — é o que faz sentido num preview de Mermaid, na tela. O
+[`scripts/render-mapas.mjs`](../../scripts/render-mapas.mjs) troca essa paleta por uma escala
+de cinza numa cópia temporária, renderiza e joga a cópia fora. O que vai para o repositório e
+para o TCC é o cinza, que sobrevive à impressão em preto e branco; o que se edita continua
+colorido.
+
+As três classes de status chamam-se `ok`, `meio` e `falta` nos oito diagramas — quem
+acrescentar um mapa deve usar os mesmos nomes, senão o script não encontra o que trocar. A
+largura também mora no script, uma só para todos: antes disso cada mapa tinha sido gerado com
+um `-w` diferente, e regerar com o valor errado reescalava a figura sem ninguém perceber.
 
 O PNG é a fonte para leitura e para o TCC; o `.mmd` é a fonte para edição.
 
