@@ -10,7 +10,8 @@
 
 ## Como ler
 
-Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-relacionamento.md).
+Uma tabela por entidade, na mesma ordem de [`C6`](C6-modelo-entidade-relacionamento.md): os
+quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 | Coluna do dicionário | Significado |
 |---|---|
@@ -32,7 +33,7 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 
 ---
 
-# Área 1 — Acesso
+# Acesso — transversal aos quatro módulos
 
 ## `users` — usuário do sistema
 
@@ -85,7 +86,7 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 
 ---
 
-# Área 2 — Catálogo e custeio
+# Módulo 1 · Cadastros
 
 ## `species` — espécie *(entidade central)*
 
@@ -148,6 +149,122 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 > Existe para impedir que a atualização de preço reescreva retroativamente o custo já apurado —
 > anomalia de atualização que a normalização busca evitar.
 
+## `customers` — cliente
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | varchar(255) | ● | | Nome de tratamento. **Único campo exigido no cadastro rápido**, junto ao telefone |
+| `phone` | varchar(20) | ○ | | Telefone, canal principal de contato |
+| `person_type` | varchar(2) | ○ | | `pf` ou `pj`. Nulo indica cadastro simples ainda não completado |
+| `document` | varchar(14) | ○ | UK parcial | CPF ou CNPJ, apenas dígitos. Único **quando informado** |
+| `email` | varchar(255) | ○ | | Correio eletrônico |
+| `legal_name` | varchar(255) | ○ | | Razão social, quando pessoa jurídica |
+| `trade_name` | varchar(255) | ○ | | Nome fantasia |
+| `state_registration` | varchar(20) | ○ | | Inscrição estadual |
+| `ie_exempt` | boolean | ○ | | Isento de inscrição estadual |
+| `zip_code` | varchar(8) | ○ | | Código postal |
+| `street` | varchar(255) | ○ | | Logradouro |
+| `address_number` | varchar(20) | ○ | | Número |
+| `complement` | varchar(255) | ○ | | Complemento |
+| `neighborhood` | varchar(100) | ○ | | Bairro |
+| `city` | varchar(100) | ○ | | Município |
+| `state` | varchar(2) | ○ | | Unidade federativa |
+| `notes` | text | ○ | | Observações |
+| `active` | boolean | ○ | | Cliente ativo |
+
+> **Todos os campos fiscais são opcionais.** É decisão de projeto, não omissão: exigi-los no cadastro
+> rápido interromperia o registro do pedido durante a negociação. A complementação ocorre no
+> fechamento, e apenas quando há nota fiscal a emitir (RF-40).
+
+## `suppliers` — fornecedor
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `name` | text | ● | | Nome do viveiro ou produtor |
+| `contact_name` | text | ○ | | Pessoa de contato |
+| `whatsapp` | varchar(20) | ○ | | Número de mensageria, apenas dígitos |
+| `phone` | varchar(20) | ○ | | Telefone secundário |
+| `email` | text | ○ | | Correio eletrônico |
+| `instagram` | text | ○ | | Perfil em rede social |
+| `city` | text | ○ | | Município |
+| `state` | varchar(2) | ○ | | Unidade federativa. **Sem valor padrão** — fornecedor é de qualquer estado |
+| `reliability_score` | smallint | ○ | | Grau de confiabilidade, de 0 a 5 |
+| `status` | varchar(20) | ● | | `lead`, `active`, `inactive`, `do_not_contact` |
+| `last_contacted_at` | timestamptz | ○ | | Último contato |
+| `lat` | numeric(9,6) | ○ | | Latitude, obtida por geocodificação sob demanda |
+| `lng` | numeric(9,6) | ○ | | Longitude |
+| `geocoded_at` | timestamptz | ○ | | Momento da tentativa de geocodificação. Preenchido com coordenadas nulas significa **não localizado**, e evita nova tentativa automática |
+| `active` | boolean | ● | | Registro arquivado por exclusão lógica |
+| `notes` | text | ○ | | Observações |
+
+> **`active` e `status` são informações distintas**, não redundância acidental: `active` falso é
+> arquivamento do registro; `status` inativo é fornecedor que parou de vender, mas cujo histórico
+> interessa. `do_not_contact` registra **oposição do titular** ao contato comercial e o exclui de
+> qualquer cotação — ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
+
+## `supplier_species` — oferta do fornecedor
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `supplier_id` | uuid | ● | FK → `suppliers` | Fornecedor |
+| `species_id` | uuid | ● | FK → `species` | Espécie ofertada, do catálogo canônico |
+| `size` | text | ○ | | Porte ofertado, em texto livre |
+| `container` | text | ○ | | Embalagem do fornecedor, em **texto livre** — raiz nua, lata, saco de um metro |
+| `unit_price` | numeric(10,2) | ○ | | Preço unitário informado |
+| `min_quantity` | integer | ○ | | Quantidade mínima de compra |
+| `availability` | varchar(15) | ● | | `in_stock`, `on_order`, `unknown` |
+| `source` | varchar(15) | ● | | Origem do dado: `manual`, `paste`, `quote` |
+
+> **Sem restrição de unicidade por fornecedor e espécie:** o mesmo fornecedor oferece a espécie em
+> portes e preços diferentes, e cada combinação é uma oferta distinta.
+
+## `cadastro.parties` — identidade
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `kind` | varchar(2) | ○ | | **Natureza da pessoa**: `pf` ou `pj`. NULL quando não informado — o cadastro simples legado não preenchia, e presumir pessoa física para uma prefeitura seria pior que registrar a ausência |
+| `document` | varchar(14) | ○ | | CPF ou CNPJ, só dígitos. UNIQUE parcial `WHERE document IS NOT NULL` |
+| `name` | text | ● | | Nome usual — o que aparece nas listas |
+| `legal_name` | text | ○ | | Razão social (PJ) |
+| `trade_name` | text | ○ | | Nome fantasia (PJ) |
+| `email`, `phone`, `whatsapp` | text/varchar | ○ | | Contato. `whatsapp` só dígitos |
+| `notes` | text | ○ | | Observações |
+| `active` | boolean | ● | | Soft-delete, padrão do sistema |
+
+> **Correção de 11/08/2026.** Este dicionário descrevia `kind` como *natureza do vínculo*
+> (cliente, fornecedor, funcionário). Estava errado: um `kind` único não representa o caso que
+> motivou a tabela — a mesma pessoa que vende muda e também compra. O vínculo passou para
+> `party_roles`, que admite N papéis por identidade; `kind` ficou com a natureza da pessoa.
+> Fonte canônica: [`docs/rotinas/4-financeiro/01-cadastro-unico.md`](../../rotinas/4-financeiro/01-cadastro-unico.md).
+
+## `cadastro.party_roles` — papéis da identidade
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `party_id` | uuid | ● | PK, FK → `cadastro.parties` | Identidade |
+| `role` | varchar(20) | ● | PK | `cliente`, `fornecedor`, `funcionario`, `socio`, `familiar`, `banco`, `governo`, `contador`, `outro` |
+
+> `funcionario` aqui é **vínculo empregatício**, e não nível de acesso. O nível de acesso é
+> `users.role`, cujo valor foi renomeado para `colaborador` na migration `20260810000001`
+> justamente para desfazer essa ambiguidade.
+
+## `cadastro.addresses` — endereços da identidade
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `party_id` | uuid | ● | FK → `cadastro.parties` | Identidade |
+| `label` | varchar(20) | ● | | `principal`, `entrega`, `cobranca` ou `outro` — endereço de cobrança diferente do de entrega não cabia como coluna em `customers` |
+| `zip_code`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `ibge_code` | | ○ | | Endereço. `number` corresponde a `customers.address_number` |
+| `lat`, `lng`, `geocoded_at` | numeric/timestamptz | ○ | | Coordenadas do mapa de fornecedores (P11 F4) |
+| `is_primary` | boolean | ● | | UNIQUE parcial: no máximo um principal por identidade |
+
+# Módulo 2 · Produção
+
 ## `input_usages` — consumo de insumo
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
@@ -162,16 +279,6 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 
 > Alimentado pelo formulário de campo do colaborador (RF-14). É a entidade de maior volume de
 > escrita do sistema e a que mais depende do funcionamento sem conexão.
-
-## `fixed_costs` — custo fixo mensal
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `category` | enum | ● | | `salarios`, `energia`, `agua`, `manutencao`, `combustivel`, `depreciacao`, `outros` |
-| `monthly_amount` | numeric(12,2) | ● | | Valor do mês |
-| `reference_month` | date | ● | | Mês de referência, sempre o primeiro dia |
-| `notes` | text | ○ | | Observação |
 
 ## `seed_collection_costs` — custo de coleta de sementes
 
@@ -188,42 +295,6 @@ Uma tabela por entidade, na mesma ordem de áreas de [`C6`](C6-modelo-entidade-r
 | `seeds_collected_qty` | integer | ○ | | Sementes obtidas |
 | `cost_per_seed` | numeric(10,4) | ○ | | **Derivado** — custo total dividido pelas sementes obtidas. Mantido pelo banco |
 | `collection_date` | date | ● | | Data da coleta |
-
-## `production_costs` — custo variável por espécie e recipiente
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `species_id` | uuid | ● | FK → `species` | Espécie |
-| `container_id` | uuid | ● | FK → `containers` | Recipiente |
-| `substrate_cost` | numeric(10,2) | ● | | Custo do substrato |
-| `seed_cost` | numeric(10,2) | ● | | Custo da semente |
-| `input_costs_json` | jsonb | ● | | Demais insumos aplicados, com quantidade e custo por insumo |
-| `labor_minutes` | numeric(8,2) | ● | | Minutos de mão de obra |
-| `labor_cost` | numeric(10,2) | ● | | Custo da mão de obra |
-| `total_variable_cost` | numeric(12,2) | ● | | **Derivado** — soma de substrato, semente e mão de obra |
-| `calculated_at` | timestamptz | ● | | Momento do último cálculo |
-
-**Restrição de unicidade:** uma única linha por combinação de espécie e recipiente.
-
-## `species_unit_cost` — visão de custo unitário *(não é tabela)*
-
-Visão que compõe o custo variável apurado com o rateio do custo fixo mensal, entregando o **custo
-unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17). Não armazena dados:
-é derivação sobre `production_costs`, `species`, `containers` e `fixed_costs`.
-
-| Atributo exposto | Origem |
-|---|---|
-| `species_id`, `common_name`, `scientific_name` | `species` |
-| `container_id`, `container_name` | `containers` |
-| `substrate_cost`, `seed_cost`, `labor_cost`, `total_variable_cost` | `production_costs` |
-| `total_fixed_cost_month` | soma de `fixed_costs` do mês corrente |
-| `fixed_cost_allocated` | rateio do custo fixo sobre as combinações ativas |
-| `unit_cost_estimated` | custo variável somado ao rateio |
-
----
-
-# Área 3 — Produção
 
 ## `production_activities` — atividade de produção
 
@@ -279,35 +350,7 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ---
 
-# Área 4 — Comercial
-
-## `customers` — cliente
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `name` | varchar(255) | ● | | Nome de tratamento. **Único campo exigido no cadastro rápido**, junto ao telefone |
-| `phone` | varchar(20) | ○ | | Telefone, canal principal de contato |
-| `person_type` | varchar(2) | ○ | | `pf` ou `pj`. Nulo indica cadastro simples ainda não completado |
-| `document` | varchar(14) | ○ | UK parcial | CPF ou CNPJ, apenas dígitos. Único **quando informado** |
-| `email` | varchar(255) | ○ | | Correio eletrônico |
-| `legal_name` | varchar(255) | ○ | | Razão social, quando pessoa jurídica |
-| `trade_name` | varchar(255) | ○ | | Nome fantasia |
-| `state_registration` | varchar(20) | ○ | | Inscrição estadual |
-| `ie_exempt` | boolean | ○ | | Isento de inscrição estadual |
-| `zip_code` | varchar(8) | ○ | | Código postal |
-| `street` | varchar(255) | ○ | | Logradouro |
-| `address_number` | varchar(20) | ○ | | Número |
-| `complement` | varchar(255) | ○ | | Complemento |
-| `neighborhood` | varchar(100) | ○ | | Bairro |
-| `city` | varchar(100) | ○ | | Município |
-| `state` | varchar(2) | ○ | | Unidade federativa |
-| `notes` | text | ○ | | Observações |
-| `active` | boolean | ○ | | Cliente ativo |
-
-> **Todos os campos fiscais são opcionais.** É decisão de projeto, não omissão: exigi-los no cadastro
-> rápido interromperia o registro do pedido durante a negociação. A complementação ocorre no
-> fechamento, e apenas quando há nota fiscal a emitir (RF-40).
+# Módulo 3 · Comercial
 
 ## `orders` — pedido
 
@@ -401,52 +444,6 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ---
 
-# Área 5 — Fornecedores
-
-## `suppliers` — fornecedor
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `name` | text | ● | | Nome do viveiro ou produtor |
-| `contact_name` | text | ○ | | Pessoa de contato |
-| `whatsapp` | varchar(20) | ○ | | Número de mensageria, apenas dígitos |
-| `phone` | varchar(20) | ○ | | Telefone secundário |
-| `email` | text | ○ | | Correio eletrônico |
-| `instagram` | text | ○ | | Perfil em rede social |
-| `city` | text | ○ | | Município |
-| `state` | varchar(2) | ○ | | Unidade federativa. **Sem valor padrão** — fornecedor é de qualquer estado |
-| `reliability_score` | smallint | ○ | | Grau de confiabilidade, de 0 a 5 |
-| `status` | varchar(20) | ● | | `lead`, `active`, `inactive`, `do_not_contact` |
-| `last_contacted_at` | timestamptz | ○ | | Último contato |
-| `lat` | numeric(9,6) | ○ | | Latitude, obtida por geocodificação sob demanda |
-| `lng` | numeric(9,6) | ○ | | Longitude |
-| `geocoded_at` | timestamptz | ○ | | Momento da tentativa de geocodificação. Preenchido com coordenadas nulas significa **não localizado**, e evita nova tentativa automática |
-| `active` | boolean | ● | | Registro arquivado por exclusão lógica |
-| `notes` | text | ○ | | Observações |
-
-> **`active` e `status` são informações distintas**, não redundância acidental: `active` falso é
-> arquivamento do registro; `status` inativo é fornecedor que parou de vender, mas cujo histórico
-> interessa. `do_not_contact` registra **oposição do titular** ao contato comercial e o exclui de
-> qualquer cotação — ver [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
-
-## `supplier_species` — oferta do fornecedor
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `supplier_id` | uuid | ● | FK → `suppliers` | Fornecedor |
-| `species_id` | uuid | ● | FK → `species` | Espécie ofertada, do catálogo canônico |
-| `size` | text | ○ | | Porte ofertado, em texto livre |
-| `container` | text | ○ | | Embalagem do fornecedor, em **texto livre** — raiz nua, lata, saco de um metro |
-| `unit_price` | numeric(10,2) | ○ | | Preço unitário informado |
-| `min_quantity` | integer | ○ | | Quantidade mínima de compra |
-| `availability` | varchar(15) | ● | | `in_stock`, `on_order`, `unknown` |
-| `source` | varchar(15) | ● | | Origem do dado: `manual`, `paste`, `quote` |
-
-> **Sem restrição de unicidade por fornecedor e espécie:** o mesmo fornecedor oferece a espécie em
-> portes e preços diferentes, e cada combinação é uma oferta distinta.
-
 ## `supplier_quotes` — cotação
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
@@ -478,11 +475,53 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 | `sale_unit_price` | numeric(10,2) | ○ | | Preço de revenda ao cliente, validado contra o piso mínimo |
 | `response_notes` | text | ○ | | Observações da resposta |
 
+---Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, §3.5](C6-modelo-entidade-relacionamento.md)).
+
+# Módulo 4 · Financeiro
+
+## `fixed_costs` — custo fixo mensal
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `category` | enum | ● | | `salarios`, `energia`, `agua`, `manutencao`, `combustivel`, `depreciacao`, `outros` |
+| `monthly_amount` | numeric(12,2) | ● | | Valor do mês |
+| `reference_month` | date | ● | | Mês de referência, sempre o primeiro dia |
+| `notes` | text | ○ | | Observação |
+
+## `production_costs` — custo variável por espécie e recipiente
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `species_id` | uuid | ● | FK → `species` | Espécie |
+| `container_id` | uuid | ● | FK → `containers` | Recipiente |
+| `substrate_cost` | numeric(10,2) | ● | | Custo do substrato |
+| `seed_cost` | numeric(10,2) | ● | | Custo da semente |
+| `input_costs_json` | jsonb | ● | | Demais insumos aplicados, com quantidade e custo por insumo |
+| `labor_minutes` | numeric(8,2) | ● | | Minutos de mão de obra |
+| `labor_cost` | numeric(10,2) | ● | | Custo da mão de obra |
+| `total_variable_cost` | numeric(12,2) | ● | | **Derivado** — soma de substrato, semente e mão de obra |
+| `calculated_at` | timestamptz | ● | | Momento do último cálculo |
+
+**Restrição de unicidade:** uma única linha por combinação de espécie e recipiente.
+
+## `species_unit_cost` — visão de custo unitário *(não é tabela)*
+
+Visão que compõe o custo variável apurado com o rateio do custo fixo mensal, entregando o **custo
+unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17). Não armazena dados:
+é derivação sobre `production_costs`, `species`, `containers` e `fixed_costs`.
+
+| Atributo exposto | Origem |
+|---|---|
+| `species_id`, `common_name`, `scientific_name` | `species` |
+| `container_id`, `container_name` | `containers` |
+| `substrate_cost`, `seed_cost`, `labor_cost`, `total_variable_cost` | `production_costs` |
+| `total_fixed_cost_month` | soma de `fixed_costs` do mês corrente |
+| `fixed_cost_allocated` | rateio do custo fixo sobre as combinações ativas |
+| `unit_cost_estimated` | custo variável somado ao rateio |
+
 ---
-
-# Área 6 — Financeiro
-
-Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, §3.5](C6-modelo-entidade-relacionamento.md)).
 
 ## `accounts` — conta
 
@@ -526,48 +565,6 @@ Esquema separado do restante do sistema, por decisão de segurança (ver [`C6`, 
 | `group_id` | uuid | ● | FK → `category_groups` | Grupo |
 | `name` | text | ● | | Nome da categoria |
 | `direction` | text | ● | | `saida`, `entrada` ou `ambos`. Restringe o que a lista oferece conforme o sinal do valor |
-
-## `cadastro.parties` — identidade
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `kind` | varchar(2) | ○ | | **Natureza da pessoa**: `pf` ou `pj`. NULL quando não informado — o cadastro simples legado não preenchia, e presumir pessoa física para uma prefeitura seria pior que registrar a ausência |
-| `document` | varchar(14) | ○ | | CPF ou CNPJ, só dígitos. UNIQUE parcial `WHERE document IS NOT NULL` |
-| `name` | text | ● | | Nome usual — o que aparece nas listas |
-| `legal_name` | text | ○ | | Razão social (PJ) |
-| `trade_name` | text | ○ | | Nome fantasia (PJ) |
-| `email`, `phone`, `whatsapp` | text/varchar | ○ | | Contato. `whatsapp` só dígitos |
-| `notes` | text | ○ | | Observações |
-| `active` | boolean | ● | | Soft-delete, padrão do sistema |
-
-> **Correção de 11/08/2026.** Este dicionário descrevia `kind` como *natureza do vínculo*
-> (cliente, fornecedor, funcionário). Estava errado: um `kind` único não representa o caso que
-> motivou a tabela — a mesma pessoa que vende muda e também compra. O vínculo passou para
-> `party_roles`, que admite N papéis por identidade; `kind` ficou com a natureza da pessoa.
-> Fonte canônica: [`docs/rotinas/4-financeiro/01-cadastro-unico.md`](../../rotinas/4-financeiro/01-cadastro-unico.md).
-
-## `cadastro.party_roles` — papéis da identidade
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `party_id` | uuid | ● | PK, FK → `cadastro.parties` | Identidade |
-| `role` | varchar(20) | ● | PK | `cliente`, `fornecedor`, `funcionario`, `socio`, `familiar`, `banco`, `governo`, `contador`, `outro` |
-
-> `funcionario` aqui é **vínculo empregatício**, e não nível de acesso. O nível de acesso é
-> `users.role`, cujo valor foi renomeado para `colaborador` na migration `20260810000001`
-> justamente para desfazer essa ambiguidade.
-
-## `cadastro.addresses` — endereços da identidade
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `party_id` | uuid | ● | FK → `cadastro.parties` | Identidade |
-| `label` | varchar(20) | ● | | `principal`, `entrega`, `cobranca` ou `outro` — endereço de cobrança diferente do de entrega não cabia como coluna em `customers` |
-| `zip_code`, `street`, `number`, `complement`, `neighborhood`, `city`, `state`, `ibge_code` | | ○ | | Endereço. `number` corresponde a `customers.address_number` |
-| `lat`, `lng`, `geocoded_at` | numeric/timestamptz | ○ | | Coordenadas do mapa de fornecedores (P11 F4) |
-| `is_primary` | boolean | ● | | UNIQUE parcial: no máximo um principal por identidade |
 
 ## `statement_imports` — importação de extrato
 
@@ -667,8 +664,6 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 
 ---
 
-# Área 7 — Precificação
-
 ## `sale_channels` — canal de venda
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
@@ -708,13 +703,13 @@ ausência de sobreposição entre períodos de vigência.
 
 ## Resumo
 
-| Área | Entidades | Observação |
+| Módulo | Entidades | Observação |
 |---|---:|---|
-| Acesso | 4 | |
-| Catálogo e custeio | 9 | mais 1 visão derivada |
-| Produção | 3 | atividade, perdas e contagem |
-| Comercial | 7 | |
-| Precificação | 2 | |
-| Fornecedores | 4 | |
-| Financeiro | 10 | esquema separado |
-| **Total** | **39** | |
+| *(transversal)* Acesso | 4 | |
+| 1 · Cadastros | 11 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
+| 2 · Produção | 5 | consumo, coleta, atividade, perda, contagem |
+| 3 · Comercial | 8 | pedido, item, carga, cotação |
+| 4 · Financeiro | 13 | esquema `financeiro` separado, mais custeio e preço |
+| **Total** | **41** | mais `species_unit_cost`, que é visão e não tabela |
+
+

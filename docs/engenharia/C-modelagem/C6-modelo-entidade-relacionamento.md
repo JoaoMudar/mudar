@@ -14,45 +14,27 @@
 fornecedor referenciam-na por chave estrangeira. Essa centralidade não é preferência de projeto: é a
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
-O modelo é apresentado em **sete áreas**. Um diagrama único com as 39 entidades seria ilegível em
-página impressa.
+O modelo é apresentado em **cinco agrupamentos** — os quatro módulos do sistema, mais o Acesso,
+que atravessa todos. Um diagrama único com as 41 entidades seria ilegível em página impressa, e
+usar aqui o mesmo agrupamento dos requisitos ([`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md))
+e da matriz de acesso ([`D4 §2`](../D-arquitetura/D4-matriz-rbac.md)) permite ler os três
+documentos lado a lado sem traduzir de um para o outro.
 
-| Área | Entidades | Papel |
+| Agrupamento | Entidades | Papel |
 |---|---|---|
-| **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
-| **Catálogo e custeio** | 9 | Catálogo e apuração de custo — fundação de todo o resto |
-| **Produção** | 3 | Produção, perdas e contagem de estoque |
-| **Comercial** | 7 | Cliente, pedido, item, carga |
-| **Precificação** | 2 | Canal de venda e preço vigente |
-| **Fornecedores** | 4 | Cadastro do fornecedor e cotação |
-| **Financeiro** | 10 | Extrato como fonte da verdade |
-| **Total** | **39** | |
+| *(transversal)* **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
+| **1 · Cadastros** | 11 | Catálogo de produção e identidade das pessoas — não consome nada, alimenta tudo |
+| **2 · Produção** | 5 | Consumo, coleta, atividade, perda e contagem de estoque |
+| **3 · Comercial** | 8 | Pedido, item, carga e cotação com fornecedor |
+| **4 · Financeiro** | 13 | Extrato como fonte da verdade, custeio e preço |
+| **Total** | **41** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
 
-### Área de dados não é módulo
+**O preço da escolha, declarado:** agrupar por propósito faz relacionamentos cruzarem a fronteira
+do diagrama — `input_usages` é da Produção e aponta para `species`, `containers` e `inputs`, que
+são de Cadastros. A convenção do §3 resolve isso sem duplicar conteúdo: a entidade estrangeira
+aparece como **caixa vazia**, só para a aresta existir.
 
-O sistema é organizado em **quatro módulos** — Cadastros, Produção, Comercial, Financeiro
-([`00-mapa-de-rotinas`](../../rotinas/00-mapa-de-rotinas.md)) —, e as áreas acima **não são**
-esses módulos. A divergência é deliberada, e vale explicá-la porque é o tipo de coisa que a
-banca pergunta.
-
-O módulo agrupa por **propósito**: onde a tela mora e quem pode abri-la. A área de dados
-agrupa por **vizinhança de chave estrangeira**: o que precisa ser lido no mesmo diagrama para
-o diagrama fazer sentido. `input_usages` é do módulo Produção (é o colaborador quem a
-preenche, no celular), mas aponta para `species`, `containers` e `inputs`, que são do módulo
-Cadastros — desenhá-la longe deles produziria uma figura com três setas para fora e nenhuma
-informação dentro.
-
-O mapa entre as duas decomposições:
-
-| Módulo | Onde suas entidades estão |
-|---|---|
-| *(transversal)* **Acesso** | área **Acesso**, integralmente |
-| **1 · Cadastros** | `species`, `species_popular_names`, `containers`, `inputs`, `input_price_history` (área Catálogo e custeio); `customers` (área Comercial); `suppliers`, `supplier_species` (área Fornecedores); `parties`, `party_roles`, `addresses` (área Financeiro — esquema `cadastro`) |
-| **2 · Produção** | área **Produção**, integralmente; mais `input_usages` e `seed_collection_costs` (área Catálogo e custeio) |
-| **3 · Comercial** | resto da área **Comercial** (`orders`, `order_items`, `order_loads`, …); `supplier_quotes`, `supplier_quote_items` (área Fornecedores) |
-| **4 · Financeiro** | resto da área **Financeiro**; `fixed_costs`, `production_costs`, `species_unit_cost` (área Catálogo e custeio); área **Precificação**, integralmente |
-
-Duas leituras que esse mapa torna imediatas:
+Duas realocações merecem nota, porque contrariam a intuição de onde a entidade nasceu:
 
 - **O esquema `cadastro` (`parties`, `party_roles`, `addresses`) nasceu dentro do financeiro e
   serve o módulo 1.** Foi desenhado para dar contraparte a cada linha do extrato, mas o que ele
@@ -101,17 +83,18 @@ erDiagram
   PEDIDO       ||--o| LANCAMENTO  : "é conciliado com"
 ```
 
-O diagrama conceitual apresenta **dezoito entidades**, e não as trinta e nove do modelo completo.
+O diagrama conceitual apresenta **dezoito entidades**, e não as quarenta e uma do modelo completo.
 A redução é deliberada: Sommerville (2011) observa que a ausência de detalhe excessivo é
 característica central do modelo, cujo objetivo é destacar o mais relevante e não especificar por
 inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas nos modelos lógicos por
-área, na seção seguinte.
+módulo, na seção seguinte.
 
 Quatro leituras que o modelo conceitual já entrega:
 
-- **A espécie participa de seis relacionamentos**, em cinco áreas distintas — custeio, produção,
-  precificação, comercial e fornecedores. É a confirmação estrutural da centralidade declarada no
-  §3.4 da metodologia: nenhuma outra entidade aparece em mais de duas áreas.
+- **A espécie participa de seis relacionamentos**, e é a única entidade presente nos **quatro
+  módulos** — custeio e preço no Financeiro, atividade e perda na Produção, item de pedido e
+  cotação no Comercial, e o próprio catálogo em Cadastros. É a confirmação estrutural da
+  centralidade declarada no §3.4 da metodologia: nenhuma outra entidade aparece em mais de dois.
 - **Produção e perda são simétricas em torno da espécie.** Uma soma, a outra subtrai, e o estoque é
   a diferença — razão pela qual ele não aparece no modelo como entidade.
 - **O custo e o preço estão em cadeia, não em paralelo.** O custo de produção alimenta o preço, que
@@ -124,9 +107,20 @@ Quatro leituras que o modelo conceitual já entrega:
 
 ---
 
-## 3. Modelo lógico por área
+## 3. Modelo lógico por módulo
 
-### 3.1 Acesso *(transversal)*
+Um diagrama por módulo, na ordem em que o fluxo do sistema os percorre, mais o Acesso à frente
+por atravessar os quatro. É o mesmo agrupamento de
+[`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md), do
+[`D1 §4`](../D-arquitetura/D1-arquitetura-c4.md) e da
+[`D4 §2`](../D-arquitetura/D4-matriz-rbac.md).
+
+**Caixa sem atributos = entidade de outro módulo.** Quando um relacionamento cruza a fronteira —
+e vários cruzam, porque a espécie é referenciada em quase todo lugar — a entidade estrangeira
+aparece como caixa vazia, apenas para que a aresta exista. Os atributos dela estão no diagrama do
+seu próprio módulo, uma vez só.
+
+### 3.1 Acesso — transversal aos quatro módulos
 
 ```mermaid
 erDiagram
@@ -171,17 +165,14 @@ erDiagram
   users ||--o{ notifications: "recebe"
 ```
 
-Três decisões de modelagem que respondem a requisitos não funcionais de segurança:
+O usuário não pertence a módulo de negócio: ele opera os quatro. `notifications` está aqui, e não
+no Comercial que a origina, porque a notificação é do **destinatário** — quem a lê é uma pessoa,
+não um pedido.
 
-- **A senha nunca é armazenada** — apenas seu resumo criptográfico (`password_hash`, RNF-09). O
-  mesmo vale para o identificador de sessão (`token_hash`, RNF-10).
-- **`login_events` registra a tentativa, não apenas o sucesso** — daí `username_attempted` ser texto
-  e não chave estrangeira: uma tentativa contra usuário inexistente também precisa ser registrada
-  (RF-04), e é justamente ela que evidencia ataque.
-- **`ip` e `user_agent` na sessão** existem para que o usuário identifique o aparelho na lista de
-  sessões ativas e encerre um celular perdido (RF-07).
+### 3.2 Módulo 1 · Cadastros
 
-### 3.2 Catálogo e custeio — módulos 1, 2 e 4
+O que é estável e se repete. Não consome nada e alimenta os outros três — é o único módulo cujo
+diagrama não tem caixa vazia, porque não referencia entidade de fora.
 
 ```mermaid
 erDiagram
@@ -223,50 +214,78 @@ erDiagram
     numeric cost_per_unit
     timestamptz changed_at
   }
-  input_usages {
+  customers {
     uuid id PK
-    uuid input_id FK
-    uuid species_id FK
-    uuid container_id FK
-    numeric quantity
-    date usage_date
+    text name
+    text phone
+    text person_type
+    text document UK
+    text legal_name
+    text state_registration
+    text zip_code
+    text city
+    text state
   }
-  fixed_costs {
+  suppliers {
     uuid id PK
-    enum category
-    numeric monthly_amount
-    date reference_month
+    text name
+    text contact_name
+    text whatsapp
+    text city
+    text state
+    smallint reliability_score
+    text status
+    numeric lat
+    numeric lng
+    timestamptz geocoded_at
   }
-  seed_collection_costs {
+  supplier_species {
     uuid id PK
+    uuid supplier_id FK
     uuid species_id FK
-    text collection_region
-    numeric distance_km
-    numeric fuel_cost
-    numeric labor_hours
-    numeric total_cost
-    int seeds_collected_qty
-    numeric cost_per_seed
+    text size
+    text container
+    numeric unit_price
+    int min_quantity
+    text availability
   }
-  production_costs {
+  parties {
     uuid id PK
-    uuid species_id FK
-    uuid container_id FK
-    numeric substrate_cost
-    numeric seed_cost
-    numeric labor_cost
-    numeric total_variable_cost
-    timestamptz calculated_at
+    text kind
+    text document
+    text name
+    text legal_name
+    text trade_name
+    text email
+    text phone
+    text whatsapp
+    bool active
+  }
+  party_roles {
+    uuid party_id FK
+    text role
+  }
+  addresses {
+    uuid id PK
+    uuid party_id FK
+    text label
+    text zip_code
+    text street
+    text number
+    text city
+    text state
+    numeric lat
+    numeric lng
+    bool is_primary
   }
 
-  species    ||--o{ species_popular_names : "conhecida como"
-  species    ||--o{ seed_collection_costs : "coletada em"
-  species    ||--o{ production_costs      : "custa"
-  containers ||--o{ production_costs      : "determina"
-  species    ||--o{ input_usages          : "consome"
-  containers ||--o{ input_usages          : "contextualiza"
-  inputs     ||--o{ input_usages          : "é aplicado"
-  inputs     ||--o{ input_price_history   : "histórico de"
+  species   ||--o{ species_popular_names : "conhecida como"
+  inputs    ||--o{ input_price_history   : "histórico de"
+  suppliers ||--o{ supplier_species      : "oferece"
+  parties   ||--o{ party_roles           : "acumula"
+  parties   ||--o{ addresses             : "tem"
+  parties   ||--o| customers             : "é, no papel de cliente"
+  parties   ||--o| suppliers             : "é, no papel de fornecedor"
 ```
 
 **Por que `species_popular_names` é entidade separada.** O nome popular é atributo **multivalorado**
@@ -280,15 +299,51 @@ custo de todas as espécies retroativamente — o custo apurado em março passar
 agosto. É a anomalia de atualização que a normalização busca evitar, e a solução é preservar o
 histórico em vez de sobrescrever (RF-11).
 
-**`total_variable_cost` e `cost_per_seed` são atributos derivados**, calculados a partir dos demais e
-mantidos pelo próprio banco. Armazená-los é desnormalização deliberada: evita recalcular a soma a
-cada leitura de relatório, sem risco de divergência, porque o banco não permite gravá-los
-diretamente.
+**Por que `parties` está aqui, e não no Financeiro onde nasceu.** As três entidades do esquema
+`cadastro` — `parties`, `party_roles`, `addresses` — foram desenhadas para dar contraparte a cada
+linha do extrato bancário. Mas o que elas resolvem é anterior ao dinheiro: **cliente, fornecedor e
+funcionário são papéis da mesma pessoa**, e quem vende muda e às vezes compra tem de ser um
+cadastro só. `customers` e `suppliers` sobrevivem como as tabelas **do papel** — é nelas que ficam
+os campos que não são de identidade: dados fiscais de um lado, espécies ofertadas e geocodificação
+do outro. O papel `funcionario` existe em `party_roles` sem tabela própria, porque um funcionário
+não tem atributo que um `party` já não tenha.
 
-### 3.3 Produção — atividade, perdas e estoque *(módulo 2)*
+**`container` do fornecedor é texto livre**, e não chave estrangeira para `containers`. A distinção é
+deliberada e vale registrá-la: a tabela de recipientes modela a **produção interna**, com volume e
+consumo de substrato usados no custeio. O fornecedor externo usa embalagem arbitrária — raiz nua,
+lata, saco de um metro — que não tem custo de substrato a apurar. Forçá-lo na lista interna
+corromperia a base do custeio para representar um dado que não a alimenta.
+
+**`status` do fornecedor contempla "não contatar"**, que é registro de **oposição do titular** ao
+tratamento de seus dados para contato comercial, e não um estado operacional. Ver
+[`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
+
+### 3.3 Módulo 2 · Produção
+
+Registro do que acontece no campo. Consome o catálogo do módulo 1 — daí as três caixas vazias — e
+entrega estoque para o Comercial e medida de consumo para o custeio.
 
 ```mermaid
 erDiagram
+  input_usages {
+    uuid id PK
+    uuid input_id FK
+    uuid species_id FK
+    uuid container_id FK
+    numeric quantity
+    date usage_date
+  }
+  seed_collection_costs {
+    uuid id PK
+    uuid species_id FK
+    text collection_region
+    numeric distance_km
+    numeric fuel_cost
+    numeric labor_hours
+    numeric total_cost
+    int seeds_collected_qty
+    numeric cost_per_seed
+  }
   production_activities {
     uuid id PK
     uuid species_id FK
@@ -318,6 +373,10 @@ erDiagram
     uuid counted_by FK
   }
 
+  species    ||--o{ input_usages          : "consome"
+  containers ||--o{ input_usages          : "contextualiza"
+  inputs     ||--o{ input_usages          : "é aplicado"
+  species    ||--o{ seed_collection_costs : "coletada em"
   species    ||--o{ production_activities : "é produzida em"
   containers ||--o{ production_activities : "recebe"
   species    ||--o{ loss_events           : "sofre"
@@ -325,6 +384,11 @@ erDiagram
   species    ||--o{ stock_counts          : "é contada em"
   containers ||--o{ stock_counts          : "contextualiza"
 ```
+
+**`input_usages` é o único registro de campo que já existe.** Ela liga insumo, espécie e
+recipiente à quantidade gasta, e é a dependência-raiz do custeio: sem ela, o custo por muda não
+tem parcela de insumo. Está no módulo do colaborador, não no do dinheiro, porque quem a preenche
+é quem está com as mãos na terra.
 
 **O estoque não é entidade.** É quantidade **derivada**: produção registrada, menos perdas, menos o
 que saiu em pedidos aprovados. Modelá-lo como entidade criaria duas verdades sobre o mesmo número —
@@ -345,22 +409,13 @@ indicador de mortalidade precisa produzir.
 a soma da produção do período, por espécie — e é dela que decorre o alerta acima de 20%, que é regra
 de negócio e não configuração de painel.
 
-### 3.4 Comercial *(módulo 3; `customers` é do módulo 1)*
+### 3.4 Módulo 3 · Comercial
+
+O ciclo do pedido e a cotação que o complementa. `customers` e `suppliers` aparecem vazios: são
+cadastro, e o Comercial só os referencia.
 
 ```mermaid
 erDiagram
-  customers {
-    uuid id PK
-    text name
-    text phone
-    text person_type
-    text document UK
-    text legal_name
-    text state_registration
-    text zip_code
-    text city
-    text state
-  }
   orders {
     uuid id PK
     serial order_number
@@ -408,6 +463,28 @@ erDiagram
     text to_status
     uuid changed_by FK
   }
+  supplier_quotes {
+    uuid id PK
+    uuid request_group_id
+    uuid supplier_id FK
+    uuid order_id FK
+    text channel
+    text message_text
+    text status
+    timestamptz sent_at
+    timestamptz responded_at
+    uuid created_by FK
+  }
+  supplier_quote_items {
+    uuid id PK
+    uuid quote_id FK
+    uuid species_id FK
+    uuid order_item_id FK
+    int quantity
+    numeric quoted_unit_price
+    boolean is_chosen
+    numeric sale_unit_price
+  }
 
   customers   ||--o{ orders               : "faz"
   orders      ||--o{ order_items          : "compõe-se de"
@@ -417,6 +494,9 @@ erDiagram
   order_items ||--o{ order_load_items     : "é separado em"
   order_items ||--o{ order_item_allowed_species : "restringe-se a"
   order_items ||--o{ order_items          : "especializa (genérico)"
+  suppliers       ||--o{ supplier_quotes       : "é consultado por"
+  supplier_quotes ||--o{ supplier_quote_items  : "detalha"
+  order_items     ||--o| supplier_quote_items  : "é complementado por"
 ```
 
 **O item genérico é o ponto mais sutil do modelo.** Um item de pedido pode não ter espécie:
@@ -441,84 +521,39 @@ viagem, ou a perder o controle da separação parcial.
 indisponível e ainda não verificado. Um único campo booleano confundiria "não tem" com "ninguém
 olhou ainda", que são operacionalmente opostos.
 
-### 3.5 Fornecedores *(cadastro no módulo 1; cotação no módulo 3)*
-
-```mermaid
-erDiagram
-  suppliers {
-    uuid id PK
-    text name
-    text contact_name
-    text whatsapp
-    text city
-    text state
-    smallint reliability_score
-    text status
-    numeric lat
-    numeric lng
-    timestamptz geocoded_at
-  }
-  supplier_species {
-    uuid id PK
-    uuid supplier_id FK
-    uuid species_id FK
-    text size
-    text container
-    numeric unit_price
-    int min_quantity
-    text availability
-  }
-  supplier_quotes {
-    uuid id PK
-    uuid request_group_id
-    uuid supplier_id FK
-    uuid order_id FK
-    text channel
-    text message_text
-    text status
-    timestamptz sent_at
-    timestamptz responded_at
-    uuid created_by FK
-  }
-  supplier_quote_items {
-    uuid id PK
-    uuid quote_id FK
-    uuid species_id FK
-    uuid order_item_id FK
-    int quantity
-    numeric quoted_unit_price
-    boolean is_chosen
-    numeric sale_unit_price
-  }
-
-  suppliers ||--o{ supplier_species    : "oferece"
-  suppliers ||--o{ supplier_quotes     : "é consultado por"
-  supplier_quotes ||--o{ supplier_quote_items : "detalha"
-```
-
-**`container` do fornecedor é texto livre**, e não chave estrangeira para `containers`. A distinção é
-deliberada e vale registrá-la: a tabela de recipientes modela a **produção interna**, com volume e
-consumo de substrato usados no custeio. O fornecedor externo usa embalagem arbitrária — raiz nua,
-lata, saco de um metro — que não tem custo de substrato a apurar. Forçá-lo na lista interna
-corromperia a base do custeio para representar um dado que não a alimenta.
-
 **`request_group_id` sem tabela-mãe.** Um disparo de cotação para cinco fornecedores gera cinco
 registros que compartilham o mesmo identificador de grupo. Não há entidade "consulta" porque ela não
 teria atributo próprio algum — seria uma tabela de uma coluna. O agrupamento é feito na leitura.
 
-**`status` do fornecedor contempla "não contatar"**, que é registro de **oposição do titular** ao
-tratamento de seus dados para contato comercial, e não um estado operacional. Ver
-[`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
+### 3.5 Módulo 4 · Financeiro
 
-### 3.6 Financeiro *(módulo 4; o esquema `cadastro` serve o módulo 1)*
-
-O subsistema financeiro é modelado em **esquema próprio**, separado do restante. A separação é de
+O módulo restrito, e o único modelado em **esquema próprio** (`financeiro`). A separação é de
 segurança, não de organização: a base mistura gasto do viveiro com gasto pessoal da família e da
 clínica, e a fronteira de esquema torna a restrição de acesso estrutural em vez de apenas
 procedimental.
 
+Custo e preço estão aqui, e não na Produção que os alimenta, pela mesma razão que a compra está:
+são dinheiro. O que a Produção entrega é medida de campo — quanto se consumiu, quantas horas —, e
+o que sai daqui é custo por muda e preço por canal.
+
 ```mermaid
 erDiagram
+  fixed_costs {
+    uuid id PK
+    enum category
+    numeric monthly_amount
+    date reference_month
+  }
+  production_costs {
+    uuid id PK
+    uuid species_id FK
+    uuid container_id FK
+    numeric substrate_cost
+    numeric seed_cost
+    numeric labor_cost
+    numeric total_variable_cost
+    timestamptz calculated_at
+  }
   accounts {
     uuid id PK
     text code UK
@@ -544,35 +579,6 @@ erDiagram
     uuid group_id FK
     text name
     text direction
-  }
-  parties {
-    uuid id PK
-    text kind
-    text document
-    text name
-    text legal_name
-    text trade_name
-    text email
-    text phone
-    text whatsapp
-    bool active
-  }
-  party_roles {
-    uuid party_id FK
-    text role
-  }
-  addresses {
-    uuid id PK
-    uuid party_id FK
-    text label
-    text zip_code
-    text street
-    text number
-    text city
-    text state
-    numeric lat
-    numeric lng
-    bool is_primary
   }
   statement_imports {
     uuid id PK
@@ -629,58 +635,6 @@ erDiagram
     numeric closing_balance
     uuid closed_by FK
   }
-
-  accounts        ||--o{ transactions        : "movimenta"
-  accounts        ||--o{ statement_imports   : "recebe"
-  accounts        ||--o{ periods             : "fecha em"
-  statement_imports ||--o{ transactions      : "origina"
-  categories      ||--o{ transactions        : "qualifica"
-  cost_centers    ||--o{ transactions        : "destina"
-  parties         ||--o{ transactions        : "participa de"
-  category_groups ||--o{ categories          : "agrupa"
-  transactions    ||--o{ transaction_splits  : "rateia-se em"
-  cost_centers    ||--o{ transaction_splits  : "recebe parte de"
-  transactions    ||--o| transactions        : "pareia (transferência)"
-```
-
-Quatro decisões de modelagem com justificativa:
-
-- **Nenhum lançamento sem conta.** Não há lançamento órfão: o gasto em dinheiro entra por uma conta
-  chamada *caixa*, que também é conta. É essa obrigatoriedade que faz o saldo calculado ter de bater
-  com o saldo do banco.
-- **Duas datas, não uma.** `posted_at` é quando o banco moveu e nunca é editado; `competence_date` é
-  o mês a que o gasto pertence economicamente. Saldo apura-se pela primeira, custo pela segunda.
-  Registrar apenas uma tornaria irreversível a perda: reconstruir a competência anos depois é
-  impossível.
-- **`description_raw` nunca é editado.** É a prova de que a linha veio do banco e não da memória de
-  alguém — a diferença exata entre este modelo e a planilha que ele substitui.
-- **O rateio é entidade separada.** O caso comum usa o centro de custo direto no lançamento; o rateio
-  existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
-  partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
-  comportamento é testável.
-
----
-
-## 4. Nota de normalização
-
-O esquema está em **terceira forma normal**, com duas desnormalizações deliberadas e declaradas:
-os atributos derivados de custo (§3.2) e a redundância entre `active` e `status` em fornecedores, que
-distinguem arquivamento de registro (soft-delete) de estado comercial — informações diferentes que um
-único campo não expressaria.
-
-A demonstração formal da progressão 1FN → 2FN → 3FN, com as anomalias de inserção, exclusão e
-atualização evitadas em cada passo, **não integra o conjunto de artefatos selecionados**
-(corresponderia ao item C7 do catálogo). O que se registra aqui são as decisões, não a derivação.
-
----
-
-## 5. Precificação *(módulo 4 · Financeiro)*
-
-A precificação é a ponte entre o custeio e o comercial: consome o custo unitário apurado e entrega o
-preço praticado no pedido. Duas entidades a compõem.
-
-```mermaid
-erDiagram
   sale_channels {
     uuid id PK
     text code UK
@@ -703,8 +657,67 @@ erDiagram
     uuid defined_by FK
   }
 
+  species    ||--o{ production_costs : "custa"
+  containers ||--o{ production_costs : "determina"
+  accounts        ||--o{ transactions        : "movimenta"
+  accounts        ||--o{ statement_imports   : "recebe"
+  accounts        ||--o{ periods             : "fecha em"
+  statement_imports ||--o{ transactions      : "origina"
+  categories      ||--o{ transactions        : "qualifica"
+  cost_centers    ||--o{ transactions        : "destina"
+  parties         ||--o{ transactions        : "participa de"
+  category_groups ||--o{ categories          : "agrupa"
+  transactions    ||--o{ transaction_splits  : "rateia-se em"
+  cost_centers    ||--o{ transaction_splits  : "recebe parte de"
+  transactions    ||--o| transactions        : "pareia (transferência)"
   sale_channels ||--o{ sale_prices : "aplica margem a"
+  species       ||--o{ sale_prices : "é precificada"
+  containers    ||--o{ sale_prices : "define porte de"
+  sale_prices   ||--o{ order_items : "sugere preço a"
 ```
+
+#### O extrato como fonte da verdade
+
+Quatro decisões de modelagem com justificativa:
+
+- **Nenhum lançamento sem conta.** Não há lançamento órfão: o gasto em dinheiro entra por uma conta
+  chamada *caixa*, que também é conta. É essa obrigatoriedade que faz o saldo calculado ter de bater
+  com o saldo do banco.
+- **Duas datas, não uma.** `posted_at` é quando o banco moveu e nunca é editado; `competence_date` é
+  o mês a que o gasto pertence economicamente. Saldo apura-se pela primeira, custo pela segunda.
+  Registrar apenas uma tornaria irreversível a perda: reconstruir a competência anos depois é
+  impossível.
+- **`description_raw` nunca é editado.** É a prova de que a linha veio do banco e não da memória de
+  alguém — a diferença exata entre este modelo e a planilha que ele substitui.
+- **O rateio é entidade separada.** O caso comum usa o centro de custo direto no lançamento; o rateio
+  existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
+  partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
+  comportamento é testável.
+- **Duas datas, não uma.** `posted_at` é quando o banco moveu e nunca é editado; `competence_date` é
+  o mês a que o gasto pertence economicamente. Saldo apura-se pela primeira, custo pela segunda.
+  Registrar apenas uma tornaria irreversível a perda: reconstruir a competência anos depois é
+  impossível.
+- **`description_raw` nunca é editado.** É a prova de que a linha veio do banco e não da memória de
+  alguém — a diferença exata entre este modelo e a planilha que ele substitui.
+- **O rateio é entidade separada.** O caso comum usa o centro de custo direto no lançamento; o rateio
+  existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
+  partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
+  comportamento é testável.
+- **`description_raw` nunca é editado.** É a prova de que a linha veio do banco e não da memória de
+  alguém — a diferença exata entre este modelo e a planilha que ele substitui.
+- **O rateio é entidade separada.** O caso comum usa o centro de custo direto no lançamento; o rateio
+  existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
+  partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
+  comportamento é testável.
+- **O rateio é entidade separada.** O caso comum usa o centro de custo direto no lançamento; o rateio
+  existe para o caso real da energia de um imóvel que serve a dois fins. A invariante — a soma das
+  partes iguala o total — é validada na camada de aplicação, onde a mensagem de erro é legível e o
+  comportamento é testável.
+
+#### Do custo ao preço
+
+A precificação é a ponte entre o custeio e o comercial: consome o custo unitário apurado e entrega
+o preço praticado no pedido.
 
 **Por que o canal é entidade e não texto.** A margem é atributo do canal, não do preço: alterar a
 margem do atacado deve refletir-se em todos os preços daquele canal, e um canal escrito como texto
@@ -724,24 +737,35 @@ a cada alteração de custo, e não seria possível responder "qual era a margem
 de ciclo longo tem piso diferente de uma pioneira. Fixá-lo em configuração única obrigaria a escolher
 entre um piso alto demais para umas e baixo demais para outras.
 
-### Relação com o restante do modelo
+**`total_variable_cost` e `cost_per_seed` são atributos derivados**, calculados a partir dos demais
+e mantidos pelo próprio banco — o primeiro em `production_costs`, aqui; o segundo em
+`seed_collection_costs`, na Produção. Armazená-los é desnormalização deliberada: evita recalcular a
+soma a cada leitura de relatório, sem risco de divergência, porque o banco não permite gravá-los
+diretamente.
 
-```mermaid
-erDiagram
-  species     ||--o{ sale_prices : "é precificada"
-  containers  ||--o{ sale_prices : "define porte de"
-  sale_prices ||--o{ order_items : "sugere preço a"
-```
-
-O item de pedido registra o preço **efetivamente acordado**, que pode diferir do sugerido dentro do
-limite do piso. A entidade de preço é fonte de sugestão e de validação, nunca de imposição — a
-negociação existe e o modelo precisa acomodá-la sem perder o controle da margem.
+**O preço sugere, não impõe.** O item de pedido registra o valor **efetivamente acordado**, que
+pode diferir do sugerido dentro do limite do piso. A entidade de preço é fonte de sugestão e de
+validação — a negociação existe, e o modelo precisa acomodá-la sem perder o controle da margem.
 
 ---
 
-## 6. Observação sobre a origem deste artefato
+## 4. Nota de normalização
 
-As duas entidades da seção anterior não constavam da primeira versão deste modelo. Foram
+O esquema está em **terceira forma normal**, com duas desnormalizações deliberadas e declaradas:
+os atributos derivados de custo (§3.2) e a redundância entre `active` e `status` em fornecedores, que
+distinguem arquivamento de registro (soft-delete) de estado comercial — informações diferentes que um
+único campo não expressaria.
+
+A demonstração formal da progressão 1FN → 2FN → 3FN, com as anomalias de inserção, exclusão e
+atualização evitadas em cada passo, **não integra o conjunto de artefatos selecionados**
+(corresponderia ao item C7 do catálogo). O que se registra aqui são as decisões, não a derivação.
+
+---
+
+## 5. Observação sobre a origem deste artefato
+
+As duas entidades de precificação — `sale_channels` e `sale_prices`, hoje no §3.5 — não constavam
+da primeira versão deste modelo. Foram
 acrescentadas ao se verificar que os requisitos **RF-31 a RF-35** — margem por canal, preço sugerido,
 piso mínimo e relatório de margem — não tinham onde persistir: o único preço de venda modelado era o
 de revenda de muda de terceiro, que atende ao fornecedor e não à produção própria.

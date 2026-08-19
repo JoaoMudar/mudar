@@ -206,7 +206,7 @@ justifique**?
 | Artefato | Elementos | Sem requisito de origem |
 |---|---|---|
 | Casos de uso (C1) | 40 | Nenhum |
-| Entidades (C6, C8) | 39 | Nenhuma |
+| Entidades (C6, C8) | 41 | Nenhuma |
 | Recursos de acesso (D4) | 31 | **2** — `Funcionários` e `Tarefas`, do P13, declarados antes dos RF-69…RF-76 que os justificarão |
 | Casos de aceite (E2) | 55 | Nenhum |
 | Indicadores (G2) | 9 | Nenhum — todos derivam de RF-63 a RF-65 |

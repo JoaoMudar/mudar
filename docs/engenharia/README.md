@@ -53,7 +53,7 @@ Os diagramas UML e o modelo de dados.
 
 - Diagrama de casos de uso — 40 casos, por ator
 - Especificação de casos de uso — os 8 críticos, com fluxos alternativos e exceções
-- MER e DER — 39 entidades, em 7 áreas, com a espécie no centro
+- MER e DER — 41 entidades, nos quatro módulos, com a espécie no centro
 - Dicionário de dados — cada coluna de cada tabela, explicada em português
 
 ### `D-arquitetura/` — como o sistema é construído

@@ -22,7 +22,7 @@
 | [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | 🟠 média |
 | [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | 🟡 conhecida |
-| [I](#i--o-que-não-é-divergência) | 39 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
+| [I](#i--o-que-não-é-divergência) | 41 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 | [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
 
@@ -148,7 +148,7 @@ as linhas novas em `B5`. Lista completa em
 
 ## I — O que **não** é divergência
 
-`C6`/`C8` especificam **39 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
+`C6`/`C8` especificam **41 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
 declarado em `docs/engenharia/00-indice.md`:
 
 > Os artefatos são redigidos em tempo de projeto, como especificação da solução a ser

@@ -4,7 +4,7 @@
 > `docs/engenharia/` e rode `npm run docs:tcc`. Qualquer edição feita nesta pasta é perdida
 > na próxima geração.
 
-Gerado em 2026-08-19 · 14 arquivos · 21 figuras.
+Gerado em 2026-08-19 · 14 arquivos · 18 figuras.
 
 ## Ordem de colagem no Capítulo 4
 
@@ -41,7 +41,7 @@ amostra de duas ou três tabelas e remeter ao apêndice para o restante.
 
 ## Figuras
 
-Todas em `img/`, numeradas em sequência contínua (Figura 1 a Figura 21) e já referenciadas no
+Todas em `img/`, numeradas em sequência contínua (Figura 1 a Figura 18) e já referenciadas no
 texto de cada arquivo, com legenda no padrão ABNT abaixo da imagem.
 
 Ao colar no Word:
@@ -52,7 +52,7 @@ Ao colar no Word:
 3. Confira a largura: as imagens foram geradas a 1400 px e devem ser reduzidas à largura da mancha
    de texto.
 
-> A **Lista de Figuras** do trabalho hoje traz apenas os títulos de exemplo. Com 21 figuras,
+> A **Lista de Figuras** do trabalho hoje traz apenas os títulos de exemplo. Com 18 figuras,
 > ela passa a ser obrigatória — o próprio modelo indica que a lista é exigida acima de cinco figuras.
 
 ## Tabelas
