@@ -87,6 +87,29 @@ Na própria migration, **sem guarda condicional** (lição nº 7 do post-mortem:
 parties. A fusão é manual depois — `src/app/clientes/actions.ts` já tem `mergeCustomers`
 como precedente de UX para isso.
 
+## O casamento é uma regra, não um evento (corrigido em 19/08/2026)
+
+O backfill acima roda **uma vez**. Durante os primeiros dias, `createCustomer` e
+`createSupplier` continuaram criando uma party nova a cada cadastro, sem procurar identidade
+existente — então um fornecedor que virasse cliente ganhava um segundo registro e a
+duplicidade voltava sozinha. Isso foi corrigido:
+
+- **Procura antes de criar.** `findPartyMatch` (em `src/lib/parties.ts`) busca por `document`
+  quando existe e por `lower(trim(name))` quando não, e **só devolve resultado se a identidade
+  encontrada ainda não tiver o papel** que está sendo cadastrado — do contrário seria duplicata
+  do mesmo papel, caso que o `idx_customers_document` já trata.
+- **O sistema nunca une sozinho**, nem quando o documento bate. A tela pergunta *"É a mesma
+  pessoa?"* e só liga se alguém confirmar. Mantém a linha do backfill — ambiguidade é aceita,
+  não resolvida — e deixa a decisão com quem conhece as pessoas.
+- **A pergunta também aparece ao editar**, não só ao cadastrar. É o caminho de conserto dos
+  duplicados criados entre o backfill e a correção: abrir e salvar levanta a questão, sem
+  precisar de tela de manutenção.
+- **Unir clientes une as identidades.** `mergeCustomers` chama `mergeParties`, que move os
+  papéis, completa as lacunas, repointa `customers`/`suppliers` e **apaga** a party redundante.
+  O DELETE é exceção deliberada ao soft-delete do sistema: `idx_parties_document` é UNIQUE
+  parcial e não filtra por `active`, então uma identidade inativa com documento prenderia
+  aquele CPF/CNPJ para sempre.
+
 ## Convivência (o ponto delicado)
 
 Depois do backfill, o mesmo nome existe em dois lugares: em `parties` e na coluna antiga de
@@ -98,12 +121,24 @@ Depois do backfill, o mesmo nome existe em dois lugares: em `parties` e na colun
 - Enquanto as telas não migram, **toda escrita passa por um único arquivo**,
   `src/lib/parties.ts` (`upsertPartyFromCustomer`, `upsertPartyFromSupplier`), coberto por
   teste. Um ponto de estrangulamento é um lugar só onde a duplicidade pode divergir.
+- **`undefined` ≠ `null` na identidade.** Chave ausente quer dizer "este formulário não conhece
+  o campo" e preserva o que existe (o de fornecedor não tem documento); `null` quer dizer "o
+  usuário apagou" e grava NULL. Antes as duas coisas eram a mesma — um COALESCE em todas as
+  colunas —, e o efeito era que apagar um telefone errado em `/clientes` zerava
+  `customers.phone` e **mantinha o valor errado** em `parties.phone`.
+- **Exceção na hora de ligar:** ao vincular um cadastro a uma identidade que já existia,
+  `fillOnly` desliga o apagar. O formulário preenchido ali nunca mostrou os dados do outro
+  papel, então campo em branco é "não preenchi", e não "apague o que o fornecedor tinha".
 - Uma fase futura faz as telas lerem de `parties` e remove as colunas duplicadas por migration.
 
 ## O que muda para quem usa
 
-**Nada.** `/clientes`, `/fornecedores` e `/pedidos` continuam idênticos. Esta fase é
-fundação — o valor aparece na Fase 2, quando o financeiro tem para onde apontar.
+Na Fase 1, **nada**: era só fundação. Depois da correção de 19/08/2026, uma coisa só —
+cadastrar (ou salvar) alguém cujo nome ou documento já existe em outro papel mostra um aviso
+perguntando se é a mesma pessoa, com dois botões. Respondeu, o cadastro segue normalmente.
+`/clientes`, `/fornecedores` e `/pedidos` continuam idênticos no resto.
+
+O valor maior aparece na Fase 2, quando o financeiro tem para onde apontar.
 
 ## Verificação
 
@@ -115,6 +150,18 @@ SELECT document, count(*) FROM cadastro.parties
   WHERE document IS NOT NULL GROUP BY 1 HAVING count(*) > 1;        -- vazio
 ```
 
+Candidatos a duplicata que ainda restem (nomes repetidos nesta lista são a mesma pessoa em
+duas identidades — a fusão é manual, abrindo o cadastro e salvando):
+
+```sql
+SELECT p.id, p.name, array_agg(r.role) AS papeis
+  FROM cadastro.parties p
+  JOIN cadastro.party_roles r ON r.party_id = p.id
+ GROUP BY p.id, p.name
+HAVING count(*) = 1
+ ORDER BY LOWER(TRIM(p.name));
+```
+
 Mais `npm test` (validação de documento em `src/lib/parties.ts`, reusando as funções de
 `src/lib/customers.ts`) e uma passada em `/clientes`, `/fornecedores` e `/pedidos` no
-`npm run dev` para confirmar que nada mudou.
+`npm run dev`.

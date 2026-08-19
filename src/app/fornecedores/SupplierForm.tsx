@@ -8,6 +8,8 @@ import {
   type SupplierInput,
   type SupplierStatus,
 } from '@/lib/suppliers'
+import { type PartyDecision, type PartyMatch } from '@/lib/parties'
+import PartyMatchPrompt from '@/components/PartyMatchPrompt'
 import { createSupplier, updateSupplier } from './actions'
 
 export interface SupplierRecord {
@@ -35,6 +37,8 @@ interface Props {
 export default function SupplierForm({ supplier, onCancel, onSaved }: Props) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  // Identidade parecida em outro papel (o cliente que tambem vende muda).
+  const [partyMatch, setPartyMatch] = useState<PartyMatch | null>(null)
   const [form, setForm] = useState<SupplierInput>({
     name: supplier?.name ?? '',
     contact_name: supplier?.contact_name ?? '',
@@ -55,12 +59,28 @@ export default function SupplierForm({ supplier, onCancel, onSaved }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    salvar()
+  }
+
+  /**
+   * `decision` so vem no segundo envio, depois de a pessoa responder se e a
+   * mesma pessoa que ja existe em outro papel. Sem ela, a action pode devolver
+   * `partyMatch` e nao gravar nada.
+   */
+  function salvar(decision?: PartyDecision) {
+    if (decision) setPartyMatch(null)
     startTransition(async () => {
       const result = supplier
-        ? await updateSupplier(supplier.id, form)
-        : await createSupplier(form)
+        ? await updateSupplier(supplier.id, form, decision)
+        : await createSupplier(form, decision)
       if (result.error) {
         setError(result.error)
+        return
+      }
+      // Nada gravado ainda: a action achou identidade parecida e devolveu a
+      // pergunta. O formulario continua preenchido.
+      if (result.partyMatch) {
+        setPartyMatch(result.partyMatch)
         return
       }
       onSaved()
@@ -209,6 +229,15 @@ export default function SupplierForm({ supplier, onCancel, onSaved }: Props) {
           className="input resize-none"
         />
       </div>
+
+      {partyMatch && (
+        <PartyMatchPrompt
+          match={partyMatch}
+          disabled={isPending}
+          onSame={() => salvar({ link: partyMatch.id })}
+          onDifferent={() => salvar({ separate: true })}
+        />
+      )}
 
       {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
 

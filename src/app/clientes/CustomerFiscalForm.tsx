@@ -10,6 +10,8 @@ import {
   type PersonType,
   type FiscalCustomer,
 } from '@/lib/customers'
+import { type PartyDecision, type PartyMatch } from '@/lib/parties'
+import PartyMatchPrompt from '@/components/PartyMatchPrompt'
 import {
   createCustomer,
   updateCustomer,
@@ -134,6 +136,9 @@ export default function CustomerFiscalForm({
   // Conflito de documento (cliente ja cadastrado) — habilita unir/abrir o original
   const [conflict, setConflict] = useState<{ id: string; name: string } | null>(null)
   const [merging, setMerging] = useState(false)
+  // Identidade parecida em OUTRO papel (o fornecedor que tambem compra). Nada
+  // foi gravado ainda: o salvamento so acontece depois da resposta.
+  const [partyMatch, setPartyMatch] = useState<PartyMatch | null>(null)
   const isPF = form.person_type === 'pf'
   const isPJ = form.person_type === 'pj'
 
@@ -214,9 +219,19 @@ export default function CustomerFiscalForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    await salvar()
+  }
+
+  /**
+   * `decision` so vem preenchida no segundo envio, depois de a pessoa responder
+   * se e a mesma pessoa. Sem ela, a action pode devolver `partyMatch` e nao
+   * gravar nada — e o que garante que ninguem seja unido sem confirmacao.
+   */
+  async function salvar(decision?: PartyDecision) {
     if (submitting) return
     setError(null)
     setConflict(null)
+    if (decision) setPartyMatch(null)
 
     const payload: CustomerInput = {
       name: computedName,
@@ -241,11 +256,17 @@ export default function CustomerFiscalForm({
     setSubmitting(true)
     try {
       const result = customer?.id
-        ? await updateCustomer(customer.id, payload)
-        : await createCustomer(payload)
+        ? await updateCustomer(customer.id, payload, decision)
+        : await createCustomer(payload, decision)
       if (result.error) {
         setError(result.error)
         setConflict(result.conflict ?? null)
+        return
+      }
+      // Nada foi gravado: a action encontrou identidade parecida e devolveu a
+      // pergunta. O formulario segue preenchido, esperando a resposta.
+      if (result.partyMatch) {
+        setPartyMatch(result.partyMatch)
         return
       }
       onSaved({
@@ -526,6 +547,15 @@ export default function CustomerFiscalForm({
         <p className="text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
           {error}
         </p>
+      )}
+
+      {partyMatch && (
+        <PartyMatchPrompt
+          match={partyMatch}
+          disabled={submitting}
+          onSame={() => salvar({ link: partyMatch.id })}
+          onDifferent={() => salvar({ separate: true })}
+        />
       )}
 
       {conflict && (

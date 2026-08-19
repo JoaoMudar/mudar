@@ -14,7 +14,7 @@ O que fechou, e por que importava:
 | Buraco | Situação anterior | Hoje |
 |---|---|---|
 | Autorização | nome de papel na mão em 105 lugares | matriz única do D4 em `src/lib/permissions.ts`, verificada por teste tabular e por teste de cobertura estática |
-| Identidade de pessoa | partida entre `customers` e `suppliers` | schema `cadastro` (`parties`, `party_roles`, `addresses`) com ponto único de escrita em `src/lib/parties.ts` |
+| Identidade de pessoa | partida entre `customers` e `suppliers` | schema `cadastro` (`parties`, `party_roles`, `addresses`) com ponto único de escrita em `src/lib/parties.ts`; desde 19/08/2026 o casamento cliente↔fornecedor é regra contínua, não só backfill |
 | CI | não existia | `.github/workflows/ci.yml` — lint + typecheck + testes |
 | Erro do Postgres exibido na tela | 24 ocorrências | 0 — tudo passa por `safeErrorMessage` |
 | Upload de foto de espécie | **quebrado em produção** (filesystem somente-leitura na Vercel) | `BYTEA` no Postgres + rota `/api/fotos/[id]` |
@@ -66,6 +66,14 @@ eles falam é um mock.
 `npm run db:refresh-local` já dá a infraestrutura), aplica as migrations e exercita um caminho de
 escrita ponta a ponta — por exemplo, registrar consumo de insumo.
 
+> **Primeiro passo dado em 19/08/2026:** `npm run db:verifica-cadastro`
+> (`scripts/verifica-cadastro-unico.ts`) roda o SQL de `src/lib/parties.ts` contra o Postgres local,
+> dentro de uma transação que sempre termina em `ROLLBACK`, com guarda de host igual à do
+> `seed-supplier-network`. **Justificou-se na primeira execução:** pegou um defeito que os 581
+> testes mockados não pegavam — `mergeParties` violava `idx_parties_document` ao copiar o documento
+> enquanto a identidade duplicada ainda o segurava, porque o Postgres checa índice único por
+> comando, não no fim da transação. Não substitui o item: cobre um módulo só, e não roda em CI.
+
 ---
 
 ## 3. Nada compara o schema declarado com o schema real
@@ -102,7 +110,24 @@ não bloqueio.
 
 ---
 
-## 5. `T13.3` — `users.party_id`
+## 5. Telas ainda não leem de `parties`
+
+**Estado:** a identidade única existe e é mantida corretamente na escrita, mas **nenhuma tela lê
+dela**. `/clientes` e `/fornecedores` continuam exibindo as colunas antigas de `customers` e
+`suppliers`, então a mesma pessoa nos dois papéis ainda aparece como dois cadastros na interface —
+mesmo já sendo uma identidade só no banco.
+
+Isso é a Fase 2 do P13 (T13.4–T13.8) e não é urgente: a duplicidade de *dado* está resolvida, o que
+resta é duplicidade de *exibição*.
+
+> Corrigido em 19/08/2026 (branch `feat/cadastro-unico-casamento-pessoa`), e que sai desta lista:
+> cadastro novo procurava identidade existente (não procurava — toda criação fazia party nova);
+> `mergeCustomers` deixava a party do duplicado viva e sem dono; e `upsertParty` não sabia apagar
+> campo, porque o COALESCE em todas as colunas fazia `null` e "não sei" serem a mesma coisa.
+
+---
+
+## 6. `T13.3` — `users.party_id`
 
 Última tarefa aberta da Fase 1 do P13. As colunas `party_id` de `customers` e `suppliers` já
 existem e estão preenchidas; `users` ficou de fora. É pré-requisito para a agenda de pessoal
@@ -110,7 +135,7 @@ existem e estão preenchidas; `users` ficou de fora. É pré-requisito para a ag
 
 ---
 
-## 6. Pendências pequenas
+## 7. Pendências pequenas
 
 - **Fotos órfãs.** O upload grava em `species_photos` *antes* do INSERT da espécie (o formulário
   funciona assim). Se o cadastro for abandonado no meio, a linha fica sem dono. Não vaza nada e não
@@ -125,6 +150,6 @@ existem e estão preenchidas; `users` ficou de fora. É pré-requisito para a ag
 ## Ordem sugerida
 
 **1** (backup) antes de qualquer coisa — é uma tarde de trabalho e é o único risco irreversível.
-Depois **3** (drift de schema), que é barato e cobre a falha mais provável. **2** e **6** entram
-quando houver folga; **5** entra junto com a Fase 3 do P13, que é quem precisa dele. **4** está
-fechado (resta só o source map, que é conforto).
+Depois **3** (drift de schema), que é barato e cobre a falha mais provável. **2** e **7** entram
+quando houver folga; **5** entra com a Fase 2 do P13 e **6** com a Fase 3, que são quem precisa de
+cada um. **4** está fechado (resta só o source map, que é conforto).

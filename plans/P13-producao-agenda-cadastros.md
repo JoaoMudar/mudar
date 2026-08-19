@@ -74,6 +74,22 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 > colunas sem destino declarado — `customers.state_registration`, `customers.ie_exempt`,
 > `suppliers.contact_name`, `suppliers.instagram` — **ficam onde estão**, por serem atributos do
 > papel e não da identidade.
+>
+> ⚠️ **19/08/2026 — três defeitos encontrados e corrigidos** (branch
+> `feat/cadastro-unico-casamento-pessoa`, sem migration: o schema estava certo, o erro era de
+> aplicação). O backfill uniu as identidades **uma vez**, mas nada mantinha a regra depois:
+>
+> 1. `createCustomer`/`createSupplier` nunca procuravam identidade existente — toda criação fazia
+>    party nova, e o fornecedor que virasse cliente voltava a ser dois cadastros. Agora
+>    `findPartyMatch` procura (documento, senão nome normalizado) e a tela **pergunta** antes de
+>    unir, no create e no update. O update é o caminho de conserto do passivo acumulado.
+> 2. `mergeCustomers` movia os pedidos mas não tocava em `parties`, deixando a identidade do
+>    duplicado viva e sem dono. Agora chama `mergeParties`.
+> 3. `upsertParty` usava COALESCE em todas as colunas, então `null` e "não sei" eram a mesma
+>    coisa e nenhum campo podia ser apagado pela tela. Agora só as colunas conhecidas entram no
+>    comando.
+>
+> Suíte: 557 → 581 testes.
 
 - [x] **T13.1** Migration do schema `cadastro`: `parties`, `party_roles`, `addresses` + backfill de `customers` e `suppliers` (ver [`rotina-financeiro/01-cadastro-unico.md`](../docs/rotinas/rotina-financeiro/01-cadastro-unico.md))
 - [x] **T13.2** `src/lib/parties.ts` como ponto único de escrita, com testes
