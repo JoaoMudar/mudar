@@ -45,8 +45,8 @@ São documentos de projeto, não relatórios de código.
 |---|---|---|---|
 | [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.4 Modelagem do sistema | ✅ escrito: 44 casos de uso |
 | [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.4 + Apêndice | ✅ escrito: 8 casos detalhados |
-| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.5 Modelagem de dados | ✅ escrito: 45 entidades nos quatro módulos |
-| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.5 + Apêndice | ✅ escrito: 45 entidades + 1 visão |
+| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.5 Modelagem de dados | ✅ escrito: 46 entidades nos quatro módulos |
+| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.5 + Apêndice | ✅ escrito: 46 entidades + 1 visão |
 
 ### D: Arquitetura e decisões técnicas
 

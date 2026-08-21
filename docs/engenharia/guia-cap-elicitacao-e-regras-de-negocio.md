@@ -141,10 +141,10 @@ As regras estão numeradas **RN-01 a RN-70** e agrupadas em nove áreas:
 |---|---|---|
 | A: Domínio e produto | RN-01 a RN-06 | Espécie como centro, nomes populares, recipiente define o produto, ciclo produtivo, muda pronta |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | Composição do custo unitário, histórico de preço, competência, valor-hora médio, tarefa sem espécie como custo indireto |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48 a RN-52, RN-57 | Saldo, contagem física, estoque mínimo, causa em lista fechada, mortalidade de 20%, custo da perda, agenda por turno, semana que fecha, o que soma ao estoque |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 | Saldo, contagem física, estoque mínimo, causa em lista fechada, mortalidade de 20%, custo da perda, agenda por turno, semana que fecha, o que soma ao estoque |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | Preço = custo + margem, canal, piso mínimo, frete, margem negativa, custo vigente na data, preço que sugere e não impõe |
-| E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-54, RN-55, RN-60 a RN-62 | PF/PJ, cadastro mínimo, identidade única com papéis acumuláveis, nota externa, compensação ambiental, LGPD, oposição ao contato, endereços |
-| F: Pedido, entrega e fornecedor | RN-31 a RN-39, RN-63 a RN-67 | Ciclo de estados, item genérico, disponibilidade parcial, carga como viagem, porte mínimo, cotação e confiabilidade do fornecedor |
+| E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | PF/PJ, cadastro mínimo, identidade única com papéis acumuláveis, nota externa, compensação ambiental, LGPD, endereços |
+| F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | Ciclo de estados, item genérico, disponibilidade parcial, carga como unidade que sai do viveiro, cotação de fornecedor |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-70 | Extrato como fonte da verdade, centro de custo e rateio, fechamento do mês, acesso restrito, transferência, entregue ≠ pago |
 | H: Acesso e responsabilidade | RN-45, RN-46 | Perfil determina o acesso; todo registro tem autor |
 | I: Indicadores | RN-47 | Indicador sem meta e sem comparação não orienta decisão |
@@ -170,10 +170,10 @@ RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; 
 | 1. Conceito e critério de classificação | O teste "apague o sistema"; a distinção regra × requisito × RNF; os quatro tipos (`B3` §2) |
 | 2. Regras de domínio e produto | RN-01 a RN-06 |
 | 3. Regras de custeio | RN-07 a RN-12, RN-53, RN-56 |
-| 4. Regras de produção, estoque e perdas | RN-13 a RN-18, RN-48 a RN-52, RN-57 |
+| 4. Regras de produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 |
 | 5. Regras de precificação | RN-19 a RN-24, RN-58, RN-59: a **espinha dorsal do trabalho**, é onde o objetivo OP-3 se realiza |
-| 6. Regras de cliente e obrigação fiscal | RN-25 a RN-30, RN-54, RN-55, RN-60 a RN-62 |
-| 7. Regras de pedido, entrega e fornecedor | RN-31 a RN-39, RN-63 a RN-67 |
+| 6. Regras de cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 |
+| 7. Regras de pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 |
 | 8. Regras financeiras, de acesso e de indicadores | RN-40 a RN-47, RN-68 a RN-70 |
 | 9. Como as regras se refletem no sistema | Tabela RN → RF (`B3` §3 e §4) → onde é verificada (`E2`) |
 | 10. Regras implementadas como restrição de dados | `C6`/`C8`: lista fechada, chave composta, `CHECK` |

@@ -15,7 +15,7 @@ fornecedor referenciam-na por chave estrangeira. Essa centralidade não é prefe
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
 O modelo é apresentado em **cinco agrupamentos**: os quatro módulos do sistema, mais o Acesso,
-que atravessa todos. Um diagrama único com as 45 entidades seria ilegível em página impressa, e
+que atravessa todos. Um diagrama único com as 46 entidades seria ilegível em página impressa, e
 usar aqui o mesmo agrupamento dos requisitos ([`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md))
 e da matriz de acesso ([`D4 §2`](../D-arquitetura/D4-matriz-rbac.md)) permite ler os três
 documentos lado a lado sem traduzir de um para o outro.
@@ -23,11 +23,11 @@ documentos lado a lado sem traduzir de um para o outro.
 | Agrupamento | Entidades | Papel |
 |---|---|---|
 | *(transversal)* **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
-| **1 · Cadastros** | 12 | Catálogo de produção e identidade das pessoas: não consome nada, alimenta tudo |
+| **1 · Cadastros** | 13 | Catálogo de produção e identidade das pessoas: não consome nada, alimenta tudo |
 | **2 · Produção** | 7 | Consumo, coleta, atividade, perda e contagem de estoque |
 | **3 · Comercial** | 8 | Pedido, item, carga e cotação com fornecedor |
 | **4 · Financeiro** | 14 | Extrato como fonte da verdade, custeio e preço |
-| **Total** | **45** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
+| **Total** | **46** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
 
 **O preço da escolha, declarado:** agrupar por propósito faz relacionamentos cruzarem a fronteira
 do diagrama: `input_usages` é da Produção e aponta para `species`, `containers` e `inputs`, que
@@ -169,8 +169,8 @@ erDiagram
 
 **`users.party_id` é opcional, e a opcionalidade é a regra.** Usuário é *credencial*; funcionário é
 *vínculo* (`cadastro.parties`). Há pessoa com login e sem vínculo (o administrador), e pessoa com
-vínculo e sem login: o diarista, que aparece na agenda e no custo sem nunca abrir o aplicativo
-(RN-54). Fundir as duas numa tabela só obrigaria a inventar um dos dois lados.
+vínculo e sem login: o diarista, que aparece na agenda e no custo sem nunca abrir o aplicativo.
+Fundir as duas numa tabela só obrigaria a inventar um dos dois lados.
 
 O usuário não pertence a módulo de negócio: ele opera os quatro. `notifications` está aqui, e não
 no Comercial que a origina, porque a notificação é do **destinatário**: quem a lê é uma pessoa,
@@ -199,6 +199,12 @@ erDiagram
     text name
     text name_normalized UK
   }
+  species_photos {
+    uuid id PK
+    bytea bytes
+    text mime
+    int  byte_size
+  }
   containers {
     uuid id PK
     text name UK
@@ -223,6 +229,7 @@ erDiagram
   }
   customers {
     uuid id PK
+    uuid party_id FK
     text name
     text phone
     text person_type
@@ -235,6 +242,7 @@ erDiagram
   }
   suppliers {
     uuid id PK
+    uuid party_id FK
     text name
     text contact_name
     text whatsapp
@@ -297,6 +305,7 @@ erDiagram
   }
 
   species   ||--o{ species_popular_names : "conhecida como"
+  species   ||..o| species_photos        : "ilustrada por"
   inputs    ||--o{ input_price_history   : "histórico de"
   suppliers ||--o{ supplier_species      : "oferece"
   parties   ||--o{ party_roles           : "acumula"
@@ -312,6 +321,14 @@ a mesma espécie tem vários nomes regionais, e a busca precisa encontrá-la por
 Elmasri e Navathe tratam esse caso explicitamente: atributo multivalorado não cabe em coluna única, e
 repetir a espécie por nome violaria a primeira forma normal. A restrição de unicidade sobre o nome
 normalizado garante o outro lado da regra: **um nome popular aponta para uma única espécie**.
+
+**Por que `species_photos` não tem `species_id`.** A aresta aparece tracejada porque não é
+chave estrangeira, e a ausência é deliberada: a tela envia a foto **antes** de inserir a espécie, de
+modo que no momento da gravação da imagem a espécie ainda não existe. A referência fica do outro
+lado, em `species.photo_url`, no formato `/api/fotos/<uuid>`. A imagem vive no banco, e não em
+disco, porque o sistema de arquivos da plataforma de publicação é somente leitura e descartado a
+cada implantação: guardá-la em disco significaria perdê-la. O ganho colateral é que a foto entra no
+mesmo backup do banco, previsto em [`E6`](../E-qualidade/E6-plano-backup-recuperacao.md).
 
 **Por que `input_price_history` existe.** Sem ela, atualizar o preço de um insumo reescreveria o
 custo de todas as espécies retroativamente: o custo apurado em março passaria a refletir o preço de
@@ -350,6 +367,7 @@ entrega estoque para o Comercial e medida de consumo para o custeio.
 erDiagram
   input_usages {
     uuid id PK
+    uuid client_id UK
     uuid input_id FK
     uuid species_id FK
     uuid container_id FK

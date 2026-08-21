@@ -56,6 +56,26 @@ const ALINHAMENTO = {
   13: ['left', 'center', 'center', 'center', 'center'],
 }
 
+/**
+ * Linhas realcadas no Word, indexadas pelo codigo da 1a coluna. Marcam regra em
+ * revisao: o realce e recado para quem le o .docx, nao conteudo do TCC, por isso
+ * fica aqui e nao no markdown (que alimenta tambem o apendice-D, onde realce nao
+ * existe). Regra decidida sai desta lista e volta ao preto.
+ */
+const REALCE = {
+  'RN-41': 'yellow',
+}
+
+/**
+ * Valores aceitos por <w:highlight>, do enum ST_HighlightColor. Mesma armadilha
+ * do w:jc: valor fora da lista faz o Word recusar o documento inteiro.
+ */
+const REALCE_VALIDOS = new Set([
+  'yellow', 'green', 'cyan', 'magenta', 'blue', 'red', 'darkBlue', 'darkCyan',
+  'darkGreen', 'darkMagenta', 'darkRed', 'darkYellow', 'darkGray', 'lightGray',
+  'black', 'white', 'none',
+])
+
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 /**
@@ -76,6 +96,16 @@ function jcValido(jc) {
   return jc
 }
 
+function realceValido(cor) {
+  if (!REALCE_VALIDOS.has(cor)) {
+    throw new Error(
+      'Realce invalido para <w:highlight w:val="' + cor + '"/>. '
+      + 'Use um destes: ' + [...REALCE_VALIDOS].join(', ') + '.',
+    )
+  }
+  return cor
+}
+
 const BORDA = ['top', 'left', 'bottom', 'right']
   .map((l) => '<w:' + l + ' w:val="single" w:color="000000" w:sz="4"/>').join('')
 const BORDA_TBL = BORDA
@@ -86,10 +116,11 @@ const MARGENS = '<w:tcMar><w:top w:type="dxa" w:w="60"/><w:left w:type="dxa" w:w
 const ARIAL = '<w:rFonts w:ascii="Arial" w:cs="Arial" w:eastAsia="Arial" w:hAnsi="Arial"/>'
 
 function corrida(texto, opcoes) {
-  const { negrito = false, tamanho = 20 } = opcoes || {}
+  const { negrito = false, tamanho = 20, realce = null } = opcoes || {}
   const b = negrito ? '<w:b/><w:bCs/>' : '<w:b w:val="false"/><w:bCs w:val="false"/>'
+  const hl = realce ? '<w:highlight w:val="' + realceValido(realce) + '"/>' : ''
   return '<w:r><w:rPr>' + ARIAL + b
-    + '<w:sz w:val="' + tamanho + '"/><w:szCs w:val="' + tamanho + '"/></w:rPr>'
+    + '<w:sz w:val="' + tamanho + '"/><w:szCs w:val="' + tamanho + '"/>' + hl + '</w:rPr>'
     + '<w:t xml:space="preserve">' + esc(texto) + '</w:t></w:r>'
 }
 
@@ -103,7 +134,7 @@ function paragrafo(texto, opcoes) {
 }
 
 function celula(texto, largura, opcoes) {
-  const { cabecalho = false, jc = 'left', negrito = false, span = 0, vMerge = null } = opcoes || {}
+  const { cabecalho = false, jc = 'left', negrito = false, span = 0, vMerge = null, realce = null } = opcoes || {}
   const shd = cabecalho ? '<w:shd w:fill="D9D9D9" w:color="auto" w:val="clear"/>' : ''
   const gs = span ? '<w:gridSpan w:val="' + span + '"/>' : ''
   const vm = vMerge ? '<w:vMerge w:val="' + vMerge + '"/>' : ''
@@ -112,7 +143,7 @@ function celula(texto, largura, opcoes) {
     + '<w:vAlign w:val="center"/></w:tcPr>'
     + '<w:p><w:pPr><w:spacing w:after="20" w:before="20" w:line="240"/>'
     + '<w:jc w:val="' + jcValido(jc) + '"/></w:pPr>'
-    + corrida(texto, { negrito: cabecalho || negrito }) + '</w:p></w:tc>'
+    + corrida(texto, { negrito: cabecalho || negrito, realce }) + '</w:p></w:tc>'
 }
 
 const linha = (celulas, cabecalho) =>
@@ -189,9 +220,11 @@ function montaQuadro(q) {
   }
   for (const l of corpo) {
     const total = /^total$/i.test(l[0])
+    const realce = REALCE[l[0]] || null
     linhas.push(linha(l.map((c, i) => celula(c, larguras[i], {
       jc: alinha ? alinha[i] : (i === 0 ? 'center' : 'left'),
       negrito: total || (!alinha && i === 0),
+      realce,
     })).join(''), false))
   }
   partes.push(tabela(larguras, linhas))
@@ -349,5 +382,9 @@ for (const q of quadros) {
   const linhasDados = q.numero === 13 ? q.linhas.length - 1 : q.linhas.length - 1
   console.log('  Quadro ' + String(q.numero).padStart(2) + ' · '
     + String(linhasDados).padStart(2) + ' linhas · ' + q.titulo)
+}
+const realcadas = Object.entries(REALCE)
+if (realcadas.length) {
+  console.log('\nrealce: ' + realcadas.map(([c, cor]) => c + ' em ' + cor).join(', '))
 }
 console.log('\n' + quadros.length + ' quadros → ' + SAIDA)

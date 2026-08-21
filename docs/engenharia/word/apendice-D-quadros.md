@@ -74,7 +74,6 @@ Fonte: Elaborado pelo autor (2026).
 | RN-17 | A mortalidade é a razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de 20% a situação é anormal e exige providência. |
 | RN-18 | A muda perdida carrega o custo já incorrido. A perda tem valor financeiro, não apenas quantidade. |
 | RN-48 | O trabalho do viveiro é planejado por turno, não por horário. A unidade da agenda é dia × turno (manhã, tarde), e um turno vale quatro horas. |
-| RN-49 | A semana do viveiro repete a anterior. Replanejar do zero é a exceção, copiar e ajustar é a regra. |
 | RN-50 | A semana fecha e, fechada, não se altera. |
 | RN-51 | Tarefa planejada e não confirmada conta como realizada ao fechar a semana, com a condição registrada. |
 | RN-52 | O colaborador responde pelas suas tarefas. Vê e conclui as que lhe foram atribuídas, e nenhuma outra. |
@@ -107,10 +106,7 @@ Fonte: Elaborado pelo autor (2026).
 | RN-28 | A nota fiscal é emitida em sistema externo. O viveiro registra a exigência e o número. |
 | RN-29 | A venda para compensação ambiental exige o nome científico da espécie e, em geral, nota fiscal. |
 | RN-30 | Dado pessoal de cliente é tratado sob a Lei nº 13.709/2018, com finalidade, base legal e prazo de retenção declarados. |
-| RN-54 | Funcionário é vínculo de trabalho, não acesso ao sistema. |
 | RN-55 | O tipo de tarefa é vocabulário fechado, e carrega o tempo médio por unidade. |
-| RN-60 | A pessoa que se opõe ao contato comercial fica fora de qualquer cotação ou abordagem, e essa oposição é registro permanente. |
-| RN-61 | Declarar que dois cadastros são a mesma pessoa é decisão de quem conhece as pessoas. Coincidência de nome ou de documento levanta a pergunta, não a conclui. |
 | RN-62 | Uma pessoa tem mais de um endereço, e o de entrega pode não ser o de cobrança. É o endereço de entrega que responde pela distância, e portanto pelo frete. |
 
 Fonte: Elaborado pelo autor (2026).
@@ -124,13 +120,9 @@ Fonte: Elaborado pelo autor (2026).
 | RN-33 | No item genérico, o cliente pode restringir a lista de espécies aceitas e declarar especificação de qualidade. Espécie fora da lista não atende o item. |
 | RN-34 | A disponibilidade parcial é atendimento válido. |
 | RN-35 | Pode-se ofertar recipiente diferente do solicitado, desde que registrado qual foi efetivamente ofertado. |
-| RN-36 | O preço só se firma com a aprovação da chefia. Nenhum pedido avança ao fechamento sem ela. |
 | RN-37 | A carga é gerada a partir dos itens aprovados e separada fisicamente em campo. É ela, e não o pedido, a unidade que sai do viveiro. Um pedido pode gerar mais de uma carga. |
 | RN-38 | Quando a produção própria não atende o pedido, completa-se com muda de fornecedor, mediante cotação comparável entre propostas. |
 | RN-39 | A revenda de muda de terceiro também respeita o piso mínimo. O custo de aquisição substitui o custo de produção. |
-| RN-63 | Cada carga é uma viagem, com data própria. Cargas de um mesmo pedido saem em dias diferentes. |
-| RN-64 | No item genérico, o recipiente informado é o mínimo aceitável. Atende-se com porte igual ou maior, nunca menor. |
-| RN-65 | O fornecedor que não responde deixa de ser consultado. A confiabilidade se mede pela taxa de resposta. |
 | RN-66 | O carregamento acontece no dia útil anterior à entrega. |
 | RN-67 | Item ainda não verificado e item indisponível são situações opostas, não a mesma. |
 
@@ -167,14 +159,14 @@ Fonte: Elaborado pelo autor (2026).
 |---|---|---|
 | A: Domínio e produto | RN-01 a RN-06 | 6 |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | 8 |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48 a RN-52, RN-57 | 12 |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 | 11 |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
-| E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-54, RN-55, RN-60 a RN-62 | 11 |
-| F: Pedido, entrega e fornecedor | RN-31 a RN-39, RN-63 a RN-67 | 14 |
+| E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
+| F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-70 | 8 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| Total |  | 70 |
+| Total |  | 62 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -222,23 +214,23 @@ Fonte: Elaborado pelo autor (2026).
 | RF-34 | Incorporação do frete ao preço | O sistema deve incorporar o frete ao preço, calculado por valor por quilômetro. | RN-23, RN-62 |
 | RF-35 | Relatório de custo e preço praticado | O sistema deve apresentar relatório comparando custo e preço praticado, destacando margens negativas. | RN-24, RN-58 |
 | RF-36 | Cadastro rápido de cliente | O sistema deve permitir cadastro rápido de cliente com nome e telefone, sem sair da tela de pedido. | RN-26 |
-| RF-37 | Cadastro fiscal de cliente | O sistema deve permitir cadastro completo de cliente com dados fiscais de pessoa física ou jurídica. | RN-25, RN-30, RN-60, RN-62 |
+| RF-37 | Cadastro fiscal de cliente | O sistema deve permitir cadastro completo de cliente com dados fiscais de pessoa física ou jurídica. | RN-25, RN-30, RN-62 |
 | RF-38 | Validação de CPF e CNPJ | O sistema deve validar CPF e CNPJ informados. | RN-25 |
-| RF-39 | Busca de cliente | O sistema deve permitir localizar cliente por nome, telefone ou documento. | RN-26, RN-27, RN-61 |
+| RF-39 | Busca de cliente | O sistema deve permitir localizar cliente por nome, telefone ou documento. | RN-26, RN-27 |
 | RF-40 | Sinalização de cadastro fiscal incompleto | O sistema deve sinalizar cadastro fiscal incompleto quando o pedido exigir nota fiscal, permitindo completá-lo no próprio fluxo. | RN-25, RN-28 |
 | RF-41 | Registro de pedido | O sistema deve permitir registrar pedido com cliente, canal de venda e itens compostos por espécie, recipiente e quantidade. | RN-04, RN-20, RN-31 |
 | RF-42 | Verificação de disponibilidade do pedido | O sistema deve permitir verificar a disponibilidade de cada item do pedido contra o estoque. | RN-06, RN-13, RN-34, RN-67 |
 | RF-43 | Registro de disponibilidade parcial | O sistema deve representar disponibilidade parcial, registrando a quantidade efetivamente disponível quando menor que a pedida. | RN-34, RN-67 |
-| RF-44 | Aprovação de preço pela chefia | O sistema deve exigir aprovação da chefia sobre o preço antes do fechamento do pedido. | RN-21, RN-36, RN-59 |
+| RF-44 | Aprovação de preço pela chefia | O sistema deve exigir aprovação da chefia sobre o preço antes do fechamento do pedido. | RN-21, RN-59 |
 | RF-45 | Registro de exigência de nota fiscal | O sistema deve registrar se o pedido exige nota fiscal e, quando emitida em sistema externo, o número correspondente. | RN-25, RN-28, RN-29 |
-| RF-46 | Geração da carga de separação | O sistema deve gerar a carga de separação a partir dos itens aprovados do pedido. | RN-37, RN-63, RN-66 |
+| RF-46 | Geração da carga de separação | O sistema deve gerar a carga de separação a partir dos itens aprovados do pedido. | RN-37, RN-66 |
 | RF-47 | Registro de separação física | O sistema deve permitir ao colaborador registrar a separação física item a item. | RN-37 |
 | RF-48 | Histórico de estados do pedido | O sistema deve manter o histórico das mudanças de estado do pedido, com autor e momento. | RN-31, RN-46 |
 | RF-49 | Notificação de transição do pedido | O sistema deve notificar o responsável pela etapa seguinte a cada transição relevante do pedido. | RN-31 |
-| RF-50 | Agenda de entregas | O sistema deveria apresentar a agenda de entregas com as cargas prontas e seus destinos. | RN-37, RN-63, RN-66 |
-| RF-51 | Confirmação de entrega | O sistema deve permitir confirmar a entrega da carga. | RN-13, RN-31, RN-37, RN-63, RN-70 |
-| RF-52 | Cadastro de fornecedor | O sistema deve permitir cadastrar fornecedor com contato, localização e espécies que fornece. | RN-27, RN-38, RN-65 |
-| RF-53 | Registro de cotação | O sistema deve permitir registrar cotação dirigida a um ou mais fornecedores, com espécie, recipiente e quantidade por item. | RN-04, RN-38, RN-65 |
+| RF-50 | Agenda de entregas | O sistema deveria apresentar a agenda de entregas com as cargas prontas e seus destinos. | RN-37, RN-66 |
+| RF-51 | Confirmação de entrega | O sistema deve permitir confirmar a entrega da carga. | RN-13, RN-31, RN-37, RN-70 |
+| RF-52 | Cadastro de fornecedor | O sistema deve permitir cadastrar fornecedor com contato, localização e espécies que fornece. | RN-27, RN-38 |
+| RF-53 | Registro de cotação | O sistema deve permitir registrar cotação dirigida a um ou mais fornecedores, com espécie, recipiente e quantidade por item. | RN-04, RN-38 |
 | RF-54 | Comparação de propostas | O sistema deve permitir comparar as propostas recebidas e registrar a escolhida por item. | RN-38, RN-39 |
 | RF-55 | Mapa de fornecedores | O sistema poderia apresentar os fornecedores em mapa, com a distância até o viveiro. | RN-23, RN-38 |
 | RF-56 | Importação de extrato bancário | O sistema deve permitir importar o extrato bancário de cada conta, sem digitação de lançamentos. | RN-40, RN-70 |
@@ -251,13 +243,13 @@ Fonte: Elaborado pelo autor (2026).
 | RF-63 | Painel de indicadores por perfil | O sistema deve apresentar painel de indicadores com o conteúdo correspondente ao perfil do usuário. | RN-45, RN-47 |
 | RF-64 | Comparação do indicador com período anterior e meta | O sistema deve apresentar cada indicador comparado ao período anterior e à meta definida. | RN-24, RN-43, RN-47 |
 | RF-65 | Sinalização visual do indicador | O sistema deve sinalizar visualmente se o valor do indicador é favorável ou desfavorável. | RN-17, RN-47 |
-| RF-66 | Registro de item genérico | O sistema deve permitir registrar item genérico (quantidade e recipiente sem espécie definida), atendido posteriormente por uma ou mais espécies. | RN-32, RN-64 |
-| RF-67 | Delimitação de espécies aceitas | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida. | RN-33, RN-64 |
-| RF-68 | Oferta de recipiente alternativo | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual. | RN-04, RN-35, RN-64 |
-| RF-69 | Cadastro de funcionário | O sistema deve permitir cadastrar funcionário com contato e vínculo (fixo ou diarista), inclusive quando ele não tem acesso ao sistema. | RN-27, RN-54 |
+| RF-66 | Registro de item genérico | O sistema deve permitir registrar item genérico (quantidade e recipiente sem espécie definida), atendido posteriormente por uma ou mais espécies. | RN-32 |
+| RF-67 | Delimitação de espécies aceitas | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida. | RN-33 |
+| RF-68 | Oferta de recipiente alternativo | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual. | RN-04, RN-35 |
+| RF-69 | Cadastro de funcionário | O sistema deve permitir cadastrar funcionário com contato e vínculo (fixo ou diarista), inclusive quando ele não tem acesso ao sistema. | RN-27 |
 | RF-70 | Catálogo de tipos de tarefa | O sistema deve permitir manter o catálogo de tipos de tarefa, com unidade de medida, tempo médio por unidade e quais tipos exigem espécie e recipiente. | RN-55 |
 | RF-71 | Montagem da agenda da semana | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno, manhã ou tarde. | RN-48 |
-| RF-72 | Cópia da semana e tarefas recorrentes | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas. | RN-49 |
+| RF-72 | Cópia da semana e tarefas recorrentes | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas. | – |
 | RF-73 | Situação da semana | O sistema deve controlar a situação da semana (rascunho, publicada e fechada) e impedir alteração depois do fechamento. | RN-50 |
 | RF-74 | Conclusão de tarefa pelo colaborador | O sistema deve apresentar ao colaborador apenas as tarefas atribuídas a ele no dia, e permitir concluí-las informando somente a quantidade realizada. | RN-52 |
 | RF-75 | Fechamento de tarefa não confirmada | O sistema deve assumir como realizada, ao fechar a semana, a tarefa planejada que não foi confirmada, registrando essa condição. | RN-51 |
@@ -269,7 +261,7 @@ Fonte: Elaborado pelo autor (2026).
 
 | Código | Nome | Descrição | Código RN |
 |---|---|---|---|
-| RNF-01 | Limite de campos por tela | Formulários de campo devem apresentar no máximo cinco campos por tela. | RN-10, RN-16, RN-26, RN-37, RN-48, RN-49, RN-52, RN-55 |
+| RNF-01 | Limite de campos por tela | Formulários de campo devem apresentar no máximo cinco campos por tela. | RN-10, RN-16, RN-26, RN-37, RN-48, RN-52, RN-55 |
 | RNF-02 | Lista fechada em campos de categoria | Campos de categoria devem oferecer lista fechada de opções, nunca entrada livre de texto. | RN-03, RN-16, RN-20, RN-27, RN-41, RN-52, RN-57 |
 | RNF-03 | Alvo de toque adequado ao campo | Elementos acionáveis devem ter alvo de toque compatível com uso de dedos sujos e molhados. | – |
 | RNF-04 | Confirmação visual de gravação | Toda ação de gravação deve produzir resposta visual imediata de confirmação. | – |
@@ -291,7 +283,7 @@ Fonte: Elaborado pelo autor (2026).
 | RNF-20 | Testes automatizados obrigatórios | Toda alteração de código deve incluir testes automatizados cobrindo utilitários, regras de negócio e validações. | – |
 | RNF-21 | Verificação automática antes do envio | Verificação automática executada antes de cada alteração deve bloquear o envio em caso de arquivo sensível, falha de teste ou desvio de padronização. | – |
 | RNF-22 | Não versionamento de credenciais | Credenciais, chaves e dados sensíveis não devem ser versionados. | – |
-| RNF-23 | Conformidade com a proteção de dados pessoais | O tratamento de dados pessoais deve observar a Lei nº 13.709/2018, com finalidade, base legal e prazo de retenção declarados para cada dado coletado. | RN-30, RN-60 |
+| RNF-23 | Conformidade com a proteção de dados pessoais | O tratamento de dados pessoais deve observar a Lei nº 13.709/2018, com finalidade, base legal e prazo de retenção declarados para cada dado coletado. | RN-30 |
 | RNF-24 | Dados cadastrais suficientes para nota fiscal | Os dados cadastrais de cliente devem comportar o conjunto exigido para emissão de nota fiscal no sistema externo em uso. | RN-25, RN-28, RN-62 |
 | RNF-25 | Disponibilidade do nome científico | O nome científico da espécie deve estar disponível para atender exigências de projetos de compensação ambiental. | RN-02, RN-29 |
 | RNF-26 | Acesso por navegador de celular | O sistema deve operar em navegador de celular de uso corrente pela equipe, sem exigir instalação a partir de loja de aplicativos. | – |
@@ -317,9 +309,9 @@ Fonte: Elaborado pelo autor (2026).
 
 | Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
-| Regra de negócio | 73 | 96,1 | 3 | 11,5 |
+| Regra de negócio | 72 | 94,7 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
-| Política do projeto | 3 | 3,9 | 13 | 50,0 |
+| Política do projeto | 4 | 5,3 | 13 | 50,0 |
 | Total | 76 | 100,0 | 26 | 100,0 |
 
 Fonte: Elaborado pelo autor (2026).

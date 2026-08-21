@@ -48,7 +48,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `active` | boolean | ● | | Usuário habilitado |
 | `failed_login_attempts` | integer | ● | | Tentativas malsucedidas consecutivas |
 | `locked_until` | timestamptz | ○ | | Bloqueio temporário após tentativas sucessivas |
-| `party_id` | uuid | ○ | FK | Pessoa do cadastro a que esta credencial pertence. **Opcional:** há funcionário sem login e administrador sem vínculo (RN-54) |
+| `party_id` | uuid | ○ | FK | Pessoa do cadastro a que esta credencial pertence. **Opcional:** há funcionário sem login e administrador sem vínculo |
 
 ## `sessions`: sessão ativa
 
@@ -100,8 +100,13 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `germination_time_days` | integer | ○ | | Dias da semeadura à emergência |
 | `growth_time_months` | integer | ○ | | Meses da plântula à muda pronta. Base da previsão de disponibilidade |
 | `notes` | text | ○ | | Observações de manejo |
-| `photo_url` | text | ○ | | Caminho da fotografia |
+| `photo_url` | text | ○ | | Referência da fotografia, no formato `/api/fotos/<uuid>`, que aponta para `species_photos` |
 | `active` | boolean | ● | | Espécie em catálogo |
+
+> **Coluna legada.** O banco ainda tem `category`, classificação única que precedeu `tags`. Deixou
+> de ser obrigatória e nenhuma consulta do sistema a usa; permanece apenas para não quebrar dados
+> históricos, e sai numa migração futura. A classificação vigente é `tags`, que admite mais de uma
+> característica por espécie.
 
 ## `species_popular_names`: nome popular adicional
 
@@ -111,6 +116,21 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `species_id` | uuid | ● | FK → `species` | Espécie designada |
 | `name` | text | ● | | Nome tal como escrito |
 | `name_normalized` | text | ● | UK | Forma normalizada: sem acentos, minúscula, espaços colapsados. A unicidade garante que **um nome popular aponta para uma única espécie** |
+
+## `species_photos`: fotografia da espécie
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador, e também o que aparece na URL `/api/fotos/<uuid>` |
+| `bytes` | bytea | ● | | Conteúdo binário da imagem |
+| `mime` | text | ● | | Tipo do arquivo, `image/webp` por padrão |
+| `byte_size` | integer | ● | | Tamanho em bytes, para controle de ocupação |
+
+> **Sem `species_id`, por decisão de projeto.** O envio da foto acontece antes da inserção da
+> espécie, então a chave estrangeira não teria a que apontar no momento da gravação. A referência
+> fica em `species.photo_url`. A imagem é guardada no banco e não em disco porque o sistema de
+> arquivos da plataforma de publicação é somente leitura e descartado a cada implantação: em disco,
+> a foto se perderia. Ver [`C6 §3.2`](C6-modelo-entidade-relacionamento.md).
 
 ## `containers`: recipiente
 
@@ -173,6 +193,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `state` | varchar(2) | ○ | | Unidade federativa |
 | `notes` | text | ○ | | Observações |
 | `active` | boolean | ○ | | Cliente ativo |
+| `party_id` | uuid | ○ | FK → `cadastro.parties` | Identidade do cadastro único. **Opcional:** o cadastro legado é anterior ao esquema `cadastro`, e a ligação foi feita por preenchimento retroativo |
 
 > **Todos os campos fiscais são opcionais.** É decisão de projeto, não omissão: exigi-los no cadastro
 > rápido interromperia o registro do pedido durante a negociação. A complementação ocorre no
@@ -199,6 +220,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `geocoded_at` | timestamptz | ○ | | Momento da tentativa de geocodificação. Preenchido com coordenadas nulas significa **não localizado**, e evita nova tentativa automática |
 | `active` | boolean | ● | | Registro arquivado por exclusão lógica |
 | `notes` | text | ○ | | Observações |
+| `party_id` | uuid | ○ | FK → `cadastro.parties` | Identidade do cadastro único, com a mesma opcionalidade de `customers.party_id` |
 
 > **`active` e `status` são informações distintas**, não redundância acidental: `active` falso é
 > arquivamento do registro; `status` inativo é fornecedor que parou de vender, mas cujo histórico
@@ -218,6 +240,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `min_quantity` | integer | ○ | | Quantidade mínima de compra |
 | `availability` | varchar(15) | ● | | `in_stock`, `on_order`, `unknown` |
 | `source` | varchar(15) | ● | | Origem do dado: `manual`, `paste`, `quote` |
+| `notes` | text | ○ | | Observações da oferta |
 
 > **Sem restrição de unicidade por fornecedor e espécie:** o mesmo fornecedor oferece a espécie em
 > portes e preços diferentes, e cada combinação é uma oferta distinta.
@@ -293,9 +316,18 @@ de campo ao custo de mão de obra.
 | `quantity` | numeric(10,3) | ● | | Quantidade consumida. Restrição: maior que zero |
 | `usage_date` | date | ● | | Data do consumo |
 | `notes` | text | ○ | | Observação |
+| `client_id` | uuid | ○ | UK | Chave gerada **pelo aparelho** antes do primeiro envio e mantida em todos os reenvios. É o que torna o registro idempotente (RNF-05) |
 
 > Alimentado pelo formulário de campo do colaborador (RF-14). É a entidade de maior volume de
 > escrita do sistema e a que mais depende do funcionamento sem conexão.
+
+> **Como o funcionamento sem conexão não duplica consumo.** Quando o envio falha, o formulário
+> guarda o registro no aparelho e reenvia depois. Sem uma chave gerada na origem, o caso "o servidor
+> gravou mas a resposta se perdeu" seria indistinguível de "não gravou", e o reenvio criaria uma
+> segunda linha. Consumo duplicado inflaciona o custo por espécie, que é exatamente o número que o
+> sistema existe para apurar. `client_id` é essa chave, e a restrição de unicidade sobre ela faz o
+> reenvio ser ignorado em vez de duplicado. É nulo nos registros que não vêm do formulário de campo,
+> como carga inicial e importação, e a unicidade do banco admite vários nulos.
 
 ## `seed_collection_costs`: custo de coleta de sementes
 
@@ -434,6 +466,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `is_available` | boolean | ○ | | Resultado da verificação. **Nulo significa não verificado** |
 | `available_quantity` | integer | ○ | | Quantidade efetivamente disponível, quando parcial |
 | `available_container_id` | uuid | ○ | FK → `containers` | Recipiente realmente disponível, quando difere do solicitado |
+| `availability_notes` | text | ○ | | Justificativa da verificação: por que faltou, ou o que foi oferecido no lugar |
 
 **Restrições de integridade:**
 
@@ -509,6 +542,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `responded_at` | timestamptz | ○ | | Momento da resposta |
 | `raw_response` | text | ○ | | Resposta recebida, como transcrita |
 | `created_by` | uuid | ● | FK → `users` | Autor da cotação |
+| `notes` | text | ○ | | Observações da cotação |
 
 ## `supplier_quote_items`: item de cotação
 
@@ -770,10 +804,10 @@ ausência de sobreposição entre períodos de vigência.
 | Módulo | Entidades | Observação |
 |---|---:|---|
 | *(transversal)* Acesso | 4 | |
-| 1 · Cadastros | 12 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
+| 1 · Cadastros | 13 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
 | 2 · Produção | 7 | consumo, coleta, atividade, perda, contagem |
 | 3 · Comercial | 8 | pedido, item, carga, cotação |
 | 4 · Financeiro | 14 | esquema `financeiro` separado, mais custeio e preço |
-| **Total** | **45** | mais `species_unit_cost`, que é visão e não tabela |
+| **Total** | **46** | mais `species_unit_cost`, que é visão e não tabela |
 
 

@@ -22,7 +22,7 @@
 | [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | 🟠 média |
 | [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | ✅ resolvido 19/08 |
-| [I](#i--o-que-não-é-divergência) | 45 entidades especificadas × 25 tabelas reais | ⚪ não é erro |
+| [I](#i--o-que-não-é-divergência) | 46 entidades especificadas × 28 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 | [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
 
@@ -153,8 +153,8 @@ as linhas novas em `B5`. Lista completa em
 
 ## I: O que **não** é divergência
 
-`C6`/`C8` especificam **45 entidades**; o banco tem **25 tabelas**. Isso é intencional e está
-declarado em `docs/engenharia/00-indice.md`:
+`C6`/`C8` especificam **46 entidades**; o banco tem **28 tabelas** e 1 visão. Isso é intencional e
+está declarado em `docs/engenharia/00-indice.md`:
 
 > Os artefatos são redigidos em tempo de projeto, como especificação da solução a ser
 > construída. São documentos de projeto, não relatórios de código.
@@ -165,6 +165,19 @@ As entidades ainda não criadas (`production_activities`, `loss_events`, `stock_
 19/08/2026, `task_types`, `week_plans`, `assignments`, `labor_rates`) correspondem a P2, P3, P12 e
 P13: projetos especificados e não implementados. `parties`, `party_roles` e `addresses` saíram
 desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
+
+**Uma coluna, e não uma entidade, também está nessa condição:** `users.party_id`, especificada em
+`C6 §3.1` e `C8`, com a justificativa da opcionalidade nos dois, não existe no banco. A migration
+`20260811000004` ligou `party_id` em `customers` e `suppliers`, e deixou `users` de fora. Fica
+registrada aqui pelo mesmo critério das entidades acima: é especificação à frente do código, não
+erro de documento.
+
+> ✅ **Conferência de 21/08/2026.** `C6` e `C8` foram confrontados com as 33 migrations, coluna por
+> coluna. Sete divergências no sentido inverso, banco à frente do documento, foram corrigidas:
+> a tabela `species_photos`, `customers.party_id`, `suppliers.party_id`,
+> `input_usages.client_id`, `order_items.availability_notes`, `supplier_species.notes` e
+> `supplier_quotes.notes`. `species.category`, coluna legada que sobreviveu à adoção de `tags`,
+> passou a ser declarada como tal no `C8`.
 
 **Também conferido e consistente:**
 
