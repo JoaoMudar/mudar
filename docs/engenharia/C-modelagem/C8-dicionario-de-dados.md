@@ -30,6 +30,38 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 - `updated_at`: momento da última alteração, mantido automaticamente pelo banco.
 - `active`: indicador de arquivamento. Registro inativo desaparece das listagens sem ser removido,
   preservando a integridade das referências históricas.
+- Nome de entidade fora do esquema `public` vem qualificado (`cadastro.parties`,
+  `financeiro.transactions`), na coluna Chave inclusive.
+- A marca *Especificada, não implementada no protótipo* abaixo do título indica entidade que
+  pertence ao modelo mas ainda não existe no banco; em entidade já existente, a mesma condição
+  aparece como **Especificado, não implementado** na descrição do atributo.
+
+---
+
+## Recorte implementado
+
+Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 46
+entidades, **28 existem no banco** (mais a visão `species_unit_cost`) e **18 estão especificadas e
+ainda não implementadas**. A distinção é registrada entidade por entidade, e não é defeito de
+modelagem: o modelo responde à especificação completa de requisitos, e a construção segue a
+priorização declarada em [`B2`](../B-requisitos/B2-especificacao-requisitos.md).
+
+| Módulo | No banco | Só especificadas |
+|---|---:|---:|
+| *(transversal)* Acesso | 4 | 0 |
+| 1 · Cadastros | 12 | 1 |
+| 2 · Produção | 2 | 5 |
+| 3 · Comercial | 8 | 0 |
+| 4 · Financeiro | 2 | 12 |
+| **Total** | **28** | **18** |
+
+As 18 pendentes: `task_types`, `production_activities`, `loss_events`, `stock_counts`,
+`week_plans`, `assignments`, `labor_rates`, `sale_channels`, `sale_prices` e as nove do esquema
+`financeiro` (`accounts`, `cost_centers`, `category_groups`, `categories`, `statement_imports`,
+`transactions`, `transaction_splits`, `classification_rules`, `periods`).
+
+Dois atributos de entidade já existente estão na mesma condição: `users.party_id`, e o par
+`order_items.unit_price` / `order_items.sale_price_id`, que depende de `sale_prices`.
 
 ---
 
@@ -48,7 +80,7 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `active` | boolean | ● | | Usuário habilitado |
 | `failed_login_attempts` | integer | ● | | Tentativas malsucedidas consecutivas |
 | `locked_until` | timestamptz | ○ | | Bloqueio temporário após tentativas sucessivas |
-| `party_id` | uuid | ○ | FK | Pessoa do cadastro a que esta credencial pertence. **Opcional:** há funcionário sem login e administrador sem vínculo |
+| `party_id` | uuid | ○ | FK → `cadastro.parties` | Pessoa do cadastro a que esta credencial pertence. **Especificado, não implementado.** **Opcional:** há funcionário sem login e administrador sem vínculo |
 
 ## `sessions`: sessão ativa
 
@@ -287,9 +319,9 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 | `lat`, `lng`, `geocoded_at` | numeric/timestamptz | ○ | | Coordenadas do mapa de fornecedores (P11 F4) |
 | `is_primary` | boolean | ● | | UNIQUE parcial: no máximo um principal por identidade |
 
-# Módulo 2 · Produção
-
 ## `task_types`: tipo de tarefa
+
+*Especificada, não implementada no protótipo.*
 
 Vocabulário fechado da agenda de pessoal (RF-70). O tempo médio por unidade é o que liga a tarefa
 de campo ao custo de mão de obra.
@@ -304,6 +336,8 @@ de campo ao custo de mão de obra.
 | `unit_of_measure` | text | ○ | | Unidade do que se produz na tarefa (muda, bandeja, metro) |
 | `avg_minutes_per_unit` | numeric | ○ | | Tempo médio por unidade; alimenta a estimativa de custo |
 | `active` | boolean | ● | | Tipo em uso |
+
+# Módulo 2 · Produção
 
 ## `input_usages`: consumo de insumo
 
@@ -347,6 +381,8 @@ de campo ao custo de mão de obra.
 
 ## `production_activities`: atividade de produção
 
+*Especificada, não implementada no protótipo.*
+
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
@@ -358,10 +394,12 @@ de campo ao custo de mão de obra.
 | `performed_by` | uuid | ● | FK → `users` | Quem executou |
 | `notes` | text | ○ | | Observação |
 
-> Registros de `semeadura` e `repicagem` são os que **somam ao estoque**; irrigação e adubação são
-> atividades de manejo que não alteram quantidade.
+> Registros de `semeadura` e `repicagem` são os que **somam ao estoque**; irrigação, adubação e
+> rustificação são atividades de manejo que não alteram quantidade (RN-57).
 
 ## `loss_events`: perda
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -384,6 +422,8 @@ de campo ao custo de mão de obra.
 
 ## `stock_counts`: contagem física de estoque
 
+*Especificada, não implementada no protótipo.*
+
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
@@ -401,6 +441,8 @@ de campo ao custo de mão de obra.
 
 ## `week_plans`: semana de trabalho
 
+*Especificada, não implementada no protótipo.*
+
 A semana é a unidade real de decisão do viveiro (RF-71, RF-73). Fechada, não se altera: sem isso
 o custo do período mudaria depois de apurado (RN-50).
 
@@ -409,10 +451,12 @@ o custo do período mudaria depois de apurado (RN-50).
 | `id` | uuid | ● | PK | Identificador |
 | `week_start` | date | ● | UK | Segunda-feira da semana; única |
 | `status` | text | ● | | `rascunho`, `publicada`, `fechada` |
-| `published_by` | uuid | ○ | FK | Quem publicou a semana para a equipe |
+| `published_by` | uuid | ○ | FK → `users` | Quem publicou a semana para a equipe |
 | `closed_at` | timestamptz | ○ | | Momento do fechamento; a partir dele a semana é imutável |
 
 ## `assignments`: atribuição de tarefa
+
+*Especificada, não implementada no protótipo.*
 
 A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui que saem as horas
 (RF-71), e um turno vale quatro horas por convenção (RN-48).
@@ -420,13 +464,13 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `week_plan_id` | uuid | ● | FK | Semana a que pertence |
-| `party_id` | uuid | ● | FK | Quem executa: pessoa com papel `funcionario`, com ou sem usuário |
+| `week_plan_id` | uuid | ● | FK → `week_plans` | Semana a que pertence |
+| `party_id` | uuid | ● | FK → `cadastro.parties` | Quem executa: pessoa com papel `funcionario`, com ou sem usuário |
 | `work_date` | date | ● | | Dia da tarefa |
 | `shift` | text | ● | | `manha` ou `tarde`. Nunca hora marcada (RN-48) |
-| `task_type_id` | uuid | ● | FK | Tipo de tarefa |
-| `species_id` | uuid | ○ | FK | Espécie, quando o tipo de tarefa a exigir |
-| `container_id` | uuid | ○ | FK | Recipiente, quando o tipo de tarefa o exigir |
+| `task_type_id` | uuid | ● | FK → `task_types` | Tipo de tarefa |
+| `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente, quando o tipo de tarefa o exigir |
 | `planned_quantity` | integer | ○ | | Quantidade planejada, quando aplicável |
 | `is_recurring` | boolean | ● | | Tarefa fixa: renasce em toda semana nova (RF-72) |
 | `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada`: a última é a que o fechamento assume como realizada (RN-51) |
@@ -447,6 +491,8 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `delivery_date` | date | ○ | | Data prevista de entrega |
 | `notes` | text | ○ | | Observações |
 | `created_by` | uuid | ● | FK → `users` | Autor do registro |
+| `price_approved_by` | uuid | ○ | FK → `users` | Chefia que aprovou o preço antes do fechamento (RF-44). **Especificado, não implementado.** |
+| `price_approved_at` | timestamptz | ○ | | Momento da aprovação. Nulo enquanto o pedido não teve o preço aprovado. **Especificado, não implementado.** |
 
 **Estados admitidos:** `cadastrado`, `verificando_disponibilidade`, `verificado`,
 `pendente_alteracao`, `aprovado`, `separando`, `pronto_envio`, `cancelado`.
@@ -463,6 +509,8 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `is_generic` | boolean | ● | | Item sem espécie definida |
 | `parent_item_id` | uuid | ○ | FK → `order_items` | Item genérico que este especializa |
 | `specification` | text | ○ | | Exigência de qualidade do cliente. Único texto livre do fluxo de pedido |
+| `sale_price_id` | uuid | ○ | FK → `sale_prices` | Preço vigente tomado como base. Dele saem o valor sugerido e o piso contra o qual o acordado é validado. **Especificado, não implementado.** |
+| `unit_price` | numeric(10,2) | ○ | | **Preço unitário acordado com o cliente.** Pode diferir do sugerido e nunca desce abaixo do piso (RN-59, RF-33). Nulo enquanto o item não foi precificado. **Especificado, não implementado.** |
 | `is_available` | boolean | ○ | | Resultado da verificação. **Nulo significa não verificado** |
 | `available_quantity` | integer | ○ | | Quantidade efetivamente disponível, quando parcial |
 | `available_container_id` | uuid | ○ | FK → `containers` | Recipiente realmente disponível, quando difere do solicitado |
@@ -472,6 +520,12 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 
 - Item genérico não pode ter espécie.
 - Item específico precisa ter espécie, salvo quando é filho de um genérico.
+- Preço acordado não pode ser menor que o piso do preço vigente referenciado (RF-33).
+
+> **O valor negociado fica no item, não no pedido:** cada espécie e recipiente tem preço próprio, e
+> um pedido mistura vários. Também não se copia aqui o valor sugerido nem o piso: `sale_prices`
+> guarda vigência fechada, então a referência à linha vigente recupera os dois sem duplicar dado
+> (RN-58). É essa referência que sustenta o relatório de custo contra preço praticado (RF-35).
 
 **Os quatro estados de disponibilidade**, e como se distinguem:
 
@@ -609,6 +663,8 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ## `labor_rates`: valor-hora do período
 
+*Especificada, não implementada no protótipo.*
+
 Um registro por mês: folha dividida por horas (RN-53). Guarda o custo da hora **da equipe**, nunca
 o salário individual.
 
@@ -621,7 +677,9 @@ o salário individual.
 | `hours_total` | numeric(10,2) | ● | | Horas apuradas na agenda do mês |
 | `hourly_rate` | numeric(12,4) | ● | | Derivado: `payroll_total / hours_total` |
 
-## `accounts`: conta
+## `financeiro.accounts`: conta
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -636,7 +694,9 @@ o salário individual.
 > Inclui uma conta de **dinheiro em espécie**, para que a regra "nenhum lançamento sem conta" não
 > empurre o gasto em dinheiro para fora do sistema.
 
-## `cost_centers`: centro de custo
+## `financeiro.cost_centers`: centro de custo
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -650,26 +710,30 @@ o salário individual.
 > a natureza deriva do centro. Foi a natureza digitada linha a linha que produziu, na planilha
 > anterior, classificação errada nos dois sentidos.
 
-## `category_groups` e `categories`: classificação
+## `financeiro.category_groups` e `financeiro.categories`: classificação
 
-| `category_groups` | Tipo | Ob. | Chave | Descrição |
+*Especificada, não implementada no protótipo.*
+
+| `financeiro.category_groups` | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `name` | text | ● | | Nome do grupo |
 
-| `categories` | Tipo | Ob. | Chave | Descrição |
+| `financeiro.categories` | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `group_id` | uuid | ● | FK → `category_groups` | Grupo |
+| `group_id` | uuid | ● | FK → `financeiro.category_groups` | Grupo |
 | `name` | text | ● | | Nome da categoria |
 | `direction` | text | ● | | `saida`, `entrada` ou `ambos`. Restringe o que a lista oferece conforme o sinal do valor |
 
-## `statement_imports`: importação de extrato
+## `financeiro.statement_imports`: importação de extrato
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `account_id` | uuid | ● | FK → `accounts` | Conta do extrato |
+| `account_id` | uuid | ● | FK → `financeiro.accounts` | Conta do extrato |
 | `source_format` | text | ● | | Formato do arquivo |
 | `file_name` | text | ● | | Nome do arquivo |
 | `file_hash` | text | ● | | Resumo do conteúdo, para detectar reimportação |
@@ -679,13 +743,15 @@ o salário individual.
 | `rows_duplicated` | integer | ● | | Linhas já existentes, descartadas |
 | `imported_by` | uuid | ● | FK → `users` | Autor da importação |
 
-## `transactions`: lançamento *(entidade central do financeiro)*
+## `financeiro.transactions`: lançamento *(entidade central do financeiro)*
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `account_id` | uuid | ● | FK → `accounts` | Conta. **Nada existe sem conta** |
-| `import_id` | uuid | ○ | FK → `statement_imports` | Lote de importação. Nulo se lançado manualmente |
+| `account_id` | uuid | ● | FK → `financeiro.accounts` | Conta. **Nada existe sem conta** |
+| `import_id` | uuid | ○ | FK → `financeiro.statement_imports` | Lote de importação. Nulo se lançado manualmente |
 | `posted_at` | date | ● | | Quando o banco moveu. **Nunca editado** |
 | `competence_date` | date | ● | | Mês a que o gasto pertence. Assume a data de movimentação por padrão |
 | `amount` | numeric(14,2) | ● | | Valor. **Negativo é saída, positivo é entrada** |
@@ -697,10 +763,10 @@ o salário individual.
 | `installment_number` | smallint | ○ | | Número da parcela |
 | `installment_total` | smallint | ○ | | Total de parcelas |
 | `installment_total_amount` | numeric(14,2) | ○ | | Valor cheio da compra parcelada |
-| `category_id` | uuid | ○ | FK → `categories` | Categoria |
-| `cost_center_id` | uuid | ○ | FK → `cost_centers` | Centro de custo. Nulo quando há rateio |
-| `party_id` | uuid | ○ | FK → `parties` | Contraparte |
-| `transfer_pair_id` | uuid | ○ | FK → `transactions` | Perna oposta da transferência entre contas próprias |
+| `category_id` | uuid | ○ | FK → `financeiro.categories` | Categoria |
+| `cost_center_id` | uuid | ○ | FK → `financeiro.cost_centers` | Centro de custo. Nulo quando há rateio |
+| `party_id` | uuid | ○ | FK → `cadastro.parties` | Contraparte |
+| `transfer_pair_id` | uuid | ○ | FK → `financeiro.transactions` | Perna oposta da transferência entre contas próprias |
 | `order_id` | uuid | ○ | FK → `orders` | Pedido conciliado, quando entrada |
 | `supplier_quote_id` | uuid | ○ | FK → `supplier_quotes` | Cotação conciliada, quando saída |
 | `status` | text | ● | | `a-classificar`, `classificado`, `conciliado`, `ignorado` |
@@ -714,30 +780,34 @@ cria nada.
 **Por que o sinal no valor em vez de uma coluna de direção:** é como o extrato entrega, e faz a soma
 dos valores do período ser o saldo diretamente.
 
-## `transaction_splits`: rateio
+## `financeiro.transaction_splits`: rateio
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `transaction_id` | uuid | ● | FK → `transactions` | Lançamento rateado |
-| `cost_center_id` | uuid | ● | FK → `cost_centers` | Centro que recebe a parte |
-| `category_id` | uuid | ○ | FK → `categories` | Categoria da parte. Nulo herda a do lançamento |
+| `transaction_id` | uuid | ● | FK → `financeiro.transactions` | Lançamento rateado |
+| `cost_center_id` | uuid | ● | FK → `financeiro.cost_centers` | Centro que recebe a parte |
+| `category_id` | uuid | ○ | FK → `financeiro.categories` | Categoria da parte. Nulo herda a do lançamento |
 | `amount` | numeric(14,2) | ● | | Valor da parte |
 
 **Invariante:** havendo rateio, a soma das partes iguala o valor do lançamento. Validada na camada de
 aplicação, onde a mensagem de erro é legível e o comportamento é verificável por teste automatizado.
 
-## `classification_rules`: regra de classificação
+## `financeiro.classification_rules`: regra de classificação
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `pattern` | text | ● | | Trecho ou expressão a reconhecer na descrição |
 | `match_type` | text | ● | | `contains` ou `regex` |
-| `account_id` | uuid | ○ | FK → `accounts` | Restringe a regra a uma conta |
-| `category_id` | uuid | ○ | FK → `categories` | Categoria a aplicar |
-| `cost_center_id` | uuid | ○ | FK → `cost_centers` | Centro a aplicar |
-| `party_id` | uuid | ○ | FK → `parties` | Contraparte a aplicar |
+| `account_id` | uuid | ○ | FK → `financeiro.accounts` | Restringe a regra a uma conta |
+| `category_id` | uuid | ○ | FK → `financeiro.categories` | Categoria a aplicar |
+| `cost_center_id` | uuid | ○ | FK → `financeiro.cost_centers` | Centro a aplicar |
+| `party_id` | uuid | ○ | FK → `cadastro.parties` | Contraparte a aplicar |
 | `priority` | integer | ● | | Ordem de avaliação |
 | `hits` | integer | ● | | Quantas vezes já se aplicou |
 | `active` | boolean | ● | | Regra em uso |
@@ -745,12 +815,14 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 > É a entidade que faz a fila de pendências **encolher** a cada mês, em vez de crescer: cada
 > classificação manual vira regra para as próximas.
 
-## `periods`: fechamento mensal
+## `financeiro.periods`: fechamento mensal
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `account_id` | uuid | ● | FK → `accounts` | Conta |
+| `account_id` | uuid | ● | FK → `financeiro.accounts` | Conta |
 | `year` / `month` | integer | ● | | Período |
 | `status` | text | ● | | `aberto` ou `fechado` |
 | `closing_balance` | numeric(14,2) | ○ | | Saldo conferido no fechamento |
@@ -764,6 +836,8 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 
 ## `sale_channels`: canal de venda
 
+*Especificada, não implementada no protótipo.*
+
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
@@ -776,6 +850,8 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 > A margem é atributo do canal, não do preço: alterá-la deve refletir-se em todos os preços do canal.
 
 ## `sale_prices`: preço de venda vigente
+
+*Especificada, não implementada no protótipo.*
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -794,8 +870,8 @@ aplicação, onde a mensagem de erro é legível e o comportamento é verificáv
 **Restrição de unicidade:** um único preço vigente por espécie, recipiente e canal, garantida pela
 ausência de sobreposição entre períodos de vigência.
 
-> O preço efetivamente acordado é registrado no item do pedido, e pode diferir do sugerido dentro do
-> limite do piso. Esta entidade é fonte de sugestão e de validação, nunca de imposição.
+> O preço efetivamente acordado é registrado no item do pedido (`order_items.unit_price`), e pode
+> diferir do sugerido dentro do limite do piso. Esta entidade é fonte de sugestão e de validação, nunca de imposição.
 
 ---
 
@@ -804,10 +880,10 @@ ausência de sobreposição entre períodos de vigência.
 | Módulo | Entidades | Observação |
 |---|---:|---|
 | *(transversal)* Acesso | 4 | |
-| 1 · Cadastros | 13 | inclui o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
+| 1 · Cadastros | 13 | inclui `task_types` e o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
 | 2 · Produção | 7 | consumo, coleta, atividade, perda, contagem |
 | 3 · Comercial | 8 | pedido, item, carga, cotação |
-| 4 · Financeiro | 14 | esquema `financeiro` separado, mais custeio e preço |
+| 4 · Financeiro | 14 | nove entidades no esquema `financeiro`, mais custeio e preço em `public` |
 | **Total** | **46** | mais `species_unit_cost`, que é visão e não tabela |
 
 

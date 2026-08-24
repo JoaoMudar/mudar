@@ -58,7 +58,7 @@ Comece por [`engenharia/README.md`](engenharia/README.md), explica a estrutura d
 |-------|-----------|
 | A: Fundação | Documento de Visão, Glossário do domínio |
 | B: Requisitos | Especificação de Requisitos (76 RF, 26 RNF), Regras de negócio (62 RN), Quadros do TCC, Matriz de rastreabilidade |
-| C: Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (45 entidades), Dicionário de dados |
+| C: Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (46 entidades), Dicionário de dados |
 | D: Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
 | E: Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
 | F: Usabilidade | Plano de avaliação (5 atributos de Nielsen) |

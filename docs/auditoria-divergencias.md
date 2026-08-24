@@ -170,7 +170,8 @@ desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
 `C6 §3.1` e `C8`, com a justificativa da opcionalidade nos dois, não existe no banco. A migration
 `20260811000004` ligou `party_id` em `customers` e `suppliers`, e deixou `users` de fora. Fica
 registrada aqui pelo mesmo critério das entidades acima: é especificação à frente do código, não
-erro de documento.
+erro de documento. Desde 24/08/2026 a própria linha do `C8` traz a marca **Especificado, não
+implementado**, e o mesmo vale para `order_items.unit_price` e `order_items.sale_price_id`.
 
 > ✅ **Conferência de 21/08/2026.** `C6` e `C8` foram confrontados com as 33 migrations, coluna por
 > coluna. Sete divergências no sentido inverso, banco à frente do documento, foram corrigidas:
@@ -317,7 +318,8 @@ Dois efeitos colaterais que valem registro:
 A ficha da pessoa (`/cadastros/pessoas/[id]`) nasceu junto, e com uma finalidade declarada: é
 onde *quanto compramos e quanto vendemos para esta pessoa* vai ser respondido. Hoje ela mostra
 volume de venda e valor cotado de compra, e diz na tela que o valor em reais depende da Fase 2
-do P12: `order_items` não tem preço, então o número virá do extrato, apontando para a mesma
+do P12: `order_items` ainda não tem preço no banco (o modelo passou a especificá-lo em 24/08/2026,
+ver a quarta passada), então o número virá do extrato, apontando para a mesma
 `party_id`. Ver também [`divida-tecnica.md`](divida-tecnica.md) §8, que registra o conserto que
 `mergeParties` vai precisar quando essa tabela existir.
 
@@ -386,6 +388,43 @@ indicadores novos no `G2`, porque os três que o P13 sugeria eram *possíveis*, 
 ficha do G2 exige meta e responsável, que teriam de ser inventados junto.
 
 **Contagens acertadas.** Várias estavam erradas e se repetiam por até sete arquivos: as entidades
-eram declaradas como 39 e são 45 (a tabela-resumo do `C6` contava 10 no Financeiro, que tinha 12);
+eram declaradas como 39 e passaram a 45 (a tabela-resumo do `C6` contava 10 no Financeiro, que
+tinha 12), hoje 46;
 os requisitos passaram de 68 para 76; os casos de uso, de 40 para 44; as regras de negócio, de 47
 para 55.
+
+### Quarta passada: o modelo de dados contra o banco e contra os requisitos (24/08/2026)
+
+Conferência de `C6` e `C8` contra as 33 migrations, contra `B2`, `B3`, `B5` e `D4`, e contra
+`src/`. Conferiu certo o essencial: as 28 tabelas reais estão todas documentadas, sem tabela órfã;
+as 37 chaves estrangeiras reais batem uma a uma com o `C8`; todas as listas fechadas coincidem com
+os `CHECK` e `ENUM` do banco, inclusive o `funcionario` → `colaborador`; os 8 estados de pedido e os
+4 de disponibilidade batem com `src/lib/orders.ts`; nenhuma entidade citada em `B5` ou `D4` falta no
+`C8`; e `src/` não referencia tabela inexistente. Seis correções:
+
+1. **O preço praticado não tinha onde ser gravado.** `order_items` não tinha atributo de preço em
+   lugar nenhum, embora a nota de `sale_prices` no `C8` afirmasse que o valor acordado fica no item,
+   RN-59 o admita diferente do sugerido e RF-33, RF-35 e RF-44 tratem de preço praticado. Era a
+   metade que faltava da correção registrada em `B5 §5.1`. `order_items` recebeu `unit_price` e
+   `sale_price_id`; `orders` recebeu `price_approved_by` e `price_approved_at`. Em cascata: `C6`
+   §3.4 e §5, `C8` e as linhas de RF-33, RF-35 e RF-44 no `B5`.
+2. **`users.party_id` aparecia como coluna existente.** Passou a trazer a marca de especificado e
+   não implementado, e a declarar o alvo `cadastro.parties`.
+3. **O esquema `financeiro` não estava qualificado no `C8`**, embora o `C6 §3.5` e
+   `rotinas/4-financeiro/02-schema-financeiro.md` o exijam, e embora o `C8` já qualificasse
+   `cadastro.*`. As nove entidades do extrato passaram a `financeiro.*`. O `C6 §3.5` também
+   passou a dizer quais são as nove: custeio e preço ficam em `public`, e a frase anterior dava a
+   entender que o módulo inteiro estava no esquema separado.
+4. **Sete chaves estrangeiras sem alvo declarado** (`users.party_id`, `week_plans.published_by` e as
+   cinco de `assignments`) ganharam o `→ tabela`, como todas as demais do dicionário.
+5. **`task_types` estava sob o título do Módulo 2** no `C8`, enquanto o `C6` e a própria tabela-resumo
+   do `C8` o contam em Cadastros. Foi movido.
+6. **A nota de `production_activities` omitia a rustificação** da lista de manejo que RN-57 nomeia.
+
+Duas contagens erradas junto: o `C6 §2` dizia "quarenta e cinco do modelo completo" e o `D1` falava
+em 45 entidades, quando são 46 desde que a precificação entrou.
+
+**Recorte implementado, agora declarado.** Nem `C6` nem `C8` diziam quais das 46 entidades existem
+no banco, e a distinção é a primeira pergunta de quem lê o modelo ao lado do sistema. O `C6` ganhou
+a seção §2.1 e o `C8` a seção "Recorte implementado", ambas com a mesma conta (28 no banco, 18 só
+especificadas), e o `C8` marca a condição entidade por entidade.
