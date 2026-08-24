@@ -161,8 +161,7 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
       `B3` (RN-71 a RN-73, RN-41 emendada), `B2` (§2.2.3 com RF-77 a RF-79, RF-57 emendado), `C1`
       (UC-45), `C6`/`C8` (`created_at`, `created_by`, `deactivated_at`), `D4` (recurso *Centros de
       custo* e regra §3.12), `E2` (TA-56 a TA-58), `B5`, `B4`, `A2` e `auditoria-divergencias`.
-      `npm run docs:tcc` e `npm run docs:mapas` rodados; **falta `npm run docs:quadros`**, que
-      abortou com o `.docx` aberto no Word
+      `npm run docs:tcc`, `npm run docs:mapas` e `npm run docs:quadros` rodados
 
 ---
 
