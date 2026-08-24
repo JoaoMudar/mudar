@@ -700,14 +700,23 @@ o salário individual.
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `code` | text | ● | UK | Código |
+| `code` | text | ● | UK | Código, derivado do nome. **Imutável**: é por ele que a carga inicial e as regras de classificação apontam |
 | `name` | text | ● | | Designação |
-| `nature` | text | ● | | `negocio` ou `pessoal` |
+| `nature` | text | ● | | `negocio` ou `pessoal`. Escolhida na criação, **imutável** depois de existir lançamento no centro (RN-73) |
 | `active` | boolean | ● | | Oferecido em novos lançamentos |
+| `created_at` | timestamptz | ● | | Momento do cadastro |
+| `created_by` | uuid | ○ | FK → `users` | Autor do cadastro (RN-46). Nulo nos cinco da carga inicial |
+| `deactivated_at` | timestamptz | ○ | | Quando saiu das escolhas de lançamento novo |
 
 > **É o centro de custo que separa negócio de pessoal.** Não há campo de natureza no lançamento.
 > a natureza deriva do centro. Foi a natureza digitada linha a linha que produziu, na planilha
 > anterior, classificação errada nos dois sentidos.
+
+> **É cadastro, não carga inicial fechada.** A tabela nasce com cinco centros (viveiro, sítio,
+> clínica, casa, floricultura) e é mantida pela chefia em `/cadastros/centros-de-custo` (RF-77 a
+> RF-79). **Exclusão não existe**: o centro extinto é inativado, porque o lançamento já classificado
+> guarda o seu centro para sempre (RN-72). `active = false` significa uma coisa só: fora das escolhas
+> de lançamento novo, presente em todo o resto, inclusive na reclassificação de lançamento antigo.
 
 ## `financeiro.category_groups` e `financeiro.categories`: classificação
 

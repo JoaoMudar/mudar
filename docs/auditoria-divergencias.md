@@ -186,8 +186,8 @@ implementado**, e o mesmo vale para `order_items.unit_price` e `order_items.sale
   `C2`, `C8`, `D4` e `E2`. É a área mais bem mantida do projeto.
 - Os 5 canais de venda batem entre `CLAUDE.md`, `orders.ts` e o banco.
 - O limite de mortalidade de 20% bate entre `CLAUDE.md`, `RF-29` e `IND-01`.
-- Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso. *(Em 19/08/2026 passaram a 76 RF e 44 casos de uso, com os requisitos da agenda de pessoal.)*
-- Financeiro: as 9 contas e os 5 centros de custo batem entre `P12`, `4-financeiro/` e `C8`.
+- Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso. *(Em 19/08/2026 passaram a 76 RF e 44 casos de uso, com os requisitos da agenda de pessoal; em 24/08/2026, a 79 RF e 45 casos, com o cadastro de centros de custo.)*
+- Financeiro: as 9 contas e os 5 centros de custo **iniciais** batem entre `P12`, `4-financeiro/` e `C8`. Desde 24/08/2026 os centros são cadastro mantido pela chefia (RN-71 a RN-73, RF-77 a RF-79), e não lista fixa: o número deixa de ser conferível por igualdade, o que se confere é a carga inicial.
 
 ## J: Migrations marcadas como aplicadas que nunca rodaram
 

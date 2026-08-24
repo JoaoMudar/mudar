@@ -117,6 +117,7 @@ Rotina **agrupadora**, sem processo próprio. Reúne o que é estável e se repe
 | Cadastrar/editar fornecedor | Chefia |
 | Cadastrar/editar funcionário | Chefia |
 | Cadastrar/editar tipo de tarefa | Gerência |
+| Cadastrar/inativar centro de custo ([`1-cadastros/centros-de-custo.md`](1-cadastros/centros-de-custo.md)) | Chefia |
 
 **Pessoas são uma identidade só.** Cliente, fornecedor e funcionário são papéis de
 `cadastro.parties`: quem vende muda e às vezes compra é um cadastro só. Por isso
@@ -222,6 +223,7 @@ docs/rotinas/
 ├── 1-cadastros/
 │   ├── 00-visao-geral.md           a rotina agrupadora e a regra de corte
 │   ├── clientes.md  +  clientes/   cadastro fiscal e o portão da nota
+│   ├── centros-de-custo.md         cadastro daqui, tabela no schema `financeiro`
 │   └── (fornecedores: plano P11)
 ├── 2-producao/
 │   ├── 00-visao-geral.md           as três subrotinas e o ciclo

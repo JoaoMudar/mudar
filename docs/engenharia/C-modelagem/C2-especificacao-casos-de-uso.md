@@ -368,7 +368,8 @@ recusa e apresenta o piso aplicável.
 
 1. A chefia abre a fila de lançamentos pendentes.
 2. O sistema apresenta os lançamentos que **não** reconheceu, com data, valor e descrição do banco.
-3. Para cada lançamento, a chefia informa centro de custo, categoria e contraparte, todos em lista fechada.
+3. Para cada lançamento, a chefia informa centro de custo, categoria e contraparte, escolhendo de
+   lista, sem digitação livre. A lista de centros oferece só os **ativos**, mantidos em UC-45.
 4. O sistema registra a classificação e a converte em regra para lançamentos equivalentes futuros.
 5. O sistema remove o lançamento da fila.
 6. A chefia repete até esvaziar a fila.
@@ -403,7 +404,7 @@ necessário reabrir o período.
 
 ## Casos de uso não especificados
 
-Os trinta e dois casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
+Os trinta e três casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
 de cadastro e de consulta, cujo fluxo se resume a selecionar, preencher e confirmar, sem alternativas
 relevantes. Especificá-los produziria repetição sem ganho analítico.
 

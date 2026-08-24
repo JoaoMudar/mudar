@@ -128,6 +128,7 @@ graph LR
     UC23(["UC-23 · Consultar cliente"])
     UC31(["UC-31 · Manter fornecedor"])
     UC41(["UC-41 · Manter cadastro de funcionário"])
+    UC45(["UC-45 · Manter centros de custo"])
   end
 
   subgraph M2["2 · Produção"]
@@ -173,6 +174,7 @@ graph LR
   CH --- UC11
   CH --- UC31
   CH --- UC41
+  CH --- UC45
   CH --- UC32
   CH --- UC33
   CH --- UC34
@@ -185,7 +187,7 @@ graph LR
   CH --- UC39
 ```
 
-A concentração é acentuada: **vinte e seis dos quarenta e quatro casos de uso pertencem à chefia.** Não é
+A concentração é acentuada: **vinte e sete dos quarenta e cinco casos de uso pertencem à chefia.** Não é
 falha de distribuição: é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
@@ -333,8 +335,9 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70 | - |
 | **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | - |
 | **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | - |
+| **UC-45** | Manter centros de custo | 1 · Cad. | Chefia | RF-77, RF-78, RF-79 | - |
 
-**44 casos de uso.** Os oito marcados são especificados em detalhe em
+**45 casos de uso.** Os oito marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
 

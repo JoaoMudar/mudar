@@ -137,13 +137,16 @@ Fonte: Elaborado pelo autor (2026).
 | Código | Descrição |
 |---|---|
 | RN-40 | O extrato bancário é a fonte da verdade do financeiro. Gasto que não passou por conta alguma não existe para o sistema. |
-| RN-41 | O centro de custo separa gasto de negócio de gasto pessoal da família, lista fechada de cinco, viveiro, sítio, clínica, casa, floricultura. |
+| RN-41 | O centro de custo separa gasto de negócio de gasto pessoal da família. Os cinco iniciais são viveiro, sítio, clínica, casa e floricultura, e o conjunto é mantido no cadastro. |
 | RN-42 | Lançamento equivalente a outro já classificado recebe a mesma classificação. |
 | RN-43 | O fechamento do mês confere o saldo calculado contra o saldo do extrato e trava o período. Indicador financeiro só se calcula sobre mês fechado. |
 | RN-44 | A base bancária é assunto exclusivo da chefia. O que dela deriva e não a expõe (custo, margem, preço, indicador) segue em leitura para a gerência. |
 | RN-68 | Transferência entre contas do próprio viveiro não é despesa nem receita. |
 | RN-69 | Um mesmo gasto pode servir a mais de um centro de custo e então se reparte entre eles. A soma das partes é o valor total. |
 | RN-70 | Pedido entregue não é pedido pago. O recebimento é evento próprio, e só o extrato o comprova. |
+| RN-71 | Os destinos de gasto da família mudam com o tempo. O conjunto de centros de custo é mantido, não fixo. |
+| RN-72 | Centro de custo não se exclui, inativa-se. O lançamento já classificado guarda o seu centro para sempre. |
+| RN-73 | A natureza do centro é escolhida uma vez. Alterá-la depois de existir lançamento reescreveria o passado. |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -167,10 +170,10 @@ Fonte: Elaborado pelo autor (2026).
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
-| G: Financeiro | RN-40 a RN-44, RN-68 a RN-70 | 8 |
+| G: Financeiro | RN-40 a RN-44, RN-68 a RN-73 | 11 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| Total |  | 62 |
+| Total |  | 65 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -238,7 +241,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-54 | Comparação de propostas | O sistema deve permitir comparar as propostas recebidas e registrar a escolhida por item. | RN-38, RN-39 |
 | RF-55 | Mapa de fornecedores | O sistema poderia apresentar os fornecedores em mapa, com a distância até o viveiro. | RN-23, RN-38 |
 | RF-56 | Importação de extrato bancário | O sistema deve permitir importar o extrato bancário de cada conta, sem digitação de lançamentos. | RN-40, RN-70 |
-| RF-57 | Classificação de lançamento | O sistema deve permitir classificar cada lançamento indicando centro de custo, categoria e contraparte, todos em lista fechada. | RN-27, RN-40, RN-41, RN-68, RN-69 |
+| RF-57 | Classificação de lançamento | O sistema deve permitir classificar cada lançamento indicando centro de custo, categoria e contraparte, todos escolhidos de lista mantida no cadastro, sem digitação livre. | RN-27, RN-40, RN-41, RN-68, RN-69 |
 | RF-58 | Classificação automática recorrente | O sistema deve aplicar automaticamente a classificação já atribuída anteriormente a lançamentos equivalentes. | RN-42 |
 | RF-59 | Registro de data de competência | O sistema deve permitir informar data de competência distinta da data de movimentação. | RN-12 |
 | RF-60 | Fechamento mensal | O sistema deve permitir fechar o mês após conferência do saldo calculado contra o saldo do extrato, travando o período. | RN-43 |
@@ -258,6 +261,9 @@ Fonte: Elaborado pelo autor (2026).
 | RF-74 | Conclusão de tarefa pelo colaborador | O sistema deve apresentar ao colaborador apenas as tarefas atribuídas a ele no dia, e permitir concluí-las informando somente a quantidade realizada. | RN-52 |
 | RF-75 | Fechamento de tarefa não confirmada | O sistema deve assumir como realizada, ao fechar a semana, a tarefa planejada que não foi confirmada, registrando essa condição. | RN-51 |
 | RF-76 | Apuração do custo de mão de obra | O sistema deve apurar o custo de mão de obra por espécie e período, a partir das horas da agenda e de um valor-hora médio do período, e incorporá-lo ao custo unitário. | RN-48, RN-53, RN-56 |
+| RF-77 | Cadastro de centro de custo | O sistema deve permitir cadastrar centro de custo informando nome e natureza (negócio ou pessoal). | RN-71 |
+| RF-78 | Inativação de centro de custo | O sistema deve permitir inativar e reativar centro de custo, retirando-o das escolhas de lançamento novo sem afetar lançamento já classificado nele. | RN-72 |
+| RF-79 | Imutabilidade da natureza do centro | O sistema não deve permitir excluir centro de custo, nem alterar a sua natureza depois de existir lançamento classificado nele. | RN-73 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -313,10 +319,10 @@ Fonte: Elaborado pelo autor (2026).
 
 | Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
-| Regra de negócio | 72 | 94,7 | 3 | 11,5 |
+| Regra de negócio | 75 | 94,9 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
-| Política do projeto | 4 | 5,3 | 13 | 50,0 |
-| Total | 76 | 100,0 | 26 | 100,0 |
+| Política do projeto | 4 | 5,1 | 13 | 50,0 |
+| Total | 79 | 100,0 | 26 | 100,0 |
 
 Fonte: Elaborado pelo autor (2026).
 

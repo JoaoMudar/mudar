@@ -26,13 +26,15 @@ flowchart TB
   subgraph OPER["Cadastros de operação"]
     direction LR
     TIP["<b>Tipos de tarefa</b><br/>vocabulário da agenda de produção<br/>tempo médio por unidade &rarr; custeio"]
+    CCU["<b>Centros de custo</b><br/>negócio ou pessoal &mdash; separa os dois<br/>inativa, nunca exclui<br/><i>tabela no schema financeiro; só chefia vê</i>"]
+    TIP ~~~ CCU
   end
 
   subgraph CONS["Para onde os cadastros vão &nbsp;&mdash;&nbsp; os outros três módulos"]
     direction LR
     D2["<b>2 · Produção</b><br/>espécie · recipiente · insumo<br/>funcionário · tipo de tarefa"]
     D3["<b>3 · Comercial</b><br/>cliente e espécie no pedido<br/>fornecedor na cotação"]
-    D4["<b>4 · Financeiro</b><br/>contraparte de cada lançamento<br/>espécie e recipiente no custeio"]
+    D4["<b>4 · Financeiro</b><br/>contraparte e centro de custo do lançamento<br/>espécie e recipiente no custeio"]
     D2 ~~~ D3 ~~~ D4
   end
 
@@ -47,6 +49,7 @@ flowchart TB
   REC --> D2
   INS --> D2
   TIP --> D2
+  CCU --> D4
   ESP --> D3
   IDE --> D3
   ESP --> D4
@@ -76,7 +79,8 @@ flowchart TB
   class ESP,REC,INS,CLI,FOR,IDE,L1 ok
   %% Os outros tres modulos: todos comecados, nenhum completo.
   class D2,D3,D4,L2 meio
-  %% Sem tela: funcionario (P13 T13.7) e tipo de tarefa (P13 T13.8).
-  class FUN,TIP,L3 falta
+  %% Sem tela: funcionario (P13 T13.7), tipo de tarefa (P13 T13.8) e centro
+  %% de custo (P13 T13.24 a T13.26).
+  class FUN,TIP,CCU,L3 falta
   class PRODU,PESSOAS,OPER,CONS,LEG grupo
 

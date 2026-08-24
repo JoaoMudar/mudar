@@ -19,6 +19,7 @@ Os cadastros nasceram espalhados, cada um junto da rotina que precisou dele prim
 | Fornecedores | `/fornecedores` | P11 Cotação |
 | Funcionários | **não existe** | - |
 | Tipos de tarefa | **não existe** | - |
+| Centros de custo | **não existe** | - |
 
 Três consequências:
 
@@ -48,8 +49,15 @@ que existem de fato.
 ├── espécies          (veio de /admin/especies)
 ├── recipientes       (veio de /admin/recipientes)
 ├── insumos           (veio de /admin/insumos)
-└── tipos de tarefa   ← NOVO
+├── tipos de tarefa   ← NOVO
+└── centros de custo  ← NOVO (tabela no schema `financeiro`, cadastro aqui)
 ```
+
+**Centro de custo é cadastro daqui, tabela de lá.** `financeiro.cost_centers` fica no schema
+restrito porque é ali que ela é consumida (classificação, rateio, regra automática), e a fronteira
+de schema existe por segurança de acesso, não para declarar dono. Quem a mantém é a chefia, por esta
+área, e a tela **não aparece para a gerência**: os centros nomeiam a vida pessoal da família (casa,
+clínica). Detalhe em [`centros-de-custo.md`](centros-de-custo.md).
 
 **Pessoas é uma entrada só, não duas.** Com abas irmãs de Clientes e Fornecedores, o Márcio
 Kuhar (que vende muda e às vezes compra) aparecia duas vezes, que é exatamente o problema

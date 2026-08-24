@@ -57,7 +57,7 @@ Comece por [`engenharia/README.md`](engenharia/README.md), explica a estrutura d
 | Bloco | Artefatos |
 |-------|-----------|
 | A: Fundação | Documento de Visão, Glossário do domínio |
-| B: Requisitos | Especificação de Requisitos (76 RF, 26 RNF), Regras de negócio (62 RN), Quadros do TCC, Matriz de rastreabilidade |
+| B: Requisitos | Especificação de Requisitos (79 RF, 26 RNF), Regras de negócio (65 RN), Quadros do TCC, Matriz de rastreabilidade |
 | C: Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (46 entidades), Dicionário de dados |
 | D: Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
 | E: Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
@@ -78,6 +78,7 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 |--------|--------|---------|
 | **1 · Cadastros** | Cadastro único (agrupador) | [`rotinas/1-cadastros/00-visao-geral.md`](rotinas/1-cadastros/00-visao-geral.md) |
 | **1 · Cadastros** | Clientes (visão geral + detalhamento) | [`rotinas/1-cadastros/clientes.md`](rotinas/1-cadastros/clientes.md) e a pasta [`rotinas/1-cadastros/clientes/`](rotinas/1-cadastros/clientes/) |
+| **1 · Cadastros** | Centros de custo (cadastro aqui, tabela no schema `financeiro`) | [`rotinas/1-cadastros/centros-de-custo.md`](rotinas/1-cadastros/centros-de-custo.md) |
 | **2 · Produção** | Produção (visão geral + subrotinas) | [`rotinas/2-producao/00-visao-geral.md`](rotinas/2-producao/00-visao-geral.md) e a pasta [`rotinas/2-producao/`](rotinas/2-producao/) |
 | **2 · Produção** | Estoque | [`rotinas/2-producao/02-estoque.md`](rotinas/2-producao/02-estoque.md) |
 | **2 · Produção** | Perdas | [`rotinas/2-producao/03-perdas.md`](rotinas/2-producao/03-perdas.md) |

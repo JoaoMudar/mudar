@@ -69,6 +69,14 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-69 | UC-41 | `parties`, `party_roles` | Funcionários | - *(novo)* |
 | RF-70 | UC-42 | `task_types` | Tarefas | - *(novo)* |
 
+#### 2.2.3 Classificação financeira: centro de custo
+
+| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
+|---|---|---|---|---|
+| RF-77 | UC-45 | `financeiro.cost_centers` | Centros de custo | TA-56 |
+| RF-78 | UC-45 | `financeiro.cost_centers`, `financeiro.transactions` | Centros de custo | TA-57 |
+| RF-79 | UC-45 | `financeiro.cost_centers`, `financeiro.transactions` | Centros de custo | TA-58 |
+
 ### 2.3 Módulo 2 · Produção
 
 #### 2.3.1 Registro de campo
@@ -213,10 +221,10 @@ justifique**?
 
 | Artefato | Elementos | Sem requisito de origem |
 |---|---|---|
-| Casos de uso (C1) | 44 | Nenhum |
+| Casos de uso (C1) | 45 | Nenhum |
 | Entidades (C6, C8) | 45 | Nenhuma |
-| Recursos de acesso (D4) | 31 | Nenhum: `Funcionários` e `Tarefas` ganharam RF-69 a RF-76 em 19/08/2026 |
-| Casos de aceite (E2) | 55 | Nenhum |
+| Recursos de acesso (D4) | 32 | Nenhum: `Funcionários` e `Tarefas` ganharam RF-69 a RF-76 em 19/08/2026, e `Centros de custo` nasceu com RF-77 a RF-79 |
+| Casos de aceite (E2) | 58 | Nenhum |
 | Indicadores (G2) | 9 | Nenhum: todos derivam de RF-63 a RF-65 |
 
 **Duas entidades merecem nota:** `notifications` e `order_status_history` atendem a requisitos de
@@ -312,10 +320,10 @@ subsistema de agenda de pessoal não tem critério de aprovação declarado.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | **76 de 76** |
-| Requisitos funcionais com entidade ou derivação declarada | **76 de 76** |
-| Requisitos funcionais com regra de acesso definida | **76 de 76** |
-| Requisitos de prioridade *deve ter* com teste de aceite | **51 de 58**: ver §5.5 |
+| Requisitos funcionais com caso de uso | **79 de 79** |
+| Requisitos funcionais com entidade ou derivação declarada | **79 de 79** |
+| Requisitos funcionais com regra de acesso definida | **79 de 79** |
+| Requisitos de prioridade *deve ter* com teste de aceite | **54 de 61**: ver §5.5 |
 | Requisitos *deveria ter* / *poderia ter* sem teste | 12: deliberado |
 | Casos de uso sem requisito de origem | 0 |
 | Entidades sem requisito de origem | 0 |

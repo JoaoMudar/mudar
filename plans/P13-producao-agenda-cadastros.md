@@ -104,6 +104,33 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 - [ ] **T13.7** `/cadastros/funcionarios`: CRUD sobre `parties` com papel `funcionario` (nome, contato, papel operacional, vínculo fixo/diarista, ativo). O papel já aparece como filtro em `/cadastros/pessoas` e o recurso `funcionario` já está na matriz de permissões; falta a tela, ao criá-la, ligar o `href` em `PESSOA_ROLES` (`src/lib/modules.ts`), que o teste cobre
 - [ ] **T13.8** `/cadastros/tipos-de-tarefa`, CRUD de `task_types` (nome, categoria, exige espécie?, exige recipiente?, unidade, tempo médio por unidade, ativo)
 
+### Centros de custo (24/08/2026)
+
+> **Origem:** pergunta do João, "dá para acrescentar centro de custo e inativar outro pelo sistema?".
+> Não dava: a lista era carga inicial fechada em código (`RN-41`, `RF-57`), e mexer nela exigia
+> migration. Rotina de domínio em
+> [`docs/rotinas/1-cadastros/centros-de-custo.md`](../docs/rotinas/1-cadastros/centros-de-custo.md).
+>
+> **Escopo fechado:** só centro de custo. Categorias (35 em 14 grupos) e contas (9) continuam carga
+> inicial alterada por migration, e o padrão daqui serve de molde se um dia forem abertas.
+>
+> **A tabela vem antes do P12.** `financeiro.cost_centers` nasce aqui, não na Fase 2 do P12: o
+> cadastro não depende de extrato nenhum, e esperar travaria a rotina por um projeto inteiro.
+
+- [ ] **T13.24** Migration `2026MMDD_financeiro_cost_centers.sql`: `CREATE SCHEMA financeiro`, tabela
+      `cost_centers` (`id`, `code` UK, `name`, `nature` com CHECK, `active`, `created_at`,
+      `created_by` → `users`, `deactivated_at`) e carga inicial dos cinco, floricultura com
+      `active = false`. **Sem `BEGIN`/`COMMIT` próprios e sem guarda condicional**, pelas razões no
+      cabeçalho de `20260811000004_cadastro_unico_parties.sql`. Sem RLS: o controle é de aplicação
+      (`20260413000002_p1_rls.sql`)
+- [ ] **T13.25** `src/lib/cost-centers.ts`: slug do código, validação da natureza e a regra de
+      imutabilidade (natureza só muda enquanto não houver lançamento), com testes, no molde de
+      `src/lib/parties.ts`
+- [ ] **T13.26** `/cadastros/centros-de-custo`: `page.tsx` + `actions.ts` + manager, no molde de
+      `src/app/cadastros/recipientes/`. Recurso `centro_custo` em `src/lib/permissions.ts` (chefia e
+      admin; criar, ler e atualizar, **sem excluir**) e link em `CADASTROS`
+      (`src/lib/modules.ts`), que `modules.test.ts` confere contra as rotas existentes
+
 ## Fase 3: Agenda da semana
 
 - [ ] **T13.9** Migration: `week_plans`, `assignments`, `labor_rates`; `production_activities.assignment_id` NULL
@@ -130,6 +157,12 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 
 - [x] **T13.22** Atualizar B2 (RF-69 a RF-76 + o conflito de §5 reescrito), C1 (UC-41 a UC-44), C6, C8, D4 (§3.11) e B5, feito em 19/08/2026. **Fora**: C2, que detalha 8 casos escolhidos e não todos; e G2, por decisão registrada na tabela acima. B3 ganhou junto oito regras de negócio (RN-48 a RN-55), que a tabela não previa.
 - [ ] **T13.23** `npm run docs:tcc` para regenerar `docs/engenharia/word/`
+- [x] **T13.27** Engenharia dos centros de custo, feito em 24/08/2026 junto do desenho da rotina:
+      `B3` (RN-71 a RN-73, RN-41 emendada), `B2` (§2.2.3 com RF-77 a RF-79, RF-57 emendado), `C1`
+      (UC-45), `C6`/`C8` (`created_at`, `created_by`, `deactivated_at`), `D4` (recurso *Centros de
+      custo* e regra §3.12), `E2` (TA-56 a TA-58), `B5`, `B4`, `A2` e `auditoria-divergencias`.
+      `npm run docs:tcc` e `npm run docs:mapas` rodados; **falta `npm run docs:quadros`**, que
+      abortou com o `.docx` aberto no Word
 
 ---
 

@@ -130,6 +130,17 @@ autenticação.
 | **TA-37** | RF-60 | Mês com todos os lançamentos classificados | 1. Conferir o saldo calculado contra o saldo do extrato<br>2. Fechar o mês<br>3. Tentar alterar um lançamento do período | Os saldos coincidem; após o fechamento, a alteração é recusada | Não executado |
 | **TA-38** | RF-61 | Mês corrente, ainda não fechado | 1. Consultar os indicadores financeiros do mês | Sistema exibe indicação de indisponibilidade, **e não um número** | Não executado |
 
+### 9.1 Centros de custo
+
+Os três casos abaixo verificam um **cadastro do módulo 1** (`/cadastros/centros-de-custo`), e estão
+aqui porque é no lançamento que o efeito aparece. Acrescentados em 24/08/2026, com RF-77 a RF-79.
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-56** | RF-77 | Sessão de chefia | 1. Cadastrar centro de custo com nome e natureza<br>2. Classificar um lançamento pendente | O centro novo é oferecido na classificação e pode ser atribuído | Não executado |
+| **TA-57** | RF-78 | Centro de custo com lançamento já classificado | 1. Inativar o centro<br>2. Abrir a classificação de um lançamento pendente<br>3. Consultar o lançamento antigo daquele centro | O centro não é oferecido na classificação nova, e o lançamento antigo continua exibindo-o | Não executado |
+| **TA-58** | RF-79 | Centro de custo com lançamento já classificado | 1. Tentar alterar a natureza do centro<br>2. Procurar a opção de excluí-lo | A alteração é recusada com aviso, e não existe operação de exclusão | Não executado |
+
 ## 10. Indicadores
 
 | ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
@@ -183,10 +194,10 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
 | Fornecedores | 3 | RF-53, RF-54 |
-| Financeiro | 6 | RF-56 a RF-61 |
+| Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **55** | **51 dos 58 requisitos de prioridade *deve ter*** |
+| **Total** | **58** | **54 dos 61 requisitos de prioridade *deve ter*** |
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de

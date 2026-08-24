@@ -16,7 +16,7 @@ schemas Postgres de verdade, criados por migration (`CREATE SCHEMA IF NOT EXISTS
 
 ```
 financeiro.accounts              10 contas (9 bancárias + CAIXA)
-financeiro.cost_centers           5 centros
+financeiro.cost_centers           5 centros iniciais — cadastro, não seed fixo
 financeiro.category_groups       14 grupos
 financeiro.categories            35 de saída + 9 de entrada
 financeiro.statement_imports     lote de importação — rastreável e reversível
@@ -130,7 +130,13 @@ que faz o saldo calculado fechar com o extrato a partir do marco zero.
 `CAIXA` existe para que a regra "nenhum lançamento sem conta" não empurre o gasto em dinheiro
 para fora do sistema.
 
-### `financeiro.cost_centers`: 5 centros
+### `financeiro.cost_centers`: os 5 centros iniciais
+
+> **É cadastro, não lista fixa.** A tabela nasce com estes cinco, e a chefia acrescenta e inativa
+> centro pela tela `/cadastros/centros-de-custo`, sem migration. A rotina, com as regras de
+> natureza imutável e de inativação, está em
+> [`1-cadastros/centros-de-custo.md`](../1-cadastros/centros-de-custo.md). O que continua **fechado
+> é a escolha no lançamento**: ninguém digita centro livre ao classificar.
 
 | code | Nome | Natureza | Ativo |
 |---|---|---|---|
@@ -285,7 +291,7 @@ Tudo em `/financeiro` exige `requireRole('admin', 'chefia')`, no padrão do rest
 
 ```sql
 \dn                                              -- cadastro e financeiro listados
-SELECT count(*) FROM financeiro.cost_centers;    -- 5
+SELECT count(*) FROM financeiro.cost_centers;    -- 5 logo após o seed; cresce pelo cadastro
 SELECT count(*) FROM financeiro.category_groups; -- 15 (14 de saída + Entradas)
 SELECT count(*) FROM financeiro.categories;      -- 44
 SELECT count(*) FROM financeiro.accounts;        -- 10

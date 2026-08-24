@@ -36,7 +36,8 @@ prova de que nenhuma linha ficou de fora.
 
 ### 3. Pessoal vs. empresa: pelo centro de custo
 Não é um campo à parte. `viveiro` e `sitio` são negócio; `casa` e `clinica` são pessoal.
-Retirada e aporte são `kind` próprio, não despesa.
+Retirada e aporte são `kind` próprio, não despesa. A natureza é do **centro**, e por isso ela é
+escolhida uma vez e não muda depois de existir lançamento (RN-73).
 
 ### 4. Chega de digitar categoria
 Tudo é lista fechada (dropdown). Sem campo aberto = sem typo.
@@ -49,7 +50,7 @@ Tudo é lista fechada (dropdown). Sem campo aberto = sem typo.
 | Gilberto | BB, Cresol (pessoal), CREDCREA, Sicredi |
 | Glecira | Viacredi, Cresol |
 
-**Os 5 centros de custo:**
+**Os 5 centros de custo iniciais:**
 
 | code | Nome | Natureza | Ativo |
 |---|---|---|---|
@@ -58,6 +59,12 @@ Tudo é lista fechada (dropdown). Sem campo aberto = sem typo.
 | `clinica` | Clínica de fonoaudiologia (em casa) | pessoal | sim |
 | `casa` | Casa: gastos da família | pessoal | sim |
 | `floricultura` | Floricultura (extinta) | negócio | **não**: só aparece em extrato antigo |
+
+> **Desde 24/08/2026 esta lista é cadastro, não carga fechada.** A chefia acrescenta centro e
+> inativa o que acabou em `/cadastros/centros-de-custo` (P13 T13.24 a T13.26,
+> [rotina](../docs/rotinas/1-cadastros/centros-de-custo.md)). O que continua fechado é a **escolha
+> no lançamento**: ninguém digita centro livre ao classificar. A armadilha 1 não perdeu valor, o
+> que mudou é que consertar a fundação deixou de exigir deploy.
 
 **As 35 categorias em 14 grupos**: transcritas em
 [`docs/rotinas/4-financeiro/02-schema-financeiro.md`](../docs/rotinas/4-financeiro/02-schema-financeiro.md).
@@ -155,7 +162,7 @@ cadastro.addresses
         │
 financeiro.transactions     ← A LINHA DO EXTRATO. A verdade.
         ├── accounts (10)         contas + saldo de abertura
-        ├── cost_centers (5)      lista fechada
+        ├── cost_centers (5)      cadastro (P13); nasce fora deste projeto
         ├── category_groups (14) / categories (35 saída + 9 entrada)
         ├── transaction_splits    rateio opcional entre centros
         ├── statement_imports     lote de importação, rastreável e reversível
@@ -192,8 +199,10 @@ Detalhe de cada tabela em
 **Fase 1: schema `cadastro`:** `parties`, `party_roles`, `addresses`, `party_id` em
       `customers`/`suppliers` + backfill. `src/lib/parties.ts` + testes.
       **Não depende dos extratos: pode começar já.**
-- [ ] **Fase 2: schema `financeiro`:** as 9 tabelas + seed das listas fechadas
-      (5 centros, 14 grupos, 44 categorias, 10 contas). Nenhuma tela ainda.
+- [ ] **Fase 2: schema `financeiro`:** as **8 tabelas restantes** + seed das listas fechadas
+      (14 grupos, 44 categorias, 10 contas). Nenhuma tela ainda.
+      ⚠️ **`cost_centers` não entra aqui**: o schema e a tabela nascem no P13 T13.24, com o cadastro
+      de centros de custo, e esta fase encontra os dois já criados.
       **Também não depende dos extratos.**
       ⚠️ **Junto com a tabela, corrigir `mergeParties`**, ver a 4ª armadilha abaixo.
 - [ ] **Fase 3: entrada de dados:** ⏸ *aguarda João juntar os extratos das 9 contas.*
