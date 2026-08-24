@@ -25,6 +25,16 @@ Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10
 ## Banco de dados (schema compartilhado entre projetos)
 Toda alteração no banco: (1) arquivo `.sql` em `migrations/` (psql puro), (2) manter compatibilidade retroativa, (3) documentar no CHANGELOG. Tabelas: snake_case, plural (`species`, `batches`, `loss_events`).
 
+**O modelo de dados tem três documentos que andam juntos.** Mexeu em entidade, atributo, chave ou
+cardinalidade, atualize os três na mesma alteração:
+`docs/engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md` (MER),
+`docs/engenharia/C-modelagem/C8-dicionario-de-dados.md` (dicionário) e
+`docs/engenharia/modelo-dados-pt/` (as mesmas figuras em português, para o TCC).
+O `modelo-dados-pt` é **fonte separada e renderizada à mão**: `npm run docs:mapas` e
+`npm run docs:tcc` não passam por ele. Edite o `.mmd` da figura, regere o `.png` com o comando do
+[`README`](docs/engenharia/modelo-dados-pt/README.md) e confira a fonte útil declarada lá, que muda
+quando a figura muda de proporção.
+
 ## Convenções de código
 - Arquivos/código em inglês; comentários podem ser em português.
 - Componentes React PascalCase (1 por arquivo); hooks `useNome.ts`; utils camelCase; rotas API kebab-case.

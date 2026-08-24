@@ -6,6 +6,11 @@
 > restrições como primeiro passo da criação de um banco de dados. Este documento é o registro dessa
 > definição, entidade por entidade.
 
+> ⚠️ **Alterou este documento? O [`modelo-dados-pt`](../modelo-dados-pt/README.md) muda junto.**
+> Ele é o mesmo modelo com tabelas e colunas em português, e é **fonte separada, renderizada à
+> mão**: nenhum script o regenera. Entidade, atributo, chave ou cardinalidade que muda aqui muda
+> lá, no `.mmd` da figura correspondente, com o `.png` regerado pelo comando do README de lá.
+
 ---
 
 ## Como ler

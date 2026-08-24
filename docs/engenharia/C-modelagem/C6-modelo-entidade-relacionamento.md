@@ -6,6 +6,11 @@
 > conceitual de alto nível que abstrai objetos do mundo real em entidades descritas por atributos.
 > A progressão conceitual → lógico → físico e os critérios de normalização seguem os mesmos autores.
 
+> ⚠️ **Alterou este documento? O [`modelo-dados-pt`](../modelo-dados-pt/README.md) muda junto.**
+> Ele é o mesmo modelo com tabelas e colunas em português, e é **fonte separada, renderizada à
+> mão**: nenhum script o regenera. Entidade, atributo, chave ou cardinalidade que muda aqui muda
+> lá, no `.mmd` da figura correspondente, com o `.png` regerado pelo comando do README de lá.
+
 ---
 
 ## 1. Estratégia de modelagem

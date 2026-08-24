@@ -19,6 +19,12 @@ npx -y @mermaid-js/mermaid-cli -i mmd/fig06-conceitual.mmd -o img/fig06-conceitu
 
 O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na impressão.
 
+> ⚠️ **Esta pasta não é gerada por script.** `npm run docs:tcc` e `npm run docs:mapas` não passam
+> por aqui. Toda mudança em `C6`/`C8` (entidade, atributo, chave, cardinalidade) precisa ser
+> repetida no `.mmd` da figura correspondente e o `.png` regerado com o comando acima. Confira
+> depois a **fonte útil** na tabela abaixo: ela muda quando a figura muda de proporção. Regra
+> declarada no [`CLAUDE.md`](../../../CLAUDE.md) §Banco de dados.
+
 ## Figuras
 
 | Fig. | Arquivo | Conteúdo | Fonte útil |

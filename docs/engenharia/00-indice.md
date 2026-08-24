@@ -114,6 +114,11 @@ Para quem chega agora, a sequência que torna os artefatos compreensíveis:
 `B4` fica por último de propósito: ele **transcreve** `B2` e `B3`, e transcrever antes de a fonte
 estar fechada é como o `.docx` de quadros ficou dois meses defasado.
 
+**`modelo-dados-pt/` anda colado em `C6` e `C8`.** É o mesmo modelo com nomes em português, para as
+figuras do trabalho, e **nenhum script o regenera**: quem altera entidade, atributo, chave ou
+cardinalidade atualiza os três na mesma passada. Regra no [`CLAUDE.md`](../../CLAUDE.md) §Banco de
+dados; instruções de renderização no [`README`](modelo-dados-pt/README.md) de lá.
+
 ## Entrega para o TCC
 
 A pasta [`word/`](word/) reúne os arquivos destinados ao documento final, na ordem do Capítulo 4,
