@@ -1,0 +1,90 @@
+erDiagram
+  pedidos {
+    uuid id PK
+    serial numero_pedido
+    uuid cliente_id FK
+    text canal_venda
+    text situacao
+    boolean exige_nota_fiscal
+    date data_entrega
+    uuid criado_por FK
+    uuid preco_aprovado_por FK
+    timestamptz preco_aprovado_em
+  }
+  pedidos_itens {
+    uuid id PK
+    uuid pedido_id FK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    int  quantidade
+    boolean e_generico
+    uuid item_pai_id FK
+    text especificacao
+    uuid preco_venda_id FK
+    numeric preco_unitario
+    boolean esta_disponivel
+    int  quantidade_disponivel
+    uuid recipiente_disponivel_id FK
+  }
+  pedidos_itens_especies_permitidas {
+    uuid pedido_item_id PK
+    uuid especie_id PK
+  }
+  pedidos_cargas {
+    uuid id PK
+    uuid pedido_id FK
+    int  numero_carga
+    text situacao
+  }
+  pedidos_cargas_itens {
+    uuid id PK
+    uuid carga_id FK
+    uuid pedido_item_id FK
+    int  quantidade
+    boolean esta_separado
+  }
+  pedidos_historico_situacao {
+    uuid id PK
+    uuid pedido_id FK
+    text situacao_anterior
+    text situacao_nova
+    uuid alterado_por FK
+  }
+  cotacoes_fornecedor {
+    uuid id PK
+    uuid grupo_consulta_id
+    uuid fornecedor_id FK
+    uuid pedido_id FK
+    text canal
+    text texto_mensagem
+    text situacao
+    timestamptz enviado_em
+    timestamptz respondido_em
+    uuid criado_por FK
+  }
+  cotacoes_fornecedor_itens {
+    uuid id PK
+    uuid cotacao_id FK
+    uuid especie_id FK
+    uuid pedido_item_id FK
+    int quantidade
+    numeric preco_unitario_cotado
+    boolean escolhido
+    numeric preco_unitario_venda
+  }
+  clientes {
+  }
+  fornecedores {
+  }
+
+  clientes       ||--o{ pedidos                    : "faz"
+  pedidos        ||--o{ pedidos_itens              : "compõe-se de"
+  pedidos        ||--o{ pedidos_cargas             : "divide-se em"
+  pedidos        ||--o{ pedidos_historico_situacao : "percorre"
+  pedidos_cargas ||--o{ pedidos_cargas_itens       : "contém"
+  pedidos_itens  ||--o{ pedidos_cargas_itens       : "é separado em"
+  pedidos_itens  ||--o{ pedidos_itens_especies_permitidas : "restringe-se a"
+  pedidos_itens  ||--o{ pedidos_itens              : "especializa (genérico)"
+  fornecedores        ||--o{ cotacoes_fornecedor       : "é consultado por"
+  cotacoes_fornecedor ||--o{ cotacoes_fornecedor_itens : "detalha"
+  pedidos_itens       ||--o| cotacoes_fornecedor_itens : "é complementado por"

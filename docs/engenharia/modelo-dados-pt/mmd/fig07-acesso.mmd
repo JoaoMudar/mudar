@@ -1,0 +1,44 @@
+erDiagram
+  usuarios {
+    uuid    id PK
+    text    login UK
+    text    nome_exibicao
+    text    senha_hash
+    enum    perfil
+    boolean deve_trocar_senha
+    boolean ativo
+    int     tentativas_login_falhas
+    timestamptz bloqueado_ate
+    uuid    pessoa_id FK
+  }
+  sessoes {
+    uuid id PK
+    uuid usuario_id FK
+    text token_hash UK
+    timestamptz expira_em
+    text ip
+    text agente_usuario
+  }
+  eventos_login {
+    uuid id PK
+    uuid usuario_id FK
+    text login_tentado
+    boolean sucesso
+    text ip
+    text agente_usuario
+  }
+  notificacoes {
+    uuid id PK
+    uuid usuario_id FK
+    text tipo
+    text titulo
+    text mensagem
+    boolean lida
+  }
+  pessoas {
+  }
+
+  usuarios ||--o{ sessoes       : "mantém"
+  usuarios ||--o{ eventos_login : "gera"
+  usuarios ||--o{ notificacoes  : "recebe"
+  pessoas  ||--o| usuarios      : "pode ter login"

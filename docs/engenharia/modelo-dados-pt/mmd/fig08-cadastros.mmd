@@ -1,0 +1,134 @@
+erDiagram
+  especies {
+    uuid id PK
+    text nome_comum
+    text nome_cientifico
+    text_array etiquetas
+    int  tempo_germinacao_dias
+    int  tempo_crescimento_meses
+    text foto_url
+    boolean ativo
+  }
+  especies_nomes_populares {
+    uuid id PK
+    uuid especie_id FK
+    text nome
+    text nome_normalizado UK
+  }
+  especies_fotos {
+    uuid id PK
+    bytea bytes
+    text mime
+    int  tamanho_bytes
+  }
+  recipientes {
+    uuid id PK
+    text nome UK
+    numeric volume_litros
+    numeric substrato_por_unidade_litros
+    numeric custo_unitario
+  }
+  insumos {
+    uuid id PK
+    text nome
+    enum categoria
+    text unidade_medida
+    numeric custo_por_unidade
+    numeric quantidade_comprada
+    date data_ultima_compra
+  }
+  insumos_historico_precos {
+    uuid id PK
+    uuid insumo_id FK
+    numeric custo_por_unidade
+    timestamptz alterado_em
+  }
+  clientes {
+    uuid id PK
+    uuid pessoa_id FK
+    text nome
+    text telefone
+    text tipo_pessoa
+    text documento UK
+    text razao_social
+    text inscricao_estadual
+    text cep
+    text cidade
+    text uf
+  }
+  fornecedores {
+    uuid id PK
+    uuid pessoa_id FK
+    text nome
+    text nome_contato
+    text whatsapp
+    text cidade
+    text uf
+    smallint nota_confiabilidade
+    text situacao
+    numeric lat
+    numeric lng
+    timestamptz geocodificado_em
+  }
+  fornecedores_especies {
+    uuid id PK
+    uuid fornecedor_id FK
+    uuid especie_id FK
+    text porte
+    text recipiente
+    numeric preco_unitario
+    int quantidade_minima
+    text disponibilidade
+  }
+  pessoas {
+    uuid id PK
+    text tipo
+    text documento
+    text nome
+    text razao_social
+    text nome_fantasia
+    text email
+    text telefone
+    text whatsapp
+    bool ativo
+  }
+  pessoas_papeis {
+    uuid pessoa_id FK
+    text papel
+  }
+  enderecos {
+    uuid id PK
+    uuid pessoa_id FK
+    text rotulo
+    text cep
+    text logradouro
+    text numero
+    text cidade
+    text uf
+    numeric lat
+    numeric lng
+    bool e_principal
+  }
+  tipos_tarefa {
+    uuid id PK
+    text nome
+    text categoria
+    boolean exige_especie
+    boolean exige_recipiente
+    text unidade_medida
+    numeric minutos_medios_por_unidade
+    boolean ativo
+  }
+  atribuicoes {
+  }
+
+  especies     ||--o{ especies_nomes_populares  : "conhecida como"
+  especies     ||..o| especies_fotos            : "ilustrada por"
+  insumos      ||--o{ insumos_historico_precos  : "histórico de"
+  fornecedores ||--o{ fornecedores_especies     : "oferece"
+  pessoas      ||--o{ pessoas_papeis            : "acumula"
+  pessoas      ||--o{ enderecos                 : "tem"
+  pessoas      ||--o| clientes                  : "é, no papel de cliente"
+  pessoas      ||--o| fornecedores              : "é, no papel de fornecedor"
+  pessoas      ||--o{ atribuicoes               : "executa"
+  tipos_tarefa ||--o{ atribuicoes               : "classifica"
