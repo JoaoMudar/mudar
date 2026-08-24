@@ -1,0 +1,26 @@
+erDiagram
+  especies {
+    uuid id PK
+    text nome_comum
+    text nome_cientifico
+    text_array etiquetas
+    int  tempo_germinacao_dias
+    int  tempo_crescimento_meses
+    text foto_url
+    boolean ativo
+  }
+  especies_nomes_populares {
+    uuid id PK
+    uuid especie_id FK
+    text nome
+    text nome_normalizado UK
+  }
+  especies_fotos {
+    uuid id PK
+    bytea bytes
+    text mime
+    int  tamanho_bytes
+  }
+
+  especies ||--o{ especies_nomes_populares : "conhecida como"
+  especies ||..o| especies_fotos           : "ilustrada por"

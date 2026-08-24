@@ -1,0 +1,38 @@
+erDiagram
+  recipientes {
+    uuid id PK
+    text nome UK
+    numeric volume_litros
+    numeric substrato_por_unidade_litros
+    numeric custo_unitario
+  }
+  insumos {
+    uuid id PK
+    text nome
+    enum categoria
+    text unidade_medida
+    numeric custo_por_unidade
+    numeric quantidade_comprada
+    date data_ultima_compra
+  }
+  insumos_historico_precos {
+    uuid id PK
+    uuid insumo_id FK
+    numeric custo_por_unidade
+    timestamptz alterado_em
+  }
+  tipos_tarefa {
+    uuid id PK
+    text nome
+    text categoria
+    boolean exige_especie
+    boolean exige_recipiente
+    text unidade_medida
+    numeric minutos_medios_por_unidade
+    boolean ativo
+  }
+  atribuicoes {
+  }
+
+  insumos      ||--o{ insumos_historico_precos : "histórico de"
+  tipos_tarefa ||--o{ atribuicoes              : "classifica"

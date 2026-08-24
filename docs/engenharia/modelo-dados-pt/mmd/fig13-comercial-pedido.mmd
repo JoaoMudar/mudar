@@ -50,31 +50,7 @@ erDiagram
     text situacao_nova
     uuid alterado_por FK
   }
-  cotacoes_fornecedor {
-    uuid id PK
-    uuid grupo_consulta_id
-    uuid fornecedor_id FK
-    uuid pedido_id FK
-    text canal
-    text texto_mensagem
-    text situacao
-    timestamptz enviado_em
-    timestamptz respondido_em
-    uuid criado_por FK
-  }
-  cotacoes_fornecedor_itens {
-    uuid id PK
-    uuid cotacao_id FK
-    uuid especie_id FK
-    uuid pedido_item_id FK
-    int quantidade
-    numeric preco_unitario_cotado
-    boolean escolhido
-    numeric preco_unitario_venda
-  }
   clientes {
-  }
-  fornecedores {
   }
 
   clientes       ||--o{ pedidos                    : "faz"
@@ -85,6 +61,3 @@ erDiagram
   pedidos_itens  ||--o{ pedidos_cargas_itens       : "é separado em"
   pedidos_itens  ||--o{ pedidos_itens_especies_permitidas : "restringe-se a"
   pedidos_itens  ||--o{ pedidos_itens              : "especializa (genérico)"
-  fornecedores        ||--o{ cotacoes_fornecedor       : "é consultado por"
-  cotacoes_fornecedor ||--o{ cotacoes_fornecedor_itens : "detalha"
-  pedidos_itens       ||--o| cotacoes_fornecedor_itens : "é complementado por"

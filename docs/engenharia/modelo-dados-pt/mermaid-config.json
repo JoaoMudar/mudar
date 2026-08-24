@@ -1,0 +1,14 @@
+{
+  "theme": "neutral",
+  "er": {
+    "useMaxWidth": false,
+    "diagramPadding": 8,
+    "layoutDirection": "TB",
+    "minEntityWidth": 80,
+    "minEntityHeight": 20,
+    "entityPadding": 8,
+    "nodeSpacing": 30,
+    "rankSpacing": 45,
+    "fontSize": 16
+  }
+}

@@ -1,0 +1,79 @@
+erDiagram
+  pessoas {
+    uuid id PK
+    text tipo
+    text documento
+    text nome
+    text razao_social
+    text nome_fantasia
+    text email
+    text telefone
+    text whatsapp
+    bool ativo
+  }
+  pessoas_papeis {
+    uuid pessoa_id FK
+    text papel
+  }
+  enderecos {
+    uuid id PK
+    uuid pessoa_id FK
+    text rotulo
+    text cep
+    text logradouro
+    text numero
+    text cidade
+    text uf
+    numeric lat
+    numeric lng
+    bool e_principal
+  }
+  clientes {
+    uuid id PK
+    uuid pessoa_id FK
+    text nome
+    text telefone
+    text tipo_pessoa
+    text documento UK
+    text razao_social
+    text inscricao_estadual
+    text cep
+    text cidade
+    text uf
+  }
+  fornecedores {
+    uuid id PK
+    uuid pessoa_id FK
+    text nome
+    text nome_contato
+    text whatsapp
+    text cidade
+    text uf
+    smallint nota_confiabilidade
+    text situacao
+    numeric lat
+    numeric lng
+    timestamptz geocodificado_em
+  }
+  fornecedores_especies {
+    uuid id PK
+    uuid fornecedor_id FK
+    uuid especie_id FK
+    text porte
+    text recipiente
+    numeric preco_unitario
+    int quantidade_minima
+    text disponibilidade
+  }
+  especies {
+  }
+  atribuicoes {
+  }
+
+  pessoas      ||--o{ pessoas_papeis        : "acumula"
+  pessoas      ||--o{ enderecos             : "tem"
+  pessoas      ||--o| clientes              : "é, no papel de cliente"
+  pessoas      ||--o| fornecedores          : "é, no papel de fornecedor"
+  pessoas      ||--o{ atribuicoes           : "executa"
+  fornecedores ||--o{ fornecedores_especies : "oferece"
+  especies     ||--o{ fornecedores_especies : "é ofertada em"

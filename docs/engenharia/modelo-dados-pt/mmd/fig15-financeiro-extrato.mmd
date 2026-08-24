@@ -1,0 +1,69 @@
+erDiagram
+  contas {
+    uuid id PK
+    text codigo UK
+    text nome
+    text titular
+    text tipo
+    numeric saldo_inicial
+    date data_saldo_inicial
+  }
+  importacoes_extrato {
+    uuid id PK
+    uuid conta_id FK
+    text nome_arquivo
+    text hash_arquivo
+    date periodo_inicio
+    date periodo_fim
+    int linhas_total
+    int linhas_novas
+    int linhas_duplicadas
+    uuid importado_por FK
+  }
+  lancamentos {
+    uuid id PK
+    uuid conta_id FK
+    uuid importacao_id FK
+    date data_movimento
+    date data_competencia
+    numeric valor
+    text descricao_original
+    text fitid
+    text chave_deduplicacao
+    text tipo
+    uuid categoria_id FK
+    uuid centro_custo_id FK
+    uuid pessoa_id FK
+    uuid par_transferencia_id FK
+    uuid pedido_id FK
+    text situacao
+  }
+  lancamentos_rateios {
+    uuid id PK
+    uuid lancamento_id FK
+    uuid centro_custo_id FK
+    uuid categoria_id FK
+    numeric valor
+  }
+  periodos {
+    uuid id PK
+    uuid conta_id FK
+    int ano
+    int mes
+    text situacao
+    numeric saldo_final
+    uuid fechado_por FK
+  }
+  pessoas {
+  }
+  pedidos {
+  }
+
+  contas              ||--o{ lancamentos         : "movimenta"
+  contas              ||--o{ importacoes_extrato : "recebe"
+  contas              ||--o{ periodos            : "fecha em"
+  importacoes_extrato ||--o{ lancamentos         : "origina"
+  lancamentos         ||--o{ lancamentos_rateios : "rateia-se em"
+  lancamentos         ||--o| lancamentos         : "pareia (transferência)"
+  pessoas             ||--o{ lancamentos         : "participa de"
+  pedidos             ||--o| lancamentos         : "é conciliado com"

@@ -1,0 +1,37 @@
+erDiagram
+  cotacoes_fornecedor {
+    uuid id PK
+    uuid grupo_consulta_id
+    uuid fornecedor_id FK
+    uuid pedido_id FK
+    text canal
+    text texto_mensagem
+    text situacao
+    timestamptz enviado_em
+    timestamptz respondido_em
+    uuid criado_por FK
+  }
+  cotacoes_fornecedor_itens {
+    uuid id PK
+    uuid cotacao_id FK
+    uuid especie_id FK
+    uuid pedido_item_id FK
+    int quantidade
+    numeric preco_unitario_cotado
+    boolean escolhido
+    numeric preco_unitario_venda
+  }
+  fornecedores {
+  }
+  pedidos {
+  }
+  pedidos_itens {
+  }
+  especies {
+  }
+
+  fornecedores        ||--o{ cotacoes_fornecedor       : "é consultado por"
+  pedidos             ||--o{ cotacoes_fornecedor       : "motiva"
+  cotacoes_fornecedor ||--o{ cotacoes_fornecedor_itens : "detalha"
+  especies            ||--o{ cotacoes_fornecedor_itens : "é cotada em"
+  pedidos_itens       ||--o| cotacoes_fornecedor_itens : "é complementado por"

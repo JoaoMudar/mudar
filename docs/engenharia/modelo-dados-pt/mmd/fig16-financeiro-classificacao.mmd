@@ -1,0 +1,39 @@
+erDiagram
+  grupos_categoria {
+    uuid id PK
+    text nome
+  }
+  categorias {
+    uuid id PK
+    uuid grupo_id FK
+    text nome
+    text sentido
+  }
+  centros_custo {
+    uuid id PK
+    text codigo UK
+    text nome
+    text natureza
+    boolean ativo
+  }
+  regras_classificacao {
+    uuid id PK
+    text padrao
+    text tipo_correspondencia
+    uuid categoria_id FK
+    uuid centro_custo_id FK
+    int prioridade
+    int acertos
+  }
+  lancamentos {
+  }
+  lancamentos_rateios {
+  }
+
+  grupos_categoria ||--o{ categorias           : "agrupa"
+  categorias       ||--o{ lancamentos          : "qualifica"
+  centros_custo    ||--o{ lancamentos          : "destina"
+  categorias       ||--o{ regras_classificacao : "é atribuída por"
+  centros_custo    ||--o{ regras_classificacao : "é atribuído por"
+  centros_custo    ||--o{ lancamentos_rateios  : "recebe parte de"
+  categorias       ||--o{ lancamentos_rateios  : "qualifica parte de"

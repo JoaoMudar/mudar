@@ -1,23 +1,58 @@
 # Modelo de dados em português (versão para o TCC)
 
-Mesmos seis diagramas de [`../C-modelagem/C6-modelo-entidade-relacionamento.md`](../C-modelagem/C6-modelo-entidade-relacionamento.md),
+Mesmo modelo de [`../C-modelagem/C6-modelo-entidade-relacionamento.md`](../C-modelagem/C6-modelo-entidade-relacionamento.md),
 com tabelas e colunas nomeadas em português. A estrutura (entidades, cardinalidades, chaves,
-caixas vazias para entidade de outro módulo) é idêntica: muda só a nomenclatura.
+caixas vazias para entidade de outro módulo) é idêntica: muda a nomenclatura e o recorte das figuras.
 
-Fonte Mermaid em `mmd/`, PNGs em `img/`. Para regerar:
+**Os módulos grandes foram divididos.** Um diagrama de 20 entidades com 10 atributos cada tem
+cerca de 200 linhas de texto, que não cabem legíveis em uma página A4: a fonte cai para 3 pt.
+Cada módulo foi quebrado nas subseções que o próprio texto do C6 já usa, de modo que toda figura
+fica acima de 6 pt na mancha de 16 cm. São 12 figuras no lugar de 6.
+
+Fonte Mermaid em `mmd/`, PNGs em `img/`, layout em `mermaid-config.json` (`nodeSpacing` 30 e
+`rankSpacing` 45 no lugar dos padrões 140 e 80 do Mermaid, que são a causa do espalhamento).
+Para regerar uma figura:
 
 ```
-npx -y @mermaid-js/mermaid-cli -i mmd/fig06-conceitual.mmd -o img/fig06-conceitual.png -w 1400 -b white
+npx -y @mermaid-js/mermaid-cli -i mmd/fig06-conceitual.mmd -o img/fig06-conceitual.png -c mermaid-config.json -s 3 -b white
 ```
 
-| Figura | Arquivo | Conteúdo |
+O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na impressão.
+
+## Figuras
+
+| Fig. | Arquivo | Conteúdo | Fonte útil |
+|---:|---|---|---|
+| 6 | `fig06-conceitual` | Modelo conceitual, visão geral (18 entidades) | 5,1 pt · **usar paisagem** (8,2 pt) |
+| 7 | `fig07-acesso` | Acesso, transversal aos quatro módulos | 10,1 pt |
+| 8 | `fig08-cadastros-especie` | Cadastros: a espécie e seus nomes | 15,8 pt |
+| 9 | `fig09-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,4 pt |
+| 10 | `fig10-cadastros-pessoas` | Cadastros: identidade única e papéis | 6,2 pt |
+| 11 | `fig11-producao-agenda` | Produção: agenda e execução | 8,4 pt |
+| 12 | `fig12-producao-campo` | Produção: consumo, perda e contagem | 6,5 pt |
+| 13 | `fig13-comercial-pedido` | Comercial: pedido, item e carga | 7,3 pt |
+| 14 | `fig14-comercial-cotacao` | Comercial: cotação com fornecedor | 12,4 pt |
+| 15 | `fig15-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
+| 16 | `fig16-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,0 pt |
+| 17 | `fig17-financeiro-custo-preco` | Financeiro: do custo ao preço | 7,1 pt |
+
+"Fonte útil" é o tamanho que o texto assume ao encaixar a figura na mancha de 16 x 24 cm, limitado
+pela largura ou pela altura, o que apertar primeiro. Abaixo de 6 pt não se lê impresso.
+
+**A Figura 6 é uma faixa larga e baixa (3,5:1).** Em página retrato fica em 5,1 pt. Em página
+paisagem, ou girada 90 graus, a dimensão longa passa a ocupar a altura e a fonte sobe para 8,2 pt.
+
+**As figuras posteriores deslocam em 6.** O capítulo 4 vai hoje até a Figura 18; com estas 12 no
+lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 18 e a segurança (4.7) na 24.
+
+## Como as divisões foram feitas
+
+| Figura original | Virou | Critério |
 |---|---|---|
-| 6 | `fig06-conceitual` | Modelo conceitual, visão geral (18 entidades) |
-| 7 | `fig07-acesso` | Acesso, transversal aos quatro módulos |
-| 8 | `fig08-cadastros` | Módulo 1, Cadastros |
-| 9 | `fig09-producao` | Módulo 2, Produção |
-| 10 | `fig10-comercial` | Módulo 3, Comercial |
-| 11 | `fig11-financeiro` | Módulo 4, Financeiro |
+| 8 · Cadastros (13 entidades) | 8, 9 e 10 | Catálogo botânico, catálogo de custeio, identidade das pessoas |
+| 9 · Produção (7) | 11 e 12 | O que se planeja e executa, contra o que se consome e se perde |
+| 10 · Comercial (8) | 13 e 14 | Ciclo do pedido, contra a cotação que o complementa |
+| 11 · Financeiro (14) | 15, 16 e 17 | As duas subseções do texto (extrato, custo ao preço), mais a classificação |
 
 ## Correspondência de nomes de tabela
 

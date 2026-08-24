@@ -1,0 +1,61 @@
+erDiagram
+  taxas_mao_de_obra {
+    uuid id PK
+    int ano
+    int mes
+    numeric folha_total
+    numeric horas_total
+    numeric valor_hora
+  }
+  custos_fixos {
+    uuid id PK
+    enum categoria
+    numeric valor_mensal
+    date mes_referencia
+  }
+  custos_producao {
+    uuid id PK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    numeric custo_substrato
+    numeric custo_semente
+    uuid taxa_mao_de_obra_id FK
+    numeric custo_mao_de_obra
+    numeric custo_variavel_total
+    timestamptz calculado_em
+  }
+  canais_venda {
+    uuid id PK
+    text codigo UK
+    text nome
+    numeric margem_padrao_pct
+    numeric margem_minima_pct
+    boolean ativo
+  }
+  precos_venda {
+    uuid id PK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    uuid canal_id FK
+    numeric custo_unitario_foto
+    numeric margem_pct
+    numeric preco_unitario
+    numeric preco_piso
+    date vigencia_inicio
+    date vigencia_fim
+    uuid definido_por FK
+  }
+  especies {
+  }
+  recipientes {
+  }
+  pedidos_itens {
+  }
+
+  taxas_mao_de_obra ||--o{ custos_producao : "precifica a hora de"
+  especies     ||--o{ custos_producao : "custa"
+  recipientes  ||--o{ custos_producao : "determina"
+  canais_venda ||--o{ precos_venda    : "aplica margem a"
+  especies     ||--o{ precos_venda    : "é precificada"
+  recipientes  ||--o{ precos_venda    : "define porte de"
+  precos_venda ||--o{ pedidos_itens   : "sugere preço a"
