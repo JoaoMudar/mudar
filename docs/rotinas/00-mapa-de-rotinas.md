@@ -236,7 +236,7 @@ docs/rotinas/
 └── 4-financeiro/
     ├── 00-visao-geral.md           o extrato é a verdade; quem vê o quê
     ├── 01-cadastro-unico.md        o schema `cadastro`
-    ├── 02-schema-financeiro.md     tabelas, listas fechadas e as 7 regras
+    ├── 02-schema-financeiro.md     tabelas, listas fechadas e as 8 regras
     └── 03-relacao-com-rotinas.md   como amarra nos outros três módulos
 ```
 

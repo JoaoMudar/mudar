@@ -153,5 +153,5 @@ a gerência precisa para operar e sempre pôde ler. A regra completa está em
 |---|---|
 | `00-visao-geral.md` | Você está aqui. |
 | [`01-cadastro-unico.md`](01-cadastro-unico.md) | O schema `cadastro`: uma identidade por pessoa/empresa. |
-| [`02-schema-financeiro.md`](02-schema-financeiro.md) | As tabelas, as listas fechadas e as 7 regras invioláveis. |
+| [`02-schema-financeiro.md`](02-schema-financeiro.md) | As tabelas, as listas fechadas e as 8 regras invioláveis. |
 | [`03-relacao-com-rotinas.md`](03-relacao-com-rotinas.md) | Como amarra em pedidos, clientes, fornecedores, insumos e custeio. |
