@@ -383,6 +383,7 @@ de campo ao custo de mão de obra.
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
+| `assignment_id` | uuid | ○ | FK → `assignments` | Tarefa planejada que gerou a atividade. **Opcional:** atividade avulsa não nasce da agenda |
 | `species_id` | uuid | ● | FK → `species` | Espécie produzida |
 | `container_id` | uuid | ● | FK → `containers` | Recipiente utilizado |
 | `activity_type` | text | ● | | Atividade em lista fechada: `semeadura`, `repicagem`, `irrigacao`, `adubacao`, `rustificacao` |
@@ -635,6 +636,7 @@ A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui qu
 | `seed_cost` | numeric(10,2) | ● | | Custo da semente |
 | `input_costs_json` | jsonb | ● | | Demais insumos aplicados, com quantidade e custo por insumo |
 | `labor_minutes` | numeric(8,2) | ● | | Minutos de mão de obra |
+| `labor_rate_id` | uuid | ○ | FK → `labor_rates` | Valor-hora do período que produziu o custo de mão de obra, guardado para responder qual taxa gerou este número (RN-53). **Especificado, não implementado.** |
 | `labor_cost` | numeric(10,2) | ● | | Custo da mão de obra |
 | `total_variable_cost` | numeric(12,2) | ● | | **Derivado**: soma de substrato, semente e mão de obra |
 | `calculated_at` | timestamptz | ● | | Momento do último cálculo |
