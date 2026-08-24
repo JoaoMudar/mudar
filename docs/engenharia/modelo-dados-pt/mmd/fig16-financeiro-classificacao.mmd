@@ -15,6 +15,9 @@ erDiagram
     text nome
     text natureza
     boolean ativo
+    timestamptz criado_em
+    uuid criado_por FK
+    timestamptz inativado_em
   }
   regras_classificacao {
     uuid id PK

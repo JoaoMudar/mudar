@@ -33,7 +33,7 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 | 13 | `fig13-comercial-pedido` | Comercial: pedido, item e carga | 7,3 pt |
 | 14 | `fig14-comercial-cotacao` | Comercial: cotação com fornecedor | 12,4 pt |
 | 15 | `fig15-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
-| 16 | `fig16-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,0 pt |
+| 16 | `fig16-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,5 pt |
 | 17 | `fig17-financeiro-custo-preco` | Financeiro: do custo ao preço | 7,1 pt |
 
 "Fonte útil" é o tamanho que o texto assume ao encaixar a figura na mancha de 16 x 24 cm, limitado
