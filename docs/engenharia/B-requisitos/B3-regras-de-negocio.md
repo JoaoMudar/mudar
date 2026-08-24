@@ -357,7 +357,7 @@ assinalado como tal.
 **Leitura para o texto do trabalho:** de 26 requisitos não funcionais, apenas **3 decorrem
 diretamente de regra de negócio** (RNF-23, RNF-24, RNF-25: todos de origem legal); **10 derivam das
 restrições do ambiente** de operação (RE-1 a RE-5) e **13 de política do projeto**. É o oposto do
-que ocorre nos funcionais, em que 73 dos 76 nascem de regra de negócio. A conclusão defensável:
+que ocorre nos funcionais, em que 72 dos 76 nascem de regra de negócio. A conclusão defensável:
 **as regras de negócio determinam o que o sistema faz; o ambiente de operação determina como ele
 precisa ser.**
 

@@ -46,7 +46,7 @@ O problema, o escopo e o vocabulário. **Leia primeiro.** O glossário fixa os t
 O coração da especificação. Cada requisito tem identificador, prioridade, de onde veio e como se verifica.
 
 - Especificação de Requisitos: 76 funcionais e 26 não funcionais
-- Regras de negócio: 70 regras, cada uma com o tipo e os requisitos que ela origina. É o que vale no viveiro **exista ou não o software**; se o enunciado começa com "o sistema deve", ele pertence à especificação, não aqui
+- Regras de negócio: 62 regras, cada uma com o tipo e os requisitos que ela origina. É o que vale no viveiro **exista ou não o software**; se o enunciado começa com "o sistema deve", ele pertence à especificação, não aqui
 - Quadros de regras e requisitos: os mesmos conteúdos reduzidos a duas ou quatro colunas, prontos para colar no Word. **Transcrição, não fonte**
 - Matriz de rastreabilidade: liga cada requisito ao caso de uso, à entidade, à permissão e ao teste. **Construída por último**, porque é ela que revela o que ficou faltando
 

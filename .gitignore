@@ -63,3 +63,6 @@ next-env.d.ts
 /dump.sql
 /species_data.sql
 *.dump
+
+# Arquivos de bloqueio do Word/Excel
+~$*

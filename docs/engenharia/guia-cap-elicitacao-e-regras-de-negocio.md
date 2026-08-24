@@ -13,7 +13,7 @@
    a legenda de origem de [`B2`](B-requisitos/B2-especificacao-requisitos.md) §1, o §5 de `B2`
    (conflitos), o §5 de [`B5`](B-requisitos/B5-matriz-rastreabilidade.md) (lacunas) e as seções
    *"Situação atual"* de [`docs/rotinas/`](../rotinas/).
-3. **Regras de negócio** já estão catalogadas: 70 regras em
+3. **Regras de negócio** já estão catalogadas: 62 regras em
    [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md), cada uma com os requisitos que
    ela origina. Foram extraídas de [`A2`](A-fundacao/A2-glossario-dominio.md) (as regras estão dentro
    das definições), dos fluxos **FE/FA** de [`C2`](C-modelagem/C2-especificacao-casos-de-uso.md) e do
@@ -117,8 +117,9 @@ Isto é o único trabalho realmente novo. Nada disso está registrado em nenhum 
 ## 2.1 Onde as regras estão escondidas
 
 > ✅ **Já resolvido.** O catálogo completo agora existe em
-> [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md): **70 regras** numeradas
-> RN-01 a RN-70, cada uma com tipo, onde já estava documentada e os requisitos que ela origina.
+> [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md): **62 regras** numeradas
+> de RN-01 a RN-70, com oito números vagos de regras que saíram do catálogo, cada uma com
+> tipo, onde já estava documentada e os requisitos que ela origina.
 > mais as tabelas inversas (RF → RN e RNF → origem). Os mesmos conteúdos, já reduzidos ao formato
 > de quadro que vai impresso, estão em [`B4-quadros-tcc.md`](B-requisitos/B4-quadros-tcc.md).
 > A subseção abaixo continua útil para conferir se alguma regra escapou.
@@ -133,9 +134,11 @@ As regras estavam dissolvidas em cinco lugares:
 | [`C6`](C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](C-modelagem/C8-dicionario-de-dados.md) | Regras que viraram estrutura: chaves compostas, listas fechadas, restrições `CHECK`. `C6` §5 explica *por que o piso é coluna e não constante*, regra que molda o modelo |
 | [`G2`](G-gestao/G2-fichas-de-indicadores.md) e [`D4`](D-arquitetura/D4-matriz-rbac.md) | Limiares e regras de acesso (o 20% de mortalidade; a base bancária restrita à chefia) |
 
-## 2.2 O catálogo: 70 regras, em [`B3`](B-requisitos/B3-regras-de-negocio.md)
+## 2.2 O catálogo: 62 regras, em [`B3`](B-requisitos/B3-regras-de-negocio.md)
 
-As regras estão numeradas **RN-01 a RN-70** e agrupadas em nove áreas:
+As regras estão numeradas de **RN-01 a RN-70**, com oito números vagos (RN-36, RN-49, RN-54,
+RN-60, RN-61, RN-63, RN-64 e RN-65 saíram do catálogo e não se reutilizam), e agrupadas em
+nove áreas:
 
 | Área | Regras | O que cobre |
 |---|---|---|
@@ -154,7 +157,7 @@ documentada** e **quais RF e RNF ela origina**. As tabelas inversas (RF → RN e
 nas seções 4 e 5 de lá, e o texto integral dos 76 RF e 26 RNF no apêndice: o arquivo é
 autossuficiente para gerar as tabelas do trabalho.
 
-**Dois números que valem parágrafo no capítulo:** 73 dos 76 requisitos funcionais nascem de regra de
+**Dois números que valem parágrafo no capítulo:** 72 dos 76 requisitos funcionais nascem de regra de
 negócio, mas apenas 3 dos 26 não funcionais: os outros 23 vêm das restrições do ambiente (RE-1 a
 RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; o ambiente determina
 **como** ele precisa ser.
@@ -230,7 +233,7 @@ nomes que não batem com o sumário.
 
 1. Crie o artefato-fonte que falta em `docs/engenharia/`, seguindo a convenção de códigos:
    - `B-requisitos/B1-elicitacao-e-analise.md`: **o único que falta**; o código `B1` está livre
-   - `B-requisitos/B3-regras-de-negocio.md`: **✅ já existe**, com as 70 regras e as tabelas de vínculo
+   - `B-requisitos/B3-regras-de-negocio.md`: **✅ já existe**, com as 62 regras e as tabelas de vínculo
    - `B-requisitos/B4-quadros-tcc.md`: **✅ já existe**, com os 13 quadros formatados para o Word
 2. Registre-os em [`scripts/build-docs-tcc.mjs`](../../scripts/build-docs-tcc.mjs), no array
    `SECOES`, na posição correta da ordem: o array define nome de arquivo, título e ordem

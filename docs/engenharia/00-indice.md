@@ -35,7 +35,7 @@ São documentos de projeto, não relatórios de código.
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
 | [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito: 76 RF, 26 RNF |
-| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | 4.3 Regras de negócio | ✅ escrito: 70 regras, 73 dos 76 RF vinculados |
+| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | 4.3 Regras de negócio | ✅ escrito: 62 regras, 72 dos 76 RF vinculados |
 | [B4](B-requisitos/B4-quadros-tcc.md) | Quadros de regras de negócio e requisitos | Apêndice D | ✅ escrito: 13 quadros, transcritos de B2 e B3 |
 | [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.10 + Apêndice | ✅ escrito: revelou 25 lacunas fechadas + 7 requisitos *deve ter* sem teste, em aberto |
 
