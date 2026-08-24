@@ -1,0 +1,31 @@
+erDiagram
+  areas {
+    uuid id PK
+    text letra UK
+    text nome
+    bool ativo
+  }
+  canteiros {
+    uuid id PK
+    uuid area_id FK
+    int numero UK
+    int capacidade
+    bool ativo
+  }
+  turnos_trabalho {
+    uuid id PK
+    text codigo UK
+    text nome
+    time hora_inicio
+    time hora_fim
+    int ordem
+    bool ativo
+  }
+  lotes {
+  }
+  atribuicoes {
+  }
+
+  areas           ||--o{ canteiros    : "divide-se em"
+  canteiros       ||--o| lotes        : "abriga"
+  turnos_trabalho ||--o{ atribuicoes  : "situa no dia"

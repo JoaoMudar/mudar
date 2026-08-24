@@ -40,11 +40,17 @@ const D4: Record<string, [string, string, string, string]> = {
   'Fornecedores':                     ['C L A E', '—',       '—',     'C L A E'],
   'Funcionários':                     ['C L A E', 'L',       '—',     'C L A E'],
   'Tarefas':                          ['C L',     'C L A E', 'L A',   'L'      ],
+  'Áreas e canteiros':                ['C L',     'C L A E', 'L',     'L'      ],
+  'Período de trabalho':              ['C L A',   'C L A',   'L',     'C L A'  ],
   // --- 2 · Producao ---
   'Consumo de insumo':                ['L',       'L',       'C L',   'L'      ],
   'Coleta de sementes':               ['C L A E', 'L',       '—',     'C L A E'],
+  'Lotes':                            ['L',       'C L A',   'C L',   'L'      ],
+  'Apontamento':                      ['L',       'C L A E', 'L A',   'L'      ],
   'Atividades de produção':           ['L',       'C L A',   'C L',   'L'      ],
   'Estoque':                          ['L',       'C L A',   'L',     'L'      ],
+  'Estoque de insumo':                ['C L A',   'C L A',   'L',     'L'      ],
+  'Gastos de tarefa':                 ['C L A E', 'C L',     '—',     'L'      ],
   'Perdas':                           ['L',       'L A',     'C L',   'L'      ],
   'Análise de perdas':                ['L',       'L',       '—',     'L'      ],
   // --- 3 · Comercial ---
@@ -65,6 +71,7 @@ const D4: Record<string, [string, string, string, string]> = {
   'Indicadores':                      ['L',       'L',       '—',     'L'      ],
   // --- Acesso (transversal) ---
   'Usuários e perfis':                ['—',       '—',       '—',     'C L A E'],
+  'Configurações do sistema':         ['L A',     '—',       '—',     'L A'    ],
   'Sessões próprias':                 ['L E',     'L E',     'L E',   'L E'    ],
   'Auditoria de acesso':              ['—',       '—',       '—',     'L'      ],
 }

@@ -57,8 +57,8 @@ Comece por [`engenharia/README.md`](engenharia/README.md), explica a estrutura d
 | Bloco | Artefatos |
 |-------|-----------|
 | A: Fundação | Documento de Visão, Glossário do domínio |
-| B: Requisitos | Especificação de Requisitos (79 RF, 26 RNF), Regras de negócio (65 RN), Quadros do TCC, Matriz de rastreabilidade |
-| C: Modelagem | Casos de uso, Especificação de casos de uso, MER/DER (46 entidades), Dicionário de dados |
+| B: Requisitos | Especificação de Requisitos (105 RF, 26 RNF), Regras de negócio (82 RN), Quadros do TCC, Matriz de rastreabilidade |
+| C: Modelagem | Casos de uso (55 UC), Especificação de casos de uso, MER/DER (55 entidades), Dicionário de dados |
 | D: Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
 | E: Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
 | F: Usabilidade | Plano de avaliação (5 atributos de Nielsen) |
@@ -82,6 +82,8 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 | **2 · Produção** | Produção (visão geral + subrotinas) | [`rotinas/2-producao/00-visao-geral.md`](rotinas/2-producao/00-visao-geral.md) e a pasta [`rotinas/2-producao/`](rotinas/2-producao/) |
 | **2 · Produção** | Estoque | [`rotinas/2-producao/02-estoque.md`](rotinas/2-producao/02-estoque.md) |
 | **2 · Produção** | Perdas | [`rotinas/2-producao/03-perdas.md`](rotinas/2-producao/03-perdas.md) |
+| **2 · Produção** | Lotes e canteiros | [`rotinas/2-producao/04-lotes-e-canteiros.md`](rotinas/2-producao/04-lotes-e-canteiros.md) |
+| **2 · Produção** | Apontamento de tarefas | [`rotinas/2-producao/05-apontamento-de-tarefas.md`](rotinas/2-producao/05-apontamento-de-tarefas.md) |
 | **3 · Comercial** | Comercial (visão geral do módulo) | [`rotinas/3-comercial/00-visao-geral.md`](rotinas/3-comercial/00-visao-geral.md) |
 | **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/3-comercial/pedidos.md`](rotinas/3-comercial/pedidos.md) e a pasta [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/) |
 | **3 · Comercial** | Cotação com fornecedores | sem rotina própria: está no plano [`P11`](../plans/P11-fornecedores-cotacao.md) |
@@ -89,8 +91,10 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 | **4 · Financeiro** | Financeiro (visão geral + detalhamento) | [`rotinas/4-financeiro/00-visao-geral.md`](rotinas/4-financeiro/00-visao-geral.md) e a pasta [`rotinas/4-financeiro/`](rotinas/4-financeiro/) |
 | - | ~~Tarefas diárias~~ | absorvida pela Produção; [`rotinas/2-producao/99-tarefas-diarias-historico.md`](rotinas/2-producao/99-tarefas-diarias-historico.md) fica como histórico |
 
-A rotina de **Produção** tem detalhamento em [`rotinas/2-producao/`](rotinas/2-producao/):
-visão geral e a **agenda de pessoal** (grade semanal de quem faz o quê, base do custo de mão de obra).
+A rotina de **Produção** tem detalhamento em [`rotinas/2-producao/`](rotinas/2-producao/): visão
+geral e três subrotinas, a **agenda de pessoal** (grade semanal de quem faz o quê), o
+**apontamento de tarefas** (início e fim por funcionário, base do custo de mão de obra) e
+**lotes e canteiros** (onde a muda está e de que leva veio).
 
 A rotina de **Pedidos** tem detalhamento por etapa em [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/):
 banco de dados, notificações, cadastro, verificação de disponibilidade, análise/fechamento e separação.

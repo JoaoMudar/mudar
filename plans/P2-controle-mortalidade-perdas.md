@@ -13,6 +13,20 @@
 > Mapa em [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md);
 > domínio em [`docs/rotinas/2-producao/03-perdas.md`](../docs/rotinas/2-producao/03-perdas.md).
 
+> ♻️ **T2.1 a T2.7 foram absorvidas pelo [`P14`](P14-producao-lotes-apontamento.md)**
+> (24/08/2026). As tabelas de lote entraram no banco com nomes reconciliados: `batches` +
+> **`batch_movements`** no lugar de `batches` + `batch_counts`, e a contagem física virou
+> `stock_counts` com `batch_id`, sem entidade paralela. `mortality_thresholds` virou uma chave em
+> `settings` (`producao.mortalidade_limite_pct`): é **um valor**, não uma lista de coisas.
+>
+> Este plano previa lote enquanto `A1` §7 e `A2` o excluíam do escopo, e essa divergência nunca
+> tinha sido catalogada: está registrada como **achado L** em
+> [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md). O escopo abriu, e a
+> justificativa mora no próprio `A1` §7.
+>
+> O que continua deste plano é o que ele tem de próprio: as **views de mortalidade**, o **alerta
+> acima de 20%** e a **análise de perdas por espécie e causa**.
+
 ## Status: NÃO INICIADO
 ## Prioridade: CRÍTICA
 ## Dependências: P1 (tabelas species, containers)

@@ -11,7 +11,7 @@
 
 ## Como ler
 
-Oito casos de uso, dos quarenta catalogados em [`C1`](C1-diagrama-casos-de-uso.md), estão
+Doze casos de uso, dos cinquenta e cinco catalogados em [`C1`](C1-diagrama-casos-de-uso.md), estão
 especificados aqui. O critério de seleção foi duplo: **concentração de fluxos alternativos** e
 **custo operacional do erro**. Cadastrar um insumo errado corrige-se em segundos; separar a carga
 errada põe um caminhão na estrada com a muda errada.
@@ -239,7 +239,7 @@ efetivamente separada, e o sistema notifica a gerência da divergência para nov
 |---|---|
 | **Ator principal** | Colaborador |
 | **Objetivo** | Registrar mudas perdidas no momento e no local em que a perda é constatada |
-| **Requisitos** | RF-26, RF-28, RF-29 |
+| **Requisitos** | RF-26, RF-28, RF-29, RF-91 |
 | **Frequência** | Diária |
 | **Pré-condições** | Nenhuma além da sessão autenticada |
 | **Pós-condições** | Perda registrada; mortalidade da espécie recalculada; alerta emitido se ultrapassar o limite |
@@ -247,14 +247,14 @@ efetivamente separada, e o sistema notifica a gerência da divergência para nov
 ### FP: Fluxo principal
 
 1. O colaborador aciona o registro de perda.
-2. O sistema apresenta um formulário de **quatro campos**: espécie, recipiente, quantidade e causa.
-3. O colaborador seleciona a espécie.
-4. O colaborador seleciona o recipiente.
+2. O sistema apresenta um formulário de **quatro campos**: lote, quantidade, causa e observação.
+3. O colaborador seleciona o lote, de uma lista dos canteiros ocupados.
+4. O sistema exibe a espécie, o recipiente e o canteiro do lote escolhido, sem pedi-los.
 5. O colaborador informa a quantidade perdida.
 6. O colaborador seleciona a causa em lista fechada, seca, praga, geada, manuseio ou outro.
 7. O colaborador confirma.
 8. O sistema grava a perda, exibe confirmação visual e retorna ao formulário vazio, pronto para o próximo registro.
-9. O sistema recalcula a taxa de mortalidade da espécie no período.
+9. O sistema baixa a quantidade do saldo do lote e recalcula a taxa de mortalidade da espécie no período.
 
 ### FA-1: Mortalidade acima do limite
 
@@ -272,10 +272,224 @@ restabelecer a conexão. O recálculo do passo 9 ocorre na sincronização.
 No passo 5, a quantidade é zero, negativa ou não numérica. O sistema recusa, indica o campo e
 preserva os demais já preenchidos.
 
-> **Nota de projeto.** O formulário tem quatro campos, e não cinco, embora o limite permitisse mais
-> um. Registrar o local da perda dentro do viveiro melhoraria a análise, e foi descartado: seria o
-> campo que faria o colaborador deixar de registrar. Ver o conflito documentado em
-> [`B2`, seção 5](../B-requisitos/B2-especificacao-requisitos.md).
+### FE-2: Quantidade maior que o saldo do lote
+
+No passo 7, a perda informada excede o que o lote ainda tem. O sistema recusa e apresenta o saldo
+(RN-78): perda maior que o saldo significa que a contagem está errada, e gravar o negativo
+propagaria o erro para o estoque. A correção é uma contagem física (UC-16), não uma perda maior.
+
+> **Nota de projeto: como o quinto campo entrou sem virar campo.** Até 24/08/2026 este caso
+> registrava que localizar a perda dentro do viveiro melhoraria a análise e **foi descartado**, por
+> ser o campo que faria o colaborador deixar de registrar. Com o lote, a decisão **não foi
+> revertida, foi resolvida**: o formulário continua com quatro campos, e um deles deixou de ser
+> "espécie" e "recipiente" para ser "lote", que carrega os dois **e mais o canteiro**. O
+> colaborador passou a informar **menos**, e o sistema a saber mais. Ver
+> [`B2`, seção 5](../B-requisitos/B2-especificacao-requisitos.md) e o achado L de
+> [`auditoria-divergencias.md`](../../auditoria-divergencias.md).
+
+---
+
+## UC-47 · Criar lote
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Registrar uma leva de mudas plantada junta e o canteiro que ela passa a ocupar |
+| **Requisitos** | RF-84, RF-90 |
+| **Frequência** | Semanal |
+| **Pré-condições** | Existem espécie, recipiente e ao menos um canteiro livre cadastrados |
+| **Pós-condições** | Lote aberto ocupando o canteiro, com saldo igual à quantidade inicial e um movimento de entrada |
+
+### FP: Fluxo principal
+
+1. A gerência inicia a criação de um lote.
+2. A gerência seleciona a espécie e o recipiente.
+3. A gerência informa a quantidade de mudas.
+4. O sistema apresenta as áreas e, dentro da escolhida, apenas os canteiros **livres**.
+5. A gerência seleciona a área e o canteiro.
+6. A gerência informa a data de plantio, que assume o dia corrente.
+7. A gerência confirma.
+8. O sistema cria o lote, gera o código, grava o movimento de entrada e calcula a previsão de disponibilidade a partir do tempo de produção da espécie.
+
+### FA-1: A leva não cabe em um canteiro
+
+No passo 3, a quantidade excede o que um canteiro comporta. O sistema informa, e a gerência cria
+**dois lotes**, um por canteiro, em vez de um lote em dois lugares (RN-76).
+
+> **Por que não um lote em dois canteiros.** Seria uma entidade a mais e um campo a mais em toda
+> tela que pede lote, para representar o que dois lotes já representam. E a pergunta que a
+> operação faz é "o que tem neste canteiro", que um lote por canteiro responde direto.
+
+### FA-2: Espécie sem tempo de produção cadastrado
+
+No passo 8, a espécie não tem tempo de produção. O lote é criado normalmente e a previsão fica
+**em branco**, não em zero: previsão ausente é informação, previsão zerada é erro disfarçado de
+dado.
+
+### FE-1: Canteiro já ocupado
+
+No passo 7, o canteiro escolhido recebeu outro lote enquanto a tela estava aberta. O sistema recusa
+e recarrega a lista de canteiros livres.
+
+---
+
+## UC-48 · Repicar lote
+
+| | |
+|---|---|
+| **Ator principal** | Colaborador |
+| **Objetivo** | Passar mudas de um lote para recipiente maior, preservando a ligação com a leva de origem |
+| **Requisitos** | RF-86, RF-87, RF-88 |
+| **Frequência** | Semanal |
+| **Pré-condições** | Existe lote aberto com saldo, e há canteiro livre para o lote de destino |
+| **Pós-condições** | Lote novo aberto apontando para o de origem; saldo do de origem reduzido; dois movimentos gravados |
+
+### FP: Fluxo principal
+
+1. O colaborador encerra a tarefa de repicagem (UC-51) e o sistema pede o destino das mudas.
+2. O sistema exibe o lote de origem, com espécie, recipiente e saldo.
+3. O colaborador informa a quantidade repicada e o recipiente de destino.
+4. O colaborador seleciona a área e o canteiro de destino, entre os livres.
+5. O colaborador confirma.
+6. O sistema grava um movimento de saída no lote de origem e cria o lote de destino com o movimento de entrada correspondente, apontando para a origem.
+7. O sistema encerra o lote de origem se o saldo dele chegar a zero, liberando o canteiro.
+
+### FA-1: Repicagem parcial
+
+No passo 3, a quantidade é menor que o saldo. O lote de origem **permanece aberto** com o saldo
+restante, e passa a ter um lote filho. É o caso normal: repica-se o que está no ponto.
+
+### FA-2: Parte das mudas morreu na repicagem
+
+No passo 3, entram menos mudas do que saíram. O sistema apresenta a diferença e pede a causa, em
+lista fechada, gravando-a como **perda do lote de origem** no mesmo gesto (RN-90). A soma
+"repicadas mais perdidas" tem de igualar a quantidade que saiu.
+
+> Sem esta alternativa, a diferença viraria evaporação silenciosa: o saldo do lote de origem
+> cairia sem que nada explicasse para onde a muda foi, e a mortalidade da espécie ficaria
+> subestimada exatamente na etapa que mais mata.
+
+### FA-3: Repica para o mesmo canteiro
+
+No passo 4, o destino é o próprio canteiro do lote de origem, que se esvaziou por inteiro. O
+sistema aceita, porque o passo 7 o liberou antes.
+
+### FE-1: Quantidade maior que o saldo
+
+No passo 5, a quantidade repicada somada à perdida excede o saldo do lote de origem. O sistema
+recusa e apresenta o saldo disponível (RN-78).
+
+---
+
+## UC-50 · Apontar início de tarefa
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Marcar que um funcionário começou uma tarefa, a partir do cartão dele na agenda do dia |
+| **Requisitos** | RF-94, RF-95, RF-97, RF-99 |
+| **Frequência** | Várias vezes ao dia |
+| **Pré-condições** | O funcionário está ativo e o dia dele não foi encerrado |
+| **Pós-condições** | Um apontamento aberto para o funcionário; o anterior, se havia, fechado no mesmo instante |
+
+### FP: Fluxo principal
+
+1. A gerência abre a agenda do dia e vê as tarefas planejadas e um cartão por funcionário.
+2. A gerência aciona "começar tarefa" no cartão de um funcionário.
+3. O sistema apresenta os tipos de tarefa, com os planejados para aquele turno em primeiro lugar.
+4. A gerência escolhe o tipo de tarefa.
+5. O sistema pede **apenas** o que aquele tipo de tarefa declara exigir: espécie, recipiente, lote e canteiro (RF-82).
+6. A gerência informa o que foi pedido.
+7. A gerência confirma.
+8. O sistema fecha o apontamento que estiver aberto para aquele funcionário, registrando o instante como fim, e abre o novo.
+9. O cartão do funcionário passa a exibir a tarefa em curso e desde quando.
+
+### FA-1: Tarefa fora do planejado
+
+No passo 4, a tarefa escolhida não estava na agenda daquele turno. O sistema aceita e registra o
+apontamento **sem atribuição vinculada**, marcando-o como avulso. O planejado não é alterado: a
+comparação entre planejado e realizado é justamente o que se quer enxergar.
+
+### FA-2: Vários funcionários na mesma tarefa
+
+No passo 2, a gerência seleciona mais de um cartão antes de acionar. O sistema abre **um
+apontamento por pessoa**, todos ligados à mesma atribuição, porque cada um pode sair dela em
+momento diferente (RN-83, RN-84).
+
+### FA-3: O funcionário já estava em outra tarefa
+
+No passo 8, havia apontamento aberto. É o **caso normal**, e não exceção: o gesto de começar
+outra tarefa é o gesto de dizer que saiu da anterior. O sistema não pergunta nada e não pede
+confirmação.
+
+> **Por que sem confirmação.** Perguntar "deseja encerrar a tarefa atual?" a cada troca
+> acrescentaria um toque a um gesto que se repete dezenas de vezes por dia, para confirmar o que o
+> próprio gesto já declarou. A alternativa, exigir encerrar antes de começar, produziria tarefas
+> eternamente abertas nos dias corridos, que são justamente os dias em que a troca ocorre.
+
+### FE-1: Tipo de tarefa exige lote e nenhum foi informado
+
+No passo 7, o tipo exige lote e o campo está vazio. O sistema recusa e indica o campo (RN-82).
+
+### FE-2: Dia do funcionário já encerrado
+
+No passo 2, o dia daquele funcionário foi encerrado (UC-52). O sistema informa e oferece
+**reabrir o dia**, em vez de recusar em silêncio: encerramento por engano é comum, e recusar faria
+a gerência deixar de registrar o resto do dia.
+
+---
+
+## UC-51 · Encerrar tarefa
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Fechar o apontamento e registrar o que a tarefa produziu e consumiu |
+| **Requisitos** | RF-98, RF-100, RF-101 |
+| **Frequência** | Várias vezes ao dia |
+| **Pré-condições** | Existe apontamento aberto para o funcionário |
+| **Pós-condições** | Apontamento fechado com hora de fim; horas calculadas; consumo de insumo abatido do saldo |
+
+### FP: Fluxo principal
+
+1. A gerência aciona "encerrar" no cartão do funcionário, ou inicia outra tarefa (UC-50 FA-3), ou encerra o dia (UC-52).
+2. O sistema grava a hora de fim e calcula o intervalo trabalhado.
+3. Se o tipo de tarefa for medido por saco ou por tubete, o sistema pede **um número**: quantos foram feitos (RF-98).
+4. Se o tipo de tarefa for medido por tempo, o passo 3 não ocorre e o sistema não pede nada.
+5. O sistema oferece, de forma opcional, registrar insumos consumidos e gasto extra (UC-53).
+6. O sistema fecha o apontamento e abate do saldo os insumos informados.
+7. Se a tarefa movimentou mudas, o sistema grava o movimento no lote correspondente.
+
+### FA-1: Tarefa de repicagem
+
+No passo 7, a tarefa é repicagem. O sistema encaminha para UC-48, porque o destino das mudas
+precisa ser informado antes que o movimento possa ser gravado.
+
+### FA-2: Sem conexão
+
+Nos passos 6 e 7, não há rede. O sistema grava localmente com a chave gerada no aparelho, confirma
+e envia ao restabelecer a conexão (RNF-05). O reenvio não duplica o apontamento nem o consumo.
+
+### FA-3: Encerramento sem quantidade
+
+No passo 3, a gerência não sabe quantos foram feitos e deixa em branco. O sistema aceita e marca o
+apontamento como **sem contagem**: as horas ficam registradas de qualquer modo, e hora sem contagem
+vale mais do que nenhum registro.
+
+### FE-1: Quantidade inválida
+
+No passo 3, o número é negativo ou não numérico. O sistema recusa e mantém o apontamento aberto.
+
+### FE-2: Consumo maior que o saldo do insumo
+
+No passo 6, o consumo deixaria o saldo do insumo negativo. O sistema **grava assim mesmo** e
+sinaliza o saldo negativo (RF-105).
+
+> **Por que aqui o sistema não recusa, e no lote recusa.** O saldo do lote é apurado pelo próprio
+> sistema desde a entrada, e saldo negativo ali é contradição interna. O saldo de insumo depende
+> de toda compra ter sido lançada, e o histórico do viveiro diz que nem toda foi: recusar o
+> consumo real por causa de uma compra não lançada faria o campo parar de registrar consumo, que
+> é o dado mais caro de obter. O negativo aqui **é o alerta** de que falta lançar compra.
 
 ---
 
@@ -404,7 +618,7 @@ necessário reabrir o período.
 
 ## Casos de uso não especificados
 
-Os trinta e três casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
+Os quarenta e três casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
 de cadastro e de consulta, cujo fluxo se resume a selecionar, preencher e confirmar, sem alternativas
 relevantes. Especificá-los produziria repetição sem ganho analítico.
 

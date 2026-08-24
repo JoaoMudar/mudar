@@ -1,11 +1,5 @@
 erDiagram
-  ESPECIE      ||--o{ CUSTO_PRODUCAO : "tem custo em"
-  RECIPIENTE   ||--o{ CUSTO_PRODUCAO : "determina"
-  INSUMO       ||--o{ CUSTO_PRODUCAO : "compõe"
-
-  ESPECIE      ||--o{ PRODUCAO    : "é produzida em"
-  ESPECIE      ||--o{ PERDA       : "sofre"
-
+  CUSTO_PRODUCAO ||--o{ PRECO     : "é a base de"
   ESPECIE      ||--o{ PRECO       : "é precificada em"
   CANAL_VENDA  ||--o{ PRECO       : "aplica margem a"
   PRECO        ||--o{ ITEM_PEDIDO : "sugere valor de"

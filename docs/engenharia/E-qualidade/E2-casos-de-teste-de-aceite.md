@@ -83,6 +83,73 @@ autenticação.
 | **TA-15** | RF-28, RF-29 | Espécie com produção registrada e perdas acumuladas acima de 20% | 1. Registrar perda que ultrapasse o limite<br>2. Acessar o perfil de gerência | Alerta de mortalidade é exibido à gerência, identificando espécie e taxa | Não executado |
 | **TA-16** | RF-29 | - | 1. Verificar se o colaborador que registrou a perda em TA-15 recebeu alerta | **O colaborador não é interrompido.** O alerta dirige-se a quem pode agir | Não executado |
 
+## 5.1 Produção: cadastro do viveiro, lotes, agenda e apontamento
+
+*Acrescentada em 24/08/2026.* Fecha a lacuna que a §13 declarava desde 19/08: **RF-69 a RF-76
+estavam sem critério de aprovação**, e o subsistema da agenda não tinha como ser aceito. Os casos
+abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-105).
+
+### 5.1.1 Cadastro do viveiro
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-59** | RF-80, RF-81 | Sessão de gerência | 1. Cadastrar a área A<br>2. Cadastrar os canteiros 1, 2 e 3 nela<br>3. Cadastrar a área B e o canteiro 1 nela<br>4. Tentar cadastrar um segundo canteiro 1 na área A | Existem o canteiro 1 da área A e o canteiro 1 da área B, como lugares distintos; o repetido na mesma área é recusado | Não executado |
+| **TA-60** | RF-69 | Sessão de chefia | 1. Cadastrar funcionário sem criar usuário para ele<br>2. Abrir a agenda da semana | O funcionário aparece na escalação mesmo sem nunca ter feito login | Não executado |
+| **TA-61** | RF-70, RF-82 | Catálogo de tarefas carregado | 1. Abrir o apontamento de "Irrigação" (medição por tempo, sem lote)<br>2. Abrir o apontamento de "Repicar" (medição por tubete, com lote) | A primeira tela não apresenta campo de lote nem de quantidade; a segunda apresenta os dois | Não executado |
+| **TA-62** | RF-83 | Turnos cadastrados com 4 horas cada | 1. Alterar o fim do turno da manhã para uma hora mais tarde<br>2. Consultar as horas de uma tarefa planejada naquele turno, sem apontamento | As horas atribuídas passam de 4 para 5, sem alterar a atribuição | Não executado |
+
+### 5.1.2 Lotes
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-63** | RF-84, RF-90 | Espécie com tempo de produção, recipiente e canteiro livre | 1. Criar lote de 500 mudas no canteiro A-3<br>2. Consultar o lote | O lote ocupa A-3, tem saldo 500 e previsão de disponibilidade igual à data de plantio somada ao tempo de produção da espécie | Não executado |
+| **TA-64** | RF-85, RF-89 | Lote aberto em A-3 | 1. Consultar a ocupação do viveiro<br>2. Baixar o lote inteiro por perda<br>3. Consultar a ocupação de novo | A-3 aparece ocupado no passo 1 e **livre** no passo 3; o lote continua consultável pelo histórico | Não executado |
+| **TA-65** | RF-86, RF-87 | Lote de 500 mudas em tubete, canteiro B-1 livre | 1. Repicar 300 mudas para saco 10x18, destino B-1<br>2. Consultar os dois lotes | O lote de origem fica com saldo 200; o novo tem 300, está em B-1 e exibe o lote de origem. O histórico de ambos explica a diferença | Não executado |
+| **TA-66** | RF-86, RF-91 | Lote de 500 mudas | 1. Repicar 300 mudas informando que 20 morreram no processo<br>2. Consultar o saldo do lote de origem e a mortalidade da espécie | O lote de origem cai para 180, o novo tem 300, e as 20 aparecem como perda **daquele lote**, não como diferença sem explicação | Não executado |
+| **TA-67** | RF-88 | Lote com saldo 200 | 1. Tentar registrar perda de 250 mudas | A operação é recusada, com o saldo disponível informado. **Nenhum saldo negativo é gravado** | Não executado |
+| **TA-68** | RF-91, RNF-01 | Lote aberto | 1. Registrar uma perda a partir do lote, no celular | O registro conclui-se em **no máximo quatro campos**, e em nenhum deles se digita espécie, recipiente ou canteiro: os três vêm do lote | Não executado |
+
+### 5.1.3 Agenda da semana
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-69** | RF-71, RF-92 | Três funcionários cadastrados | 1. Escalar dois deles para "Encher saquinho" na manhã de segunda<br>2. Escalar o terceiro para "Irrigação" na mesma manhã<br>3. Consultar a agenda do dia | As duas tarefas coexistem no mesmo turno, cada uma com o seu grupo | Não executado |
+| **TA-70** | RF-93 | Agenda da semana aberta | 1. Lançar "Irrigação" para o intervalo de segunda a sexta | A tarefa aparece nos cinco dias, com um lançamento só | Não executado |
+| **TA-71** | RF-72 | Semana anterior preenchida, com uma tarefa marcada como recorrente | 1. Criar a semana nova<br>2. Acionar "copiar semana passada" | A semana nasce com a tarefa recorrente já presente, e a cópia reproduz o restante da anterior | Não executado |
+| **TA-72** | RF-73 | Semana no estado *fechada* | 1. Tentar alterar uma atribuição dela | A alteração é recusada, com o motivo informado | Não executado |
+| **TA-73** | RF-74 | Duas tarefas na segunda, uma para o colaborador e outra para um colega | 1. Entrar com o perfil do colaborador<br>2. Consultar as tarefas do dia | Vê a própria tarefa e **não vê** a do colega | Não executado |
+
+### 5.1.4 Apontamento
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-74** | RF-94, RF-95 | Funcionário escalado para repicagem | 1. Abrir a agenda do dia<br>2. Iniciar o apontamento de repicagem no cartão dele<br>3. Uma hora depois, iniciar o apontamento de irrigação no mesmo cartão | O cartão passa a exibir irrigação, e o apontamento de repicagem fica encerrado com uma hora, **sem que nada tenha sido pedido para encerrá-lo** | Não executado |
+| **TA-75** | RF-97 | Apontamento aberto para um funcionário | 1. Abrir a mesma agenda em dois aparelhos<br>2. Iniciar uma tarefa nova nos dois ao mesmo tempo | Apenas um apontamento fica aberto. A segunda tentativa é recusada pelo banco, e não só pela tela | Não executado |
+| **TA-76** | RF-96 | Funcionário com apontamento aberto | 1. Encerrar o dia dele<br>2. Consultar o cartão | Nenhuma tarefa em curso, e as horas do apontamento encerrado ficam registradas | Não executado |
+| **TA-77** | RF-98 | Duas tarefas, uma medida por tempo e outra por saco | 1. Encerrar a medida por tempo<br>2. Encerrar a medida por saco | A primeira encerra sem pedir número algum; a segunda pede a quantidade, e só ela | Não executado |
+| **TA-78** | RF-99 | Tarefa de repicagem em curso | 1. Tentar iniciar o apontamento sem informar lote | A operação é recusada e o campo de lote é indicado | Não executado |
+| **TA-79** | RF-100, RF-75 | Dois dias planejados, um com apontamento e outro sem | 1. Fechar a semana<br>2. Consultar as horas de cada dia | O dia apontado usa o intervalo real; o dia sem apontamento usa a jornada do turno, **marcado como não confirmado** | Não executado |
+| **TA-80** | RF-76, RF-100 | Semana fechada e valor-hora do período definido | 1. Consultar o custo de mão de obra por espécie<br>2. **Conferir manualmente**: horas × valor-hora | Os dois valores coincidem, e o custo aparece rateado sobre a espécie de cada tarefa | Não executado |
+
+### 5.1.5 Insumos e gastos da tarefa
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-81** | RF-101, RF-102 | Insumo com 100 litros de entrada e nenhum consumo | 1. Encerrar uma tarefa informando consumo de 30 litros<br>2. Consultar o saldo do insumo | O saldo passa a 70, **sem nenhuma ação além do encerramento da tarefa** | Não executado |
+| **TA-82** | RF-105 | Insumo com saldo 10 | 1. Encerrar tarefa informando consumo de 25 | O registro é **gravado**, e o saldo aparece negativo e destacado. A operação não é recusada | Não executado |
+| **TA-83** | RF-104 | Tarefa encerrada, ligada a um lote | 1. Lançar gasto extra de frete na tarefa<br>2. Consultar o custo do lote | O gasto aparece como custo direto daquele lote, e não no rateio geral | Não executado |
+| **TA-84** | RF-104, RF-70 | Sessão de colaborador | 1. Abrir o encerramento de uma tarefa | Não existe campo de valor em reais na tela do colaborador | Não executado |
+
+> **TA-80 tem a mesma natureza de TA-09 e TA-51**: confronta o número do sistema com uma apuração
+> manual. É o tipo de caso que decide se o custo apurado merece confiança, e por isso não pode ser
+> substituído por conferência de tela.
+
+> **TA-75 exige dois aparelhos de propósito.** A regra "uma pessoa faz uma tarefa por vez" (RN-83)
+> é garantida por índice único parcial no banco, e não por validação de tela: um teste feito num
+> aparelho só passaria mesmo que a garantia estivesse apenas na interface.
+
+---
+
 ## 6. Precificação
 
 | ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
@@ -191,24 +258,33 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Custeio | 7 | RF-08 a RF-12, RF-14 a RF-18 |
 | Produção e estoque | 3 | RF-19, RF-22, RF-23 |
 | Perdas | 5 | RF-26, RF-27, RF-28, RF-29 |
+| Cadastro do viveiro | 4 | RF-69, RF-70, RF-80 a RF-83 |
+| Lotes | 6 | RF-84 a RF-91 |
+| Agenda da semana | 5 | RF-71 a RF-74, RF-92, RF-93 |
+| Apontamento | 7 | RF-75, RF-76, RF-94 a RF-100 |
+| Insumos e gastos da tarefa | 4 | RF-101, RF-102, RF-104, RF-105 |
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
 | Fornecedores | 3 | RF-53, RF-54 |
 | Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **58** | **54 dos 61 requisitos de prioridade *deve ter*** |
+| **Total** | **84** | **80 dos 87 requisitos de prioridade *deve ter*** |
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de
 prioridade *deve ter* é defeito de especificação, não do teste.
 
-**Sete *deve ter* estão hoje descobertos**: RF-69, RF-70, RF-71, RF-72, RF-73, RF-74 e RF-76,
-todos da agenda de pessoal e do custo de mão de obra, acrescentados a `B2` em 19/08/2026. Pelo
-critério do parágrafo anterior, isso é defeito de especificação a corrigir, e está registrado como
-lacuna aberta em [`B5` §5.5](../B-requisitos/B5-matriz-rastreabilidade.md). Enquanto os casos não
-existirem, **o subsistema de agenda de pessoal não tem critério de aprovação declarado**, e a
-tabela acima não deve ser lida como cobertura completa.
+**A lacuna da agenda de pessoal foi fechada em 24/08/2026.** Até essa data, sete *deve ter*
+estavam descobertos (RF-69 a RF-74 e RF-76) e o subsistema não tinha critério de aprovação
+declarado. A §5.1 cobre os sete, junto dos requisitos da rotina de produção.
+
+**Sete *deve ter* continuam descobertos**, todos acrescentados em 24/08/2026 e todos de
+apresentação: RF-79 e RF-103 (sinalizações), RF-85 e RF-87 (telas de consulta, cobertas
+indiretamente por TA-64 e TA-65), RF-82 (coberto por TA-61), RF-88 e RF-89 (cobertos por TA-67 e
+TA-64). Pelo critério do parágrafo anterior isso é defeito de especificação, e a decisão foi
+**não multiplicar casos que apenas reexecutam o passo de conferência de outro**: a cobertura
+indireta está declarada aqui em vez de disfarçada num caso próprio.
 
 ---
 

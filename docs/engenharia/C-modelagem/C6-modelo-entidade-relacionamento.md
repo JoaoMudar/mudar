@@ -20,19 +20,19 @@ fornecedor referenciam-na por chave estrangeira. Essa centralidade não é prefe
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
 O modelo é apresentado em **cinco agrupamentos**: os quatro módulos do sistema, mais o Acesso,
-que atravessa todos. Um diagrama único com as 46 entidades seria ilegível em página impressa, e
+que atravessa todos. Um diagrama único com as 55 entidades seria ilegível em página impressa, e
 usar aqui o mesmo agrupamento dos requisitos ([`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md))
 e da matriz de acesso ([`D4 §2`](../D-arquitetura/D4-matriz-rbac.md)) permite ler os três
 documentos lado a lado sem traduzir de um para o outro.
 
 | Agrupamento | Entidades | Papel |
 |---|---|---|
-| *(transversal)* **Acesso** | 4 | Autenticação, sessão, auditoria e notificação |
-| **1 · Cadastros** | 13 | Catálogo de produção e identidade das pessoas: não consome nada, alimenta tudo |
-| **2 · Produção** | 7 | Consumo, coleta, atividade, perda e contagem de estoque |
+| *(transversal)* **Acesso** | 5 | Autenticação, sessão, auditoria, notificação e parâmetros do sistema |
+| **1 · Cadastros** | 16 | Catálogo de produção, endereço do viveiro e identidade das pessoas: não consome nada, alimenta tudo |
+| **2 · Produção** | 12 | Lote, agenda, apontamento, consumo, coleta, perda e contagem de estoque |
 | **3 · Comercial** | 8 | Pedido, item, carga e cotação com fornecedor |
 | **4 · Financeiro** | 14 | Extrato como fonte da verdade, custeio e preço |
-| **Total** | **46** | mais 1 visão derivada (`species_unit_cost`), documentada em [`C8`](C8-dicionario-de-dados.md) |
+| **Total** | **55** | mais 2 visões derivadas (`species_unit_cost` e `input_stock_balance`), documentadas em [`C8`](C8-dicionario-de-dados.md) |
 
 **O preço da escolha, declarado:** agrupar por propósito faz relacionamentos cruzarem a fronteira
 do diagrama: `input_usages` é da Produção e aponta para `species`, `containers` e `inputs`, que
@@ -65,8 +65,15 @@ erDiagram
   RECIPIENTE   ||--o{ CUSTO_PRODUCAO : "determina"
   INSUMO       ||--o{ CUSTO_PRODUCAO : "compõe"
 
+  ESPECIE      ||--o{ LOTE        : "é plantada em"
+  RECIPIENTE   ||--o{ LOTE        : "define o porte de"
+  CANTEIRO     ||--o| LOTE        : "abriga"
+  LOTE         ||--o{ LOTE        : "dá origem a"
+  LOTE         ||--o{ PRODUCAO    : "recebe trabalho de"
+  LOTE         ||--o{ PERDA       : "sofre"
   ESPECIE      ||--o{ PRODUCAO    : "é produzida em"
   ESPECIE      ||--o{ PERDA       : "sofre"
+  FUNCIONARIO  ||--o{ PRODUCAO    : "executa"
 
   ESPECIE      ||--o{ PRECO       : "é precificada em"
   CANAL_VENDA  ||--o{ PRECO       : "aplica margem a"
@@ -88,7 +95,7 @@ erDiagram
   PEDIDO       ||--o| LANCAMENTO  : "é conciliado com"
 ```
 
-O diagrama conceitual apresenta **dezoito entidades**, e não as quarenta e seis do modelo completo.
+O diagrama conceitual apresenta **vinte entidades**, e não as cinquenta e cinco do modelo completo.
 A redução é deliberada: Sommerville (2011) observa que a ausência de detalhe excessivo é
 característica central do modelo, cujo objetivo é destacar o mais relevante e não especificar por
 inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas nos modelos lógicos por
@@ -96,12 +103,17 @@ módulo, na seção seguinte.
 
 Quatro leituras que o modelo conceitual já entrega:
 
-- **A espécie participa de seis relacionamentos**, e é a única entidade presente nos **quatro
-  módulos**: custeio e preço no Financeiro, atividade e perda na Produção, item de pedido e
+- **A espécie participa de sete relacionamentos**, e é a única entidade presente nos **quatro
+  módulos**: custeio e preço no Financeiro, lote, atividade e perda na Produção, item de pedido e
   cotação no Comercial, e o próprio catálogo em Cadastros. É a confirmação estrutural da
   centralidade declarada no §3.4 da metodologia: nenhuma outra entidade aparece em mais de dois.
 - **Produção e perda são simétricas em torno da espécie.** Uma soma, a outra subtrai, e o estoque é
   a diferença: razão pela qual ele não aparece no modelo como entidade.
+- **O lote é a única entidade reflexiva do modelo.** `LOTE dá origem a LOTE` é a repicagem: a leva
+  que muda de recipiente vira outra leva, ligada à primeira. Percorrer essa cadeia responde de
+  quantas sementes semeadas saiu cada muda vendida, que é a pergunta que o viveiro nunca pôde
+  responder. É também a entidade que dá **lugar** à muda: até 24/08/2026 o modelo dizia o que a
+  muda era e não onde ela estava.
 - **O custo e o preço estão em cadeia, não em paralelo.** O custo de produção alimenta o preço, que
   sugere o valor do item de pedido. É a tradução no modelo de dados do objetivo central do trabalho:
   substituir a precificação intuitiva por uma derivada do custo apurado.
@@ -114,24 +126,29 @@ Quatro leituras que o modelo conceitual já entrega:
 
 ### 2.1 Recorte implementado
 
-O modelo descrito aqui é o **especificado**, e é maior que o protótipo construído: das 46 entidades,
-**28 existem no banco** (mais a visão `species_unit_cost`) e **18 permanecem só especificadas**.
+O modelo descrito aqui é o **especificado**, e é maior que o protótipo construído: das 55 entidades,
+**28 existem no banco** (mais a visão `species_unit_cost`) e **27 permanecem só especificadas**.
 O recorte segue a priorização de [`B2`](../B-requisitos/B2-especificacao-requisitos.md), e não uma
 limitação do modelo: o que se modela é o sistema especificado, o que se constrói é o recorte que
 cabe no prazo do trabalho.
 
 | Módulo | No banco | Só especificadas | Quais faltam |
 |---|---:|---:|---|
-| *(transversal)* Acesso | 4 | 0 | - |
-| 1 · Cadastros | 12 | 1 | `task_types` |
-| 2 · Produção | 2 | 5 | `production_activities`, `loss_events`, `stock_counts`, `week_plans`, `assignments` |
+| *(transversal)* Acesso | 4 | 1 | `settings` |
+| 1 · Cadastros | 12 | 4 | `task_types`, `areas`, `beds`, `work_shifts` |
+| 2 · Produção | 2 | 10 | `batches`, `batch_movements`, `week_plans`, `assignments`, `assignment_members`, `task_executions`, `task_expenses`, `input_stock_entries`, `loss_events`, `stock_counts` |
 | 3 · Comercial | 8 | 0 | - |
 | 4 · Financeiro | 2 | 12 | as nove de `financeiro`, mais `labor_rates`, `sale_channels` e `sale_prices` |
-| **Total** | **28** | **18** | |
+| **Total** | **28** | **27** | |
 
 O [`C8`](C8-dicionario-de-dados.md) marca a condição entidade por entidade. Dois atributos de
 entidade já existente estão na mesma situação: `users.party_id` e o par
 `order_items.unit_price` / `order_items.sale_price_id`.
+
+**A Produção é o módulo mais especificado e o menos construído**, dez de doze entidades no papel.
+Não é acaso: é o módulo cuja construção depende de a equipe mudar de hábito, e não só de haver
+tela. As duas que existem, `input_usages` e `seed_collection_costs`, são justamente as que se
+registram sozinhas, sem depender de planejamento prévio.
 
 ---
 
@@ -194,9 +211,20 @@ erDiagram
     boolean read
   }
 
+  settings {
+    uuid id PK
+    text key UK
+    text value
+    text value_type
+    text description
+    timestamptz updated_at
+    uuid updated_by FK
+  }
+
   users ||--o{ sessions     : "mantém"
   users ||--o{ login_events : "gera"
   users ||--o{ notifications: "recebe"
+  users ||--o{ settings     : "ajusta"
   parties ||--o| users : "pode ter login"
 ```
 
@@ -209,10 +237,23 @@ O usuário não pertence a módulo de negócio: ele opera os quatro. `notificati
 no Comercial que a origina, porque a notificação é do **destinatário**: quem a lê é uma pessoa,
 não um pedido.
 
+**`settings` é transversal pelo mesmo motivo, e não é cadastro.** Guarda parâmetro escalar do
+sistema em chave e valor tipado: o limiar de mortalidade de 20%, as coordenadas do viveiro, a
+margem mínima de revenda. Todos moram hoje em variável de ambiente ou constante de código, e
+**são regra de negócio, não infraestrutura**: quem os decide é a chefia, e mudar qualquer um deles
+hoje exige uma implantação.
+
+> **Onde está a fronteira entre `settings` e cadastro.** Parâmetro que é **um valor** vai para
+> `settings`. Parâmetro que é **uma lista de coisas com atributos** vira entidade: foi o caso dos
+> centros de custo, e é o caso do período de trabalho, que virou `work_shifts` no módulo 1 em vez
+> de duas chaves aqui. A regra de corte é a mesma dos Cadastros: se apagar deixa um movimento
+> passado sem sentido, é entidade.
+
 ### 3.2 Módulo 1 · Cadastros
 
-O que é estável e se repete. Não consome nada e alimenta os outros três, é o único módulo cujo
-diagrama não tem caixa vazia, porque não referencia entidade de fora.
+O que é estável e se repete. Não consome nada e alimenta os outros três: as únicas arestas que
+saem daqui apontam para entidades da Produção, e é por isso que `assignments`, `assignment_members`
+e `batches` aparecem como caixa vazia no fim do diagrama.
 
 ```mermaid
 erDiagram
@@ -330,11 +371,40 @@ erDiagram
     uuid id PK
     text name
     text category
+    text measurement_type
     boolean requires_species
     boolean requires_container
-    text unit_of_measure
+    boolean requires_batch
     numeric avg_minutes_per_unit
     boolean active
+  }
+  areas {
+    uuid id PK
+    text letter UK
+    text name
+    boolean active
+  }
+  beds {
+    uuid id PK
+    uuid area_id FK
+    int number
+    int capacity
+    boolean active
+  }
+  work_shifts {
+    uuid id PK
+    text code UK
+    text name
+    time start_time
+    time end_time
+    int sort_order
+    boolean active
+  }
+  assignments {
+  }
+  assignment_members {
+  }
+  batches {
   }
 
   species   ||--o{ species_popular_names : "conhecida como"
@@ -345,8 +415,11 @@ erDiagram
   parties   ||--o{ addresses             : "tem"
   parties   ||--o| customers             : "é, no papel de cliente"
   parties   ||--o| suppliers             : "é, no papel de fornecedor"
-  parties   ||--o{ assignments           : "executa"
-  task_types ||--o{ assignments          : "classifica"
+  parties     ||--o{ assignment_members  : "participa de"
+  task_types  ||--o{ assignments          : "classifica"
+  work_shifts ||--o{ assignments          : "situa no dia"
+  areas       ||--o{ beds                 : "divide-se em"
+  beds        ||--o| batches              : "abriga"
 ```
 
 **Por que `species_popular_names` é entidade separada.** O nome popular é atributo **multivalorado**
@@ -372,6 +445,34 @@ histórico em vez de sobrescrever (RF-11).
 tempo médio por unidade, que é o que liga uma tarefa de campo a um custo. Passa na regra de corte
 do módulo: apagar um tipo de tarefa deixaria sem sentido toda atribuição passada que o usou.
 
+**`task_types` comanda o formulário, e é aí que estão os três campos novos.** `category` virou
+lista fechada de seis (semente, terra, plantio, manutenção, pós-morte, expedição), que é como a
+equipe já agrupa o trabalho ao falar dele (RN-80). `measurement_type` diz se a tarefa é medida por
+tempo, por saco ou por tubete (RN-81): tarefa medida por tempo encerra sem pedir número algum, e
+as outras duas pedem a contagem, porque a pergunta do viveiro é "quantos fez em quantas horas".
+E `requires_batch` diz se a tarefa exige lote e canteiro (RN-82), na mesma família de
+`requires_species` e `requires_container`, que já existiam.
+
+> **O `unit_of_measure` saiu.** Era texto livre ("muda", "bandeja", "metro") e não decidia nada:
+> quem decide o que a tela pede é `measurement_type`, que é lista fechada. Manter os dois seria
+> guardar a mesma informação em dois graus de rigor diferentes, e o mais frouxo venceria na hora
+> de programar. A entidade nunca chegou ao banco, então a troca não custou migração.
+
+**`areas` e `beds` são o endereço do viveiro.** A área tem letra, o canteiro tem número dentro
+dela, e a numeração recomeça em cada área: por isso a unicidade é do par (`area_id`, `number`), e
+não do número sozinho (RN-74). É o vocabulário que a equipe já usa apontando com o dedo, e o
+sistema não inventa nomenclatura nova para ele.
+
+**`beds ||--o| batches` é a cardinalidade que carrega a regra.** Um canteiro abriga **no máximo um**
+lote aberto, e lote encerrado libera o canteiro (RN-79). `capacity` é opcional e serve de aviso ao
+criar lote, não de trava: o viveiro sabe apertar mais do que a conta quando precisa.
+
+**`work_shifts` é o período de trabalho, e existe para tirar um número de dentro do código.** A
+regra RN-48 dizia, no próprio enunciado, que um turno vale quatro horas. Isso é convenção que muda
+com a estação e com a combinação da equipe, e convenção que muda é **dado**, não constante
+(RN-85). O precedente do projeto é `financeiro.cost_centers`, que também nasceu carga fechada em
+código e virou cadastro.
+
 **Por que `parties` está aqui, e não no Financeiro onde nasceu.** As três entidades do esquema
 `cadastro` (`parties`, `party_roles`, `addresses`) foram desenhadas para dar contraparte a cada
 linha do extrato bancário. Mas o que elas resolvem é anterior ao dinheiro: **cliente, fornecedor e
@@ -393,19 +494,134 @@ tratamento de seus dados para contato comercial, e não um estado operacional. V
 
 ### 3.3 Módulo 2 · Produção
 
-Registro do que acontece no campo. Consome o catálogo do módulo 1 (daí as três caixas vazias) e
-entrega estoque para o Comercial e medida de consumo para o custeio.
+Registro do que acontece no campo. Consome o catálogo do módulo 1 (daí as caixas vazias) e
+entrega estoque para o Comercial e medida de consumo e de horas para o custeio.
+
+**É o maior módulo do modelo, e passou a ser em 24/08/2026**, quando o lote entrou no escopo
+([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). Doze entidades e uma visão derivada.
 
 ```mermaid
 erDiagram
+  batches {
+    uuid id PK
+    text code UK
+    uuid species_id FK
+    uuid container_id FK
+    uuid bed_id FK
+    uuid parent_batch_id FK
+    int initial_quantity
+    int current_quantity
+    text stage
+    date planted_at
+    date expected_ready_at
+    timestamptz closed_at
+    text notes
+  }
+  batch_movements {
+    uuid id PK
+    uuid batch_id FK
+    text movement_type
+    int quantity
+    date movement_date
+    uuid from_bed_id FK
+    uuid to_bed_id FK
+    uuid task_execution_id FK
+    uuid loss_event_id FK
+    uuid stock_count_id FK
+    text notes
+  }
+  week_plans {
+    uuid id PK
+    date week_start UK
+    text status
+    uuid published_by FK
+    timestamptz closed_at
+  }
+  assignments {
+    uuid id PK
+    uuid week_plan_id FK
+    date work_date
+    uuid shift_id FK
+    uuid task_type_id FK
+    uuid species_id FK
+    uuid container_id FK
+    uuid batch_id FK
+    int planned_quantity
+    boolean is_recurring
+    text status
+    text notes
+  }
+  assignment_members {
+    uuid assignment_id PK
+    uuid party_id PK
+  }
+  task_executions {
+    uuid id PK
+    uuid client_id UK
+    uuid assignment_id FK
+    uuid task_type_id FK
+    uuid party_id FK
+    date work_date
+    timestamptz started_at
+    timestamptz ended_at
+    uuid batch_id FK
+    uuid species_id FK
+    uuid container_id FK
+    int quantity
+    text status
+    uuid recorded_by FK
+    text notes
+  }
+  task_expenses {
+    uuid id PK
+    uuid task_execution_id FK
+    uuid assignment_id FK
+    text description
+    numeric amount
+    date expense_date
+    uuid cost_center_id FK
+    uuid recorded_by FK
+  }
   input_usages {
     uuid id PK
     uuid client_id UK
     uuid input_id FK
+    uuid task_execution_id FK
+    uuid batch_id FK
     uuid species_id FK
     uuid container_id FK
     numeric quantity
     date usage_date
+  }
+  input_stock_entries {
+    uuid id PK
+    uuid input_id FK
+    text entry_type
+    numeric quantity
+    numeric unit_cost
+    date entry_date
+    uuid recorded_by FK
+    text notes
+  }
+  loss_events {
+    uuid id PK
+    uuid batch_id FK
+    uuid species_id FK
+    uuid container_id FK
+    int quantity
+    text cause
+    date loss_date
+    uuid reported_by FK
+    text notes
+  }
+  stock_counts {
+    uuid id PK
+    uuid batch_id FK
+    uuid species_id FK
+    uuid container_id FK
+    int counted_quantity
+    date counted_at
+    uuid counted_by FK
   }
   seed_collection_costs {
     uuid id PK
@@ -418,108 +634,181 @@ erDiagram
     int seeds_collected_qty
     numeric cost_per_seed
   }
-  production_activities {
-    uuid id PK
-    uuid assignment_id FK
-    uuid species_id FK
-    uuid container_id FK
-    text activity_type
-    int quantity
-    date activity_date
-    uuid performed_by FK
-    text notes
+  species {
   }
-  loss_events {
-    uuid id PK
-    uuid species_id FK
-    uuid container_id FK
-    int quantity
-    text cause
-    date loss_date
-    uuid reported_by FK
-    text notes
+  containers {
   }
-  stock_counts {
-    uuid id PK
-    uuid species_id FK
-    uuid container_id FK
-    int counted_quantity
-    date counted_at
-    uuid counted_by FK
+  inputs {
   }
-  week_plans {
-    uuid id PK
-    date week_start UK
-    text status
-    uuid published_by FK
-    timestamptz closed_at
+  beds {
   }
-  assignments {
-    uuid id PK
-    uuid week_plan_id FK
-    uuid party_id FK
-    date work_date
-    text shift
-    uuid task_type_id FK
-    uuid species_id FK
-    uuid container_id FK
-    int planned_quantity
-    boolean is_recurring
-    text status
-    text notes
+  task_types {
+  }
+  work_shifts {
+  }
+  parties {
+  }
+  cost_centers {
   }
 
-  species    ||--o{ input_usages          : "consome"
-  containers ||--o{ input_usages          : "contextualiza"
-  inputs     ||--o{ input_usages          : "é aplicado"
-  species    ||--o{ seed_collection_costs : "coletada em"
-  species    ||--o{ production_activities : "é produzida em"
-  containers ||--o{ production_activities : "recebe"
-  species    ||--o{ loss_events           : "sofre"
-  containers ||--o{ loss_events           : "contextualiza"
-  species    ||--o{ stock_counts          : "é contada em"
-  containers ||--o{ stock_counts          : "contextualiza"
-  week_plans ||--o{ assignments           : "compõe-se de"
-  task_types ||--o{ assignments           : "classifica"
-  parties    ||--o{ assignments           : "executa"
-  species    ||--o{ assignments           : "é objeto de"
-  containers ||--o{ assignments           : "contextualiza"
-  assignments ||--o| production_activities : "vira realizado em"
+  species     ||--o{ batches             : "é plantada em"
+  containers  ||--o{ batches             : "define o porte de"
+  beds        ||--o| batches             : "abriga"
+  batches     ||--o{ batches             : "dá origem a"
+  batches     ||--o{ batch_movements     : "é explicado por"
+  beds        ||--o{ batch_movements     : "é origem ou destino de"
+
+  week_plans  ||--o{ assignments         : "compõe-se de"
+  task_types  ||--o{ assignments         : "classifica"
+  work_shifts ||--o{ assignments         : "situa no dia"
+  species     ||--o{ assignments         : "é objeto de"
+  containers  ||--o{ assignments         : "contextualiza"
+  batches     ||--o{ assignments         : "é trabalhado em"
+  assignments ||--o{ assignment_members  : "escala"
+  parties     ||--o{ assignment_members  : "participa de"
+
+  assignments ||--o{ task_executions     : "vira realizado em"
+  task_types  ||--o{ task_executions     : "classifica"
+  parties     ||--o{ task_executions     : "executa"
+  batches     ||--o{ task_executions     : "recebe trabalho de"
+  task_executions ||--o{ batch_movements : "movimenta"
+  task_executions ||--o{ input_usages    : "consome"
+  task_executions ||--o{ task_expenses   : "incorre em"
+  assignments ||--o{ task_expenses       : "incorre em"
+  cost_centers ||--o{ task_expenses      : "destina"
+
+  inputs      ||--o{ input_usages        : "é aplicado"
+  inputs      ||--o{ input_stock_entries : "entra por"
+  species     ||--o{ input_usages        : "consome"
+  containers  ||--o{ input_usages        : "contextualiza"
+  batches     ||--o{ input_usages        : "consome"
+
+  batches     ||--o{ loss_events         : "sofre"
+  species     ||--o{ loss_events         : "sofre"
+  containers  ||--o{ loss_events         : "contextualiza"
+  loss_events ||--o| batch_movements     : "gera"
+
+  batches     ||--o{ stock_counts        : "é contado em"
+  species     ||--o{ stock_counts        : "é contada em"
+  containers  ||--o{ stock_counts        : "contextualiza"
+  stock_counts ||--o| batch_movements    : "corrige por"
+
+  species     ||--o{ seed_collection_costs : "coletada em"
 ```
 
-**A agenda é a única fonte possível de horas.** `assignments` é a célula da grade, pessoa, dia,
-turno, tipo de tarefa: e `week_plans` é a semana que as reúne, com situação própria: rascunho,
-publicada, fechada. Um turno vale **quatro horas** por convenção (RN-48), e é essa conversão que
-transforma uma grade de planejamento em custo de mão de obra sem exigir controle de ponto.
+#### O lote: onde a muda está e de que leva veio
 
-**`production_activities.assignment_id` é opcional, de propósito.** A atividade realizada pode
-nascer de uma tarefa planejada (o caso normal) ou avulsa, quando alguém faz algo que não estava
-na agenda. Tornar o vínculo obrigatório proibiria o segundo caso, que é justamente o que a agenda
-não consegue prever.
+**`batches` é o endereço da muda dentro do viveiro.** Espécie e recipiente dizem *o que* é a muda;
+`bed_id` diz *onde* ela está, e a data de plantio diz *quando* começou. Até 24/08/2026 o modelo
+não tinha resposta para a segunda pergunta, e a rotina de campo não consegue operar sem ela: a
+tarefa de repicagem é dada apontando um canteiro, não uma espécie.
 
-**`input_usages` é o único registro de campo que já existe.** Ela liga insumo, espécie e
-recipiente à quantidade gasta, e é a dependência-raiz do custeio: sem ela, o custo por muda não
-tem parcela de insumo. Está no módulo do colaborador, não no do dinheiro, porque quem a preenche
-é quem está com as mãos na terra.
+**Um lote ocupa um canteiro, e a cardinalidade é `beds ||--o| batches`.** Leva que não cabe em um
+canteiro é **outro lote** (RN-76). A alternativa, uma entidade de ocupação com quantidade por
+canteiro, custaria um nível de indireção em toda tela que pede lote, para representar o que dois
+lotes já representam. E a pergunta que a operação faz é "o que tem neste canteiro", que um lote
+por canteiro responde sem junção.
 
-**O estoque não é entidade.** É quantidade **derivada**: produção registrada, menos perdas, menos o
-que saiu em pedidos aprovados. Modelá-lo como entidade criaria duas verdades sobre o mesmo número.
-a calculada e a armazenada: que divergiriam ao primeiro registro esquecido. A decisão está declarada
-desde o [glossário](../A-fundacao/A2-glossario-dominio.md), na lista de termos deliberadamente não
-adotados.
+**`parent_batch_id` é reflexivo, e é o que a repicagem produz.** Quando a muda passa do tubete
+para o saco, ela muda de recipiente, e recipiente define produto, custo e preço: comercialmente,
+virou outra coisa. Por isso a repicagem **não move** o lote, e sim baixa parte do lote de origem e
+cria um lote novo que aponta para ele (RN-77). O que se ganha é a pergunta que o viveiro nunca
+pôde responder: **de cada mil sementes semeadas, quantas mudas chegaram à venda?** A resposta é
+percorrer a cadeia de `parent_batch_id` e comparar as pontas.
 
-**`stock_counts` não contradiz isso.** Não armazena o estoque: armazena o **evento de contagem
-física**, com data e responsável. Quando a contagem diverge do calculado, prevalece a contagem, e a
-divergência fica registrada, porque ela própria é informação: indica registro de produção ou de perda
-que não foi feito.
+**`current_quantity` é redundante com `batch_movements`, e a redundância é deliberada.** O saldo
+poderia ser somado dos movimentos a cada leitura, e é assim que o estoque de espécie funciona.
+Aqui não: a tela de ocupação lê o saldo de todos os lotes abertos a cada abertura, no celular, em
+rede instável. O saldo materializado é mantido pelo banco na mesma transação do movimento, e
+`batch_movements` é a fonte que o audita. É a única quantidade materializada do modelo, e está
+declarada como exceção justamente porque o resto do sistema segue a regra oposta.
 
-**A causa da perda é lista fechada**: seca, praga, geada, manuseio, outro. Não é campo de texto por
-decisão explícita: causa digitada à mão inviabiliza a análise por causa, que é justamente o que o
-indicador de mortalidade precisa produzir.
+#### Agenda e apontamento: o planejado e o realizado
 
-**`quantity` em `loss_events` é a unidade de mortalidade.** A taxa é a razão entre a soma das perdas e
-a soma da produção do período, por espécie, e é dela que decorre o alerta acima de 20%, que é regra
-de negócio e não configuração de painel.
+**`assignments` é o planejado e `task_executions` é o realizado.** A separação já existia; o que
+mudou nesta revisão é que ambos deixaram de ser uma linha por pessoa e por dia.
+
+**`assignments` perdeu `party_id` para `assignment_members`.** Uma tarefa admite vários executores,
+e o mesmo turno admite duas tarefas com grupos diferentes (RN-84): metade da equipe enchendo
+saquinho enquanto a outra metade repica é a norma. Com `party_id` na própria atribuição, escalar
+quatro pessoas na mesma tarefa criaria quatro atribuições idênticas, e a tarefa deixaria de ser
+uma coisa só para virar quatro coisas parecidas.
+
+**`assignments.shift` virou `shift_id`.** O turno deixou de ser o texto `manha`/`tarde` e passou a
+apontar para `work_shifts`, no módulo 1, que carrega a hora de início e de fim. É de lá que sai a
+duração do turno que a RN-48 usa: o valor de quatro horas saiu do enunciado da regra e virou
+parâmetro (RN-85).
+
+**`task_executions` tem `started_at` e `ended_at`, e `ended_at` nulo significa tarefa em curso.**
+É o que sustenta o cartão do funcionário na agenda do dia. Uma pessoa faz uma tarefa por vez
+(RN-83), e o banco garante isso com **índice único parcial sobre `party_id` onde `ended_at` é
+nulo**: não é validação de aplicação, porque duas telas abertas ao mesmo tempo a burlariam, e
+duas tarefas abertas contariam a mesma hora duas vezes.
+
+**`task_executions` substituiu `production_activities`, e não é renomeação cosmética.** A entidade
+antiga registrava um fato consumado (espécie, recipiente, quantidade, data) e classificava-o por
+`activity_type`, uma segunda lista fechada que duplicava o catálogo de `task_types`. A nova
+registra um **intervalo de trabalho** de uma pessoa, classificado pelo próprio catálogo. A
+entidade antiga nunca chegou ao banco, então a troca não custou migração de dado.
+
+**`quantity` é opcional, e é o catálogo que decide se ela é pedida.** Tarefa medida por tempo
+encerra sem número algum; tarefa medida por saco ou por tubete pede a contagem (RN-81). Quem
+declara isso é `task_types.measurement_type`, no módulo 1: o formulário não sabe nada por conta
+própria.
+
+**`client_id` repete em `task_executions` a solução já adotada em `input_usages`**: chave gerada no
+aparelho antes do primeiro envio, que torna o reenvio idempotente (RNF-05). Apontamento duplicado
+inflaciona horas, que é o número que o custeio existe para apurar.
+
+#### Insumo: entrada, consumo e saldo
+
+**`input_usages` ganhou `task_execution_id` e `batch_id`, e afrouxou `species_id` e
+`container_id`.** O consumo passa a nascer dentro do encerramento da tarefa (RN-87), e quando há
+lote, espécie e recipiente vêm dele: pedi-los de novo seria pedir duas vezes o mesmo dado. Os dois
+campos continuam existindo para o registro avulso, que é como a tela de campo funciona hoje e
+continua funcionando.
+
+**`input_stock_entries` guarda só o que entra.** Compra, ajuste de inventário e perda de estoque.
+A saída é o próprio `input_usages`, e o **saldo é a visão `input_stock_balance`**: entradas menos
+consumo. Não há campo de saldo em `inputs`, pelo mesmo motivo que não há para muda: guardar o
+número cria duas verdades sobre ele (RN-88).
+
+> **Por que o insumo não segue a exceção do lote.** `batches.current_quantity` é materializado
+> porque a tela de ocupação lê centenas de saldos de uma vez, em campo. O saldo de insumo é lido
+> em dezenas, de escritório: não paga o custo de manter uma segunda verdade.
+
+**`task_expenses` é o gasto extra da tarefa**, e liga a Produção ao Financeiro por
+`cost_centers`. É custo **direto** do lote trabalhado, não custo fixo rateado (RN-89): quem pagou
+por ele foi aquela leva.
+
+#### O que não mudou
+
+**O estoque continua não sendo entidade.** É quantidade derivada: produção registrada, menos
+perdas, menos o que saiu em pedidos aprovados. Modelá-lo como entidade criaria duas verdades sobre
+o mesmo número, a calculada e a armazenada, que divergiriam ao primeiro registro esquecido. A
+decisão está declarada desde o [glossário](../A-fundacao/A2-glossario-dominio.md), na lista de
+termos deliberadamente não adotados. O lote **não** contradiz isso: ele não é o estoque, é a leva,
+e o estoque da espécie continua sendo a soma dos lotes abertos dela menos o que saiu.
+
+**`stock_counts` continua armazenando o evento de contagem, não o estoque.** Ganhou `batch_id`
+porque agora se conta um canteiro, que é como a contagem física de fato acontece. Quando diverge do
+calculado, prevalece a contagem, e a divergência vira um movimento de ajuste no lote: ela própria é
+informação, indica registro de produção ou de perda que não foi feito.
+
+**A causa da perda continua sendo lista fechada**: seca, praga, geada, manuseio, outro. Causa
+digitada à mão inviabiliza a análise por causa, que é o que o indicador de mortalidade precisa
+produzir. `loss_events` ganhou `batch_id`, e com ele a perda passou a ter **lugar** sem ganhar
+campo: o formulário de campo continua com quatro campos, e o lote carrega espécie, recipiente e
+canteiro de uma vez ([`C2`](C2-especificacao-casos-de-uso.md), UC-17).
+
+**`quantity` em `loss_events` continua sendo a unidade de mortalidade.** A taxa é a razão entre a
+soma das perdas e a soma da produção do período, e é dela que decorre o alerta acima de 20%, que é
+regra de negócio e não configuração de painel. Com lote, a mesma taxa passa a ser calculável **por
+leva**, e não só por espécie: é onde a regra ganha poder de apontar qual plantio deu errado.
+
+**`input_usages` continua sendo a entidade de maior volume de escrita do sistema**, e a que mais
+depende do funcionamento sem conexão. Está no módulo do colaborador, não no do dinheiro, porque
+quem a preenche é quem está com as mãos na terra.
 
 ### 3.4 Módulo 3 · Comercial
 

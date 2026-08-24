@@ -40,6 +40,11 @@ banco de dados usam o equivalente em **inglês**, indicado entre parênteses qua
 | **Causa da perda** | Motivo da perda, em lista fechada: seca, praga, geada, manuseio, outro. Lista fechada é requisito, campo livre inviabiliza a análise por causa. | - | **Causa** |
 | **Mortalidade** | Razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de **20%** dispara alerta, é regra de negócio, não convenção de interface. | "perda", "quanto morreu" | **Taxa de mortalidade** |
 | **Coleta de sementes** | Atividade de obtenção de sementes em campo, com custo próprio de deslocamento e mão de obra que compõe o custo da espécie. Nem toda espécie tem semente comprada. | "buscar semente" | **Coleta de sementes** |
+| **Lote** | **Leva de mudas da mesma espécie, no mesmo recipiente, plantada junta e ocupando um canteiro.** É a unidade de rastreamento da produção: onde a muda está, de onde veio e quanto sobrou dela. Um lote ocupa **um** canteiro; leva que não cabe em um canteiro é outro lote. | "a leva", "aquele canteiro de ipê" | **Lote** (`batch`) |
+| **Lote de origem** | Lote do qual outro nasceu. A repicagem para recipiente maior **não move** o lote: encerra parte do lote de origem e cria um lote novo que aponta para ele. É o que permite saber quanto de uma leva sobreviveu até a venda. | "veio daquele tubete" | **Lote de origem** (`parent_batch`) |
+| **Área** | Divisão física do viveiro, identificada por **letra** (A, B, C…). Contém canteiros. | "área A", "lá em cima" | **Área** (`area`) |
+| **Canteiro** | Subdivisão da área, identificada por **número** dentro dela, de 1 até o máximo daquela área. O endereço de uma muda no viveiro é o par letra da área + número do canteiro. | "canteiro 4", "o quatro da B" | **Canteiro** (`bed`) |
+| **Classificação** | Atividade de separar, dentro de um lote, as mudas mortas das vivas e as maiores das menores. Ocorre em dois momentos: **pós-germinação** e **seleção**, esta quando a muda troca de bandeja. A parte morta vira perda do lote no mesmo registro. | "classificar", "escolher" | **Classificação** |
 
 ## 2. Recipientes e medidas
 
@@ -106,6 +111,15 @@ banco de dados usam o equivalente em **inglês**, indicado entre parênteses qua
 | **Formulário de campo** | Tela projetada para uso em ambiente de trabalho, sob as restrições de no máximo cinco campos, listas fechadas em vez de campo aberto, botões grandes e resposta visual imediata. | - | **Formulário de campo** |
 | **Uso offline** | Capacidade de registrar dados sem conexão, com envio posterior automático. Necessário porque a conexão no viveiro é instável. | "sem internet" | **Uso offline** |
 
+## 6. Trabalho e agenda
+
+| Termo | Definição | Como a empresa chama | Forma canônica |
+|---|---|---|---|
+| **Turno** | Metade do dia de trabalho, **manhã** ou **tarde**. É a unidade de planejamento da agenda: o viveiro nunca planejou por hora marcada. A hora de início e de fim de cada turno é **parâmetro mantido no sistema**, não constante de código, e é dela que sai a duração do turno. | "de manhã", "de tarde" | **Turno** (`work_shift`) |
+| **Tarefa** | Tipo de trabalho do viveiro, em catálogo fechado, agrupado em seis categorias: **semente, terra, plantio, manutenção, pós-morte, expedição**. Cada tarefa é medida **por tempo** ou **por quantidade de recipientes** (saco ou tubete); a medição por quantidade também mede o tempo. | "serviço", "função" | **Tipo de tarefa** (`task_type`) |
+| **Atribuição** | O que a gerência planejou: uma tarefa, num dia, num turno, para um ou mais funcionários. É a célula da agenda. Planejamento, ainda não trabalho feito. | "o que tá marcado" | **Atribuição** (`assignment`) |
+| **Apontamento** | O registro de que um funcionário **começou** e **terminou** uma tarefa, com hora. Uma pessoa faz uma tarefa por vez: começar outra encerra a anterior. É o realizado, contra a atribuição, que é o planejado. | "apontar", "tá fazendo o quê" | **Apontamento** (`task_execution`) |
+
 ---
 
 ## Termos deliberadamente não adotados
@@ -115,10 +129,16 @@ Registrar o que **não** entra no vocabulário evita que reapareça em revisões
 | Termo evitado | Motivo |
 |---|---|
 | **Produto** | Ambíguo entre a espécie e o par espécie + recipiente. Usar sempre o termo específico. |
-| **Lote** | Usado oralmente para designar coisas distintas, uma leva de semeadura, um conjunto à venda, uma carga. Enquanto não houver rastreamento formal de leva de produção, o termo fica fora da especificação. |
 | **Estoque** (como entidade) | Estoque é uma **quantidade derivada** de produção menos perdas menos vendas, não uma entidade própria. Tratá-lo como entidade cria duas verdades sobre o mesmo número. |
 | **Usuário** (como sinônimo de perfil) | Usuário é a pessoa; perfil é o papel. Um não substitui o outro. |
 | **Cadastro** | Genérico demais. Usar o nome da entidade: cadastro de cliente, de espécie, de fornecedor. |
+
+> **"Lote" saiu desta lista.** Ficou fora do vocabulário até 24/08/2026 justamente pela ambiguidade
+> registrada aqui: a mesma palavra designava uma leva de semeadura, um conjunto à venda e uma
+> carga. O levantamento da rotina de produção desfez a ambiguidade ao amarrar o termo a um
+> canteiro e a uma leva plantada junta, e a partir daí ele passou a ter definição única, na
+> seção 1. O conjunto à venda continua sendo **item de pedido**, e a carga continua sendo
+> **carga**: são os dois sentidos que a palavra deixou de carregar.
 
 ---
 

@@ -34,19 +34,19 @@ São documentos de projeto, não relatórios de código.
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito: 79 RF, 26 RNF |
-| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | 4.3 Regras de negócio | ✅ escrito: 65 regras, 75 dos 79 RF vinculados |
+| [B2](B-requisitos/B2-especificacao-requisitos.md) | Especificação de Requisitos (ERS) | 4.2 Requisitos do sistema | ✅ escrito: 105 RF, 26 RNF |
+| [B3](B-requisitos/B3-regras-de-negocio.md) | Regras de negócio e vínculo com os requisitos | 4.3 Regras de negócio | ✅ escrito: 82 regras, 101 dos 105 RF vinculados |
 | [B4](B-requisitos/B4-quadros-tcc.md) | Quadros de regras de negócio e requisitos | Apêndice D | ✅ escrito: 13 quadros, transcritos de B2 e B3 |
-| [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.10 + Apêndice | ✅ escrito: revelou 25 lacunas fechadas + 7 requisitos *deve ter* sem teste, em aberto |
+| [B5](B-requisitos/B5-matriz-rastreabilidade.md) | Matriz de rastreabilidade | 4.10 + Apêndice | ✅ escrito: revelou 25 lacunas fechadas; a de teste da agenda fechou em 24/08 |
 
 ### C: Modelagem UML e de dados
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.4 Modelagem do sistema | ✅ escrito: 45 casos de uso |
-| [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.4 + Apêndice | ✅ escrito: 8 casos detalhados |
-| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.5 Modelagem de dados | ✅ escrito: 46 entidades nos quatro módulos |
-| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.5 + Apêndice | ✅ escrito: 46 entidades + 1 visão |
+| [C1](C-modelagem/C1-diagrama-casos-de-uso.md) | Diagrama de casos de uso | 4.4 Modelagem do sistema | ✅ escrito: 55 casos de uso |
+| [C2](C-modelagem/C2-especificacao-casos-de-uso.md) | Especificação de casos de uso | 4.4 + Apêndice | ✅ escrito: 12 casos detalhados |
+| [C6](C-modelagem/C6-modelo-entidade-relacionamento.md) | MER e DER | 4.5 Modelagem de dados | ✅ escrito: 55 entidades nos quatro módulos |
+| [C8](C-modelagem/C8-dicionario-de-dados.md) | Dicionário de dados | 4.5 + Apêndice | ✅ escrito: 55 entidades + 2 visões |
 
 ### D: Arquitetura e decisões técnicas
 
@@ -54,13 +54,13 @@ São documentos de projeto, não relatórios de código.
 |---|---|---|---|
 | [D1](D-arquitetura/D1-arquitetura-c4.md) | Documento de arquitetura (C4) | 4.6 Arquitetura da solução | ✅ escrito: 3 níveis C4 |
 | [D3](D-arquitetura/D3-diagrama-implantacao.md) | Diagrama de implantação | 4.6 Arquitetura da solução | ✅ escrito |
-| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.7 Segurança e controle de acesso | ✅ escrito: 32 recursos, agrupados nos quatro módulos |
+| [D4](D-arquitetura/D4-matriz-rbac.md) | Matriz RBAC | 4.7 Segurança e controle de acesso | ✅ escrito: 39 recursos, agrupados nos quatro módulos |
 
 ### E: Qualidade, riscos e segurança
 
 | Código | Artefato | Destino no TCC | Situação |
 |---|---|---|---|
-| [E2](E-qualidade/E2-casos-de-teste-de-aceite.md) | Casos de teste de aceite | 4.8 + Apêndice | ✅ escrito: 58 casos |
+| [E2](E-qualidade/E2-casos-de-teste-de-aceite.md) | Casos de teste de aceite | 4.8 + Apêndice | ✅ escrito: 84 casos |
 | [E3](E-qualidade/E3-analise-de-riscos.md) | Análise de riscos do projeto | **Capítulo 3** (metodologia) | ✅ escrito: 10 riscos |
 | [E4](E-qualidade/E4-modelagem-de-ameacas.md) | Modelagem de ameaças e controles | 4.7 Segurança e controle de acesso | ✅ escrito: 11 ameaças |
 | [E5](E-qualidade/E5-mapeamento-lgpd.md) | Mapeamento LGPD | 4.7 + parágrafos novos no Cap. 2.5 | ✅ escrito |

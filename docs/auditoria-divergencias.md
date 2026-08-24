@@ -25,6 +25,7 @@
 | [I](#i--o-que-não-é-divergência) | 46 entidades especificadas × 28 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 | [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
+| [L](#l-lote-excluído-em-três-documentos-e-assumido-num-plano-24082026) | "Lote" fora de escopo em `A1`, `A2` e `C2`, e assumido pelo `P2` | ✅ resolvido 24/08 |
 
 ---
 
@@ -428,3 +429,50 @@ em 45 entidades, quando são 46 desde que a precificação entrou.
 no banco, e a distinção é a primeira pergunta de quem lê o modelo ao lado do sistema. O `C6` ganhou
 a seção §2.1 e o `C8` a seção "Recorte implementado", ambas com a mesma conta (28 no banco, 18 só
 especificadas), e o `C8` marca a condição entidade por entidade.
+
+---
+
+## L: "Lote" excluído em três documentos e assumido num plano (24/08/2026)
+
+🔴 **Divergência de escopo, não de redação.** Quatro documentos diziam coisas incompatíveis sobre a
+mesma palavra:
+
+| Documento | O que dizia |
+|---|---|
+| `A1` §7 | "Controle de lotes de produção rastreáveis individualmente" **fora de escopo** |
+| `A2`, termos não adotados | "Lote" **fora da especificação**, por ambiguidade |
+| `C2` UC-17 | registrar o **local da perda** dentro do viveiro **descartado** |
+| `plans/P2` T2.1-T2.7 | especifica `batches`, `batch_counts`, `mortality_thresholds` e as telas `/producao/lotes/*` |
+
+O `CLAUDE.md` §Banco de dados ainda cita `batches` como exemplo de nomenclatura de tabela, e
+`rotinas/2-producao/00-visao-geral.md` lista "Acompanhamento de lotes" como a terceira subrotina,
+com o documento marcado "(a fazer)". Ou seja: metade dos artefatos trabalhava com lote e a outra
+metade o proibia, e ninguém tinha percebido porque **nenhum dos dois lados chegou ao código**.
+
+Passou pelas três primeiras passadas sem ser vista porque cada passada conferiu **documento contra
+banco**, e lote não existe nem num nem noutro. A divergência era **entre documentos**, e só
+apareceu quando o levantamento da rotina de produção pediu a entidade.
+
+### Resolução: o escopo abriu
+
+Decisão do dia 24/08/2026, com a justificativa gravada no próprio `A1` §7 e não como apagamento
+silencioso da linha. Os dois termos da justificativa original caíram:
+
+1. **"Disciplina de registro incompatível"**: o viveiro já planta por leva e já sabe dizer de
+   cabeça o que está em cada canteiro. O que falta é o registro escrito. E o lote é **escolhido**
+   de uma lista de canteiros ocupados, não digitado, então não acrescenta digitação ao campo.
+2. **"Agregado por espécie e recipiente basta"**: não basta. Sem lote não se diz onde a muda está,
+   a mortalidade só se mede sobre a espécie inteira (esvaziando RN-17) e a repicagem vira uma soma
+   que entra e outra que sai, sem ligação entre as duas.
+
+O limite não sumiu, subiu de altura: **o rastreamento vai até o lote, nunca até a muda**. O `A1`
+§7 passou a excluir "rastreamento individual da muda".
+
+**UC-17 não foi revertido, foi resolvido.** O caso rejeitava pedir o *local* da perda porque
+acrescentaria um quinto campo a um formulário de campo de quatro. Com lote, o local **vem do
+lote**: o formulário continua com quatro campos, e um deles troca de "espécie + recipiente" para
+"lote", que já carrega os dois.
+
+`plans/P2` deixa de estar à frente dos documentos: as tabelas que ele previa entram no modelo com
+nomes reconciliados (`batches` + `batch_movements`, no lugar de `batches` + `batch_counts`), e a
+contagem física de lote passa a ser `stock_counts` com `batch_id`, sem entidade paralela.

@@ -45,28 +45,36 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 ## Recorte implementado
 
-Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 46
-entidades, **28 existem no banco** (mais a visão `species_unit_cost`) e **18 estão especificadas e
+Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 55
+entidades, **28 existem no banco** (mais a visão `species_unit_cost`) e **27 estão especificadas e
 ainda não implementadas**. A distinção é registrada entidade por entidade, e não é defeito de
 modelagem: o modelo responde à especificação completa de requisitos, e a construção segue a
 priorização declarada em [`B2`](../B-requisitos/B2-especificacao-requisitos.md).
 
 | Módulo | No banco | Só especificadas |
 |---|---:|---:|
-| *(transversal)* Acesso | 4 | 0 |
-| 1 · Cadastros | 12 | 1 |
-| 2 · Produção | 2 | 5 |
+| *(transversal)* Acesso | 4 | 1 |
+| 1 · Cadastros | 12 | 4 |
+| 2 · Produção | 2 | 10 |
 | 3 · Comercial | 8 | 0 |
 | 4 · Financeiro | 2 | 12 |
-| **Total** | **28** | **18** |
+| **Total** | **28** | **27** |
 
-As 18 pendentes: `task_types`, `production_activities`, `loss_events`, `stock_counts`,
-`week_plans`, `assignments`, `labor_rates`, `sale_channels`, `sale_prices` e as nove do esquema
-`financeiro` (`accounts`, `cost_centers`, `category_groups`, `categories`, `statement_imports`,
-`transactions`, `transaction_splits`, `classification_rules`, `periods`).
+As 27 pendentes: `settings`, `task_types`, `areas`, `beds`, `work_shifts`, `batches`,
+`batch_movements`, `input_stock_entries`, `task_executions`, `assignment_members`, `task_expenses`,
+`loss_events`, `stock_counts`, `week_plans`, `assignments`, `labor_rates`, `sale_channels`,
+`sale_prices` e as nove do esquema `financeiro` (`accounts`, `cost_centers`, `category_groups`,
+`categories`, `statement_imports`, `transactions`, `transaction_splits`, `classification_rules`,
+`periods`). A visão `input_stock_balance` acompanha `input_stock_entries`.
 
-Dois atributos de entidade já existente estão na mesma condição: `users.party_id`, e o par
-`order_items.unit_price` / `order_items.sale_price_id`, que depende de `sale_prices`.
+**Nove das 27 entraram em 24/08/2026**, com a revisão de escopo que trouxe o lote
+([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). A Produção passou a ser o módulo mais
+especificado e o menos construído, dez de doze no papel: é o módulo cuja construção depende de a
+equipe mudar de hábito, e não só de haver tela.
+
+Quatro atributos de entidade já existente estão na mesma condição: `users.party_id`, o par
+`order_items.unit_price` / `order_items.sale_price_id`, que depende de `sale_prices`, e o par
+`input_usages.task_execution_id` / `input_usages.batch_id`.
 
 ---
 
@@ -109,6 +117,35 @@ Dois atributos de entidade já existente estão na mesma condição: `users.part
 | `success` | boolean | ● | | Resultado da tentativa |
 | `ip` | text | ○ | | Endereço de origem |
 | `user_agent` | text | ○ | | Dispositivo e navegador |
+
+## `settings`: parâmetro do sistema
+
+*Especificada, não implementada no protótipo.*
+
+Parâmetro escalar em chave e valor tipado. Existe para tirar do código e da variável de ambiente
+o que **é regra de negócio e não infraestrutura**: quem decide o limiar de mortalidade, as
+coordenadas do viveiro ou a margem mínima de revenda é a chefia, e hoje mudar qualquer um deles
+exige uma implantação.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `key` | text | ● | UK | Chave estável do parâmetro, em minúsculas com ponto: `producao.mortalidade_limite_pct` |
+| `value` | text | ● | | Valor, sempre em texto |
+| `value_type` | text | ● | | Tipo em **lista fechada**: `texto`, `numero`, `booleano`, `data`. Diz como interpretar `value` |
+| `description` | text | ● | | O que o parâmetro governa, em português, para a tela de configurações |
+| `updated_at` | timestamptz | ● | | Momento da última alteração |
+| `updated_by` | uuid | ○ | FK → `users` | Quem alterou |
+
+> **Onde está a fronteira entre `settings` e cadastro.** Parâmetro que é **um valor** mora aqui.
+> Parâmetro que é **uma lista de coisas com atributos** vira entidade: foi o caso de
+> `financeiro.cost_centers`, e é o caso do período de trabalho, que virou `work_shifts` no módulo
+> 1 em vez de quatro chaves aqui. A regra de corte é a dos Cadastros: se apagar deixa um movimento
+> passado sem sentido, é entidade.
+
+> **`value` é texto e `value_type` diz como lê-lo.** A alternativa, uma coluna por tipo, deixaria
+> três nulas em toda linha. O tipo declarado é o que permite a tela de configurações apresentar o
+> campo certo e validar antes de gravar.
 
 ## `notifications`: notificação interna
 
@@ -328,21 +365,208 @@ Dois atributos de entidade já existente estão na mesma condição: `users.part
 
 *Especificada, não implementada no protótipo.*
 
-Vocabulário fechado da agenda de pessoal (RF-70). O tempo médio por unidade é o que liga a tarefa
-de campo ao custo de mão de obra.
+Vocabulário fechado da agenda e do apontamento (RF-70). **É o catálogo que comanda o formulário**:
+os três `requires_*` e o `measurement_type` decidem o que a tela pede em cada tarefa (RF-82). O
+tempo médio por unidade é o que liga a tarefa de campo ao custo de mão de obra.
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `name` | text | ● | | Nome da tarefa: semeadura, repicagem, irrigação, adubação, separação |
-| `category` | text | ● | | Agrupamento para leitura da agenda |
-| `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição exige espécie |
-| `requires_container` | boolean | ● | | Quando verdadeiro, a atribuição exige recipiente |
-| `unit_of_measure` | text | ○ | | Unidade do que se produz na tarefa (muda, bandeja, metro) |
+| `name` | text | ● | | Nome da tarefa: semear, repicar, encher saquinho, limpar mato, separar mudas |
+| `category` | text | ● | | Categoria em **lista fechada**: `semente`, `terra`, `plantio`, `manutencao`, `pos_morte`, `expedicao` (RN-80) |
+| `measurement_type` | text | ● | | Forma de medição em **lista fechada**: `tempo`, `saco`, `tubete`. Decide se o encerramento pede contagem além do relógio (RN-81) |
+| `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição e o apontamento exigem espécie |
+| `requires_container` | boolean | ● | | Quando verdadeiro, exigem recipiente |
+| `requires_batch` | boolean | ● | | Quando verdadeiro, exigem lote, e com ele o canteiro (RN-82) |
 | `avg_minutes_per_unit` | numeric | ○ | | Tempo médio por unidade; alimenta a estimativa de custo |
 | `active` | boolean | ● | | Tipo em uso |
 
+> **`unit_of_measure` saiu da entidade.** Era texto livre ("muda", "bandeja", "metro") e não
+> decidia comportamento algum: quem decide o que a tela pede é `measurement_type`, que é lista
+> fechada. Guardar os dois seria manter a mesma informação em dois graus de rigor, e na hora de
+> programar o mais frouxo venceria. A entidade nunca chegou ao banco: a troca não custou migração.
+
+> **Toda tarefa mede tempo.** O apontamento tem início e fim sempre (`task_executions`), e
+> `measurement_type` só diz se **também** se conta quanto foi feito. Por isso os valores são
+> `tempo`, `saco` e `tubete`, e não "tempo *ou* quantidade": a pergunta do viveiro é "quantos fez
+> em quantas horas", e `saco` e `tubete` respondem as duas metades.
+
+**Carga inicial: as 22 tarefas do viveiro.** O catálogo nasce preenchido, e não vazio, porque tipo
+de tarefa digitado por quem monta a agenda produziria "limpar mato", "limpeza de mato" e "capina"
+como três tarefas distintas, e a soma de horas por tarefa deixaria de existir.
+
+| Categoria | Tarefas | Medição | Exige lote |
+|---|---|---|:--:|
+| `semente` | Colher semente · Beneficiar semente · Semear | tempo | não |
+| `terra` | Fazer substrato | tempo | não |
+| `terra` | Encher saquinho | saco | não |
+| `terra` | Encher tubete | tubete | não |
+| `plantio` | Encanteirar saco · Plantar no saquinho | saco | **sim** |
+| `plantio` | Plantar no tubete | tubete | **sim** |
+| `manutencao` | Classificar pós-germinação · Classificar seleção · Repicar · Limpar mato | tubete | **sim** |
+| `manutencao` | Aplicação de adubo · Aplicação de fungicida · Irrigação | tempo | não |
+| `pos_morte` | Limpar canteiro · Replantar no saco | tempo | **sim** |
+| `pos_morte` | Limpar saco · Limpar tubete | tempo | não |
+| `expedicao` | Separar mudas | tempo | **sim** |
+| `expedicao` | Carregar | tempo | não |
+
+> **Semear não exige lote, e plantar exige.** É o ponto em que a leva ganha endereço: a semente vai
+> para bandeja de germinação, que não é canteiro. O lote nasce no plantio, e "classificar
+> pós-germinação", que já exige lote, ocorre depois dele.
+
+> **Classificar aparece duas vezes** porque são dois momentos com propósitos distintos:
+> *pós-germinação* separa o que germinou do que não germinou, e *seleção* separa as maiores das
+> menores quando trocam de bandeja. Ambas produzem perda no mesmo gesto (RN-90).
+
+## `areas`: área do viveiro
+
+*Especificada, não implementada no protótipo.*
+
+Divisão física do viveiro, identificada por letra. É a primeira metade do endereço de uma muda
+(RN-74).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `letter` | text | ● | UK | Letra da área: A, B, C. Única |
+| `name` | text | ○ | | Nome pelo qual a equipe se refere a ela, quando houver |
+| `notes` | text | ○ | | Observação |
+| `active` | boolean | ● | | Área em uso |
+
+## `beds`: canteiro
+
+*Especificada, não implementada no protótipo.*
+
+Subdivisão da área, numerada dentro dela. É a segunda metade do endereço, e o que a tarefa de campo
+pede para ser executada.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `area_id` | uuid | ● | FK → `areas` | Área a que pertence |
+| `number` | integer | ● | UK | Número dentro da área. Restrição: maior que zero |
+| `capacity` | integer | ○ | | Quantas mudas o canteiro comporta; serve de aviso ao criar lote, não de trava |
+| `notes` | text | ○ | | Observação |
+| `active` | boolean | ● | | Canteiro em uso |
+
+> **A unicidade é do par (`area_id`, `number`), não do número sozinho.** A numeração recomeça em
+> cada área: existe o canteiro 4 da área A e o canteiro 4 da área B, e são dois lugares diferentes.
+> É o vocabulário que a equipe já usa apontando com o dedo.
+
+> `capacity` não trava a criação de lote de propósito. O viveiro sabe apertar mais do que a conta
+> quando precisa, e uma trava aqui faria a gerência registrar o lote no canteiro errado para
+> conseguir registrá-lo.
+
+## `work_shifts`: turno de trabalho
+
+*Especificada, não implementada no protótipo.*
+
+O **período de trabalho** (RF-83). Existe para tirar de dentro do código o número que a RN-48
+trazia no próprio enunciado: um turno valia quatro horas por convenção, e convenção que muda com a
+estação e com a combinação da equipe é dado, não constante (RN-85).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `code` | text | ● | UK | Código estável: `manha`, `tarde` |
+| `name` | text | ● | | Nome exibido |
+| `start_time` | time | ● | | Hora de início |
+| `end_time` | time | ● | | Hora de término. Restrição: posterior a `start_time` |
+| `sort_order` | integer | ● | | Ordem de exibição no dia |
+| `active` | boolean | ● | | Turno em uso |
+
+> **A duração do turno é derivada**, `end_time` menos `start_time`, e não campo. Guardá-la
+> permitiria que ela divergisse dos horários que a própria linha declara.
+
+> **`code` é estável e `name` é editável.** A agenda e o apontamento referenciam o turno por
+> `shift_id`, mas relatório e carga inicial precisam de um identificador que sobreviva a alguém
+> renomear "Manhã" para "Manhã (verão)".
+
 # Módulo 2 · Produção
+
+## `batches`: lote
+
+*Especificada, não implementada no protótipo.*
+
+**A leva de mudas da mesma espécie, no mesmo recipiente, plantada junta e ocupando um canteiro**
+(RN-75). É a entidade que diz *onde* a muda está e *de que leva* ela veio: até 24/08/2026 o modelo
+respondia o que a muda era e não onde estava. A revisão de escopo está justificada em
+[`A1`](../A-fundacao/A1-documento-de-visao.md) §7.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `code` | text | ● | UK | Código legível, gerado pelo sistema: ano, área, canteiro e sequência |
+| `species_id` | uuid | ● | FK → `species` | Espécie da leva |
+| `container_id` | uuid | ● | FK → `containers` | Recipiente, que define o porte da muda |
+| `bed_id` | uuid | ○ | FK → `beds` | Canteiro ocupado. Nulo quando o lote está encerrado |
+| `parent_batch_id` | uuid | ○ | FK → `batches` | Lote de origem, quando este nasceu de uma repicagem (RN-77) |
+| `initial_quantity` | integer | ● | | Quantidade que entrou. Restrição: maior que zero |
+| `current_quantity` | integer | ● | | Saldo vivo. Restrição: não negativo (RN-78). **Mantido pelo banco** na mesma transação do movimento |
+| `stage` | text | ● | | Fase em **lista fechada**: `semeado`, `germinado`, `repicado`, `crescimento`, `rustificacao`, `pronto`, `encerrado` |
+| `planted_at` | date | ● | | Data em que a leva foi plantada no canteiro |
+| `expected_ready_at` | date | ○ | | **Derivado**: `planted_at` mais o tempo de produção da espécie. Fica nulo quando a espécie não o tem cadastrado |
+| `closed_at` | timestamptz | ○ | | Momento do encerramento; a partir dele o lote sai da ocupação |
+| `notes` | text | ○ | | Observação |
+
+> **Um lote ocupa um canteiro** (RN-76). Leva que não cabe em um canteiro é outro lote, e não o
+> mesmo lote espalhado. A alternativa, uma entidade de ocupação com quantidade por canteiro,
+> custaria um nível de indireção em toda tela que pede lote, para representar o que dois lotes já
+> representam. E a pergunta da operação é "o que tem neste canteiro", que um lote por canteiro
+> responde sem junção.
+
+> **`bed_id` é opcional apenas para o lote encerrado.** Enquanto aberto, todo lote tem canteiro:
+> lote sem lugar é a situação que a entidade existe para eliminar. Ao encerrar, o canteiro é
+> liberado para o próximo (RN-79), e o histórico do lote permanece consultável pelos movimentos.
+
+> **`current_quantity` é a única quantidade materializada do modelo, e a exceção é declarada.** O
+> saldo poderia ser somado de `batch_movements` a cada leitura, como o estoque de espécie faz. Aqui
+> não: a tela de ocupação lê o saldo de todos os lotes abertos de uma vez, no celular, em rede
+> instável. O banco o mantém na mesma transação do movimento, e `batch_movements` é a fonte que o
+> audita: divergência entre os dois é defeito detectável, não ambiguidade de modelo.
+
+> **`parent_batch_id` é o que a repicagem produz.** A muda que passa do tubete para o saco mudou de
+> recipiente, e recipiente define produto, custo e preço: comercialmente, virou outra coisa. Por
+> isso a repicagem não move o lote, baixa parte do de origem e cria um novo apontando para ele.
+> Percorrer a cadeia responde **de cada mil sementes semeadas, quantas mudas chegaram à venda**,
+> que é a pergunta que o viveiro nunca pôde responder.
+
+## `batch_movements`: movimento de lote
+
+*Especificada, não implementada no protótipo.*
+
+O razão que explica o saldo do lote. Toda alteração de `batches.current_quantity` tem uma linha
+aqui, com motivo e origem.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `batch_id` | uuid | ● | FK → `batches` | Lote movimentado |
+| `movement_type` | text | ● | | Motivo em **lista fechada**: `entrada`, `perda`, `repicagem_saida`, `repicagem_entrada`, `venda`, `ajuste_contagem`, `transferencia` |
+| `quantity` | integer | ● | | Quantidade movimentada, com sinal: positiva na entrada, negativa na saída |
+| `movement_date` | date | ● | | Data do movimento |
+| `from_bed_id` | uuid | ○ | FK → `beds` | Canteiro de origem, só em `transferencia` |
+| `to_bed_id` | uuid | ○ | FK → `beds` | Canteiro de destino, só em `transferencia` |
+| `task_execution_id` | uuid | ○ | FK → `task_executions` | Apontamento que o originou, quando veio de uma tarefa |
+| `loss_event_id` | uuid | ○ | FK → `loss_events` | Perda que o originou |
+| `stock_count_id` | uuid | ○ | FK → `stock_counts` | Contagem física que o originou |
+| `recorded_by` | uuid | ● | FK → `users` | Quem registrou |
+| `notes` | text | ○ | | Observação |
+
+> **As três origens são exclusivas entre si e todas opcionais.** Movimento sem origem é o ajuste
+> manual da gerência, que existe e precisa caber. Prendê-lo a uma origem obrigatória faria a
+> correção de um erro de digitação ser impossível sem inventar uma perda que não houve.
+
+> **A repicagem grava dois movimentos**, `repicagem_saida` no lote de origem e `repicagem_entrada`
+> no de destino, e a diferença entre eles, quando houver, é uma `perda` no lote de origem (RN-90).
+> A soma "repicadas mais perdidas" tem de igualar a quantidade que saiu: sem isso a diferença
+> viraria evaporação silenciosa, e a mortalidade ficaria subestimada exatamente na etapa que mais
+> mata.
+
+> **`transferencia` muda o canteiro sem mudar o lote.** É o caso em que a mesma leva é remanejada
+> de lugar sem trocar de recipiente, e por isso não gera lote filho: quem muda é o endereço, não a
+> identidade. `quantity` é zero nesse movimento, e `from_bed_id` e `to_bed_id` carregam o que
+> mudou.
 
 ## `input_usages`: consumo de insumo
 
@@ -350,15 +574,27 @@ de campo ao custo de mão de obra.
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `input_id` | uuid | ● | FK → `inputs` | Insumo aplicado |
-| `species_id` | uuid | ● | FK → `species` | Espécie que o recebeu |
-| `container_id` | uuid | ● | FK → `containers` | Recipiente em que foi aplicado |
+| `task_execution_id` | uuid | ○ | FK → `task_executions` | Apontamento em que o insumo foi gasto. **Especificado, não implementado** |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote que o recebeu. **Especificado, não implementado** |
+| `species_id` | uuid | ○ | FK → `species` | Espécie que o recebeu. Dispensável quando há lote, que a determina |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente em que foi aplicado. Dispensável quando há lote |
 | `quantity` | numeric(10,3) | ● | | Quantidade consumida. Restrição: maior que zero |
 | `usage_date` | date | ● | | Data do consumo |
 | `notes` | text | ○ | | Observação |
 | `client_id` | uuid | ○ | UK | Chave gerada **pelo aparelho** antes do primeiro envio e mantida em todos os reenvios. É o que torna o registro idempotente (RNF-05) |
 
-> Alimentado pelo formulário de campo do colaborador (RF-14). É a entidade de maior volume de
-> escrita do sistema e a que mais depende do funcionamento sem conexão.
+> Alimentado pelo formulário de campo do colaborador (RF-14) e, a partir desta revisão, também
+> pelo encerramento da tarefa (RF-101). É a entidade de maior volume de escrita do sistema e a que
+> mais depende do funcionamento sem conexão.
+
+> **`species_id` e `container_id` afrouxaram para opcionais.** Eram obrigatórios porque não havia
+> outro jeito de saber onde o insumo foi aplicado. Com lote, os dois vêm dele, e pedi-los de novo
+> seria pedir duas vezes o mesmo dado. Continuam existindo para o registro avulso, que é como a
+> tela de campo funciona hoje e continua funcionando. A migração é aditiva: as linhas existentes
+> permanecem com os dois preenchidos.
+
+> **Um dos dois lados tem de existir**: ou o lote, ou o par espécie e recipiente. Consumo sem
+> destino não entra no custeio, e é o custeio que a entidade existe para alimentar.
 
 > **Como o funcionamento sem conexão não duplica consumo.** Quando o envio falha, o formulário
 > guarda o registro no aparelho e reenvia depois. Sem uma chave gerada na origem, o caso "o servidor
@@ -367,6 +603,56 @@ de campo ao custo de mão de obra.
 > sistema existe para apurar. `client_id` é essa chave, e a restrição de unicidade sobre ela faz o
 > reenvio ser ignorado em vez de duplicado. É nulo nos registros que não vêm do formulário de campo,
 > como carga inicial e importação, e a unicidade do banco admite vários nulos.
+
+## `input_stock_entries`: entrada de estoque de insumo
+
+*Especificada, não implementada no protótipo.*
+
+O que **entra** no estoque de insumo. A saída é o próprio `input_usages`, e o saldo é a visão
+`input_stock_balance`: não há campo de saldo em `inputs` (RN-88).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `input_id` | uuid | ● | FK → `inputs` | Insumo |
+| `entry_type` | text | ● | | Motivo em **lista fechada**: `compra`, `ajuste`, `perda` |
+| `quantity` | numeric(12,3) | ● | | Quantidade, com sinal: negativa em `perda` e em ajuste para baixo |
+| `unit_cost` | numeric(12,4) | ○ | | Custo unitário da entrada, quando `compra` |
+| `entry_date` | date | ● | | Data da entrada |
+| `transaction_id` | uuid | ○ | FK → `financeiro.transactions` | Lançamento que a pagou, quando conciliado |
+| `recorded_by` | uuid | ● | FK → `users` | Quem registrou |
+| `notes` | text | ○ | | Observação |
+
+> **Só entradas, e a razão é evitar duplicação.** O desenho alternativo, um razão único com
+> entradas e saídas, obrigaria cada `input_usages` a gerar uma segunda linha dizendo o mesmo, e as
+> duas divergiriam ao primeiro registro que falhasse pela metade. Aqui `input_usages` é a saída, e
+> não há espelho.
+
+> **`inputs.quantity_purchased` fica obsoleta e não é removida.** Ela guarda a última compra, e
+> sobrescrevê-la a cada compra apagava o histórico. A migração é aditiva, e a coluna permanece até
+> que as telas que a leem passem a usar a visão.
+
+## `input_stock_balance`: saldo de insumo *(não é tabela)*
+
+*Especificada, não implementada no protótipo.*
+
+Visão derivada: soma de `input_stock_entries` menos soma de `input_usages`, por insumo (RF-102).
+
+| Atributo | Origem |
+|---|---|
+| `input_id` | `inputs.id` |
+| `total_in` | Soma de `input_stock_entries.quantity` |
+| `total_used` | Soma de `input_usages.quantity` |
+| `balance` | `total_in` menos `total_used` |
+| `last_entry_date` | Maior `entry_date` do insumo |
+
+> **Saldo negativo é permitido e sinalizado, não recusado** (RF-105). O saldo depende de toda
+> compra ter sido lançada, e o histórico do viveiro diz que nem toda foi: recusar o consumo real
+> por causa de uma compra não lançada faria o campo parar de registrar consumo, que é o dado mais
+> caro de obter. **O negativo aqui é o alerta** de que falta lançar compra.
+
+> **É a segunda visão do modelo**, ao lado de `species_unit_cost`, e pelo mesmo motivo: o número é
+> derivado e guardá-lo criaria uma segunda verdade sobre ele.
 
 ## `seed_collection_costs`: custo de coleta de sementes
 
@@ -384,24 +670,102 @@ de campo ao custo de mão de obra.
 | `cost_per_seed` | numeric(10,4) | ○ | | **Derivado**: custo total dividido pelas sementes obtidas. Mantido pelo banco |
 | `collection_date` | date | ● | | Data da coleta |
 
-## `production_activities`: atividade de produção
+## `task_executions`: apontamento de tarefa
 
 *Especificada, não implementada no protótipo.*
+
+**O realizado, contra `assignments`, que é o planejado.** Uma linha por funcionário e por tarefa,
+com hora de início e de fim: é dela que saem as horas do período (RF-100) e é ela que sustenta o
+cartão do funcionário na agenda do dia (RF-94).
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `assignment_id` | uuid | ○ | FK → `assignments` | Tarefa planejada que gerou a atividade. **Opcional:** atividade avulsa não nasce da agenda |
-| `species_id` | uuid | ● | FK → `species` | Espécie produzida |
-| `container_id` | uuid | ● | FK → `containers` | Recipiente utilizado |
-| `activity_type` | text | ● | | Atividade em lista fechada: `semeadura`, `repicagem`, `irrigacao`, `adubacao`, `rustificacao` |
-| `quantity` | integer | ● | | Quantidade de mudas envolvidas. Restrição: maior que zero |
-| `activity_date` | date | ● | | Data da atividade |
-| `performed_by` | uuid | ● | FK → `users` | Quem executou |
+| `assignment_id` | uuid | ○ | FK → `assignments` | Tarefa planejada que a originou. **Opcional:** apontamento avulso não nasce da agenda |
+| `task_type_id` | uuid | ● | FK → `task_types` | Tipo de tarefa executado |
+| `party_id` | uuid | ● | FK → `cadastro.parties` | Quem executou: pessoa com papel `funcionario`, com ou sem usuário |
+| `work_date` | date | ● | | Dia de trabalho a que o apontamento pertence |
+| `started_at` | timestamptz | ● | | Momento em que a tarefa começou |
+| `ended_at` | timestamptz | ○ | | Momento em que terminou. **Nulo significa tarefa em curso** |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote trabalhado, quando o tipo de tarefa o exigir (RN-82) |
+| `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir e não houver lote |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente, nas mesmas condições |
+| `quantity` | integer | ○ | | Quantos foram feitos. Pedido apenas quando a medição for `saco` ou `tubete` (RN-81) |
+| `status` | text | ● | | Situação em **lista fechada**: `em_andamento`, `concluida`, `interrompida` |
+| `recorded_by` | uuid | ● | FK → `users` | Quem registrou o apontamento, distinto de quem o executou |
+| `notes` | text | ○ | | Observação |
+| `client_id` | uuid | ○ | UK | Chave gerada **pelo aparelho** antes do primeiro envio. Torna o reenvio idempotente (RNF-05) |
+
+> **Substituiu `production_activities`, e não é renomeação cosmética.** A entidade anterior
+> registrava um fato consumado (espécie, recipiente, quantidade, data) e o classificava por
+> `activity_type`, uma segunda lista fechada que duplicava o catálogo de `task_types`: manter as
+> duas garantiria que divergiriam. A nova registra um **intervalo de trabalho de uma pessoa**,
+> classificado pelo próprio catálogo. Nunca chegou ao banco: a troca não custou migração de dado.
+
+> **Uma pessoa faz uma tarefa por vez** (RN-83), e o banco garante isso com **índice único parcial
+> sobre `party_id` onde `ended_at` é nulo**. Não é validação de aplicação de propósito: duas telas
+> abertas ao mesmo tempo a burlariam, e dois apontamentos abertos contariam a mesma hora duas
+> vezes, inflando o custo de mão de obra, que é o número que o sistema existe para apurar.
+
+> **Começar outra tarefa encerra a anterior**, na mesma transação e sem perguntar. O gesto de
+> começar já declara que saiu da anterior; pedir confirmação acrescentaria um toque a algo que se
+> repete dezenas de vezes por dia. A alternativa, exigir encerrar antes de começar, produziria
+> tarefas eternamente abertas justamente nos dias corridos.
+
+> **`quantity` é opcional e quem decide é o catálogo.** Tarefa medida por tempo encerra sem número
+> algum; tarefa medida por saco ou tubete pede a contagem. E mesmo nessas, deixar em branco é
+> aceito, com o apontamento marcado como sem contagem: hora sem contagem vale mais do que nenhum
+> registro.
+
+> **`recorded_by` e `party_id` são pessoas diferentes, e a distinção é o ponto.** Quem opera a tela
+> é uma pessoa só, coordenando a equipe inteira de um aparelho: é ela quem marca que Rogério saiu
+> da repicagem e foi para a irrigação. `party_id` é Rogério; `recorded_by` é quem clicou.
+
+## `assignment_members`: participante da tarefa
+
+*Especificada, não implementada no protótipo.*
+
+Quem foi escalado numa atribuição. Existe porque uma tarefa admite vários executores, e o mesmo
+turno admite duas tarefas com grupos diferentes (RN-84).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `assignment_id` | uuid | ● | PK, FK → `assignments` | Atribuição |
+| `party_id` | uuid | ● | PK, FK → `cadastro.parties` | Funcionário escalado |
+
+> **`assignments` perdeu `party_id` para cá.** Com a pessoa dentro da própria atribuição, escalar
+> quatro funcionários na mesma tarefa criaria quatro atribuições idênticas, e a tarefa deixaria de
+> ser uma coisa só para virar quatro coisas parecidas: metade da equipe enchendo saquinho enquanto
+> a outra repica é a norma do viveiro, não a exceção.
+
+> **A tabela não guarda hora.** Quem sai da tarefa em momento diferente do grupo é registrado em
+> `task_executions`, uma linha por pessoa: aqui fica só o planejado.
+
+## `task_expenses`: gasto extra da tarefa
+
+*Especificada, não implementada no protótipo.*
+
+Despesa incorrida na execução e não coberta pelos insumos: frete de uma carga de terra, diária de
+maquinário, compra de emergência (RF-104).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `task_execution_id` | uuid | ○ | FK → `task_executions` | Apontamento em que o gasto ocorreu |
+| `assignment_id` | uuid | ○ | FK → `assignments` | Atribuição, quando o gasto é do grupo e não de um executor |
+| `description` | text | ● | | O que foi gasto |
+| `amount` | numeric(12,2) | ● | | Valor. Restrição: maior que zero |
+| `expense_date` | date | ● | | Data do gasto |
+| `cost_center_id` | uuid | ○ | FK → `financeiro.cost_centers` | Centro de custo, quando classificado |
+| `recorded_by` | uuid | ● | FK → `users` | Quem registrou |
 | `notes` | text | ○ | | Observação |
 
-> Registros de `semeadura` e `repicagem` são os que **somam ao estoque**; irrigação, adubação e
-> rustificação são atividades de manejo que não alteram quantidade (RN-57).
+> **É custo direto do lote, não custo fixo rateado** (RN-89): quem pagou por ele foi aquela leva, e
+> diluí-lo no rateio geral esconderia justamente a leva cara. O lote vem por
+> `task_execution_id`, e não por coluna própria, para que não existam dois caminhos até ele.
+
+> **Um dos dois vínculos tem de existir.** Gasto sem tarefa não é gasto de tarefa: é lançamento do
+> Financeiro, e o lugar dele é `financeiro.transactions`.
 
 ## `loss_events`: perda
 
@@ -410,18 +774,27 @@ de campo ao custo de mão de obra.
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `species_id` | uuid | ● | FK → `species` | Espécie perdida |
-| `container_id` | uuid | ● | FK → `containers` | Recipiente |
-| `quantity` | integer | ● | | Quantidade perdida. Restrição: maior que zero |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote que sofreu a perda. Determina espécie, recipiente e canteiro |
+| `species_id` | uuid | ○ | FK → `species` | Espécie perdida. Dispensável quando há lote |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente. Dispensável quando há lote |
+| `quantity` | integer | ● | | Quantidade perdida. Restrição: maior que zero e não maior que o saldo do lote (RN-78) |
 | `cause` | text | ● | | Causa em **lista fechada**: `seca`, `praga`, `geada`, `manuseio`, `outro` |
 | `loss_date` | date | ● | | Data da constatação |
 | `reported_by` | uuid | ● | FK → `users` | Quem registrou |
 | `notes` | text | ○ | | Observação |
 
-> **Quatro campos no formulário de campo**, e não cinco: espécie, recipiente, quantidade e causa. A
-> data assume o dia corrente e o autor vem da sessão. Registrar o local da perda dentro do viveiro
-> melhoraria a análise e foi descartado: ver a nota de projeto em
-> [`C2`, UC-17](C2-especificacao-casos-de-uso.md).
+> **Continuam quatro campos no formulário de campo**, e agora são lote, quantidade, causa e
+> observação. A data assume o dia corrente e o autor vem da sessão.
+>
+> **É a resolução da nota de projeto de [`C2`, UC-17](C2-especificacao-casos-de-uso.md), e não a
+> reversão dela.** Aquele caso rejeitava pedir o *local* da perda por ser o quinto campo que faria
+> o colaborador deixar de registrar. Com lote, o local **vem de graça**: um campo deixou de ser
+> "espécie" e "recipiente" para ser "lote", que carrega os dois **e mais o canteiro**. O
+> colaborador passou a informar menos, e o sistema a saber mais.
+>
+> **A perda gera um movimento no lote**, em `batch_movements`, e é isso que faz a mortalidade
+> passar a ser calculável **por leva**, e não só por espécie: é onde a regra dos 20% (RN-17) ganha
+> poder de apontar qual plantio deu errado.
 >
 > A causa é lista fechada porque causa digitada à mão inviabiliza a análise por causa, que é
 > justamente o que o indicador de mortalidade precisa produzir.
@@ -433,15 +806,22 @@ de campo ao custo de mão de obra.
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `species_id` | uuid | ● | FK → `species` | Espécie contada |
-| `container_id` | uuid | ● | FK → `containers` | Recipiente |
-| `counted_quantity` | integer | ● | | Quantidade efetivamente contada |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote contado. Determina espécie, recipiente e canteiro |
+| `species_id` | uuid | ○ | FK → `species` | Espécie contada. Dispensável quando há lote |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente. Dispensável quando há lote |
+| `counted_quantity` | integer | ● | | Quantidade efetivamente contada. Restrição: não negativa |
 | `counted_at` | date | ● | | Data da contagem |
 | `counted_by` | uuid | ● | FK → `users` | Quem contou |
 
 > **Não armazena o estoque**: armazena o evento de contagem. O estoque permanece derivado de
 > produção menos perdas menos saídas; quando a contagem diverge do calculado, prevalece a contagem, e
 > a divergência é ela própria informação: indica registro de produção ou de perda não realizado.
+
+> **`batch_id` entrou porque se conta um canteiro, não uma espécie.** Ninguém percorre o viveiro
+> somando ipês espalhados por seis canteiros: conta-se canteiro por canteiro, que é a leva. A
+> divergência entre o contado e o saldo do lote gera um movimento `ajuste_contagem` em
+> `batch_movements`, e é assim que a contagem prevalece sem que exista um segundo lugar guardando
+> estoque.
 
 ---
 
@@ -464,23 +844,34 @@ o custo do período mudaria depois de apurado (RN-50).
 
 *Especificada, não implementada no protótipo.*
 
-A célula da grade: uma pessoa, um dia, um turno, um tipo de tarefa. É daqui que saem as horas
-(RF-71), e um turno vale quatro horas por convenção (RN-48).
+A célula da grade: um dia, um turno, um tipo de tarefa e o grupo escalado. É daqui que saem as
+horas dos dias sem apontamento (RF-100), e a duração do turno vem de `work_shifts` (RN-48, RN-85).
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `week_plan_id` | uuid | ● | FK → `week_plans` | Semana a que pertence |
-| `party_id` | uuid | ● | FK → `cadastro.parties` | Quem executa: pessoa com papel `funcionario`, com ou sem usuário |
 | `work_date` | date | ● | | Dia da tarefa |
-| `shift` | text | ● | | `manha` ou `tarde`. Nunca hora marcada (RN-48) |
+| `shift_id` | uuid | ● | FK → `work_shifts` | Turno. Nunca hora marcada no planejamento (RN-48) |
 | `task_type_id` | uuid | ● | FK → `task_types` | Tipo de tarefa |
 | `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir |
 | `container_id` | uuid | ○ | FK → `containers` | Recipiente, quando o tipo de tarefa o exigir |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote, quando o tipo de tarefa o exigir (RN-82) |
 | `planned_quantity` | integer | ○ | | Quantidade planejada, quando aplicável |
 | `is_recurring` | boolean | ● | | Tarefa fixa: renasce em toda semana nova (RF-72) |
 | `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada`: a última é a que o fechamento assume como realizada (RN-51) |
 | `notes` | text | ○ | | Observação livre; único campo aberto da agenda |
+
+> **`party_id` saiu para `assignment_members`.** Quem executa deixou de ser coluna e virou lista:
+> uma tarefa admite vários executores (RN-84). Ver a entidade para o porquê.
+
+> **`shift` deixou de ser texto e virou chave estrangeira.** O par `manha`/`tarde` continua sendo o
+> vocabulário, mas a hora de início e de fim mora agora em `work_shifts`, e é dela que sai a
+> duração. O valor de quatro horas saiu do enunciado da RN-48 e virou parâmetro (RN-85).
+
+> **`work_date` mais `shift_id` continuam sendo a unidade de planejamento**, e não `started_at`.
+> Hora marcada é do apontamento, que é execução; a agenda planeja por turno porque é assim que o
+> viveiro pensa a semana, e pedir horário exato no planejamento garantiria agenda não preenchida.
 
 # Módulo 3 · Comercial
 
@@ -895,11 +1286,11 @@ ausência de sobreposição entre períodos de vigência.
 
 | Módulo | Entidades | Observação |
 |---|---:|---|
-| *(transversal)* Acesso | 4 | |
-| 1 · Cadastros | 13 | inclui `task_types` e o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
-| 2 · Produção | 7 | consumo, coleta, atividade, perda, contagem |
+| *(transversal)* Acesso | 5 | inclui `settings`, os parâmetros do sistema |
+| 1 · Cadastros | 16 | inclui `task_types`, o endereço do viveiro (`areas`, `beds`), `work_shifts` e o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
+| 2 · Produção | 12 | lote, movimento, agenda, apontamento, consumo, coleta, perda, contagem |
 | 3 · Comercial | 8 | pedido, item, carga, cotação |
 | 4 · Financeiro | 14 | nove entidades no esquema `financeiro`, mais custeio e preço em `public` |
-| **Total** | **46** | mais `species_unit_cost`, que é visão e não tabela |
+| **Total** | **55** | mais `species_unit_cost` e `input_stock_balance`, que são visões e não tabelas |
 
 

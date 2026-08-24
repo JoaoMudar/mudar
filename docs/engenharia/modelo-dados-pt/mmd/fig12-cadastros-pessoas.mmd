@@ -67,13 +67,10 @@ erDiagram
   }
   especies {
   }
-  atribuicoes {
-  }
 
   pessoas      ||--o{ pessoas_papeis        : "acumula"
   pessoas      ||--o{ enderecos             : "tem"
   pessoas      ||--o| clientes              : "é, no papel de cliente"
   pessoas      ||--o| fornecedores          : "é, no papel de fornecedor"
-  pessoas      ||--o{ atribuicoes           : "executa"
   fornecedores ||--o{ fornecedores_especies : "oferece"
   especies     ||--o{ fornecedores_especies : "é ofertada em"

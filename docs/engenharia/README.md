@@ -46,16 +46,16 @@ O problema, o escopo e o vocabulário. **Leia primeiro.** O glossário fixa os t
 O coração da especificação. Cada requisito tem identificador, prioridade, de onde veio e como se verifica.
 
 - Especificação de Requisitos: 76 funcionais e 26 não funcionais
-- Regras de negócio: 65 regras, cada uma com o tipo e os requisitos que ela origina. É o que vale no viveiro **exista ou não o software**; se o enunciado começa com "o sistema deve", ele pertence à especificação, não aqui
+- Regras de negócio: 82 regras, cada uma com o tipo e os requisitos que ela origina. É o que vale no viveiro **exista ou não o software**; se o enunciado começa com "o sistema deve", ele pertence à especificação, não aqui
 - Quadros de regras e requisitos: os mesmos conteúdos reduzidos a duas ou quatro colunas, prontos para colar no Word. **Transcrição, não fonte**
 - Matriz de rastreabilidade: liga cada requisito ao caso de uso, à entidade, à permissão e ao teste. **Construída por último**, porque é ela que revela o que ficou faltando
 
 ### `C-modelagem/`: quem faz o quê, sobre quais dados
 Os diagramas UML e o modelo de dados.
 
-- Diagrama de casos de uso: 45 casos, por ator
-- Especificação de casos de uso: os 8 críticos, com fluxos alternativos e exceções
-- MER e DER: 46 entidades, nos quatro módulos, com a espécie no centro
+- Diagrama de casos de uso: 55 casos, por ator
+- Especificação de casos de uso: os 12 críticos, com fluxos alternativos e exceções
+- MER e DER: 55 entidades, nos quatro módulos, com a espécie no centro
 - Dicionário de dados: cada coluna de cada tabela, explicada em português
 
 ### `D-arquitetura/`: como o sistema é construído
@@ -68,7 +68,7 @@ As decisões técnicas e suas consequências.
 ### `E-qualidade/`: como saber se está certo e seguro
 Verificação, riscos e segurança.
 
-- Casos de teste de aceite: 58 casos, executados pelos próprios usuários
+- Casos de teste de aceite: 84 casos, executados pelos próprios usuários
 - Análise de riscos: do **projeto**, não do sistema. Vai para o Capítulo 3, não o 4
 - Modelagem de ameaças: do **sistema em operação**. Ativo → ameaça → controle
 - Mapeamento LGPD: quais dados pessoais, para quê, por quanto tempo

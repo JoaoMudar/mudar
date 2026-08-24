@@ -104,7 +104,62 @@ const MATRIX = {
     excluir: ['gerencia'],
   },
 
+  area_canteiro: {
+    // Area e canteiro sao o endereco do viveiro (RN-74). Quem os mantem e a
+    // gerencia, como as tarefas: sao operacao, nao catalogo comercial.
+    d4: 'Áreas e canteiros',
+    criar: ['chefia', 'gerencia'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['gerencia'],
+    excluir: ['gerencia'],
+  },
+  turno_trabalho: {
+    // O periodo de trabalho (RF-83). Sem `excluir`: turno se inativa, porque a
+    // atribuicao passada guarda o seu turno para sempre.
+    d4: 'Período de trabalho',
+    criar: ['chefia', 'gerencia', 'admin'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['chefia', 'gerencia', 'admin'],
+  },
+
   // --- 2 · Producao — registro de atividade de campo ---
+  lote: {
+    // O colaborador cria sem poder editar, e nao e contradicao: o lote filho
+    // nasce como consequencia de ele encerrar a repicagem (UC-48), nunca de
+    // propósito. Corrigir lote e da gerencia, por contagem fisica. Regra em
+    // D4 §3.13.
+    d4: 'Lotes',
+    criar: ['gerencia', 'colaborador'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['gerencia'],
+  },
+  apontamento: {
+    // Segunda regra que depende do REGISTRO e nao so do papel, junto de
+    // `tarefa`: o colaborador encerra o apontamento aberto em nome dele, nao o
+    // do colega. Quem aponta a equipe inteira e a gerencia. D4 §3.11.
+    d4: 'Apontamento',
+    criar: ['gerencia'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['gerencia', 'colaborador'],
+    excluir: ['gerencia'],
+  },
+  estoque_insumo: {
+    // Entradas de insumo (compra, ajuste, perda). O saldo e derivado e so se
+    // le: quem escreve sao as entradas e o consumo.
+    d4: 'Estoque de insumo',
+    criar: ['chefia', 'gerencia'],
+    ler: ['chefia', 'gerencia', 'colaborador', 'admin'],
+    atualizar: ['chefia', 'gerencia'],
+  },
+  gasto_tarefa: {
+    // Unica linha do modulo 2 fechada para o colaborador: valor em reais nao
+    // aparece para quem executa (D4 §3.1 e §3.14).
+    d4: 'Gastos de tarefa',
+    criar: ['chefia', 'gerencia'],
+    ler: ['chefia', 'gerencia', 'admin'],
+    atualizar: ['chefia'],
+    excluir: ['chefia'],
+  },
   consumo_insumo: {
     d4: 'Consumo de insumo',
     // `chefia` no criar e a emenda de 11/08/2026 ao D4 §2, registrada em §3.9:
@@ -259,6 +314,18 @@ const MATRIX = {
     d4: 'Auditoria de acesso',
     ler: ['admin'],
   },
+  configuracao: {
+    // Parametros do sistema (`settings`): limiar de mortalidade, coordenadas
+    // do viveiro, margem minima. Sao regra de negocio, e por isso a chefia
+    // altera; criar e remover chave e manutencao, e fica com o admin.
+    // Sem `criar` nem `excluir`, e nao por esquecimento: a CHAVE nasce por
+    // migration, junto do codigo que a le. O usuario altera o VALOR. Verbo
+    // ausente nao compila, e e o que impede alguem remover uma chave de que o
+    // sistema depende. D4 §3.15.
+    d4: 'Configurações do sistema',
+    ler: ['chefia', 'admin'],
+    atualizar: ['chefia', 'admin'],
+  },
   notificacao_propria: {
     // Nao consta do D4 — /api/notifications e anterior a matriz. Como tudo ja
     // e escopado por `user_id` em src/lib/notifications.ts, entra como recurso
@@ -390,6 +457,13 @@ const RESOURCE_LABELS: Record<Resource, string> = {
   auditoria_acesso: 'a auditoria de acesso',
   notificacao_propria: 'as próprias notificações',
   tarefa: 'tarefas',
+  area_canteiro: 'áreas e canteiros',
+  turno_trabalho: 'o período de trabalho',
+  lote: 'lotes',
+  apontamento: 'o apontamento de tarefas',
+  estoque_insumo: 'o estoque de insumo',
+  gasto_tarefa: 'gastos de tarefa',
+  configuracao: 'as configurações do sistema',
 }
 
 const VERB_LABELS: Record<Verb, string> = {

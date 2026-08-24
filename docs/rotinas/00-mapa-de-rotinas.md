@@ -49,8 +49,8 @@ abaixo nesta página: **cinza sólido** = toda etapa tem tela · **tracejado lar
 
 ### O ciclo do dinheiro
 
-O único anel fechado do sistema: hoje quebrado na agenda de pessoal, que é a única fonte
-possível de horas. Sem ela, custeio e precificação continuam sendo estimativa.
+O único anel fechado do sistema: hoje quebrado na agenda de pessoal e no apontamento, que são a
+única fonte possível de horas. Sem eles, custeio e precificação continuam sendo estimativa.
 
 ![Ciclo do dinheiro](img/ciclo-dinheiro.png)
 
@@ -117,6 +117,8 @@ Rotina **agrupadora**, sem processo próprio. Reúne o que é estável e se repe
 | Cadastrar/editar fornecedor | Chefia |
 | Cadastrar/editar funcionário | Chefia |
 | Cadastrar/editar tipo de tarefa | Gerência |
+| Cadastrar/editar área e canteiro ([`2-producao/04-lotes-e-canteiros.md`](2-producao/04-lotes-e-canteiros.md)) | Gerência |
+| Definir o período de trabalho ([`2-producao/01-agenda-de-pessoal.md`](2-producao/01-agenda-de-pessoal.md)) | Gerência |
 | Cadastrar/inativar centro de custo ([`1-cadastros/centros-de-custo.md`](1-cadastros/centros-de-custo.md)) | Chefia |
 
 **Pessoas são uma identidade só.** Cliente, fornecedor e funcionário são papéis de
@@ -145,10 +147,13 @@ Financeiro as compras que ficam disponíveis para uso.
 |-------|--------|
 | Registrar consumo de insumo (funciona offline) | Colaborador |
 | Registrar coleta de sementes | Gerência |
-| Montar a agenda da semana | Gerência |
+| Montar a agenda da semana ([`2-producao/01-agenda-de-pessoal.md`](2-producao/01-agenda-de-pessoal.md)) | Gerência |
 | Ver minhas tarefas de hoje / concluir | Colaborador |
+| Apontar início e fim de tarefa na agenda do dia ([`2-producao/05-apontamento-de-tarefas.md`](2-producao/05-apontamento-de-tarefas.md)) | Gerência |
 | Registro de atividade (semeadura, repicagem, irrigação, adubação) | Colaborador |
-| Acompanhamento de lotes e de execução | Gerência |
+| Criar lote e consultar a ocupação do viveiro ([`2-producao/04-lotes-e-canteiros.md`](2-producao/04-lotes-e-canteiros.md)) | Gerência |
+| Repicar lote, gerando o lote de destino | Colaborador |
+| Registrar entrada de insumo e consultar saldo | Gerência |
 | Registro de perda no campo ([`2-producao/03-perdas.md`](2-producao/03-perdas.md)) | Colaborador |
 | Análise de perdas por espécie/causa | Gerência |
 | Visão geral de estoque por espécie ([`2-producao/02-estoque.md`](2-producao/02-estoque.md)) | Chefia |
@@ -227,9 +232,11 @@ docs/rotinas/
 │   └── (fornecedores: plano P11)
 ├── 2-producao/
 │   ├── 00-visao-geral.md           as três subrotinas e o ciclo
-│   ├── 01-agenda-de-pessoal.md     a fonte das horas
+│   ├── 01-agenda-de-pessoal.md     o planejamento da semana
 │   ├── 02-estoque.md               derivado: produção − perdas − vendas
 │   ├── 03-perdas.md
+│   ├── 04-lotes-e-canteiros.md     onde a muda está e de que leva veio
+│   ├── 05-apontamento-de-tarefas.md  a fonte das horas
 │   └── 99-tarefas-diarias-historico.md   absorvida; fica como registro
 ├── 3-comercial/
 │   ├── 00-visao-geral.md           pedidos + cotação + entregas

@@ -1,0 +1,11 @@
+erDiagram
+  ESPECIE      ||--o{ LOTE           : "é plantada em"
+  RECIPIENTE   ||--o{ LOTE           : "define o porte de"
+  CANTEIRO     ||--o| LOTE           : "abriga"
+  LOTE         ||--o{ LOTE           : "dá origem a"
+  LOTE         ||--o{ PRODUCAO       : "recebe trabalho de"
+  LOTE         ||--o{ PERDA          : "sofre"
+  FUNCIONARIO  ||--o{ PRODUCAO       : "executa"
+  ESPECIE      ||--o{ CUSTO_PRODUCAO : "tem custo em"
+  RECIPIENTE   ||--o{ CUSTO_PRODUCAO : "determina"
+  INSUMO       ||--o{ CUSTO_PRODUCAO : "compõe"

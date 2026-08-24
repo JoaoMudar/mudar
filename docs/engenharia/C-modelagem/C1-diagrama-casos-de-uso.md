@@ -53,6 +53,8 @@ graph LR
     S2["Produção"]
     S3["Estoque"]
     S4["Perdas"]
+    S14["Lotes e canteiros"]
+    S15["Agenda e apontamento"]
   end
   subgraph M3["3 · Comercial"]
     S7["Pedidos"]
@@ -83,11 +85,14 @@ graph LR
   GE --- S4
   GE --- S7
   GE --- S11
+  GE --- S14
+  GE --- S15
 
   CO --- S13
   CO --- S2
   CO --- S4
   CO --- S7
+  CO --- S14
 
   AD --- S12
 ```
@@ -97,9 +102,11 @@ Os subsistemas estão agrupados nos **quatro módulos** do sistema
 
 Três leituras que o diagrama torna imediatas:
 
-- **O colaborador toca quatro subsistemas, sempre pela ponta do registro.** Ele alimenta o sistema e
+- **O colaborador toca cinco subsistemas, sempre pela ponta do registro.** Ele alimenta o sistema e
   não consulta resultado: não acessa preço, custo nem indicador. É o que justifica o rigor dos
-  requisitos não funcionais de usabilidade: para esse ator, o sistema **é** o formulário.
+  requisitos não funcionais de usabilidade: para esse ator, o sistema **é** o formulário. Lotes
+  entrou nessa lista sem mudar a regra: ele **escolhe** o lote em que trabalhou, e o único lote que
+  chega a **criar** é o que nasce da repicagem, dentro do gesto de encerrar a tarefa.
 - **Custeio e precificação são do Financeiro, não da Produção.** A gerência toca o custeio para
   consultar, mas quem o alimenta é o extrato bancário, e é por isso que o preço do viveiro
   é estimativa enquanto o módulo 4 não rodar.
@@ -187,7 +194,7 @@ graph LR
   CH --- UC39
 ```
 
-A concentração é acentuada: **vinte e sete dos quarenta e cinco casos de uso pertencem à chefia.** Não é
+A concentração é acentuada: **vinte e sete dos cinquenta e cinco casos de uso pertencem à chefia.** Não é
 falha de distribuição: é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
@@ -200,6 +207,8 @@ graph LR
 
   subgraph M1["1 · Cadastros"]
     UC42(["UC-42 · Manter tipos de tarefa"])
+    UC46(["UC-46 · Manter áreas e canteiros"])
+    UC54(["UC-54 · Manter período de trabalho"])
   end
 
   subgraph M2["2 · Produção"]
@@ -209,6 +218,12 @@ graph LR
     UC15(["UC-15 · Consultar estoque"])
     UC16(["UC-16 · Registrar contagem de estoque"])
     UC18b(["UC-18 · Analisar perdas"])
+    UC47(["UC-47 · Criar lote"])
+    UC49(["UC-49 · Consultar ocupação do viveiro"])
+    UC50(["UC-50 · Apontar início de tarefa"])
+    UC51(["UC-51 · Encerrar tarefa"])
+    UC52(["UC-52 · Encerrar o dia do funcionário"])
+    UC55(["UC-55 · Consultar saldo de insumos"])
   end
 
   subgraph M3["3 · Comercial"]
@@ -222,7 +237,15 @@ graph LR
   end
 
   GE --- UC42
+  GE --- UC46
+  GE --- UC54
   GE --- UC43
+  GE --- UC47
+  GE --- UC49
+  GE --- UC50
+  GE --- UC51
+  GE --- UC52
+  GE --- UC55
   GE --- UC13
   GE --- UC14
   GE --- UC15
@@ -251,6 +274,8 @@ graph LR
   UC27(["UC-27 · Separar carga"])
   UC40(["UC-40 · Consultar tarefas do dia"])
   UC44(["UC-44 · Concluir tarefa do dia"])
+  UC48(["UC-48 · Repicar lote"])
+  UC53(["UC-53 · Registrar insumos e gastos da tarefa"])
 
   CO --- UC10
   CO --- UC12
@@ -258,10 +283,21 @@ graph LR
   CO --- UC27
   CO --- UC40
   CO --- UC44
+  CO --- UC48
+  CO --- UC53
 ```
 
-Seis casos de uso, todos de registro ou consulta operacional. É deliberado: cada caso adicional
+Oito casos de uso, todos de registro ou consulta operacional. É deliberado: cada caso adicional
 atribuído a esse ator aumenta a chance de que nenhum seja executado.
+
+**Os dois que entraram nesta revisão são gestos, não telas.** Repicar (UC-48) e lançar insumo e
+gasto (UC-53) acontecem **dentro** do encerramento da tarefa, e não em menu próprio: aparecem
+aqui porque têm regra e pós-condição próprias, não porque acrescentem um item de navegação à
+vida do colaborador.
+
+**Quem opera o apontamento é a gerência** (UC-50, UC-51 e UC-52), não o colaborador. Uma pessoa
+coordena a equipe inteira de um aparelho só: é ela quem marca que Rogério saiu da repicagem e foi
+para a irrigação. UC-44 continua existindo para o colaborador que confirma a própria tarefa.
 
 ### 3.4 Administrador
 
@@ -336,8 +372,18 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | - |
 | **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | - |
 | **UC-45** | Manter centros de custo | 1 · Cad. | Chefia | RF-77, RF-78, RF-79 | - |
+| **UC-46** | Manter áreas e canteiros | 1 · Cad. | Gerência | RF-80, RF-81 | - |
+| **UC-47** | Criar lote | 2 · Prod. | Gerência | RF-84, RF-90 | **✔ sim** |
+| **UC-48** | Repicar lote | 2 · Prod. | Colaborador | RF-86, RF-87, RF-88 | **✔ sim** |
+| **UC-49** | Consultar ocupação do viveiro | 2 · Prod. | Gerência | RF-85, RF-87, RF-89 | - |
+| **UC-50** | Apontar início de tarefa | 2 · Prod. | Gerência | RF-94, RF-95, RF-97, RF-99 | **✔ sim** |
+| **UC-51** | Encerrar tarefa | 2 · Prod. | Gerência | RF-98, RF-100, RF-101 | **✔ sim** |
+| **UC-52** | Encerrar o dia do funcionário | 2 · Prod. | Gerência | RF-96, RF-100 | - |
+| **UC-53** | Registrar insumos e gastos da tarefa | 2 · Prod. | Colaborador | RF-101, RF-104, RF-105 | - |
+| **UC-54** | Manter período de trabalho | 1 · Cad. | Gerência | RF-83 | - |
+| **UC-55** | Consultar saldo de insumos | 2 · Prod. | Gerência | RF-102, RF-103 | - |
 
-**45 casos de uso.** Os oito marcados são especificados em detalhe em
+**55 casos de uso.** Os doze marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
 

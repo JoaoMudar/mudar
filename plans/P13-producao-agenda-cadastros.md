@@ -4,7 +4,22 @@
 > Domínio em [`docs/rotinas/1-cadastros/00-visao-geral.md`](../docs/rotinas/1-cadastros/00-visao-geral.md) e
 > [`docs/rotinas/2-producao/`](../docs/rotinas/2-producao/).
 
-**Status: desenho fechado. Implementação não iniciada.**
+**Status: desenho fechado. Fases 1 e 2 parciais; Fases 3 a 5 continuam no [`P14`](P14-producao-lotes-apontamento.md).**
+
+> ♻️ **T13.9 está feita, e o formato de `assignments` mudou** (24/08/2026). A migration da
+> agenda é `migrations/20260824000005_producao_agenda.sql`, e nela `assignments` **não tem
+> `party_id`**: quem executa foi para `assignment_members`, porque uma tarefa admite vários
+> executores (RN-84). `shift` virou `shift_id`, apontando para `work_shifts`: a duração do turno
+> saiu do enunciado da RN-48 e virou parâmetro.
+>
+> **A decisão 1 abaixo foi emendada.** O custo continua usando valor-hora **médio da equipe**,
+> mas as horas passaram a vir do **apontamento** quando ele existe, e do turno planejado quando
+> não existe. Quem aponta é quem coordena, de um aparelho só: a resolução de `B2` §4 contra
+> controle de ponto segue de pé.
+>
+> T13.10 a T13.21 continuam válidas e correspondem às Fases 3 a 5 do `P14`. **T13.3 e T13.7
+> (`users.party_id` e o CRUD de funcionários) bloqueiam o `P14`**: a agenda escala
+> `cadastro.parties`, e sem a tela não há quem escalar.
 
 ---
 

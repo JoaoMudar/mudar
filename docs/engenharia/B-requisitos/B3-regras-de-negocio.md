@@ -21,8 +21,8 @@ O documento tem uma finalidade dupla:
 
 ### Instruções para quem for gerar as tabelas a partir deste arquivo
 
-- **Não invente identificadores.** `RN-01` a `RN-73` (regras, das quais RN-36, RN-49, RN-54, RN-60, RN-61, RN-63, RN-64, RN-65 saíram do catálogo
-  e cujos números não se reutilizam), `RF-01` a `RF-79` (requisitos
+- **Não invente identificadores.** `RN-01` a `RN-90` (regras, das quais RN-36, RN-49, RN-54, RN-60, RN-61, RN-63, RN-64, RN-65 saíram do catálogo
+  e cujos números não se reutilizam), `RF-01` a `RF-105` (requisitos
   funcionais), `RNF-01` a `RNF-26` (não funcionais) e `RE-1` a `RE-8` (restrições) são os únicos
   válidos. A numeração de RF/RNF vem de [`B2`](B2-especificacao-requisitos.md) e a de RE de
   [`A1`](../A-fundacao/A1-documento-de-visao.md) §9.
@@ -80,22 +80,29 @@ Classificação adotada neste catálogo:
   regras não gera RNF: os não funcionais deste projeto derivam predominantemente das restrições do
   ambiente (ver seção 6). Célula vazia é informação, não omissão.
 
-### 2.4 Três regras que são convenção, não fato observado
+### 2.4 Cinco regras que são convenção, não fato observado
 
 O critério da seção 2.1 (apague o sistema e veja se o enunciado sobrevive) é limpo para quase
-todo o catálogo, e áspero para três regras da área C, todas nascidas ao desenhar a agenda de
-pessoal:
+todo o catálogo, e áspero para cinco regras da área C, todas nascidas ao desenhar a agenda de
+pessoal e o apontamento:
 
 | RN | Por que merece ressalva |
 |---|---|
-| **RN-48** | "Um turno vale quatro horas" é **convenção adotada**, não medição. O viveiro trabalha por turno de fato (isso é observação), mas o valor de quatro horas foi fixado para tornar o custo de mão de obra apurável sem controle de ponto |
+| **RN-48** | Que o viveiro planeje **por turno** é observação. Que o turno tenha uma **duração única declarada** é convenção: foi fixada para tornar o custo de mão de obra apurável onde não houver apontamento. A versão original dizia "quatro horas" no próprio enunciado; com RN-85 o número saiu da regra e virou parâmetro, mas a convenção continua sendo convenção |
 | **RN-50** | "A semana fecha e, fechada, não se altera" descreve uma disciplina que o viveiro **passará a ter**, não uma que já tinha. É pré-requisito de custo estável, e por isso vale como regra, mas é regra imposta pelo projeto ao negócio, não colhida dele |
-| **RN-51** | Assumir o planejado como realizado é **escolha metodológica** diante de dado faltante. A alternativa (agenda com buraco) inviabiliza o custo do período; a condição fica registrada justamente para que a suposição não se disfarce de medição |
+| **RN-51** | Assumir o planejado como realizado é **escolha metodológica** diante de dado faltante. A alternativa (agenda com buraco) inviabiliza o custo do período; a condição fica registrada justamente para que a suposição não se disfarce de medição. Com o apontamento, a suposição passou a ser o **caso de exceção** em vez do caso único |
+| **RN-83** | "Uma pessoa faz uma tarefa por vez" é **verdade da operação** (ninguém repica e irriga ao mesmo tempo), mas o **encerramento automático da anterior** é convenção do sistema. Ela existe para que a troca de serviço custe um toque e não dois, e a alternativa (exigir que se encerre antes de começar) produziria tarefas eternamente abertas |
+| **RN-86** | Que o dia termine é fato. Que o **apontamento esquecido aberto seja truncado no fim do turno** é convenção defensiva: sem ela, relógio esquecido ligado produz jornada impossível e custo falso. É arbitragem sobre dado faltante, da mesma família de RN-51 |
 
 Registrar a ressalva é mais defensável do que reclassificá-las como requisito: elas governam a
 operação, e não a interface. Mas ao escrever o capítulo, atribuí-las à observação do viveiro seria
-inexato: a origem correta das três é **ORG**, política do projeto, e é assim que `B2` as marca
-(RF-73 e RF-75).
+inexato: a origem correta das cinco é **ORG**, política do projeto, e é assim que `B2` as marca
+(RF-73, RF-75, RF-97 e RF-100).
+
+**As demais regras novas da área C não precisam de ressalva.** Área, canteiro, lote, categoria de
+tarefa e forma de medição (RN-74 a RN-82, RN-84, RN-85, RN-87 a RN-90) descrevem o viveiro como
+ele funciona hoje, sem sistema nenhum: as áreas têm letra, os canteiros têm número, planta-se por
+leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados sobrevivem.
 
 ---
 
@@ -135,11 +142,28 @@ inexato: a origem correta das três é **ORG**, política do projeto, e é assim
 | **RN-16** | A perda é evento **normal** da produção e exige **causa classificada em lista fechada**, seca, praga, geada, manuseio, outro. Campo livre inviabiliza a análise por causa | Restrição | `A2` §1 | RF-26, RF-27 | RNF-01, RNF-02, RNF-05 |
 | **RN-17** | A **mortalidade** é a razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de **20%** a situação é anormal e exige providência | Acionamento | `A2` §1; `G2`; `CLAUDE.md` | RF-27, RF-28, RF-29, RF-65 | - |
 | **RN-18** | A muda perdida **carrega o custo já incorrido**: a perda tem valor financeiro, não apenas quantidade | Derivação | `B2` RF-30 | RF-30 | - |
-| **RN-48** | O trabalho do viveiro é planejado por **turno, não por horário**: a unidade da agenda é dia × turno (manhã, tarde), e **um turno vale quatro horas**. Ninguém ali trabalha com hora marcada, e exigir horário exato garantiria agenda não preenchida | Fato | `plans/P13`; `rotinas/2-producao/01` | RF-71, RF-76 | RNF-01 |
+| **RN-48** | O trabalho do viveiro é **planejado** por turno, não por horário: a unidade da agenda é dia × turno (manhã, tarde). Ninguém ali monta agenda de hora em hora, e exigir horário exato no planejamento garantiria agenda não preenchida. **A duração do turno vem do período de trabalho cadastrado** (RN-85), não de constante | Fato | `plans/P13`; `rotinas/2-producao/01` | RF-71, RF-76, RF-83 | RNF-01 |
 | **RN-50** | A semana **fecha** e, fechada, não se altera: sem isso o custo do período muda depois de apurado | Restrição | `plans/P13` | RF-73 | - |
-| **RN-51** | Tarefa planejada e **não confirmada conta como realizada** ao fechar a semana, com a condição registrada. Agenda com buraco não serve para calcular custo, e assumir o planejado sinalizando a dúvida é mais honesto do que não ter dado | Derivação | `plans/P13` | RF-75 | - |
+| **RN-51** | As horas do período saem do **apontamento quando ele existe**; onde não houve apontamento, a tarefa planejada **conta como realizada** pelo turno, com a condição registrada. Agenda com buraco não serve para calcular custo, e assumir o planejado sinalizando a dúvida é mais honesto do que não ter dado | Derivação | `plans/P13`; `rotinas/2-producao/05` | RF-75, RF-100 | - |
 | **RN-52** | O colaborador responde pelas **suas** tarefas: vê e conclui as que lhe foram atribuídas, e nenhuma outra | Restrição | `D4` §3.11 | RF-74 | RNF-01, RNF-02 |
 | **RN-57** | Só **semeadura e repicagem somam ao estoque**; irrigação, adubação e rustificação são manejo e não alteram quantidade. É o que define o que conta como produção em RN-13 | Fato | `C8` §`activity_type`; `rotinas/2-producao/02-estoque.md` | RF-19, RF-22 | RNF-02 |
+| **RN-74** | O viveiro é dividido em **áreas identificadas por letra** (A, B, C…), e cada área tem **canteiros numerados** de 1 até o máximo dela. O endereço de uma muda no viveiro é esse par | Fato | `A2` §1 | RF-80, RF-81, RF-85 | - |
+| **RN-75** | **Lote é a leva de mudas da mesma espécie, no mesmo recipiente, plantada junta.** É a unidade de rastreamento da produção: sem ela não se diz onde a muda está nem de que leva veio | Fato | `A2` §1; `A1` §7 | RF-84, RF-87, RF-91 | - |
+| **RN-76** | **Um lote ocupa um canteiro.** Leva que não cabe num canteiro é outro lote, e não o mesmo lote espalhado | Restrição | `rotinas/2-producao/04` | RF-84, RF-85 | - |
+| **RN-77** | A **repicagem para recipiente maior cria lote novo** ligado ao de origem: a leva muda de identidade quando muda de tamanho, porque tamanho define produto, custo e preço. É o vínculo com a origem que permite saber quanto de uma leva chegou à venda | Derivação | `A2` §1; `rotinas/2-producao/04` | RF-86, RF-87 | - |
+| **RN-78** | **Nenhum lote tem saldo negativo.** Movimento que levaria o saldo abaixo de zero é recusado: significa que a contagem está errada, e gravar o negativo propaga o erro para o estoque | Restrição | `rotinas/2-producao/04` | RF-88 | - |
+| **RN-79** | **Lote com saldo zero está encerrado**: sai da ocupação do canteiro e permanece no histórico. Canteiro livre é canteiro sem lote aberto | Restrição | `rotinas/2-producao/04` | RF-89, RF-85 | - |
+| **RN-80** | Toda tarefa do viveiro pertence a uma de **seis categorias**: semente, terra, plantio, manutenção, pós-morte e expedição. É como a equipe já agrupa o trabalho ao falar dele | Fato | `A2` §6 | RF-82 | RNF-02 |
+| **RN-81** | A tarefa é medida **por tempo** ou **por quantidade de recipientes** (saco ou tubete). A medição por quantidade também mede o tempo: é "quantos fez em quantas horas", e não só quantos fez | Fato | `A2` §6 | RF-82, RF-98 | - |
+| **RN-82** | Tarefa que trabalha **mudas já plantadas identifica lote e canteiro**. Sem isso a atividade não se liga à leva, e nem a perda nem o custo encontram destino | Restrição | `rotinas/2-producao/05` | RF-82, RF-99 | - |
+| **RN-83** | **Uma pessoa faz uma tarefa por vez.** Começar outra encerra a anterior: quem saiu do serviço saiu, e duas tarefas abertas para a mesma pessoa contariam a mesma hora duas vezes | Restrição | `rotinas/2-producao/05` | RF-95, RF-97 | - |
+| **RN-84** | Uma **tarefa admite vários executores**, e o mesmo turno admite **várias tarefas em curso** com grupos diferentes. Metade da equipe enchendo saquinho enquanto a outra metade repica é a norma, não exceção | Fato | `rotinas/2-producao/01` | RF-92, RF-94 | - |
+| **RN-85** | O **período de trabalho** (hora de início e de fim de cada turno) é **parâmetro mantido**, não constante. Muda com a estação e com a combinação da equipe, e é dele que sai a duração do turno que RN-48 usa | Fato | `rotinas/2-producao/01` | RF-83, RF-100 | - |
+| **RN-86** | O **dia do funcionário termina explicitamente**. Apontamento deixado aberto não conta hora além do fim do turno: relógio esquecido ligado produziria jornada de dezoito horas e custo de mão de obra falso | Restrição | `rotinas/2-producao/05` | RF-96, RF-100 | - |
+| **RN-87** | **Insumo consumido na tarefa sai do saldo no mesmo gesto do apontamento.** Baixa em momento separado é baixa que não acontece | Derivação | `rotinas/2-producao/05` | RF-101 | RNF-05 |
+| **RN-88** | O **saldo de insumo é derivado**: entradas menos consumo. Não há campo de saldo, pelo mesmo motivo que não há para muda (RN-13), guardar o número cria duas verdades sobre ele | Derivação | `A2`, termos não adotados | RF-102, RF-103 | - |
+| **RN-89** | **Gasto extra da tarefa é custo direto** do lote e da espécie trabalhada, e não custo fixo rateado: quem pagou por ele foi aquela leva | Derivação | `rotinas/2-producao/05` | RF-104 | - |
+| **RN-90** | A **classificação separa mortas de vivas**, e a parte morta **vira perda do lote no mesmo registro**. Separar num momento e registrar a perda noutro é como a perda deixa de ser registrada | Derivação | `A2` §1; `rotinas/2-producao/04` | RF-91, RF-99 | RNF-01 |
 
 ### 3.4 Área D: Precificação
 
@@ -217,28 +241,28 @@ inexato: a origem correta das três é **ORG**, política do projeto, e é assim
 |---|---|---:|
 | A: Domínio e produto | RN-01 a RN-06 | 6 |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | 8 |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 | 11 |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-90 | 28 |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-73 | 11 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| **Total** | | **65** |
+| **Total** | | **82** |
 
 | Tipo | Quantidade |
 |---|---:|
-| Fato | 25 |
-| Restrição | 22 |
-| Derivação | 14 |
+| Fato | 31 |
+| Restrição | 28 |
+| Derivação | 19 |
 | Acionamento | 4 |
 
 ---
 
 ## 4. Rastreabilidade inversa: requisito funcional → regra que o origina
 
-Os 79 requisitos funcionais de `B2`. Quatro não decorrem de regra de negócio e estão justificados na
-seção 6.
+Os 105 requisitos funcionais de `B2`. Quatro não decorrem de regra de negócio e estão justificados
+na seção 6.
 
 | RF | Regras que o originam |
 |---|---|
@@ -311,7 +335,7 @@ seção 6.
 | RF-67 | RN-33 |
 | RF-68 | RN-04, RN-35 |
 | RF-69 | RN-27 |
-| RF-70 | RN-55 |
+| RF-70 | RN-80, RN-81, RN-82 |
 | RF-71 | RN-48 |
 | RF-72 | - |
 | RF-73 | RN-50 |
@@ -321,6 +345,32 @@ seção 6.
 | RF-77 | RN-71 |
 | RF-78 | RN-72 |
 | RF-79 | RN-73 |
+| RF-80 | RN-74 |
+| RF-81 | RN-74 |
+| RF-82 | RN-80, RN-81, RN-82 |
+| RF-83 | RN-48, RN-85 |
+| RF-84 | RN-75, RN-76 |
+| RF-85 | RN-74, RN-76, RN-79 |
+| RF-86 | RN-77 |
+| RF-87 | RN-75, RN-77 |
+| RF-88 | RN-78 |
+| RF-89 | RN-79 |
+| RF-90 | RN-05, RN-06, RN-75 |
+| RF-91 | RN-13, RN-16, RN-75, RN-90 |
+| RF-92 | RN-84 |
+| RF-93 | RN-48, RN-84 |
+| RF-94 | RN-84 |
+| RF-95 | RN-83 |
+| RF-96 | RN-86 |
+| RF-97 | RN-83 |
+| RF-98 | RN-81 |
+| RF-99 | RN-82, RN-90 |
+| RF-100 | RN-48, RN-51, RN-85, RN-86 |
+| RF-101 | RN-87 |
+| RF-102 | RN-88 |
+| RF-103 | RN-15, RN-88 |
+| RF-104 | RN-89 |
+| RF-105 | RN-78, RN-88 |
 
 ---
 
@@ -423,7 +473,7 @@ nenhum que as cumpra.
 
 Nenhuma delas vira requisito nesta revisão. Convertê-las exigiria ator, prioridade, critério de
 verificação, caso de uso, entidade e caso de teste, uma passada de especificação, não de
-catalogação. Quando forem especificadas, entram como **RF-77 em diante**: nenhum identificador se
+catalogação. Quando forem especificadas, entram como **RF-106 em diante**: nenhum identificador se
 reutiliza (seção 8).
 
 ---
@@ -508,7 +558,7 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-67 | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida | D | OP, EN |
 | RF-68 | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual | DV | OP |
 | RF-69 | O sistema deve permitir cadastrar funcionário com contato e vínculo (fixo ou diarista), inclusive quando ele não tem acesso ao sistema | D | EN |
-| RF-70 | O sistema deve permitir manter o catálogo de tipos de tarefa, com unidade de medida, tempo médio por unidade e quais tipos exigem espécie e recipiente | D | OP |
+| RF-70 | O sistema deve permitir manter o catálogo de tipos de tarefa, com categoria, forma de medição (por tempo, por saco ou por tubete), tempo médio por unidade e quais tipos exigem espécie, recipiente e lote | D | OP |
 | RF-71 | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno, manhã ou tarde | D | EN, OP |
 | RF-72 | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas | D | OP |
 | RF-73 | O sistema deve controlar a situação da semana (rascunho, publicada e fechada) e impedir alteração depois do fechamento | D | ORG |
@@ -518,6 +568,32 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-77 | O sistema deve permitir cadastrar centro de custo informando nome e natureza (negócio ou pessoal) | D | AD |
 | RF-78 | O sistema deve permitir inativar e reativar centro de custo, retirando-o das escolhas de lançamento novo sem afetar lançamento já classificado nele | D | AD |
 | RF-79 | O sistema não deve permitir excluir centro de custo, nem alterar a sua natureza depois de existir lançamento classificado nele | D | AD |
+| RF-80 | O sistema deve permitir cadastrar áreas do viveiro identificadas por letra | D | OP |
+| RF-81 | O sistema deve permitir cadastrar canteiros numerados dentro de cada área, recusando número repetido na mesma área | D | OP |
+| RF-82 | O sistema deve pedir, no planejamento e no apontamento, exatamente os dados que o tipo de tarefa declarar exigir, e nenhum outro | D | ORG |
+| RF-83 | O sistema deve permitir manter o período de trabalho, com hora de início e de fim de cada turno, e adotá-lo como jornada padrão da agenda | D | EN |
+| RF-84 | O sistema deve permitir criar lote informando espécie, recipiente, quantidade, área e canteiro | D | OP |
+| RF-85 | O sistema deve apresentar a ocupação do viveiro por área e canteiro, indicando o lote de cada canteiro ocupado e quais estão livres | D | EN |
+| RF-86 | O sistema deve permitir registrar repicagem transferindo parte ou todo o lote para recipiente maior, criando um lote novo que aponta para o de origem | D | DOM |
+| RF-87 | O sistema deve apresentar o histórico de movimentos do lote, com a quantidade e o motivo de cada um | D | EN |
+| RF-88 | O sistema não deve permitir movimento que deixe o saldo do lote negativo | D | ORG |
+| RF-89 | O sistema deve encerrar o lote quando o saldo chegar a zero, liberando o canteiro e preservando o histórico | D | ORG |
+| RF-90 | O sistema deveria apresentar, por lote, a previsão de disponibilidade, a partir da data de plantio e do tempo de produção da espécie | DV | EN |
+| RF-91 | O sistema deve permitir vincular perda, contagem física e saída de venda ao lote, dispensando informar espécie e recipiente quando o lote os determinar | D | OP |
+| RF-92 | O sistema deve permitir atribuir a mesma tarefa a mais de um funcionário, e mais de uma tarefa ao mesmo turno com grupos diferentes | D | OP |
+| RF-93 | O sistema deve permitir lançar a mesma atribuição para um intervalo de dias de uma vez | D | OP |
+| RF-94 | O sistema deve apresentar a agenda do dia com as tarefas planejadas e um cartão por funcionário, mostrando o que cada um faz naquele momento | D | EN |
+| RF-95 | O sistema deve permitir iniciar o apontamento de uma tarefa para um funcionário, encerrando automaticamente o apontamento que estiver aberto para ele | D | EN |
+| RF-96 | O sistema deve permitir encerrar o dia do funcionário, fechando o apontamento aberto sem iniciar outro | D | EN |
+| RF-97 | O sistema não deve permitir dois apontamentos abertos para o mesmo funcionário | D | ORG |
+| RF-98 | O sistema deve solicitar a quantidade realizada ao encerrar a tarefa, quando o tipo de tarefa for medido por saco ou por tubete, e apenas nesse caso | D | OP |
+| RF-99 | O sistema deve exigir lote e canteiro no apontamento quando o tipo de tarefa declarar essa exigência | D | OP |
+| RF-100 | O sistema deve calcular as horas trabalhadas pelo intervalo apontado e, na ausência de apontamento, assumir a jornada do turno planejado, registrando essa condição | D | ORG |
+| RF-101 | O sistema deve permitir registrar, no encerramento da tarefa, os insumos consumidos nela, abatendo-os do saldo | D | OP |
+| RF-102 | O sistema deve apresentar o saldo de cada insumo, derivado das entradas menos o consumo registrado | D | AD |
+| RF-103 | O sistema deve sinalizar insumo zerado ou abaixo da quantidade mínima definida | DV | EN |
+| RF-104 | O sistema deve permitir registrar gasto extra da tarefa, com descrição e valor, atribuindo-o ao lote trabalhado | DV | EN |
+| RF-105 | O sistema deve sinalizar, sem recusar, o consumo que deixaria o saldo do insumo negativo | DV | ORG |
 
 ### 7.2 Requisitos não funcionais
 

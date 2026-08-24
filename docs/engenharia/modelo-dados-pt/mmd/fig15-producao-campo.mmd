@@ -1,0 +1,70 @@
+erDiagram
+  usos_insumo {
+    uuid id PK
+    uuid id_offline UK
+    uuid insumo_id FK
+    uuid execucao_tarefa_id FK
+    uuid lote_id FK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    numeric quantidade
+    date data_uso
+  }
+  entradas_estoque_insumo {
+    uuid id PK
+    uuid insumo_id FK
+    text tipo_entrada
+    numeric quantidade
+    numeric custo_unitario
+    date data_entrada
+    uuid lancamento_id FK
+  }
+  eventos_perda {
+    uuid id PK
+    uuid lote_id FK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    int quantidade
+    text causa
+    date data_perda
+    uuid registrado_por FK
+  }
+  contagens_estoque {
+    uuid id PK
+    uuid lote_id FK
+    uuid especie_id FK
+    uuid recipiente_id FK
+    int quantidade_contada
+    date data_contagem
+    uuid contado_por FK
+  }
+  custos_coleta_sementes {
+    uuid id PK
+    uuid especie_id FK
+    text regiao_coleta
+    numeric distancia_km
+    numeric custo_combustivel
+    numeric horas_mao_de_obra
+    numeric custo_total
+    int qtd_sementes_coletadas
+    numeric custo_por_semente
+  }
+  especies {
+  }
+  insumos {
+  }
+  lotes {
+  }
+  execucoes_tarefa {
+  }
+
+  insumos          ||--o{ usos_insumo             : "é aplicado"
+  insumos          ||--o{ entradas_estoque_insumo : "entra por"
+  execucoes_tarefa ||--o{ usos_insumo             : "consome"
+  lotes            ||--o{ usos_insumo             : "recebe"
+  especies         ||--o{ usos_insumo             : "consome"
+  lotes            ||--o{ eventos_perda           : "sofre"
+  especies         ||--o{ eventos_perda           : "sofre"
+  lotes            ||--o{ contagens_estoque       : "é contado em"
+  especies         ||--o{ contagens_estoque       : "é contada em"
+  especies         ||--o{ custos_coleta_sementes  : "coletada em"
