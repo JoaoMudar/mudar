@@ -53,7 +53,7 @@ O coração da especificação. Cada requisito tem identificador, prioridade, de
 ### `C-modelagem/`: quem faz o quê, sobre quais dados
 Os diagramas UML e o modelo de dados.
 
-- Diagrama de casos de uso: 55 casos, por ator
+- Diagrama de casos de uso: 56 casos, por ator
 - Especificação de casos de uso: os 12 críticos, com fluxos alternativos e exceções
 - MER e DER: 55 entidades, nos quatro módulos, com a espécie no centro
 - Dicionário de dados: cada coluna de cada tabela, explicada em português
@@ -68,7 +68,7 @@ As decisões técnicas e suas consequências.
 ### `E-qualidade/`: como saber se está certo e seguro
 Verificação, riscos e segurança.
 
-- Casos de teste de aceite: 84 casos, executados pelos próprios usuários
+- Casos de teste de aceite: 85 casos, executados pelos próprios usuários
 - Análise de riscos: do **projeto**, não do sistema. Vai para o Capítulo 3, não o 4
 - Modelagem de ameaças: do **sistema em operação**. Ativo → ameaça → controle
 - Mapeamento LGPD: quais dados pessoais, para quê, por quanto tempo

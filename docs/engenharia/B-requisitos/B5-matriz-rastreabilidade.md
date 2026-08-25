@@ -116,19 +116,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-103 | UC-55 | `input_stock_balance` *(visão)* | Estoque de insumo | - *(DV)* |
 | RF-104 | UC-53 | `task_expenses` | Gastos de tarefa | TA-83, TA-84 |
 | RF-105 | UC-51 | `input_usages`, `input_stock_balance` | Estoque de insumo | TA-82 |
-
-#### 2.3.4 Lotes, áreas e canteiros
-
-| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
-|---|---|---|---|---|
-| RF-84 | UC-47 | `batches`, `beds` | Lotes | TA-63 |
-| RF-85 | UC-49 | `batches`, `beds`, `areas` | Lotes | TA-64 |
-| RF-86 | UC-48 | `batches`, `batch_movements` | Lotes | TA-65, TA-66 |
-| RF-87 | UC-49 | `batch_movements` | Lotes | TA-65 |
-| RF-88 | UC-48 | `batches`, `batch_movements` | Lotes | TA-67 |
-| RF-89 | UC-49 | `batches`, `beds` | Lotes | TA-64 |
-| RF-90 | UC-47 | `batches`, `species` | Lotes | TA-63 |
-| RF-91 | UC-17, UC-16 | `batches`, `loss_events`, `stock_counts` | Lotes | TA-66, TA-68 |
+| RF-106 | UC-56 | `input_stock_entries` | Estoque de insumo | TA-85 |
 
 #### 2.3.2 Estoque
 
@@ -148,6 +136,19 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-28 | UC-18 | `loss_events`, `batches` | Análise de perdas | TA-15 |
 | RF-29 | UC-18 | `loss_events`, `notifications` | Análise de perdas | TA-15, TA-16 |
 | RF-30 | UC-18 | `loss_events`, `species_unit_cost` | Análise de perdas | - *(DV)* |
+
+#### 2.3.4 Lotes, áreas e canteiros
+
+| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
+|---|---|---|---|---|
+| RF-84 | UC-47 | `batches`, `beds` | Lotes | TA-63 |
+| RF-85 | UC-49 | `batches`, `beds`, `areas` | Lotes | TA-64 |
+| RF-86 | UC-48 | `batches`, `batch_movements` | Lotes | TA-65, TA-66 |
+| RF-87 | UC-49 | `batch_movements` | Lotes | TA-65 |
+| RF-88 | UC-48 | `batches`, `batch_movements` | Lotes | TA-67 |
+| RF-89 | UC-49 | `batches`, `beds` | Lotes | TA-64 |
+| RF-90 | UC-47 | `batches`, `species` | Lotes | TA-63 |
+| RF-91 | UC-17, UC-16 | `batches`, `loss_events`, `stock_counts` | Lotes | TA-66, TA-68 |
 
 ### 2.4 Módulo 3 · Comercial
 
@@ -194,7 +195,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-16 | UC-11 | `fixed_costs`, `species_unit_cost` | Custo unitário | TA-12 |
 | RF-17 | UC-11 | `species_unit_cost` | Custo unitário | TA-09 |
 | RF-18 | UC-11 | `production_costs` | Custo unitário | TA-11 |
-| RF-76 | UC-11 | `labor_rates`, `assignments`, `species_unit_cost` | Custo unitário | - *(novo)* |
+| RF-76 | UC-11 | `labor_rates`, `assignments`, `species_unit_cost` | Custo unitário | TA-80 |
 
 #### 2.5.2 Precificação
 
@@ -257,10 +258,10 @@ justifique**?
 
 | Artefato | Elementos | Sem requisito de origem |
 |---|---|---|
-| Casos de uso (C1) | 45 | Nenhum |
-| Entidades (C6, C8) | 45 | Nenhuma |
-| Recursos de acesso (D4) | 32 | Nenhum: `Funcionários` e `Tarefas` ganharam RF-69 a RF-76 em 19/08/2026, e `Centros de custo` nasceu com RF-77 a RF-79 |
-| Casos de aceite (E2) | 58 | Nenhum |
+| Casos de uso (C1) | 56 | Nenhum |
+| Entidades (C6, C8) | 55 | Nenhuma |
+| Recursos de acesso (D4) | 39 | Nenhum: `Funcionários` e `Tarefas` ganharam RF-69 a RF-76 em 19/08/2026, e `Centros de custo` nasceu com RF-77 a RF-79 |
+| Casos de aceite (E2) | 85 | Nenhum |
 | Indicadores (G2) | 9 | Nenhum: todos derivam de RF-63 a RF-65 |
 
 **Duas entidades merecem nota:** `notifications` e `order_status_history` atendem a requisitos de
@@ -338,7 +339,7 @@ a agenda de pessoal e o custo de mão de obra. Enquanto durou, o subsistema não
 aprovação declarado: podia ser construído, não podia ser aceito.*
 
 **Fechada com a rotina de produção.** A [`E2` §5.1](../E-qualidade/E2-casos-de-teste-de-aceite.md)
-passou a trazer 26 casos (TA-59 a TA-84) que cobrem os sete antigos e os requisitos novos, e a
+passou a trazer 27 casos (TA-59 a TA-85) que cobrem os sete antigos e os requisitos novos, e a
 matriz acima já os referencia.
 
 **Fica registrado o que a lacuna ensinou**, porque o padrão tende a se repetir: os sete nasceram
@@ -358,23 +359,25 @@ teste era lacuna de verificação. A primeira ainda está aberta.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | **105 de 105** |
-| Requisitos funcionais com entidade ou derivação declarada | **105 de 105** |
-| Requisitos funcionais com regra de acesso definida | **105 de 105** |
-| Requisitos de prioridade *deve ter* com teste de aceite | **80 de 87**: ver §5.5 |
-| Requisitos *deveria ter* / *poderia ter* sem teste | 15: deliberado |
+| Requisitos funcionais com caso de uso | **106 de 106** |
+| Requisitos funcionais com entidade ou derivação declarada | **106 de 106** |
+| Requisitos funcionais com regra de acesso definida | **106 de 106** |
+| Requisitos de prioridade *deve ter* com teste de aceite | **84 de 84** |
+| Requisitos *deveria ter* / *poderia ter* sem teste | 12: deliberado |
 | Casos de uso sem requisito de origem | 0 |
 | Entidades sem requisito de origem | 0 |
 
-Vinte e dois requisitos estão sem teste próprio, e as duas ausências têm naturezas opostas.
-**Quinze** são de prioridade inferior a *deve ter*: decisão declarada, não omissão, o critério de
+Dezoito requisitos estão sem caso de aceite próprio, e as duas ausências têm naturezas opostas.
+**Doze** são de prioridade inferior a *deve ter*: decisão declarada, não omissão, o critério de
 aprovação de subsistema em [`E2`](../E-qualidade/E2-casos-de-teste-de-aceite.md) exige
 verificação apenas dos *deve ter*, e estender a cobertura consumiria tempo de usuário, o recurso
 mais escasso do projeto ([`E3`, R-04](../E-qualidade/E3-analise-de-riscos.md)).
 
-Os outros **sete são *deve ter* cobertos indiretamente**, cada um pelo passo de conferência de
-outro caso: a `E2` §13 os nomeia um a um. É diferença que vale registrar, porque a lacuna que a
-§5.5 descreve era de outra ordem, sete *deve ter* **sem cobertura alguma**, e essa foi fechada.
+Os outros **seis são *deve ter* cobertos pelo passo de conferência de outro caso**, e a coluna
+Teste desta matriz aponta qual: RF-79 por TA-58, RF-82 por TA-61, RF-85 e RF-89 por TA-64, RF-87
+por TA-65 e RF-88 por TA-67. A `E2` §13 registra a mesma correspondência. É diferença que vale
+declarar, porque a lacuna que a §5.5 descreve era de outra ordem, sete *deve ter* **sem cobertura
+alguma**, e essa foi fechada.
 
 ---
 

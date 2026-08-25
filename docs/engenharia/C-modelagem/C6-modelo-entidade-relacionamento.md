@@ -95,13 +95,13 @@ erDiagram
   PEDIDO       ||--o| LANCAMENTO  : "é conciliado com"
 ```
 
-O diagrama conceitual apresenta **vinte entidades**, e não as cinquenta e cinco do modelo completo.
+O diagrama conceitual apresenta **vinte e uma entidades**, e não as cinquenta e cinco do modelo completo.
 A redução é deliberada: Sommerville (2011) observa que a ausência de detalhe excessivo é
 característica central do modelo, cujo objetivo é destacar o mais relevante e não especificar por
 inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas nos modelos lógicos por
 módulo, na seção seguinte.
 
-Quatro leituras que o modelo conceitual já entrega:
+Seis leituras que o modelo conceitual já entrega:
 
 - **A espécie participa de sete relacionamentos**, e é a única entidade presente nos **quatro
   módulos**: custeio e preço no Financeiro, lote, atividade e perda na Produção, item de pedido e
@@ -127,28 +127,32 @@ Quatro leituras que o modelo conceitual já entrega:
 ### 2.1 Recorte implementado
 
 O modelo descrito aqui é o **especificado**, e é maior que o protótipo construído: das 55 entidades,
-**28 existem no banco** (mais a visão `species_unit_cost`) e **27 permanecem só especificadas**.
-O recorte segue a priorização de [`B2`](../B-requisitos/B2-especificacao-requisitos.md), e não uma
-limitação do modelo: o que se modela é o sistema especificado, o que se constrói é o recorte que
-cabe no prazo do trabalho.
+**44 existem no banco** (mais as duas visões, `species_unit_cost` e `input_stock_balance`) e
+**11 permanecem só especificadas**. O recorte segue a priorização de
+[`B2`](../B-requisitos/B2-especificacao-requisitos.md), e não uma limitação do modelo: o que se
+modela é o sistema especificado, o que se constrói é o recorte que cabe no prazo do trabalho.
 
 | Módulo | No banco | Só especificadas | Quais faltam |
 |---|---:|---:|---|
-| *(transversal)* Acesso | 4 | 1 | `settings` |
-| 1 · Cadastros | 12 | 4 | `task_types`, `areas`, `beds`, `work_shifts` |
-| 2 · Produção | 2 | 10 | `batches`, `batch_movements`, `week_plans`, `assignments`, `assignment_members`, `task_executions`, `task_expenses`, `input_stock_entries`, `loss_events`, `stock_counts` |
+| *(transversal)* Acesso | 5 | 0 | - |
+| 1 · Cadastros | 16 | 0 | - |
+| 2 · Produção | 12 | 0 | - |
 | 3 · Comercial | 8 | 0 | - |
-| 4 · Financeiro | 2 | 12 | as nove de `financeiro`, mais `labor_rates`, `sale_channels` e `sale_prices` |
-| **Total** | **28** | **27** | |
+| 4 · Financeiro | 3 | 11 | as nove de `financeiro`, mais `sale_channels` e `sale_prices` |
+| **Total** | **44** | **11** | |
 
-O [`C8`](C8-dicionario-de-dados.md) marca a condição entidade por entidade. Dois atributos de
-entidade já existente estão na mesma situação: `users.party_id` e o par
-`order_items.unit_price` / `order_items.sale_price_id`.
+O [`C8`](C8-dicionario-de-dados.md) marca a condição entidade por entidade. Três atributos de
+entidade já existente estão na mesma situação: `users.party_id`, o par
+`order_items.unit_price` / `order_items.sale_price_id` e `input_stock_entries.transaction_id`,
+este último à espera do esquema `financeiro`.
 
-**A Produção é o módulo mais especificado e o menos construído**, dez de doze entidades no papel.
-Não é acaso: é o módulo cuja construção depende de a equipe mudar de hábito, e não só de haver
-tela. As duas que existem, `input_usages` e `seed_collection_costs`, são justamente as que se
-registram sozinhas, sem depender de planejamento prévio.
+**A Produção era o módulo mais especificado e o menos construído, e deixou de ser em 24/08/2026.**
+As migrations `20260824000001` a `20260824000007` levaram ao banco as dezesseis entidades do lote,
+da agenda, do apontamento e do estoque de insumo, com a carga inicial dos vinte e dois tipos de
+tarefa e dos dois turnos. **O que falta ali é tela, não tabela**: a construção da aplicação está
+planejada em [`plans/P14`](../../../plans/P14-producao-lotes-apontamento.md). O Financeiro passou
+a ser o único módulo com entidade no papel, e por motivo próprio: depende de acesso a extrato
+bancário que o protótipo ainda não tem.
 
 ---
 
@@ -528,6 +532,7 @@ erDiagram
     uuid task_execution_id FK
     uuid loss_event_id FK
     uuid stock_count_id FK
+    uuid recorded_by FK
     text notes
   }
   week_plans {
@@ -600,11 +605,13 @@ erDiagram
     numeric quantity
     numeric unit_cost
     date entry_date
+    uuid transaction_id FK
     uuid recorded_by FK
     text notes
   }
   loss_events {
     uuid id PK
+    uuid client_id UK
     uuid batch_id FK
     uuid species_id FK
     uuid container_id FK
@@ -622,6 +629,7 @@ erDiagram
     int counted_quantity
     date counted_at
     uuid counted_by FK
+    text notes
   }
   seed_collection_costs {
     uuid id PK
@@ -649,6 +657,8 @@ erDiagram
   parties {
   }
   cost_centers {
+  }
+  transactions {
   }
 
   species     ||--o{ batches             : "é plantada em"
@@ -679,6 +689,7 @@ erDiagram
 
   inputs      ||--o{ input_usages        : "é aplicado"
   inputs      ||--o{ input_stock_entries : "entra por"
+  transactions ||--o{ input_stock_entries : "paga"
   species     ||--o{ input_usages        : "consome"
   containers  ||--o{ input_usages        : "contextualiza"
   batches     ||--o{ input_usages        : "consome"
@@ -719,8 +730,9 @@ percorrer a cadeia de `parent_batch_id` e comparar as pontas.
 **`current_quantity` é redundante com `batch_movements`, e a redundância é deliberada.** O saldo
 poderia ser somado dos movimentos a cada leitura, e é assim que o estoque de espécie funciona.
 Aqui não: a tela de ocupação lê o saldo de todos os lotes abertos a cada abertura, no celular, em
-rede instável. O saldo materializado é mantido pelo banco na mesma transação do movimento, e
-`batch_movements` é a fonte que o audita. É a única quantidade materializada do modelo, e está
+rede instável. O saldo materializado é mantido **pela aplicação** na mesma transação que grava o
+movimento, e não por gatilho: a migration cria a restrição de não negativo e deixa a atualização
+com quem já está dentro da transação. `batch_movements` é a fonte que o audita. É a única quantidade materializada do modelo, e está
 declarada como exceção justamente porque o resto do sistema segue a regra oposta.
 
 #### Agenda e apontamento: o planejado e o realizado

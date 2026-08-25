@@ -65,17 +65,17 @@ requisito é a resposta do software a ela.
 
 ## 1.2 Tabela pronta: requisitos por técnica de elicitação
 
-Contagem extraída de `B2` (105 RF). Requisitos com duas origens aparecem em ambas as linhas, por isso
-a soma dá 86 e não 79.
+Contagem extraída de `B2` (106 RF). Requisitos com duas origens aparecem em ambas as linhas, por isso
+a soma dá 113 e não 106.
 
 | Técnica (código em `B2`) | Requisitos funcionais | Leitura |
 |---|---:|---|
-| **EN**: Entrevista com chefia e gerência | 31 | Técnica dominante: o conhecimento estava na memória das pessoas |
-| **OP**: Observação participante | 26 | Segunda maior: o autor integra a operação |
-| **AD**: Análise documental (notas, extratos, planilhas) | 14 | Concentrada no subsistema financeiro e de custeio |
-| **ORG**: Política do projeto | 10 | Quase toda em acesso, segurança e fechamento de período |
+| **EN**: Entrevista com chefia e gerência | 40 | Técnica dominante: o conhecimento estava na memória das pessoas |
+| **OP**: Observação participante | 35 | Segunda maior: o autor integra a operação |
+| **ORG**: Política do projeto | 16 | Quase toda em acesso, segurança e fechamento de período |
+| **AD**: Análise documental (notas, extratos, planilhas) | 16 | Concentrada no subsistema financeiro e de custeio |
 | **LEG**: Exigência legal/fiscal | 4 | Documento fiscal, LGPD, nome científico |
-| **DOM**: Estudo do domínio florestal | 1 | Complementar |
+| **DOM**: Estudo do domínio florestal | 2 | Complementar |
 
 Nos **26 requisitos não funcionais** a origem é outra: 13 vêm de política do projeto (**ORG**),
 10 derivam diretamente das restrições **RE-1 a RE-5** de `A1`, e 3 de exigência legal (**LEG**).
@@ -118,7 +118,7 @@ Isto é o único trabalho realmente novo. Nada disso está registrado em nenhum 
 
 > ✅ **Já resolvido.** O catálogo completo agora existe em
 > [`B3-regras-de-negocio.md`](B-requisitos/B3-regras-de-negocio.md): **82 regras** numeradas
-> de RN-01 a RN-73, com oito números vagos de regras que saíram do catálogo, cada uma com
+> de RN-01 a RN-90, com oito números vagos de regras que saíram do catálogo, cada uma com
 > tipo, onde já estava documentada e os requisitos que ela origina.
 > mais as tabelas inversas (RF → RN e RNF → origem). Os mesmos conteúdos, já reduzidos ao formato
 > de quadro que vai impresso, estão em [`B4-quadros-tcc.md`](B-requisitos/B4-quadros-tcc.md).
@@ -136,7 +136,7 @@ As regras estavam dissolvidas em cinco lugares:
 
 ## 2.2 O catálogo: 82 regras, em [`B3`](B-requisitos/B3-regras-de-negocio.md)
 
-As regras estão numeradas de **RN-01 a RN-73**, com oito números vagos (RN-36, RN-49, RN-54,
+As regras estão numeradas de **RN-01 a RN-90**, com oito números vagos (RN-36, RN-49, RN-54,
 RN-60, RN-61, RN-63, RN-64 e RN-65 saíram do catálogo e não se reutilizam), e agrupadas em
 nove áreas:
 
@@ -144,7 +144,7 @@ nove áreas:
 |---|---|---|
 | A: Domínio e produto | RN-01 a RN-06 | Espécie como centro, nomes populares, recipiente define o produto, ciclo produtivo, muda pronta |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | Composição do custo unitário, histórico de preço, competência, valor-hora médio, tarefa sem espécie como custo indireto |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 | Saldo, contagem física, estoque mínimo, causa em lista fechada, mortalidade de 20%, custo da perda, agenda por turno, semana que fecha, o que soma ao estoque |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-90 | Saldo, contagem física, estoque mínimo, causa em lista fechada, mortalidade de 20%, custo da perda, agenda por turno, semana que fecha, o que soma ao estoque; e, desde 24/08/2026, área e canteiro, lote e repicagem, catálogo de tarefas, apontamento e período de trabalho, entrada e saldo de insumo, gasto de tarefa |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | Preço = custo + margem, canal, piso mínimo, frete, margem negativa, custo vigente na data, preço que sugere e não impõe |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | PF/PJ, cadastro mínimo, identidade única com papéis acumuláveis, nota externa, compensação ambiental, LGPD, endereços |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | Ciclo de estados, item genérico, disponibilidade parcial, carga como unidade que sai do viveiro, cotação de fornecedor |
@@ -154,10 +154,10 @@ nove áreas:
 
 Cada regra em `B3` traz **tipo** (fato, restrição, derivação, acionamento), **onde já estava
 documentada** e **quais RF e RNF ela origina**. As tabelas inversas (RF → RN e RNF → origem) estão
-nas seções 4 e 5 de lá, e o texto integral dos 105 RF e 26 RNF no apêndice: o arquivo é
+nas seções 4 e 5 de lá, e o texto integral dos 106 RF e 26 RNF no apêndice: o arquivo é
 autossuficiente para gerar as tabelas do trabalho.
 
-**Dois números que valem parágrafo no capítulo:** 101 dos 105 requisitos funcionais nascem de regra de
+**Dois números que valem parágrafo no capítulo:** 102 dos 106 requisitos funcionais nascem de regra de
 negócio, mas apenas 3 dos 26 não funcionais: os outros 23 vêm das restrições do ambiente (RE-1 a
 RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; o ambiente determina
 **como** ele precisa ser.
@@ -173,17 +173,18 @@ RE-5) ou de política do projeto. As regras determinam **o que** o sistema faz; 
 | 1. Conceito e critério de classificação | O teste "apague o sistema"; a distinção regra × requisito × RNF; os quatro tipos (`B3` §2) |
 | 2. Regras de domínio e produto | RN-01 a RN-06 |
 | 3. Regras de custeio | RN-07 a RN-12, RN-53, RN-56 |
-| 4. Regras de produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57 |
+| 4. Regras de produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-90 |
 | 5. Regras de precificação | RN-19 a RN-24, RN-58, RN-59: a **espinha dorsal do trabalho**, é onde o objetivo OP-3 se realiza |
 | 6. Regras de cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 |
 | 7. Regras de pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 |
-| 8. Regras financeiras, de acesso e de indicadores | RN-40 a RN-47, RN-68 a RN-70 |
+| 8. Regras financeiras, de acesso e de indicadores | RN-40 a RN-47, RN-68 a RN-73 |
 | 9. Como as regras se refletem no sistema | Tabela RN → RF (`B3` §3 e §4) → onde é verificada (`E2`) |
 | 10. Regras implementadas como restrição de dados | `C6`/`C8`: lista fechada, chave composta, `CHECK` |
 
 A seção 9 é a que fecha o capítulo com rigor: mostra que nenhuma regra ficou sem implementação e
-nenhuma implementação ficou sem regra: o mesmo raciocínio de `B5`. As três exceções (RF-02, RF-03 e
-RF-07, que não decorrem de regra alguma) estão justificadas em `B3` §6 e valem um parágrafo.
+nenhuma implementação ficou sem regra: o mesmo raciocínio de `B5`. As quatro exceções (RF-02,
+RF-03, RF-07 e RF-72, que não decorrem de regra alguma) estão justificadas em `B3` §6 e valem um
+parágrafo.
 
 ---
 

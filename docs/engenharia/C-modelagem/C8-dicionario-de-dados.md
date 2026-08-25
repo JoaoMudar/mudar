@@ -46,26 +46,30 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 ## Recorte implementado
 
 Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 55
-entidades, **28 existem no banco** (mais a visão `species_unit_cost`) e **27 estão especificadas e
-ainda não implementadas**. A distinção é registrada entidade por entidade, e não é defeito de
-modelagem: o modelo responde à especificação completa de requisitos, e a construção segue a
-priorização declarada em [`B2`](../B-requisitos/B2-especificacao-requisitos.md).
+entidades, **44 existem no banco** (mais as duas visões, `species_unit_cost` e
+`input_stock_balance`) e **11 estão especificadas e ainda não implementadas**. A distinção é
+registrada entidade por entidade, e não é defeito de modelagem: o modelo responde à especificação
+completa de requisitos, e a construção segue a priorização declarada em
+[`B2`](../B-requisitos/B2-especificacao-requisitos.md).
 
 | Módulo | No banco | Só especificadas |
 |---|---:|---:|
-| *(transversal)* Acesso | 4 | 1 |
-| 1 · Cadastros | 12 | 4 |
-| 2 · Produção | 2 | 10 |
+| *(transversal)* Acesso | 5 | 0 |
+| 1 · Cadastros | 16 | 0 |
+| 2 · Produção | 12 | 0 |
 | 3 · Comercial | 8 | 0 |
-| 4 · Financeiro | 2 | 12 |
-| **Total** | **28** | **27** |
+| 4 · Financeiro | 3 | 11 |
+| **Total** | **44** | **11** |
 
-As 27 pendentes: `settings`, `task_types`, `areas`, `beds`, `work_shifts`, `batches`,
-`batch_movements`, `input_stock_entries`, `task_executions`, `assignment_members`, `task_expenses`,
-`loss_events`, `stock_counts`, `week_plans`, `assignments`, `labor_rates`, `sale_channels`,
-`sale_prices` e as nove do esquema `financeiro` (`accounts`, `cost_centers`, `category_groups`,
-`categories`, `statement_imports`, `transactions`, `transaction_splits`, `classification_rules`,
-`periods`). A visão `input_stock_balance` acompanha `input_stock_entries`.
+As 11 pendentes são todas do Financeiro: `sale_channels`, `sale_prices` e as nove do esquema
+`financeiro` (`accounts`, `cost_centers`, `category_groups`, `categories`, `statement_imports`,
+`transactions`, `transaction_splits`, `classification_rules`, `periods`).
+
+**A Produção deixou de ser o módulo mais especificado e menos construído em 24/08/2026**, quando as
+migrations `20260824000001` a `20260824000007` criaram as dezesseis entidades do lote, da agenda,
+do apontamento e do estoque de insumo. O que ainda não existe ali é **tela**: as tabelas estão no
+banco, com a carga inicial dos vinte e dois tipos de tarefa e dos dois turnos, e a construção da
+aplicação está planejada em [`plans/P14`](../../../plans/P14-producao-lotes-apontamento.md).
 
 **Nove das 27 entraram em 24/08/2026**, com a revisão de escopo que trouxe o lote
 ([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). A Produção passou a ser o módulo mais
@@ -119,8 +123,6 @@ Quatro atributos de entidade já existente estão na mesma condição: `users.pa
 | `user_agent` | text | ○ | | Dispositivo e navegador |
 
 ## `settings`: parâmetro do sistema
-
-*Especificada, não implementada no protótipo.*
 
 Parâmetro escalar em chave e valor tipado. Existe para tirar do código e da variável de ambiente
 o que **é regra de negócio e não infraestrutura**: quem decide o limiar de mortalidade, as
@@ -363,8 +365,6 @@ exige uma implantação.
 
 ## `task_types`: tipo de tarefa
 
-*Especificada, não implementada no protótipo.*
-
 Vocabulário fechado da agenda e do apontamento (RF-70). **É o catálogo que comanda o formulário**:
 os três `requires_*` e o `measurement_type` decidem o que a tela pede em cada tarefa (RF-82). O
 tempo médio por unidade é o que liga a tarefa de campo ao custo de mão de obra.
@@ -420,8 +420,6 @@ como três tarefas distintas, e a soma de horas por tarefa deixaria de existir.
 
 ## `areas`: área do viveiro
 
-*Especificada, não implementada no protótipo.*
-
 Divisão física do viveiro, identificada por letra. É a primeira metade do endereço de uma muda
 (RN-74).
 
@@ -434,8 +432,6 @@ Divisão física do viveiro, identificada por letra. É a primeira metade do end
 | `active` | boolean | ● | | Área em uso |
 
 ## `beds`: canteiro
-
-*Especificada, não implementada no protótipo.*
 
 Subdivisão da área, numerada dentro dela. É a segunda metade do endereço, e o que a tarefa de campo
 pede para ser executada.
@@ -458,8 +454,6 @@ pede para ser executada.
 > conseguir registrá-lo.
 
 ## `work_shifts`: turno de trabalho
-
-*Especificada, não implementada no protótipo.*
 
 O **período de trabalho** (RF-83). Existe para tirar de dentro do código o número que a RN-48
 trazia no próprio enunciado: um turno valia quatro horas por convenção, e convenção que muda com a
@@ -486,8 +480,6 @@ estação e com a combinação da equipe é dado, não constante (RN-85).
 
 ## `batches`: lote
 
-*Especificada, não implementada no protótipo.*
-
 **A leva de mudas da mesma espécie, no mesmo recipiente, plantada junta e ocupando um canteiro**
 (RN-75). É a entidade que diz *onde* a muda está e *de que leva* ela veio: até 24/08/2026 o modelo
 respondia o que a muda era e não onde estava. A revisão de escopo está justificada em
@@ -502,7 +494,7 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 | `bed_id` | uuid | ○ | FK → `beds` | Canteiro ocupado. Nulo quando o lote está encerrado |
 | `parent_batch_id` | uuid | ○ | FK → `batches` | Lote de origem, quando este nasceu de uma repicagem (RN-77) |
 | `initial_quantity` | integer | ● | | Quantidade que entrou. Restrição: maior que zero |
-| `current_quantity` | integer | ● | | Saldo vivo. Restrição: não negativo (RN-78). **Mantido pelo banco** na mesma transação do movimento |
+| `current_quantity` | integer | ● | | Saldo vivo. Restrição de banco: não negativo (RN-78). **Mantido pela aplicação** na mesma transação do movimento |
 | `stage` | text | ● | | Fase em **lista fechada**: `semeado`, `germinado`, `repicado`, `crescimento`, `rustificacao`, `pronto`, `encerrado` |
 | `planted_at` | date | ● | | Data em que a leva foi plantada no canteiro |
 | `expected_ready_at` | date | ○ | | **Derivado**: `planted_at` mais o tempo de produção da espécie. Fica nulo quando a espécie não o tem cadastrado |
@@ -522,8 +514,10 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 > **`current_quantity` é a única quantidade materializada do modelo, e a exceção é declarada.** O
 > saldo poderia ser somado de `batch_movements` a cada leitura, como o estoque de espécie faz. Aqui
 > não: a tela de ocupação lê o saldo de todos os lotes abertos de uma vez, no celular, em rede
-> instável. O banco o mantém na mesma transação do movimento, e `batch_movements` é a fonte que o
-> audita: divergência entre os dois é defeito detectável, não ambiguidade de modelo.
+> instável. **Quem o mantém é a aplicação**, na mesma transação que grava o movimento, e não um
+> gatilho: a migration cria a restrição de não negativo e deixa a atualização com quem já está
+> dentro da transação. `batch_movements` é a fonte que o audita, e divergência entre os dois é
+> defeito detectável, não ambiguidade de modelo.
 
 > **`parent_batch_id` é o que a repicagem produz.** A muda que passa do tubete para o saco mudou de
 > recipiente, e recipiente define produto, custo e preço: comercialmente, virou outra coisa. Por
@@ -532,8 +526,6 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 > que é a pergunta que o viveiro nunca pôde responder.
 
 ## `batch_movements`: movimento de lote
-
-*Especificada, não implementada no protótipo.*
 
 O razão que explica o saldo do lote. Toda alteração de `batches.current_quantity` tem uma linha
 aqui, com motivo e origem.
@@ -574,8 +566,8 @@ aqui, com motivo e origem.
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `input_id` | uuid | ● | FK → `inputs` | Insumo aplicado |
-| `task_execution_id` | uuid | ○ | FK → `task_executions` | Apontamento em que o insumo foi gasto. **Especificado, não implementado** |
-| `batch_id` | uuid | ○ | FK → `batches` | Lote que o recebeu. **Especificado, não implementado** |
+| `task_execution_id` | uuid | ○ | FK → `task_executions` | Apontamento em que o insumo foi gasto |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote que o recebeu |
 | `species_id` | uuid | ○ | FK → `species` | Espécie que o recebeu. Dispensável quando há lote, que a determina |
 | `container_id` | uuid | ○ | FK → `containers` | Recipiente em que foi aplicado. Dispensável quando há lote |
 | `quantity` | numeric(10,3) | ● | | Quantidade consumida. Restrição: maior que zero |
@@ -606,8 +598,6 @@ aqui, com motivo e origem.
 
 ## `input_stock_entries`: entrada de estoque de insumo
 
-*Especificada, não implementada no protótipo.*
-
 O que **entra** no estoque de insumo. A saída é o próprio `input_usages`, e o saldo é a visão
 `input_stock_balance`: não há campo de saldo em `inputs` (RN-88).
 
@@ -619,7 +609,7 @@ O que **entra** no estoque de insumo. A saída é o próprio `input_usages`, e o
 | `quantity` | numeric(12,3) | ● | | Quantidade, com sinal: negativa em `perda` e em ajuste para baixo |
 | `unit_cost` | numeric(12,4) | ○ | | Custo unitário da entrada, quando `compra` |
 | `entry_date` | date | ● | | Data da entrada |
-| `transaction_id` | uuid | ○ | FK → `financeiro.transactions` | Lançamento que a pagou, quando conciliado |
+| `transaction_id` | uuid | ○ | FK → `financeiro.transactions` | Lançamento que a pagou, quando conciliado. **Especificado, não implementado**: a coluna entra junto com o esquema `financeiro`, como `task_expenses.cost_center_id` |
 | `recorded_by` | uuid | ● | FK → `users` | Quem registrou |
 | `notes` | text | ○ | | Observação |
 
@@ -634,13 +624,13 @@ O que **entra** no estoque de insumo. A saída é o próprio `input_usages`, e o
 
 ## `input_stock_balance`: saldo de insumo *(não é tabela)*
 
-*Especificada, não implementada no protótipo.*
-
 Visão derivada: soma de `input_stock_entries` menos soma de `input_usages`, por insumo (RF-102).
 
 | Atributo | Origem |
 |---|---|
 | `input_id` | `inputs.id` |
+| `input_name` | `inputs.name` |
+| `unit_of_measure` | `inputs.unit_of_measure` |
 | `total_in` | Soma de `input_stock_entries.quantity` |
 | `total_used` | Soma de `input_usages.quantity` |
 | `balance` | `total_in` menos `total_used` |
@@ -671,8 +661,6 @@ Visão derivada: soma de `input_stock_entries` menos soma de `input_usages`, por
 | `collection_date` | date | ● | | Data da coleta |
 
 ## `task_executions`: apontamento de tarefa
-
-*Especificada, não implementada no protótipo.*
 
 **O realizado, contra `assignments`, que é o planejado.** Uma linha por funcionário e por tarefa,
 com hora de início e de fim: é dela que saem as horas do período (RF-100) e é ela que sustenta o
@@ -723,8 +711,6 @@ cartão do funcionário na agenda do dia (RF-94).
 
 ## `assignment_members`: participante da tarefa
 
-*Especificada, não implementada no protótipo.*
-
 Quem foi escalado numa atribuição. Existe porque uma tarefa admite vários executores, e o mesmo
 turno admite duas tarefas com grupos diferentes (RN-84).
 
@@ -742,8 +728,6 @@ turno admite duas tarefas com grupos diferentes (RN-84).
 > `task_executions`, uma linha por pessoa: aqui fica só o planejado.
 
 ## `task_expenses`: gasto extra da tarefa
-
-*Especificada, não implementada no protótipo.*
 
 Despesa incorrida na execução e não coberta pelos insumos: frete de uma carga de terra, diária de
 maquinário, compra de emergência (RF-104).
@@ -769,8 +753,6 @@ maquinário, compra de emergência (RF-104).
 
 ## `loss_events`: perda
 
-*Especificada, não implementada no protótipo.*
-
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
@@ -781,6 +763,7 @@ maquinário, compra de emergência (RF-104).
 | `cause` | text | ● | | Causa em **lista fechada**: `seca`, `praga`, `geada`, `manuseio`, `outro` |
 | `loss_date` | date | ● | | Data da constatação |
 | `reported_by` | uuid | ● | FK → `users` | Quem registrou |
+| `client_id` | uuid | ○ | UK | Identificador gerado no aparelho antes do envio, mesmo padrão de `input_usages` (RNF-05). Perda duplicada infla a mortalidade, que dispara alerta a 20% |
 | `notes` | text | ○ | | Observação |
 
 > **Continuam quatro campos no formulário de campo**, e agora são lote, quantidade, causa e
@@ -801,8 +784,6 @@ maquinário, compra de emergência (RF-104).
 
 ## `stock_counts`: contagem física de estoque
 
-*Especificada, não implementada no protótipo.*
-
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
@@ -812,6 +793,7 @@ maquinário, compra de emergência (RF-104).
 | `counted_quantity` | integer | ● | | Quantidade efetivamente contada. Restrição: não negativa |
 | `counted_at` | date | ● | | Data da contagem |
 | `counted_by` | uuid | ● | FK → `users` | Quem contou |
+| `notes` | text | ○ | | Observação |
 
 > **Não armazena o estoque**: armazena o evento de contagem. O estoque permanece derivado de
 > produção menos perdas menos saídas; quando a contagem diverge do calculado, prevalece a contagem, e
@@ -827,8 +809,6 @@ maquinário, compra de emergência (RF-104).
 
 ## `week_plans`: semana de trabalho
 
-*Especificada, não implementada no protótipo.*
-
 A semana é a unidade real de decisão do viveiro (RF-71, RF-73). Fechada, não se altera: sem isso
 o custo do período mudaria depois de apurado (RN-50).
 
@@ -841,8 +821,6 @@ o custo do período mudaria depois de apurado (RN-50).
 | `closed_at` | timestamptz | ○ | | Momento do fechamento; a partir dele a semana é imutável |
 
 ## `assignments`: atribuição de tarefa
-
-*Especificada, não implementada no protótipo.*
 
 A célula da grade: um dia, um turno, um tipo de tarefa e o grupo escalado. É daqui que saem as
 horas dos dias sem apontamento (RF-100), e a duração do turno vem de `work_shifts` (RN-48, RN-85).
@@ -1061,19 +1039,24 @@ unitário por espécie e recipiente** consumido pelo relatório de margem (RF-17
 
 ## `labor_rates`: valor-hora do período
 
-*Especificada, não implementada no protótipo.*
-
 Um registro por mês: folha dividida por horas (RN-53). Guarda o custo da hora **da equipe**, nunca
 o salário individual.
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `year` | integer | ● | | Ano de referência |
-| `month` | integer | ● | | Mês de referência |
-| `payroll_total` | numeric(14,2) | ● | | Total da folha do mês, vindo do financeiro |
-| `hours_total` | numeric(10,2) | ● | | Horas apuradas na agenda do mês |
-| `hourly_rate` | numeric(12,4) | ● | | Derivado: `payroll_total / hours_total` |
+| `reference_month` | date | ● | UK | Mês de referência, no primeiro dia do mês. Um registro por mês |
+| `total_payroll` | numeric(12,2) | ● | | Total da folha do mês, vindo do financeiro. Restrição: maior que zero |
+| `total_hours` | numeric(10,2) | ● | | Horas apuradas na agenda do mês. Restrição: maior que zero |
+| `rate_per_hour` | numeric(12,4) | ● | | **Derivado e mantido pelo banco**: `total_payroll / total_hours` |
+
+> **O mês é uma data, e não o par ano e mês.** Um `date` no primeiro dia do mês ordena, compara e
+> entra em intervalo sem conversão, e a chave única sobre ele já impede o segundo registro do mesmo
+> mês, que duas colunas independentes só impediriam com restrição composta.
+
+> **`rate_per_hour` é coluna gerada**, calculada pelo banco a cada gravação. Não é a exceção que
+> `batches.current_quantity` declara: aqui o valor não é mantido pela aplicação, é derivado na
+> própria linha e não tem como divergir das duas que o produzem.
 
 ## `financeiro.accounts`: conta
 

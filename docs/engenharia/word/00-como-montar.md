@@ -4,7 +4,7 @@
 > `docs/engenharia/` e rode `npm run docs:tcc`. Qualquer edição feita nesta pasta é perdida
 > na próxima geração.
 
-Gerado em 2026-08-24 · 16 arquivos · 18 figuras.
+Gerado em 2026-08-25 · 16 arquivos · 18 figuras.
 
 ## Ordem de colagem no Capítulo 4
 

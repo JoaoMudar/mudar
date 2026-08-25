@@ -194,7 +194,7 @@ graph LR
   CH --- UC39
 ```
 
-A concentração é acentuada: **vinte e sete dos cinquenta e cinco casos de uso pertencem à chefia.** Não é
+A concentração é acentuada: **vinte e sete dos cinquenta e seis casos de uso pertencem à chefia.** Não é
 falha de distribuição: é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
@@ -224,6 +224,7 @@ graph LR
     UC51(["UC-51 · Encerrar tarefa"])
     UC52(["UC-52 · Encerrar o dia do funcionário"])
     UC55(["UC-55 · Consultar saldo de insumos"])
+    UC56(["UC-56 · Registrar entrada de insumo"])
   end
 
   subgraph M3["3 · Comercial"]
@@ -246,6 +247,7 @@ graph LR
   GE --- UC51
   GE --- UC52
   GE --- UC55
+  GE --- UC56
   GE --- UC13
   GE --- UC14
   GE --- UC15
@@ -382,8 +384,9 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-53** | Registrar insumos e gastos da tarefa | 2 · Prod. | Colaborador | RF-101, RF-104, RF-105 | - |
 | **UC-54** | Manter período de trabalho | 1 · Cad. | Gerência | RF-83 | - |
 | **UC-55** | Consultar saldo de insumos | 2 · Prod. | Gerência | RF-102, RF-103 | - |
+| **UC-56** | Registrar entrada de insumo | 2 · Prod. | Gerência | RF-106 | - |
 
-**55 casos de uso.** Os doze marcados são especificados em detalhe em
+**56 casos de uso.** Os doze marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
 

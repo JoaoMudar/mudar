@@ -29,21 +29,21 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 
 | Fig. | Arquivo | Conteúdo | Fonte útil |
 |---:|---|---|---|
-| 6 | `fig06-conceitual-producao` | Conceitual: da semente à muda pronta | 10,5 pt |
+| 6 | `fig06-conceitual-producao` | Conceitual: da semente à muda pronta | 8,7 pt |
 | 7 | `fig07-conceitual-comercial` | Conceitual: do custo ao dinheiro | 6,5 pt |
 | 8 | `fig08-acesso` | Acesso e parâmetros, transversais aos quatro módulos | 7,3 pt |
 | 9 | `fig09-cadastros-especie` | Cadastros: a espécie e seus nomes | 15,8 pt |
 | 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,4 pt |
 | 11 | `fig11-cadastros-viveiro` | Cadastros: área, canteiro e turno de trabalho | 16,2 pt |
 | 12 | `fig12-cadastros-pessoas` | Cadastros: identidade única e papéis | 6,9 pt |
-| 13 | `fig13-producao-agenda` | Produção: agenda, apontamento e gasto de tarefa | 7,1 pt |
+| 13 | `fig13-producao-agenda` | Produção: agenda, apontamento e gasto de tarefa | 6,2 pt · **a mais apertada** |
 | 14 | `fig14-producao-lote` | Produção: o lote e seus movimentos | 9,8 pt |
 | 15 | `fig15-producao-campo` | Produção: consumo, perda e contagem | 5,5 pt · **usar paisagem** (8,2 pt) |
 | 16 | `fig16-comercial-pedido` | Comercial: pedido, item e carga | 7,3 pt |
 | 17 | `fig17-comercial-cotacao` | Comercial: cotação com fornecedor | 12,4 pt |
 | 18 | `fig18-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
 | 19 | `fig19-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,5 pt |
-| 20 | `fig20-financeiro-custo-preco` | Financeiro: do custo ao preço | 7,1 pt |
+| 20 | `fig20-financeiro-custo-preco` | Financeiro: do custo ao preço | 6,9 pt |
 
 "Fonte útil" é o tamanho que o texto assume ao encaixar a figura na mancha de 16 x 24 cm, limitado
 pela largura ou pela altura, o que apertar primeiro. Abaixo de 6 pt não se lê impresso.
@@ -68,12 +68,20 @@ figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura
 **Por que o conceitual foi dividido em 24/08/2026.** Ele resistiu à primeira rodada de divisões
 como figura única, ao custo de virar uma faixa de 3,5:1 que só se lia em paisagem, a 8,2 pt. Com o
 lote no escopo, passou a 20 entidades e 4,7:1: 3,8 pt em retrato e **5,7 pt mesmo em paisagem**,
-abaixo do limite. Dividido em dois, cabe em retrato a 10,5 e 6,5 pt, sem desdobrável.
+abaixo do limite. Dividido em dois, cabe em retrato a 8,7 e 6,5 pt, sem desdobrável.
 
 O corte é o mesmo que o texto do C6 já faz: um lado é o **ciclo produtivo**, da semente à muda
 pronta, com o custo apurado na ponta; o outro é o **ciclo do dinheiro**, do custo ao preço, ao
 pedido e ao lançamento. `CUSTO_PRODUCAO` aparece nas duas, e é de propósito: é a dobradiça entre
 elas, o ponto em que o que se gastou vira o que se cobra.
+
+> **A divisão não pode custar relacionamento.** A primeira versão da `fig06` deixou de fora
+> `ESPECIE → PRODUCAO` e `ESPECIE → PERDA`, que o `C6` traz: com elas ausentes, a leitura do `C6`
+> "a espécie participa de sete relacionamentos" não se comprovava em figura nenhuma, e era a
+> própria centralidade da espécie que deixava de aparecer. As duas voltaram, e a ordem de
+> declaração foi reescrita para evitar rótulos sobrepostos (a fonte útil caiu de 10,5 para 8,7 pt,
+> ainda bem acima do limite). **Ao dividir uma figura, confira o total de relacionamentos das duas
+> partes contra o original**, e não só o de entidades.
 
 ## Correspondência de nomes de tabela
 
@@ -140,7 +148,8 @@ Colunas que mudaram de sentido e não só de idioma, vale registrar:
 
 - `input_usages.client_id` virou `usos_insumo.id_offline`: o `client_id` original é o identificador
   gerado no aparelho antes do envio (RNF-05), nada a ver com cliente. O mesmo vale para
-  `task_executions.client_id`, que virou `execucoes_tarefa.id_offline`.
+  `task_executions.client_id` e `loss_events.client_id`, que viraram `execucoes_tarefa.id_offline`
+  e `eventos_perda.id_offline`.
 - `order_status_history.from_status` / `to_status` viraram `situacao_anterior` / `situacao_nova`,
   porque `status` foi traduzido como `situacao` em todo o modelo.
 - `batches.parent_batch_id` virou `lotes.lote_origem_id`. "Pai" descreve a estrutura da árvore;

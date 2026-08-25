@@ -18,9 +18,11 @@ erDiagram
     numeric custo_unitario
     date data_entrada
     uuid lancamento_id FK
+    uuid registrado_por FK
   }
   eventos_perda {
     uuid id PK
+    uuid id_offline UK
     uuid lote_id FK
     uuid especie_id FK
     uuid recipiente_id FK

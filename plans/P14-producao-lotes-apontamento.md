@@ -7,9 +7,17 @@
 **Status: engenharia e banco concluídos (24/08/2026). Nenhuma tela construída.**
 
 > **Este plano começa onde os outros terminam.** A rodada de 24/08 fez **toda a engenharia e
-> todas as migrations**: as 7 tabelas novas existem no banco local, a carga das 22 tarefas está
-> lá, e a prova de que o modelo fecha rodou de ponta a ponta. O que falta é **aplicação**:
-> Server Actions, telas e testes.
+> todas as migrations**: as **dezesseis tabelas novas**, em 7 migrations, existem no banco local,
+> a carga das 22 tarefas e dos 2 turnos está lá, e a prova de que o modelo fecha rodou de ponta a
+> ponta. O que falta é **aplicação**: Server Actions, telas e testes.
+
+> **Conferência de 24/08, depois das migrations.** O modelo foi confrontado com o banco migrado,
+> coluna por coluna, e nove correções entraram: o recorte implementado de `C6`/`C8` (que ainda
+> dava as dezesseis como não implementadas), `labor_rates`, três colunas ausentes dos documentos,
+> `input_stock_entries.transaction_id`, **RF-106 / UC-56 / TA-85** para a entrada de insumo, que
+> não tinha requisito, o saldo do lote (mantido pela aplicação, não por gatilho), as figuras 6 e 13
+> em português e as contagens de quatro documentos. Detalhe na quinta passada de
+> [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md).
 
 ---
 
@@ -63,7 +71,7 @@ Todos já aplicados em 24/08/2026.
 | `C6` / `C8` | 46 → **55 entidades** e 1 → **2 visões**; `production_activities` virou `task_executions` | 🔴 alta |
 | `modelo-dados-pt` | 12 → **15 figuras**, com renumeração; conceitual dividido em dois | 🔴 alta |
 | `D4` | 7 recursos novos; §3.13, §3.14 e §3.15 | 🟠 média |
-| `E2` | §5.1 nova: TA-59 a TA-84 | 🟠 média |
+| `E2` | §5.1 nova: TA-59 a TA-85 | 🟠 média |
 | `src/lib/permissions.ts` | 7 recursos, conferidos contra o `D4` por teste | 🟠 média |
 
 ---
@@ -77,7 +85,7 @@ Todos já aplicados em 24/08/2026.
 - [x] **T14.5** `C1` e `C2`: UC-46 a UC-55; quatro detalhados
 - [x] **T14.6** `C6`, `C8` e `modelo-dados-pt`: 55 entidades, 15 figuras regeradas
 - [x] **T14.7** `D4` e `src/lib/permissions.ts`: 7 recursos, teste verde
-- [x] **T14.8** `E2`: TA-59 a TA-84
+- [x] **T14.8** `E2`: TA-59 a TA-85
 - [x] **T14.9** `B5` e `B4`: rastreabilidade e quadros
 - [x] **T14.10** rotinas: `01` reescrita, `04-lotes-e-canteiros.md` e `05-apontamento-de-tarefas.md`
 - [x] **T14.11** 7 migrations, aplicadas no Postgres local

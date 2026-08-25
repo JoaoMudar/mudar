@@ -33,6 +33,8 @@ erDiagram
     timestamptz iniciado_em
     timestamptz encerrado_em
     uuid lote_id FK
+    uuid especie_id FK
+    uuid recipiente_id FK
     int quantidade
     text situacao
     uuid registrado_por FK
@@ -45,10 +47,15 @@ erDiagram
     numeric valor
     date data_gasto
     uuid centro_custo_id FK
+    uuid registrado_por FK
   }
   tipos_tarefa {
   }
   turnos_trabalho {
+  }
+  especies {
+  }
+  recipientes {
   }
   pessoas {
   }
@@ -61,6 +68,8 @@ erDiagram
   tipos_tarefa    ||--o{ atribuicoes               : "classifica"
   turnos_trabalho ||--o{ atribuicoes               : "situa no dia"
   lotes           ||--o{ atribuicoes               : "é trabalhado em"
+  especies        ||--o{ atribuicoes               : "é objeto de"
+  recipientes     ||--o{ atribuicoes               : "contextualiza"
   atribuicoes     ||--o{ atribuicoes_participantes : "escala"
   pessoas         ||--o{ atribuicoes_participantes : "participa de"
   atribuicoes     ||--o{ execucoes_tarefa          : "vira realizado em"

@@ -84,7 +84,7 @@ autenticação.
 
 *Acrescentada em 24/08/2026.* Fecha a lacuna que a §13 declarava desde 19/08: **RF-69 a RF-76
 estavam sem critério de aprovação**, e o subsistema da agenda não tinha como ser aceito. Os casos
-abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-105).
+abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-106).
 
 ### 5.1.1 Cadastro do viveiro
 
@@ -132,6 +132,7 @@ abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-105).
 
 | ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
 |---|---|---|---|---|---|
+| **TA-85** | RF-106 | Insumo cadastrado, sem nenhuma entrada lançada | 1. Lançar entrada do tipo compra, 100 litros, com custo unitário<br>2. Consultar o saldo do insumo | O saldo passa de zero a 100, e a entrada aparece no histórico do insumo com o custo informado | Não executado |
 | **TA-81** | RF-101, RF-102 | Insumo com 100 litros de entrada e nenhum consumo | 1. Encerrar uma tarefa informando consumo de 30 litros<br>2. Consultar o saldo do insumo | O saldo passa a 70, **sem nenhuma ação além do encerramento da tarefa** | Não executado |
 | **TA-82** | RF-105 | Insumo com saldo 10 | 1. Encerrar tarefa informando consumo de 25 | O registro é **gravado**, e o saldo aparece negativo e destacado. A operação não é recusada | Não executado |
 | **TA-83** | RF-104 | Tarefa encerrada, ligada a um lote | 1. Lançar gasto extra de frete na tarefa<br>2. Consultar o custo do lote | O gasto aparece como custo direto daquele lote, e não no rateio geral | Não executado |
@@ -259,14 +260,14 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Lotes | 6 | RF-84 a RF-91 |
 | Agenda da semana | 5 | RF-71 a RF-74, RF-92, RF-93 |
 | Apontamento | 7 | RF-75, RF-76, RF-94 a RF-100 |
-| Insumos e gastos da tarefa | 4 | RF-101, RF-102, RF-104, RF-105 |
+| Insumos e gastos da tarefa | 5 | RF-101, RF-102, RF-104, RF-105, RF-106 |
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
 | Fornecedores | 3 | RF-53, RF-54 |
 | Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **84** | **80 dos 87 requisitos de prioridade *deve ter*** |
+| **Total** | **85** | **84 dos 84 requisitos de prioridade *deve ter*** |
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de
@@ -276,12 +277,14 @@ prioridade *deve ter* é defeito de especificação, não do teste.
 estavam descobertos (RF-69 a RF-74 e RF-76) e o subsistema não tinha critério de aprovação
 declarado. A §5.1 cobre os sete, junto dos requisitos da rotina de produção.
 
-**Sete *deve ter* continuam descobertos**, todos acrescentados em 24/08/2026 e todos de
-apresentação: RF-79 e RF-103 (sinalizações), RF-85 e RF-87 (telas de consulta, cobertas
-indiretamente por TA-64 e TA-65), RF-82 (coberto por TA-61), RF-88 e RF-89 (cobertos por TA-67 e
-TA-64). Pelo critério do parágrafo anterior isso é defeito de especificação, e a decisão foi
-**não multiplicar casos que apenas reexecutam o passo de conferência de outro**: a cobertura
-indireta está declarada aqui em vez de disfarçada num caso próprio.
+**Seis *deve ter* não têm caso próprio**, e são cobertos pelo passo de conferência de outro:
+RF-79 por TA-58, RF-82 por TA-61, RF-85 e RF-89 por TA-64, RF-87 por TA-65 e RF-88 por TA-67. A
+decisão foi **não multiplicar casos que apenas reexecutam a conferência de outro**: a cobertura
+indireta está declarada aqui e na coluna Teste da [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md),
+em vez de disfarçada num caso próprio.
+
+**Doze requisitos seguem sem caso**, todos de prioridade inferior a *deve ter*, entre eles RF-103.
+É decisão declarada em §1, não omissão.
 
 ---
 

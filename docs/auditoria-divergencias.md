@@ -22,7 +22,7 @@
 | [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | 🟠 média |
 | [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | ✅ resolvido 19/08 |
-| [I](#i--o-que-não-é-divergência) | 46 entidades especificadas × 28 tabelas reais | ⚪ não é erro |
+| [I](#i--o-que-não-é-divergência) | 55 entidades especificadas × 44 tabelas reais | ⚪ não é erro |
 | [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
 | [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
 | [L](#l-lote-excluído-em-três-documentos-e-assumido-num-plano-24082026) | "Lote" fora de escopo em `A1`, `A2` e `C2`, e assumido pelo `P2` | ✅ resolvido 24/08 |
@@ -154,25 +154,33 @@ as linhas novas em `B5`. Lista completa em
 
 ## I: O que **não** é divergência
 
-`C6`/`C8` especificam **46 entidades**; o banco tem **28 tabelas** e 1 visão. Isso é intencional e
+`C6`/`C8` especificam **55 entidades**; o banco tem **44 tabelas** e 2 visões. Isso é intencional e
 está declarado em `docs/engenharia/00-indice.md`:
 
 > Os artefatos são redigidos em tempo de projeto, como especificação da solução a ser
 > construída. São documentos de projeto, não relatórios de código.
 
-As entidades ainda não criadas (`production_activities`, `loss_events`, `stock_counts`,
-`accounts`, `cost_centers`, `categories`, `transactions`, `transaction_splits`,
-`classification_rules`, `periods`, `statement_imports`, `sale_channels`, `sale_prices` e, desde
-19/08/2026, `task_types`, `week_plans`, `assignments`, `labor_rates`) correspondem a P2, P3, P12 e
-P13: projetos especificados e não implementados. `parties`, `party_roles` e `addresses` saíram
-desta lista: foram criadas na Fase 1 do P12/P13, em 11/08/2026.
+As entidades ainda não criadas são **onze, e todas do Financeiro**: `sale_channels`,
+`sale_prices` e as nove do esquema `financeiro` (`accounts`, `cost_centers`, `category_groups`,
+`categories`, `statement_imports`, `transactions`, `transaction_splits`, `classification_rules`,
+`periods`). Correspondem ao P12: projeto especificado e não implementado, dependente de acesso a
+extrato bancário que o protótipo ainda não tem.
+
+**A lista encolheu duas vezes.** `parties`, `party_roles` e `addresses` saíram em 11/08/2026, na
+Fase 1 do P12/P13. Em 24/08/2026 saíram as dezesseis da rotina de produção (`settings`,
+`task_types`, `areas`, `beds`, `work_shifts`, `batches`, `batch_movements`, `week_plans`,
+`assignments`, `assignment_members`, `task_executions`, `labor_rates`, `input_stock_entries`,
+`task_expenses`, `loss_events`, `stock_counts`), criadas pelas migrations `20260824000001` a
+`20260824000007`, junto da visão `input_stock_balance`. `production_activities` não saiu da lista:
+deixou de existir, substituída por `task_executions` antes de chegar ao banco.
 
 **Uma coluna, e não uma entidade, também está nessa condição:** `users.party_id`, especificada em
 `C6 §3.1` e `C8`, com a justificativa da opcionalidade nos dois, não existe no banco. A migration
 `20260811000004` ligou `party_id` em `customers` e `suppliers`, e deixou `users` de fora. Fica
 registrada aqui pelo mesmo critério das entidades acima: é especificação à frente do código, não
 erro de documento. Desde 24/08/2026 a própria linha do `C8` traz a marca **Especificado, não
-implementado**, e o mesmo vale para `order_items.unit_price` e `order_items.sale_price_id`.
+implementado**, e o mesmo vale para `order_items.unit_price`, `order_items.sale_price_id` e
+`input_stock_entries.transaction_id`, este à espera do esquema `financeiro`.
 
 > ✅ **Conferência de 21/08/2026.** `C6` e `C8` foram confrontados com as 33 migrations, coluna por
 > coluna. Sete divergências no sentido inverso, banco à frente do documento, foram corrigidas:
@@ -476,3 +484,61 @@ lote**: o formulário continua com quatro campos, e um deles troca de "espécie 
 `plans/P2` deixa de estar à frente dos documentos: as tabelas que ele previa entram no modelo com
 nomes reconciliados (`batches` + `batch_movements`, no lugar de `batches` + `batch_counts`), e a
 contagem física de lote passa a ser `stock_counts` com `batch_id`, sem entidade paralela.
+
+---
+
+## Quinta passada: a rotina de produção contra o que ela deixou para trás (24/08/2026, depois das migrations)
+
+A quarta passada conferiu o modelo **antes** de as migrations existirem, e por isso fala em "28
+tabelas reais": as sete migrations `20260824000001` a `20260824000007` vieram depois dela, no mesmo
+dia. Esta passada confere o estado resultante, com o banco local migrado e consultado pelo
+`information_schema`.
+
+**Conferiu certo o essencial.** As 7 migrations estão aplicadas, sem colisão de nome com tabela
+existente e sem guarda condicional; as regras viraram restrição onde deviam (RN-76 por índice único
+parcial no canteiro, RN-78 por `CHECK`, RN-79 pelo par `closed_at`/`bed_id`, RN-83 por índice único
+parcial na pessoa); `B3` fecha em 82 regras com os tipos batendo; TA e UC não têm buraco de
+numeração; os 686 testes passam e `permissions.ts` confere os 7 recursos novos contra o `D4`.
+
+Nove correções:
+
+1. **O recorte implementado ficou mentindo.** `C6` §2.1 e `C8` seguiam em "28 no banco, 27 só
+   especificadas", e as dezesseis tabelas novas traziam a marca *Especificada, não implementada no
+   protótipo*, embora existissem no banco. A conta passou a **44 no banco e 11 só especificadas**,
+   todas do Financeiro, e as duas visões passaram a implementadas. Em cascata: o achado I acima e
+   `word/`.
+2. **`labor_rates` não batia em nenhuma coluna.** O `C8` declarava `year`, `month`,
+   `payroll_total`, `hours_total` e `hourly_rate`; o banco tem `reference_month`, `total_payroll`,
+   `total_hours` e `rate_per_hour`. O dicionário passou a seguir o banco, com a justificativa do mês
+   como data e da coluna gerada.
+3. **Três colunas existiam no banco e faltavam nos documentos**: `loss_events.client_id` (a
+   idempotência offline da perda, RNF-05), `stock_counts.notes` e `batch_movements.recorded_by`.
+   As duas primeiras faltavam no `C8` e no `C6`; a terceira, só no diagrama do `C6`.
+4. **`input_stock_entries.transaction_id` estava no `C8` e não no banco.** É especificação à frente
+   do código, como `task_expenses.cost_center_id`: passou a trazer a marca **Especificado, não
+   implementado** e a aparecer no diagrama do `C6`, com a caixa de `transactions`.
+5. **A entrada de insumo não tinha requisito que a originasse.** `input_stock_entries` existia no
+   banco, a RN-88 a pressupunha ("entradas menos consumo") e o recurso `Estoque de insumo` do `D4`
+   já a autorizava, mas nenhum RF mandava registrá-la: RF-101 é consumo, RF-102 saldo, RF-103
+   alerta, RF-104 gasto e RF-105 negativo. Sem ela o saldo nasceria negativo em todo insumo. Entrou
+   **RF-106**, com **UC-56** e **TA-85**, e a linha correspondente no `B5`.
+6. **O saldo do lote dizia-se mantido pelo banco.** Não há gatilho: a migration cria a restrição de
+   não negativo e a atualização fica com a aplicação, na mesma transação do movimento. `C6` e `C8`
+   passaram a dizer isso.
+7. **O conceitual tinha 21 entidades e o texto dizia vinte**, e as figuras em português tinham
+   perdido `ESPECIE → PRODUCAO` e `ESPECIE → PERDA` na divisão da figura 6, o que desmentia a
+   leitura "a espécie participa de sete relacionamentos". As duas voltaram à `fig06`.
+8. **Contagens desatualizadas em quatro documentos**: o guia de elicitação dizia "RN-01 a RN-73"
+   com o catálogo já em RN-90, e a sua tabela de áreas não trazia as dezessete regras novas; a
+   tabela de técnicas de elicitação do mesmo guia vinha de quando havia 79 RF; o `B5` §4 contava 45
+   casos de uso, 45 entidades, 32 recursos e 58 casos de aceite; e a `E2` §13 dava "80 dos 87 deve
+   ter", contra 84 reais, e listava como descobertos seis requisitos que a própria `B5` dá por
+   cobertos indiretamente.
+9. **Os mapas de rotina atualizaram a Produção e esqueceram os Cadastros.** A tabela do
+   `00-mapa-de-rotinas` ganhou área e canteiro e período de trabalho, mas `mapa-1-cadastros`,
+   `mapa-4-areas` e `mapa-sistema-v2` seguiam em "4 de 6 etapas".
+
+**A lição, para a próxima rodada:** as duas passadas do mesmo dia conferiram documento contra
+documento e documento contra banco, e o que escapou às duas foi a **ordem**. A migration escrita
+depois da conferência do modelo deixa o modelo desatualizado no mesmo dia em que foi conferido.
+Quando a rodada inclui migration, a conferência é a última etapa, nunca a penúltima.

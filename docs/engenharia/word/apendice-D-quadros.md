@@ -303,6 +303,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-103 | Alerta de insumo em falta | O sistema deve sinalizar insumo zerado ou abaixo da quantidade mínima definida. | RN-15, RN-88 |
 | RF-104 | Gasto extra da tarefa | O sistema deve permitir registrar gasto extra da tarefa, com descrição e valor, atribuindo-o ao lote trabalhado. | RN-89 |
 | RF-105 | Sinalização de saldo negativo de insumo | O sistema deve sinalizar, sem recusar, o consumo que deixaria o saldo do insumo negativo. | RN-78, RN-88 |
+| RF-106 | Registro de entrada de insumo | O sistema deve permitir registrar entrada de insumo no estoque, informando insumo, motivo (compra, ajuste ou perda), quantidade e, na compra, o custo unitário. | RN-88 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -358,10 +359,10 @@ Fonte: Elaborado pelo autor (2026).
 
 | Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
-| Regra de negócio | 75 | 94,9 | 3 | 11,5 |
+| Regra de negócio | 102 | 96,2 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
-| Política do projeto | 4 | 5,1 | 13 | 50,0 |
-| Total | 79 | 100,0 | 26 | 100,0 |
+| Política do projeto | 4 | 3,8 | 13 | 50,0 |
+| Total | 106 | 100,0 | 26 | 100,0 |
 
 Fonte: Elaborado pelo autor (2026).
 

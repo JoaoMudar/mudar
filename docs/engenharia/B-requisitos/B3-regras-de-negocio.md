@@ -22,7 +22,7 @@ O documento tem uma finalidade dupla:
 ### Instruções para quem for gerar as tabelas a partir deste arquivo
 
 - **Não invente identificadores.** `RN-01` a `RN-90` (regras, das quais RN-36, RN-49, RN-54, RN-60, RN-61, RN-63, RN-64, RN-65 saíram do catálogo
-  e cujos números não se reutilizam), `RF-01` a `RF-105` (requisitos
+  e cujos números não se reutilizam), `RF-01` a `RF-106` (requisitos
   funcionais), `RNF-01` a `RNF-26` (não funcionais) e `RE-1` a `RE-8` (restrições) são os únicos
   válidos. A numeração de RF/RNF vem de [`B2`](B2-especificacao-requisitos.md) e a de RE de
   [`A1`](../A-fundacao/A1-documento-de-visao.md) §9.
@@ -146,7 +146,7 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 | **RN-50** | A semana **fecha** e, fechada, não se altera: sem isso o custo do período muda depois de apurado | Restrição | `plans/P13` | RF-73 | - |
 | **RN-51** | As horas do período saem do **apontamento quando ele existe**; onde não houve apontamento, a tarefa planejada **conta como realizada** pelo turno, com a condição registrada. Agenda com buraco não serve para calcular custo, e assumir o planejado sinalizando a dúvida é mais honesto do que não ter dado | Derivação | `plans/P13`; `rotinas/2-producao/05` | RF-75, RF-100 | - |
 | **RN-52** | O colaborador responde pelas **suas** tarefas: vê e conclui as que lhe foram atribuídas, e nenhuma outra | Restrição | `D4` §3.11 | RF-74 | RNF-01, RNF-02 |
-| **RN-57** | Só **semeadura e repicagem somam ao estoque**; irrigação, adubação e rustificação são manejo e não alteram quantidade. É o que define o que conta como produção em RN-13 | Fato | `C8` §`activity_type`; `rotinas/2-producao/02-estoque.md` | RF-19, RF-22 | RNF-02 |
+| **RN-57** | Só **semeadura e repicagem somam ao estoque**; irrigação, adubação e rustificação são manejo e não alteram quantidade. É o que define o que conta como produção em RN-13 | Fato | `C8` §`task_types`; `rotinas/2-producao/02-estoque.md` | RF-19, RF-22 | RNF-02 |
 | **RN-74** | O viveiro é dividido em **áreas identificadas por letra** (A, B, C…), e cada área tem **canteiros numerados** de 1 até o máximo dela. O endereço de uma muda no viveiro é esse par | Fato | `A2` §1 | RF-80, RF-81, RF-85 | - |
 | **RN-75** | **Lote é a leva de mudas da mesma espécie, no mesmo recipiente, plantada junta.** É a unidade de rastreamento da produção: sem ela não se diz onde a muda está nem de que leva veio | Fato | `A2` §1; `A1` §7 | RF-84, RF-87, RF-91 | - |
 | **RN-76** | **Um lote ocupa um canteiro.** Leva que não cabe num canteiro é outro lote, e não o mesmo lote espalhado | Restrição | `rotinas/2-producao/04` | RF-84, RF-85 | - |
@@ -161,7 +161,7 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 | **RN-85** | O **período de trabalho** (hora de início e de fim de cada turno) é **parâmetro mantido**, não constante. Muda com a estação e com a combinação da equipe, e é dele que sai a duração do turno que RN-48 usa | Fato | `rotinas/2-producao/01` | RF-83, RF-100 | - |
 | **RN-86** | O **dia do funcionário termina explicitamente**. Apontamento deixado aberto não conta hora além do fim do turno: relógio esquecido ligado produziria jornada de dezoito horas e custo de mão de obra falso | Restrição | `rotinas/2-producao/05` | RF-96, RF-100 | - |
 | **RN-87** | **Insumo consumido na tarefa sai do saldo no mesmo gesto do apontamento.** Baixa em momento separado é baixa que não acontece | Derivação | `rotinas/2-producao/05` | RF-101 | RNF-05 |
-| **RN-88** | O **saldo de insumo é derivado**: entradas menos consumo. Não há campo de saldo, pelo mesmo motivo que não há para muda (RN-13), guardar o número cria duas verdades sobre ele | Derivação | `A2`, termos não adotados | RF-102, RF-103 | - |
+| **RN-88** | O **saldo de insumo é derivado**: entradas menos consumo. Não há campo de saldo, pelo mesmo motivo que não há para muda (RN-13), guardar o número cria duas verdades sobre ele | Derivação | `A2`, termos não adotados | RF-102, RF-103, RF-106 | - |
 | **RN-89** | **Gasto extra da tarefa é custo direto** do lote e da espécie trabalhada, e não custo fixo rateado: quem pagou por ele foi aquela leva | Derivação | `rotinas/2-producao/05` | RF-104 | - |
 | **RN-90** | A **classificação separa mortas de vivas**, e a parte morta **vira perda do lote no mesmo registro**. Separar num momento e registrar a perda noutro é como a perda deixa de ser registrada | Derivação | `A2` §1; `rotinas/2-producao/04` | RF-91, RF-99 | RNF-01 |
 
@@ -261,7 +261,7 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 
 ## 4. Rastreabilidade inversa: requisito funcional → regra que o origina
 
-Os 105 requisitos funcionais de `B2`. Quatro não decorrem de regra de negócio e estão justificados
+Os 106 requisitos funcionais de `B2`. Quatro não decorrem de regra de negócio e estão justificados
 na seção 6.
 
 | RF | Regras que o originam |
@@ -371,6 +371,7 @@ na seção 6.
 | RF-103 | RN-15, RN-88 |
 | RF-104 | RN-89 |
 | RF-105 | RN-78, RN-88 |
+| RF-106 | RN-88 |
 
 ---
 
@@ -594,6 +595,7 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-103 | O sistema deve sinalizar insumo zerado ou abaixo da quantidade mínima definida | DV | EN |
 | RF-104 | O sistema deve permitir registrar gasto extra da tarefa, com descrição e valor, atribuindo-o ao lote trabalhado | DV | EN |
 | RF-105 | O sistema deve sinalizar, sem recusar, o consumo que deixaria o saldo do insumo negativo | DV | ORG |
+| RF-106 | O sistema deve permitir registrar entrada de insumo no estoque, informando insumo, motivo (compra, ajuste ou perda), quantidade e, na compra, o custo unitário | D | AD |
 
 ### 7.2 Requisitos não funcionais
 
