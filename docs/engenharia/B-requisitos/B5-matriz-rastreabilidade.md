@@ -83,7 +83,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF | Caso de uso | Entidade | Recurso em D4 | Teste |
 |---|---|---|---|---|
 | RF-70 | UC-42 | `task_types` | Tarefas | TA-61 |
-| RF-82 | UC-42, UC-50 | `task_types` | Tarefas | TA-61 |
+| RF-82 | UC-42, UC-51 | `task_types` | Tarefas | TA-61 |
 | RF-83 | UC-54 | `work_shifts` | Período de trabalho | TA-62 |
 
 ### 2.3 Módulo 2 · Produção
@@ -109,7 +109,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-96 | UC-52 | `task_executions` | Apontamento | TA-76 |
 | RF-97 | UC-50 | `task_executions` | Apontamento | TA-75 |
 | RF-98 | UC-51 | `task_executions`, `task_types` | Apontamento | TA-77 |
-| RF-99 | UC-50 | `task_executions`, `batches` | Apontamento | TA-78 |
+| RF-99 | UC-51 | `task_executions`, `batches` | Apontamento | TA-78 |
 | RF-100 | UC-51, UC-52 | `task_executions`, `work_shifts`, `labor_rates` | Apontamento | TA-79, TA-80 |
 | RF-101 | UC-53 | `input_usages`, `task_executions` | Estoque de insumo | TA-81 |
 | RF-102 | UC-55 | `input_stock_balance` *(visão)* | Estoque de insumo | TA-81 |
@@ -117,6 +117,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-104 | UC-53 | `task_expenses` | Gastos de tarefa | TA-83, TA-84 |
 | RF-105 | UC-51 | `input_usages`, `input_stock_balance` | Estoque de insumo | TA-82 |
 | RF-106 | UC-56 | `input_stock_entries` | Estoque de insumo | TA-85 |
+| RF-107 | UC-51 | `task_executions`, `assignment_members` | Apontamento | TA-77, TA-86 |
 
 #### 2.3.2 Estoque
 
@@ -359,9 +360,9 @@ teste era lacuna de verificação. A primeira ainda está aberta.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | **106 de 106** |
-| Requisitos funcionais com entidade ou derivação declarada | **106 de 106** |
-| Requisitos funcionais com regra de acesso definida | **106 de 106** |
+| Requisitos funcionais com caso de uso | **107 de 107** |
+| Requisitos funcionais com entidade ou derivação declarada | **107 de 107** |
+| Requisitos funcionais com regra de acesso definida | **107 de 107** |
 | Requisitos de prioridade *deve ter* com teste de aceite | **84 de 84** |
 | Requisitos *deveria ter* / *poderia ter* sem teste | 12: deliberado |
 | Casos de uso sem requisito de origem | 0 |

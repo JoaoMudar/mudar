@@ -445,44 +445,58 @@ a gerência deixar de registrar o resto do dia.
 |---|---|
 | **Ator principal** | Gerência |
 | **Objetivo** | Fechar o apontamento e registrar o que a tarefa produziu e consumiu |
-| **Requisitos** | RF-98, RF-100, RF-101 |
+| **Requisitos** | RF-98, RF-99, RF-100, RF-101, RF-107 |
 | **Frequência** | Várias vezes ao dia |
 | **Pré-condições** | Existe apontamento aberto para o funcionário |
 | **Pós-condições** | Apontamento fechado com hora de fim; horas calculadas; consumo de insumo abatido do saldo |
 
 ### FP: Fluxo principal
 
-1. A gerência aciona "encerrar" no cartão do funcionário, ou inicia outra tarefa (UC-50 FA-3), ou encerra o dia (UC-52).
-2. O sistema grava a hora de fim e calcula o intervalo trabalhado.
-3. Se o tipo de tarefa for medido por saco ou por tubete, o sistema pede **um número**: quantos foram feitos (RF-98).
-4. Se o tipo de tarefa for medido por tempo, o passo 3 não ocorre e o sistema não pede nada.
-5. O sistema oferece, de forma opcional, registrar insumos consumidos e gasto extra (UC-53).
-6. O sistema fecha o apontamento e abate do saldo os insumos informados.
-7. Se a tarefa movimentou mudas, o sistema grava o movimento no lote correspondente.
+1. A gerência aciona "encerrar" na tarefa, ou no cartão de um funcionário, ou inicia outra tarefa (UC-50 FA-3), ou encerra o dia (UC-52).
+2. O sistema grava a hora de fim e calcula o intervalo trabalhado de cada participante.
+3. Se o tipo de tarefa declarar **lote específico**, o sistema pede o lote, uma vez para a tarefa, e não pede canteiro, que vem do lote (RF-99).
+4. Se o tipo de tarefa for **quantitativo por unidade**, o sistema pede **um número por participante**: quanto cada um fez (RF-98, RF-107).
+5. Se o tipo de tarefa não for quantitativo, o passo 4 não ocorre e o sistema não pede número algum.
+6. O sistema oferece, de forma opcional, registrar insumos consumidos e gasto extra (UC-53).
+7. O sistema fecha o apontamento de todos os participantes e abate do saldo os insumos informados.
+8. Se a tarefa movimentou mudas, o sistema grava o movimento no lote correspondente.
 
 ### FA-1: Tarefa de repicagem
 
-No passo 7, a tarefa é repicagem. O sistema encaminha para UC-48, porque o destino das mudas
+No passo 8, a tarefa é repicagem. O sistema encaminha para UC-48, porque o destino das mudas
 precisa ser informado antes que o movimento possa ser gravado.
 
 ### FA-2: Sem conexão
 
-Nos passos 6 e 7, não há rede. O sistema grava localmente com a chave gerada no aparelho, confirma
+Nos passos 7 e 8, não há rede. O sistema grava localmente com a chave gerada no aparelho, confirma
 e envia ao restabelecer a conexão (RNF-05). O reenvio não duplica o apontamento nem o consumo.
 
 ### FA-3: Encerramento sem quantidade
 
-No passo 3, a gerência não sabe quantos foram feitos e deixa em branco. O sistema aceita e marca o
-apontamento como **sem contagem**: as horas ficam registradas de qualquer modo, e hora sem contagem
-vale mais do que nenhum registro.
+No passo 4, a gerência não sabe quantos um dos participantes fez e deixa o campo dele em branco. O
+sistema aceita e marca **aquele** apontamento como sem contagem, sem afetar os demais: as horas
+ficam registradas de qualquer modo, e hora sem contagem vale mais do que nenhum registro.
+
+### FA-4: Encerramento de uma pessoa só
+
+No passo 1, quem encerra é o cartão individual, e não a tarefa: alguém saiu do serviço no meio do
+turno. O fluxo é o mesmo, com um único participante, e a tarefa continua aberta para os demais.
 
 ### FE-1: Quantidade inválida
 
-No passo 3, o número é negativo ou não numérico. O sistema recusa e mantém o apontamento aberto.
+No passo 4, um dos números é negativo ou não numérico. O sistema recusa e mantém o apontamento
+aberto, sem gravar os demais participantes: ou encerra a tarefa inteira, ou não encerra nenhuma
+parte dela.
 
-### FE-2: Consumo maior que o saldo do insumo
+### FE-2: Lote não informado
 
-No passo 6, o consumo deixaria o saldo do insumo negativo. O sistema **grava assim mesmo** e
+No passo 3, o tipo de tarefa declara lote específico e o lote não foi informado. O sistema recusa o
+encerramento e mantém a tarefa aberta (RF-99): sem lote a atividade não se liga à leva, e nem a
+perda nem o custo encontram destino.
+
+### FE-3: Consumo maior que o saldo do insumo
+
+No passo 7, o consumo deixaria o saldo do insumo negativo. O sistema **grava assim mesmo** e
 sinaliza o saldo negativo (RF-105).
 
 > **Por que aqui o sistema não recusa, e no lote recusa.** O saldo do lote é apurado pelo próprio

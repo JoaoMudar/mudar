@@ -8,7 +8,7 @@ flowchart TB
   subgraph CAMPO["Registro em campo &mdash; colaborador, no celular"]
     direction LR
     CON["<b>Consumo de insumos</b><br/>insumo · espécie · recipiente · quantidade · data<br/>funciona sem conexão, sincroniza depois"]
-    ATV["<b>Apontamento de tarefas</b><br/>início e fim por funcionário<br/>quantidade quando medida por saco ou tubete"]
+    ATV["<b>Apontamento de tarefas</b><br/>início e fim por funcionário<br/>quantidade por participante quando a tarefa é quantitativa"]
     COL["<b>Coleta de sementes</b><br/>origem própria da matéria-prima"]
     PER["<b>Perdas</b><br/>lote · quantidade · causa"]
     CON ~~~ ATV ~~~ COL ~~~ PER

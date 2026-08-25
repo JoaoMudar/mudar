@@ -118,7 +118,7 @@ banco de dados usam o equivalente em **inglês**, indicado entre parênteses qua
 | Termo | Definição | Como a empresa chama | Forma canônica |
 |---|---|---|---|
 | **Turno** | Metade do dia de trabalho, **manhã** ou **tarde**. É a unidade de planejamento da agenda: o viveiro nunca planejou por hora marcada. A hora de início e de fim de cada turno é **parâmetro mantido no sistema**, não constante de código, e é dela que sai a duração do turno. | "de manhã", "de tarde" | **Turno** (`work_shift`) |
-| **Tarefa** | Tipo de trabalho do viveiro, em catálogo fechado, agrupado em seis categorias: **semente, terra, plantio, manutenção, pós-morte, expedição**. Cada tarefa é medida **por tempo** ou **por quantidade de recipientes** (saco ou tubete); a medição por quantidade também mede o tempo. | "serviço", "função" | **Tipo de tarefa** (`task_type`) |
+| **Tarefa** | Tipo de trabalho do viveiro, em catálogo mantido pela gerência, agrupado em seis categorias: **semente, terra, plantio, manutenção, pós-morte, expedição**. Toda tarefa é medida **por tempo**; parte delas é **também contada por unidade**, e nessas a contagem é de cada pessoa que participou. | "serviço", "função" | **Tipo de tarefa** (`task_type`) |
 | **Atribuição** | O que a gerência planejou: uma tarefa, num dia, num turno, para um ou mais funcionários. É a célula da agenda. Planejamento, ainda não trabalho feito. | "o que tá marcado" | **Atribuição** (`assignment`) |
 | **Apontamento** | O registro de que um funcionário **começou** e **terminou** uma tarefa, com hora. Uma pessoa faz uma tarefa por vez: começar outra encerra a anterior. É o realizado, contra a atribuição, que é o planejado. | "apontar", "tá fazendo o quê" | **Apontamento** (`task_execution`) |
 

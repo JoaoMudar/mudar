@@ -373,13 +373,12 @@ erDiagram
   }
   task_types {
     uuid id PK
-    text name
+    text name UK
     text category
-    text measurement_type
+    boolean is_quantitative
+    boolean requires_batch
     boolean requires_species
     boolean requires_container
-    boolean requires_batch
-    numeric avg_minutes_per_unit
     boolean active
   }
   areas {
@@ -445,22 +444,29 @@ custo de todas as espécies retroativamente: o custo apurado em março passaria 
 agosto. É a anomalia de atualização que a normalização busca evitar, e a solução é preservar o
 histórico em vez de sobrescrever (RF-11).
 
-**`task_types` é cadastro, e não configuração de tela.** Ele traz o `avg_minutes_per_unit`, o
-tempo médio por unidade, que é o que liga uma tarefa de campo a um custo. Passa na regra de corte
-do módulo: apagar um tipo de tarefa deixaria sem sentido toda atribuição passada que o usou.
+**`task_types` é cadastro, e não configuração de tela.** Passa na regra de corte do módulo:
+apagar um tipo de tarefa deixaria sem sentido toda atribuição passada que o usou, e por isso ele
+se inativa (`active`) em vez de ser excluído.
 
-**`task_types` comanda o formulário, e é aí que estão os três campos novos.** `category` virou
-lista fechada de seis (semente, terra, plantio, manutenção, pós-morte, expedição), que é como a
-equipe já agrupa o trabalho ao falar dele (RN-80). `measurement_type` diz se a tarefa é medida por
-tempo, por saco ou por tubete (RN-81): tarefa medida por tempo encerra sem pedir número algum, e
-as outras duas pedem a contagem, porque a pergunta do viveiro é "quantos fez em quantas horas".
-E `requires_batch` diz se a tarefa exige lote e canteiro (RN-82), na mesma família de
-`requires_species` e `requires_container`, que já existiam.
+**Um nome e quatro booleanos, e cada booleano tem efeito visível.** `is_quantitative` faz o
+encerramento pedir quanto **cada participante** fez (RN-81, RN-91); `requires_batch` é o "lote
+específico" da tela, e faz aparecer o campo de lote, que traz consigo canteiro, espécie e
+recipiente (RN-82); `requires_species` e `requires_container` valem para as tarefas que os pedem
+sem haver lote, como colher semente e encher saquinho. `category` é a única coisa ali que **não**
+comanda formulário: é lista fechada de seis (semente, terra, plantio, manutenção, pós-morte,
+expedição), e serve para agrupar a lista e somar horas por tipo de trabalho (RN-80).
 
-> **O `unit_of_measure` saiu.** Era texto livre ("muda", "bandeja", "metro") e não decidia nada:
-> quem decide o que a tela pede é `measurement_type`, que é lista fechada. Manter os dois seria
-> guardar a mesma informação em dois graus de rigor diferentes, e o mais frouxo venceria na hora
-> de programar. A entidade nunca chegou ao banco, então a troca não custou migração.
+> **`measurement_type` e `avg_minutes_per_unit` saíram, por motivos opostos.** O primeiro tinha
+> três valores (`tempo`, `saco`, `tubete`), e os dois últimos existiam para dizer qual recipiente
+> se contava; mas o recipiente já está no lote e no nome da tarefa, de modo que os três valores
+> respondiam uma pergunta de dois estados. Guardar em três o que decide em dois garante que
+> alguém, um dia, escreva a condição para `'saco'` e esqueça `'tubete'`. O segundo saiu porque
+> nunca teve de onde vir: ninguém cronometrou tempo por unidade, e o custo de mão de obra sai das
+> **horas apontadas** em `task_executions`, não de estimativa.
+
+> **O `unit_of_measure` saiu antes, e pelo mesmo raciocínio.** Era texto livre ("muda", "bandeja",
+> "metro") e não decidia nada. A entidade nunca chegou ao banco, então aquela troca não custou
+> migração; esta custou, e está em `migrations/20260825000001_tipos_tarefa_simplificacao.sql`.
 
 **`areas` e `beds` são o endereço do viveiro.** A área tem letra, o canteiro tem número dentro
 dela, e a numeração recomeça em cada área: por isso a unicidade é do par (`area_id`, `number`), e
@@ -763,10 +769,16 @@ antiga registrava um fato consumado (espécie, recipiente, quantidade, data) e c
 registra um **intervalo de trabalho** de uma pessoa, classificado pelo próprio catálogo. A
 entidade antiga nunca chegou ao banco, então a troca não custou migração de dado.
 
-**`quantity` é opcional, e é o catálogo que decide se ela é pedida.** Tarefa medida por tempo
-encerra sem número algum; tarefa medida por saco ou por tubete pede a contagem (RN-81). Quem
-declara isso é `task_types.measurement_type`, no módulo 1: o formulário não sabe nada por conta
-própria.
+**`quantity` é opcional, e é o catálogo que decide se ela é pedida.** Tarefa não quantitativa
+encerra sem número algum; tarefa quantitativa por unidade pede a contagem (RN-81). Quem declara
+isso é `task_types.is_quantitative`, no módulo 1: o formulário não sabe nada por conta própria.
+
+**E `quantity` é da pessoa, não da tarefa** (RN-91). É a razão de a contagem morar aqui e não em
+`assignments`: `task_executions` já tem **uma linha por participante**, e quatro pessoas enchendo
+saquinho gravam quatro números. Um total único na atribuição obrigaria a dividir por quatro para
+saber o rendimento de cada um, inventando um número que ninguém produziu. Por isso o encerramento
+do grupo (RF-107) não precisa de entidade nova: ele escreve `ended_at` e `quantity` em cada uma
+das linhas que já existiam.
 
 **`client_id` repete em `task_executions` a solução já adotada em `input_usages`**: chave gerada no
 aparelho antes do primeiro envio, que torna o reenvio idempotente (RNF-05). Apontamento duplicado

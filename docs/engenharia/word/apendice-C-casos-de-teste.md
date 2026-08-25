@@ -92,7 +92,7 @@ abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-106).
 |---|---|---|---|---|---|
 | **TA-59** | RF-80, RF-81 | Sessão de gerência | 1. Cadastrar a área A<br>2. Cadastrar os canteiros 1, 2 e 3 nela<br>3. Cadastrar a área B e o canteiro 1 nela<br>4. Tentar cadastrar um segundo canteiro 1 na área A | Existem o canteiro 1 da área A e o canteiro 1 da área B, como lugares distintos; o repetido na mesma área é recusado | Não executado |
 | **TA-60** | RF-69 | Sessão de chefia | 1. Cadastrar funcionário sem criar usuário para ele<br>2. Abrir a agenda da semana | O funcionário aparece na escalação mesmo sem nunca ter feito login | Não executado |
-| **TA-61** | RF-70, RF-82 | Catálogo de tarefas carregado | 1. Abrir o apontamento de "Irrigação" (medição por tempo, sem lote)<br>2. Abrir o apontamento de "Repicar" (medição por tubete, com lote) | A primeira tela não apresenta campo de lote nem de quantidade; a segunda apresenta os dois | Não executado |
+| **TA-61** | RF-70, RF-82 | Catálogo de tarefas carregado | 1. Abrir o encerramento de "Irrigação" (não quantitativa, sem lote específico)<br>2. Abrir o encerramento de "Repicar" (quantitativa, com lote específico) | A primeira tela não apresenta campo de lote nem de quantidade; a segunda apresenta os dois | Não executado |
 | **TA-62** | RF-83 | Turnos cadastrados com 4 horas cada | 1. Alterar o fim do turno da manhã para uma hora mais tarde<br>2. Consultar as horas de uma tarefa planejada naquele turno, sem apontamento | As horas atribuídas passam de 4 para 5, sem alterar a atribuição | Não executado |
 
 ### 5.1.2 Lotes
@@ -123,8 +123,8 @@ abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-106).
 | **TA-74** | RF-94, RF-95 | Funcionário escalado para repicagem | 1. Abrir a agenda do dia<br>2. Iniciar o apontamento de repicagem no cartão dele<br>3. Uma hora depois, iniciar o apontamento de irrigação no mesmo cartão | O cartão passa a exibir irrigação, e o apontamento de repicagem fica encerrado com uma hora, **sem que nada tenha sido pedido para encerrá-lo** | Não executado |
 | **TA-75** | RF-97 | Apontamento aberto para um funcionário | 1. Abrir a mesma agenda em dois aparelhos<br>2. Iniciar uma tarefa nova nos dois ao mesmo tempo | Apenas um apontamento fica aberto. A segunda tentativa é recusada pelo banco, e não só pela tela | Não executado |
 | **TA-76** | RF-96 | Funcionário com apontamento aberto | 1. Encerrar o dia dele<br>2. Consultar o cartão | Nenhuma tarefa em curso, e as horas do apontamento encerrado ficam registradas | Não executado |
-| **TA-77** | RF-98 | Duas tarefas, uma medida por tempo e outra por saco | 1. Encerrar a medida por tempo<br>2. Encerrar a medida por saco | A primeira encerra sem pedir número algum; a segunda pede a quantidade, e só ela | Não executado |
-| **TA-78** | RF-99 | Tarefa de repicagem em curso | 1. Tentar iniciar o apontamento sem informar lote | A operação é recusada e o campo de lote é indicado | Não executado |
+| **TA-77** | RF-98, RF-107 | Duas tarefas do dia, uma não quantitativa e outra quantitativa, ambas com três funcionários escalados | 1. Encerrar a não quantitativa<br>2. Encerrar a quantitativa | A primeira encerra sem pedir número algum; a segunda apresenta **três campos de quantidade, um por participante**, e nada além disso | Não executado |
+| **TA-78** | RF-99 | Tarefa de repicagem em curso | 1. Tentar encerrar a tarefa sem informar lote | A operação é recusada e o campo de lote é indicado; o canteiro não é pedido em momento algum | Não executado |
 | **TA-79** | RF-100, RF-75 | Dois dias planejados, um com apontamento e outro sem | 1. Fechar a semana<br>2. Consultar as horas de cada dia | O dia apontado usa o intervalo real; o dia sem apontamento usa a jornada do turno, **marcado como não confirmado** | Não executado |
 | **TA-80** | RF-76, RF-100 | Semana fechada e valor-hora do período definido | 1. Consultar o custo de mão de obra por espécie<br>2. **Conferir manualmente**: horas × valor-hora | Os dois valores coincidem, e o custo aparece rateado sobre a espécie de cada tarefa | Não executado |
 
@@ -137,6 +137,7 @@ abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-106).
 | **TA-82** | RF-105 | Insumo com saldo 10 | 1. Encerrar tarefa informando consumo de 25 | O registro é **gravado**, e o saldo aparece negativo e destacado. A operação não é recusada | Não executado |
 | **TA-83** | RF-104 | Tarefa encerrada, ligada a um lote | 1. Lançar gasto extra de frete na tarefa<br>2. Consultar o custo do lote | O gasto aparece como custo direto daquele lote, e não no rateio geral | Não executado |
 | **TA-84** | RF-104, RF-70 | Sessão de colaborador | 1. Abrir o encerramento de uma tarefa | Não existe campo de valor em reais na tela do colaborador | Não executado |
+| **TA-86** | RF-107, RF-98 | Tarefa quantitativa com quatro funcionários escalados, todos com apontamento aberto | 1. Encerrar a tarefa informando 420, 380, 355 e deixando o quarto em branco<br>2. Consultar os apontamentos do dia | Os quatro apontamentos ficam fechados na mesma hora de fim; três guardam a própria quantidade e o quarto fica **sem contagem**, com as horas registradas | Não executado |
 
 > **TA-80 tem a mesma natureza de TA-09 e TA-51**: confronta o número do sistema com uma apuração
 > manual. É o tipo de caso que decide se o custo apurado merece confiança, e por isso não pode ser
@@ -259,7 +260,7 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Cadastro do viveiro | 4 | RF-69, RF-70, RF-80 a RF-83 |
 | Lotes | 6 | RF-84 a RF-91 |
 | Agenda da semana | 5 | RF-71 a RF-74, RF-92, RF-93 |
-| Apontamento | 7 | RF-75, RF-76, RF-94 a RF-100 |
+| Apontamento | 8 | RF-75, RF-76, RF-94 a RF-100, RF-107 |
 | Insumos e gastos da tarefa | 5 | RF-101, RF-102, RF-104, RF-105, RF-106 |
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
@@ -267,7 +268,7 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **85** | **84 dos 84 requisitos de prioridade *deve ter*** |
+| **Total** | **86** | **85 dos 85 requisitos de prioridade *deve ter*** |
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de

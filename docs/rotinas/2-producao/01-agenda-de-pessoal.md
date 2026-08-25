@@ -42,9 +42,11 @@ recipiente e lote (quando o tipo de tarefa exigir). Campo livre só em "observa�
 
 > Mesma regra do financeiro: **sem campo aberto = sem typo = dado que serve para somar.**
 
-**O catálogo de tarefas comanda o formulário.** Cada tipo de tarefa declara o que exige: espécie,
-recipiente, lote e canteiro, e se a medição é por tempo, por saco ou por tubete. A tela não sabe
-nada por conta própria, e por isso "Irrigação" não pergunta lote e "Repicar" pergunta.
+**O catálogo de tarefas comanda o formulário.** Cada tipo de tarefa tem um nome e quatro
+declarações: se é **quantitativa por unidade**, se tem **lote específico**, e se exige espécie ou
+recipiente. A tela não sabe nada por conta própria, e por isso "Irrigação" não pergunta lote e
+"Repicar" pergunta. Cadastrar uma tarefa e deixá-la ativa é o que a faz aparecer na lista da
+agenda.
 
 ### 3. Repetir é o caminho normal
 
@@ -134,9 +136,14 @@ Segunda, 10 de agosto
 ```
 
 Uma lista curta, sem menu, sem navegação. Concluir pede **um número** e nada mais, e só quando o
-tipo de tarefa for medido por saco ou tubete: tarefa medida por tempo conclui sem pedir nada. É a
+tipo de tarefa for quantitativo por unidade: tarefa não quantitativa conclui sem pedir nada. É a
 mesma disciplina de formulário de campo já aplicada em `/producao/consumo-insumos`, inclusive a
 fila offline.
+
+O número que o colaborador informa é **o dele**. Quando quem coordena encerra a tarefa do grupo
+inteiro (a tela da equipe, não a do colaborador), aparece um campo por participante: quatro
+pessoas encheram saquinho, quatro números. Nunca um total dividido pelo tamanho do grupo, que
+inventaria um rendimento que ninguém teve.
 
 ### Chefia: custo do período
 
@@ -171,7 +178,7 @@ rateio geral, junto dos custos fixos. Tarefa **com lote** vira custo direto daqu
 
 | Entidade | Papel |
 |---|---|
-| `task_types` | catálogo de tipos de tarefa, com categoria e forma de medição: vive nos [Cadastros](../1-cadastros/00-visao-geral.md) |
+| `task_types` | catálogo de tipos de tarefa: nome, categoria, quantitativa por unidade?, lote específico?, exige espécie?, exige recipiente?. Vive nos [Cadastros](../1-cadastros/00-visao-geral.md) |
 | `work_shifts` | o período de trabalho: hora de início e fim de cada turno |
 | `week_plans` | a semana: `week_start`, `status` (rascunho · publicada · fechada) |
 | `assignments` | a célula da grade: data, turno, tipo de tarefa, espécie?, recipiente?, lote?, quantidade planejada |

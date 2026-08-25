@@ -370,7 +370,7 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-39** | Acompanhar indicadores | 4 · Fin. | Chefia, Gerência | RF-63, RF-64, RF-65 | - |
 | **UC-40** | Consultar tarefas do dia | 2 · Prod. | Colaborador | RF-74 | - |
 | **UC-41** | Manter cadastro de funcionário | 1 · Cad. | Chefia | RF-69 | - |
-| **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70 | - |
+| **UC-42** | Manter catálogo de tipos de tarefa | 1 · Cad. | Gerência | RF-70, RF-82 | - |
 | **UC-43** | Montar a agenda da semana | 2 · Prod. | Gerência | RF-71, RF-72, RF-73, RF-75 | - |
 | **UC-44** | Concluir tarefa do dia | 2 · Prod. | Colaborador | RF-74 | - |
 | **UC-45** | Manter centros de custo | 1 · Cad. | Chefia | RF-77, RF-78, RF-79 | - |
@@ -378,8 +378,8 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-47** | Criar lote | 2 · Prod. | Gerência | RF-84, RF-90 | **✔ sim** |
 | **UC-48** | Repicar lote | 2 · Prod. | Colaborador | RF-86, RF-87, RF-88 | **✔ sim** |
 | **UC-49** | Consultar ocupação do viveiro | 2 · Prod. | Gerência | RF-85, RF-87, RF-89 | - |
-| **UC-50** | Apontar início de tarefa | 2 · Prod. | Gerência | RF-94, RF-95, RF-97, RF-99 | **✔ sim** |
-| **UC-51** | Encerrar tarefa | 2 · Prod. | Gerência | RF-98, RF-100, RF-101 | **✔ sim** |
+| **UC-50** | Apontar início de tarefa | 2 · Prod. | Gerência | RF-94, RF-95, RF-97 | **✔ sim** |
+| **UC-51** | Encerrar tarefa | 2 · Prod. | Gerência | RF-98, RF-99, RF-100, RF-101, RF-107 | **✔ sim** |
 | **UC-52** | Encerrar o dia do funcionário | 2 · Prod. | Gerência | RF-96, RF-100 | - |
 | **UC-53** | Registrar insumos e gastos da tarefa | 2 · Prod. | Colaborador | RF-101, RF-104, RF-105 | - |
 | **UC-54** | Manter período de trabalho | 1 · Cad. | Gerência | RF-83 | - |

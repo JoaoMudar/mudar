@@ -23,13 +23,12 @@ erDiagram
   }
   tipos_tarefa {
     uuid id PK
-    text nome
+    text nome UK
     text categoria
-    text tipo_medicao
+    boolean quantitativa_por_unidade
+    boolean exige_lote
     boolean exige_especie
     boolean exige_recipiente
-    boolean exige_lote
-    numeric minutos_medios_por_unidade
     boolean ativo
   }
   atribuicoes {

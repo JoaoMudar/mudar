@@ -365,50 +365,63 @@ exige uma implantação.
 
 ## `task_types`: tipo de tarefa
 
-Vocabulário fechado da agenda e do apontamento (RF-70). **É o catálogo que comanda o formulário**:
-os três `requires_*` e o `measurement_type` decidem o que a tela pede em cada tarefa (RF-82). O
-tempo médio por unidade é o que liga a tarefa de campo ao custo de mão de obra.
+Vocabulário fechado da agenda e do encerramento (RF-70). **É o catálogo que comanda o
+formulário**: um nome e quatro booleanos, e cada booleano decide um campo que a tela pede ou
+deixa de pedir (RF-82).
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `name` | text | ● | | Nome da tarefa: semear, repicar, encher saquinho, limpar mato, separar mudas |
-| `category` | text | ● | | Categoria em **lista fechada**: `semente`, `terra`, `plantio`, `manutencao`, `pos_morte`, `expedicao` (RN-80) |
-| `measurement_type` | text | ● | | Forma de medição em **lista fechada**: `tempo`, `saco`, `tubete`. Decide se o encerramento pede contagem além do relógio (RN-81) |
-| `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição e o apontamento exigem espécie |
-| `requires_container` | boolean | ● | | Quando verdadeiro, exigem recipiente |
-| `requires_batch` | boolean | ● | | Quando verdadeiro, exigem lote, e com ele o canteiro (RN-82) |
-| `avg_minutes_per_unit` | numeric | ○ | | Tempo médio por unidade; alimenta a estimativa de custo |
-| `active` | boolean | ● | | Tipo em uso |
-
-> **`unit_of_measure` saiu da entidade.** Era texto livre ("muda", "bandeja", "metro") e não
-> decidia comportamento algum: quem decide o que a tela pede é `measurement_type`, que é lista
-> fechada. Guardar os dois seria manter a mesma informação em dois graus de rigor, e na hora de
-> programar o mais frouxo venceria. A entidade nunca chegou ao banco: a troca não custou migração.
+| `name` | text | ● | UK | Nome da atividade: colher semente, encher saquinho, repicar, limpar mato, separar mudas |
+| `category` | text | ● | | Categoria em **lista fechada**: `semente`, `terra`, `plantio`, `manutencao`, `pos_morte`, `expedicao` (RN-80). **Classifica, não comanda formulário** |
+| `is_quantitative` | boolean | ● | | "É quantitativa por unidade": quando verdadeiro, o encerramento pede quanto **cada participante** fez (RN-81, RN-91) |
+| `requires_batch` | boolean | ● | | "Lote específico": quando verdadeiro, o encerramento exige o lote, e com ele o canteiro, a espécie e o recipiente (RN-82) |
+| `requires_species` | boolean | ● | | Quando verdadeiro, a atribuição e o encerramento exigem espécie. Tarefa com lote a herda dele |
+| `requires_container` | boolean | ● | | Quando verdadeiro, exigem recipiente. Tarefa com lote o herda dele |
+| `active` | boolean | ● | | Tipo em uso. Inativar é o que retira a tarefa da lista da agenda; excluir deixaria sem sentido toda atribuição passada |
 
 > **Toda tarefa mede tempo.** O apontamento tem início e fim sempre (`task_executions`), e
-> `measurement_type` só diz se **também** se conta quanto foi feito. Por isso os valores são
-> `tempo`, `saco` e `tubete`, e não "tempo *ou* quantidade": a pergunta do viveiro é "quantos fez
-> em quantas horas", e `saco` e `tubete` respondem as duas metades.
+> `is_quantitative` só diz se **também** se conta quanto foi feito. Não é "tempo *ou*
+> quantidade": a pergunta do viveiro é "quantos fez em quantas horas", e são as duas metades da
+> mesma resposta.
+
+> **A contagem é por pessoa, e não da tarefa** (RN-91). Quatro pessoas enchendo saquinho gravam
+> quatro números em quatro linhas de `task_executions`, e não um total dividido por quatro. O
+> encerramento do grupo (RF-107) é o gesto que preenche as quatro de uma vez.
+
+> **`measurement_type` e `avg_minutes_per_unit` saíram, por motivos opostos.** O primeiro tinha
+> três valores (`tempo`, `saco`, `tubete`), e os dois últimos diziam qual recipiente se contava;
+> mas o recipiente já vem do lote e do próprio nome da tarefa, de modo que os três respondiam uma
+> pergunta de dois estados, e alguém acabaria escrevendo a condição para `'saco'` esquecendo
+> `'tubete'`. O segundo saiu porque nunca teve fonte: ninguém cronometrou tempo por unidade, e o
+> custo de mão de obra (RF-76) sai das **horas apontadas**, não de estimativa. Coluna sem fonte
+> fica nula para sempre, e um dia alguém a confunde com dado real. Migração:
+> `20260825000001_tipos_tarefa_simplificacao.sql`.
+
+> **`unit_of_measure` saiu antes, pelo mesmo raciocínio.** Era texto livre ("muda", "bandeja",
+> "metro") e não decidia comportamento algum. A entidade nunca chegou ao banco: aquela troca não
+> custou migração.
 
 **Carga inicial: as 22 tarefas do viveiro.** O catálogo nasce preenchido, e não vazio, porque tipo
 de tarefa digitado por quem monta a agenda produziria "limpar mato", "limpeza de mato" e "capina"
 como três tarefas distintas, e a soma de horas por tarefa deixaria de existir.
 
-| Categoria | Tarefas | Medição | Exige lote |
-|---|---|---|:--:|
-| `semente` | Colher semente · Beneficiar semente · Semear | tempo | não |
-| `terra` | Fazer substrato | tempo | não |
-| `terra` | Encher saquinho | saco | não |
-| `terra` | Encher tubete | tubete | não |
-| `plantio` | Encanteirar saco · Plantar no saquinho | saco | **sim** |
-| `plantio` | Plantar no tubete | tubete | **sim** |
-| `manutencao` | Classificar pós-germinação · Classificar seleção · Repicar · Limpar mato | tubete | **sim** |
-| `manutencao` | Aplicação de adubo · Aplicação de fungicida · Irrigação | tempo | não |
-| `pos_morte` | Limpar canteiro · Replantar no saco | tempo | **sim** |
-| `pos_morte` | Limpar saco · Limpar tubete | tempo | não |
-| `expedicao` | Separar mudas | tempo | **sim** |
-| `expedicao` | Carregar | tempo | não |
+| Categoria | Tarefas | Quantitativa | Lote específico |
+|---|---|:--:|:--:|
+| `semente` | Colher semente · Beneficiar semente · Semear | não | não |
+| `terra` | Fazer substrato | não | não |
+| `terra` | Encher saquinho · Encher tubete | **sim** | não |
+| `plantio` | Encanteirar saco · Plantar no saquinho · Plantar no tubete | **sim** | **sim** |
+| `manutencao` | Classificar pós-germinação · Classificar seleção · Repicar · Limpar mato | **sim** | **sim** |
+| `manutencao` | Aplicação de adubo · Aplicação de fungicida · Irrigação | não | não |
+| `pos_morte` | Limpar canteiro · Replantar no saco | não | **sim** |
+| `pos_morte` | Limpar saco · Limpar tubete | não | não |
+| `expedicao` | Separar mudas | não | **sim** |
+| `expedicao` | Carregar | não | não |
+
+**Nove das 22 são quantitativas**, e são exatamente as que a migration de simplificação converteu
+a partir de `measurement_type <> 'tempo'`. Encher saquinho e encher tubete deixam de se distinguir
+no catálogo: o que as separava era o recipiente contado, que continua no nome de cada uma.
 
 > **Semear não exige lote, e plantar exige.** É o ponto em que a leva ganha endereço: a semente vai
 > para bandeja de germinação, que não é canteiro. O lote nasce no plantio, e "classificar
@@ -675,10 +688,10 @@ cartão do funcionário na agenda do dia (RF-94).
 | `work_date` | date | ● | | Dia de trabalho a que o apontamento pertence |
 | `started_at` | timestamptz | ● | | Momento em que a tarefa começou |
 | `ended_at` | timestamptz | ○ | | Momento em que terminou. **Nulo significa tarefa em curso** |
-| `batch_id` | uuid | ○ | FK → `batches` | Lote trabalhado, quando o tipo de tarefa o exigir (RN-82) |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote trabalhado, exigido no encerramento quando o tipo declarar lote específico (RN-82, RF-99) |
 | `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir e não houver lote |
 | `container_id` | uuid | ○ | FK → `containers` | Recipiente, nas mesmas condições |
-| `quantity` | integer | ○ | | Quantos foram feitos. Pedido apenas quando a medição for `saco` ou `tubete` (RN-81) |
+| `quantity` | integer | ○ | | Quantos **esta pessoa** fez. Pedido apenas quando o tipo de tarefa for quantitativo por unidade (RN-81, RN-91) |
 | `status` | text | ● | | Situação em **lista fechada**: `em_andamento`, `concluida`, `interrompida` |
 | `recorded_by` | uuid | ● | FK → `users` | Quem registrou o apontamento, distinto de quem o executou |
 | `notes` | text | ○ | | Observação |
@@ -700,10 +713,16 @@ cartão do funcionário na agenda do dia (RF-94).
 > repete dezenas de vezes por dia. A alternativa, exigir encerrar antes de começar, produziria
 > tarefas eternamente abertas justamente nos dias corridos.
 
-> **`quantity` é opcional e quem decide é o catálogo.** Tarefa medida por tempo encerra sem número
-> algum; tarefa medida por saco ou tubete pede a contagem. E mesmo nessas, deixar em branco é
+> **`quantity` é opcional e quem decide é o catálogo.** Tarefa não quantitativa encerra sem número
+> algum; tarefa quantitativa por unidade pede a contagem. E mesmo nessas, deixar em branco é
 > aceito, com o apontamento marcado como sem contagem: hora sem contagem vale mais do que nenhum
 > registro.
+
+> **`quantity` é da pessoa, e é por isso que mora aqui e não em `assignments`** (RN-91). A tabela
+> já tem **uma linha por participante**: o encerramento do grupo (RF-107) escreve `ended_at` e
+> `quantity` em cada uma delas, e não precisa de entidade nova. Um total único na atribuição
+> obrigaria a dividir pelo tamanho do grupo para saber o rendimento por hora, inventando um número
+> que ninguém produziu.
 
 > **`recorded_by` e `party_id` são pessoas diferentes, e a distinção é o ponto.** Quem opera a tela
 > é uma pessoa só, coordenando a equipe inteira de um aparelho: é ela quem marca que Rogério saiu

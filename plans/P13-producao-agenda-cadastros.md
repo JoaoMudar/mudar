@@ -117,7 +117,29 @@ Compartilhada com o P12 Fase 1. **Fazer uma vez, serve aos dois.**
 - [x] **T13.5** Mover `/admin/especies`, `/admin/recipientes`, `/admin/insumos` para `/cadastros/*` com redirect das rotas antigas, junto vieram `/admin/custos-fixos` → `/financeiro/*`, `/admin/coleta-sementes` → `/producao/*` e `/insumos/registrar` → `/producao/consumo-insumos`
 - [x] **T13.6** Linkar `/clientes` e `/fornecedores` a partir de `/cadastros` (rotas permanecem), feito como **papéis** dentro de `/cadastros/pessoas`, não como abas irmãs
 - [ ] **T13.7** `/cadastros/funcionarios`: CRUD sobre `parties` com papel `funcionario` (nome, contato, papel operacional, vínculo fixo/diarista, ativo). O papel já aparece como filtro em `/cadastros/pessoas` e o recurso `funcionario` já está na matriz de permissões; falta a tela, ao criá-la, ligar o `href` em `PESSOA_ROLES` (`src/lib/modules.ts`), que o teste cobre
-- [ ] **T13.8** `/cadastros/tipos-de-tarefa`, CRUD de `task_types` (nome, categoria, exige espécie?, exige recipiente?, unidade, tempo médio por unidade, ativo)
+- [ ] **T13.8** `/cadastros/tipos-de-tarefa`, CRUD de `task_types` (nome, categoria, **quantitativa por unidade?**, **lote específico?**, exige espécie?, exige recipiente?, ativo)
+
+> **O catálogo foi simplificado antes da tela existir (25/08/2026).**
+>
+> **Origem:** pergunta do João, "existe tela para criar tipos de tarefa? colher semente, encher
+> saquinho...". A tabela existia desde a migration `20260824000003`, com 22 tarefas carregadas,
+> mas a tela nunca foi feita. Ao revisitar o cadastro, dois campos não sobreviveram:
+>
+> 1. **`measurement_type` virou `is_quantitative`.** Os três valores (`tempo`, `saco`, `tubete`)
+>    respondiam uma pergunta de dois estados: pede contagem, ou não pede. Qual recipiente se conta
+>    já está no lote e no nome da tarefa. Guardar em três o que decide em dois garante que alguém
+>    escreva a condição para `'saco'` e esqueça `'tubete'`.
+> 2. **`avg_minutes_per_unit` saiu**, por nunca ter tido fonte: o custo de mão de obra sai das
+>    horas apontadas, não de estimativa.
+>
+> **O que ganhou peso:** a quantidade realizada passou a ser explicitamente **por participante**
+> (RN-91, RF-107), e o encerramento da tarefa passou a ser do grupo inteiro, com o lote pedido uma
+> vez e a contagem uma vez por pessoa. `task_executions` já tinha uma linha por pessoa: não custou
+> entidade nova.
+>
+> **Feito:** migration `20260825000001_tipos_tarefa_simplificacao.sql`, B2 (RF-70, RF-82, RF-98,
+> RF-99, RF-107 novo), B3 (RN-80 a RN-82, RN-91 nova), C1, C2 (UC-51), C6, C8, B4, B5, E2, A2,
+> rotinas 01 e 05, figura 10 do `modelo-dados-pt`. **Falta:** esta tela.
 
 ### Centros de custo (24/08/2026)
 

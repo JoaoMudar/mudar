@@ -33,7 +33,7 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 | 7 | `fig07-conceitual-comercial` | Conceitual: do custo ao dinheiro | 6,5 pt |
 | 8 | `fig08-acesso` | Acesso e parâmetros, transversais aos quatro módulos | 7,3 pt |
 | 9 | `fig09-cadastros-especie` | Cadastros: a espécie e seus nomes | 15,8 pt |
-| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,4 pt |
+| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,6 pt |
 | 11 | `fig11-cadastros-viveiro` | Cadastros: área, canteiro e turno de trabalho | 16,2 pt |
 | 12 | `fig12-cadastros-pessoas` | Cadastros: identidade única e papéis | 6,9 pt |
 | 13 | `fig13-producao-agenda` | Produção: agenda, apontamento e gasto de tarefa | 6,2 pt · **a mais apertada** |

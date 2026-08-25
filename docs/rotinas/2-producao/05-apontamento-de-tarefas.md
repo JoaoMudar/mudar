@@ -51,14 +51,22 @@ de obra: que é o número que o sistema existe para apurar.
 O relógio corre em toda tarefa, porque início e fim existem sempre. O que muda é se, **além**
 disso, se pergunta quanto foi feito:
 
-| Medição | O encerramento pergunta | Exemplos |
+| Tipo de tarefa | O encerramento pergunta | Exemplos |
 |---|---|---|
-| **por tempo** | nada | irrigação, adubação, fazer substrato, carregar |
-| **por saco** | quantos sacos | encher saquinho, plantar no saquinho, encanteirar |
-| **por tubete** | quantos tubetes | encher tubete, plantar no tubete, repicar, classificar |
+| **não quantitativa** | nada | irrigação, adubação, fazer substrato, carregar |
+| **quantitativa por unidade** | quantos cada um fez | encher saquinho, plantar no tubete, repicar, classificar |
 
 É a pergunta que o viveiro já faz: **"quantos você fez hoje?"**, que só tem sentido junto com
-"em quanto tempo". Quem declara a medição é o catálogo de tipos de tarefa, nos Cadastros.
+"em quanto tempo". Quem declara isso é o catálogo de tipos de tarefa, nos Cadastros, com um
+booleano só: "é quantitativa por unidade".
+
+**Qual unidade se conta não precisa ser declarada.** Antes o catálogo distinguia "por saco" de
+"por tubete", mas o recipiente já vem do lote e do próprio nome da tarefa: "Encher tubete" não
+conta sacos. Duas listas dizendo a mesma coisa acabam divergindo.
+
+**A contagem é de cada pessoa.** Quatro pessoas na mesma tarefa produzem quatro números, e não um
+total dividido por quatro: o que liga a tarefa ao custo é quanto se faz por hora, e um total
+rateado inventaria um rendimento que ninguém teve.
 
 **Deixar em branco é aceito**, com o apontamento marcado como sem contagem. Hora sem contagem vale
 mais do que nenhum registro.
@@ -123,10 +131,15 @@ formulário**, e a tela não sabe nada por conta própria.
 ### Encerrar: o que a tela pergunta
 
 ```
-Rogério · Repicar · lote A-3
+Repicar · manhã · 3 pessoas
 07:15 → 11:30   ·   4h15
 
-  Quantos tubetes?    [  420  ]          ← só porque "Repicar" mede por tubete
+  Lote                [ A-3 · ipê-amarelo · tubete ▾ ]   ← só porque "Repicar" tem lote específico
+
+  Quantos cada um fez?                                   ← só porque "Repicar" é quantitativa
+     Rogério         [  420  ]
+     Débora          [  380  ]
+     Marcos          [  355  ]
 
   Para onde foram as mudas?              ← só porque "Repicar" movimenta lote
      Recipiente  [ saco 10x18 ▾ ]
@@ -141,6 +154,13 @@ Rogério · Repicar · lote A-3
 
 Encerrar uma repicagem é o caso mais pesado da tela, e mesmo ele cabe numa página: os dois
 últimos blocos vêm fechados, e a maioria das tarefas não abre nenhum.
+
+**O lote é pedido uma vez, e a quantidade uma vez por pessoa.** É a diferença entre o que pertence
+à tarefa e o que pertence a quem a executou. O canteiro não é perguntado: vem do lote escolhido.
+
+**Há dois encerramentos, e este é o do grupo.** O outro é o do cartão individual, quando alguém
+sai de um serviço e começa outro no meio do turno: ali fecha-se uma pessoa só. O do grupo fecha
+todos de uma vez, que é como a manhã inteira de uma equipe normalmente termina.
 
 ## Insumos e gastos
 
@@ -179,10 +199,11 @@ essa distinção que mantém a ferramenta sendo de planejamento e não de avalia
 1. **Uma pessoa faz uma tarefa por vez.** Começar outra encerra a anterior, sem perguntar.
 2. **Dois apontamentos abertos para a mesma pessoa é impossível**, e a garantia é do banco.
 3. **O dia termina explicitamente**; apontamento aberto não conta hora além do fim do turno.
-4. **Tarefa que trabalha mudas já plantadas exige lote e canteiro.**
-5. **A quantidade só é pedida quando a medição for por saco ou tubete**, e nunca é obrigatória.
-6. **O planejado não é reescrito pelo realizado.** Os dois convivem, e a diferença é informação.
-7. **Valor em reais não aparece para o colaborador.**
+4. **Tarefa com lote específico exige o lote no encerramento**, e o canteiro vem dele.
+5. **A quantidade só é pedida quando a tarefa for quantitativa por unidade**, e nunca é obrigatória.
+6. **A quantidade é de cada participante**, e não da tarefa: quatro pessoas, quatro números.
+7. **O planejado não é reescrito pelo realizado.** Os dois convivem, e a diferença é informação.
+8. **Valor em reais não aparece para o colaborador.**
 
 ## Dependências com outras rotinas
 
