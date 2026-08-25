@@ -124,7 +124,7 @@ Fonte: Elaborado pelo autor (2026).
 | RN-28 | A nota fiscal é emitida em sistema externo. O viveiro registra a exigência e o número. |
 | RN-29 | A venda para compensação ambiental exige o nome científico da espécie e, em geral, nota fiscal. |
 | RN-30 | Dado pessoal de cliente é tratado sob a Lei nº 13.709/2018, com finalidade, base legal e prazo de retenção declarados. |
-| RN-55 | O tipo de tarefa é vocabulário fechado, e carrega o tempo médio por unidade. |
+| RN-55 | O tipo de tarefa é vocabulário fechado, e não digitação livre: é ele que declara o que o encerramento pede. |
 | RN-62 | Uma pessoa tem mais de um endereço, e o de entrega pode não ser o de cobrança. É o endereço de entrega que responde pela distância, e portanto pelo frete. |
 
 Fonte: Elaborado pelo autor (2026).
@@ -268,7 +268,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-67 | Delimitação de espécies aceitas | O sistema deve permitir delimitar, no item genérico, a lista de espécies aceitas pelo cliente e a especificação de qualidade exigida. | RN-33 |
 | RF-68 | Oferta de recipiente alternativo | O sistema deve permitir, na verificação de disponibilidade, oferecer recipiente diferente do solicitado, registrando qual. | RN-04, RN-35 |
 | RF-69 | Cadastro de funcionário | O sistema deve permitir cadastrar funcionário com contato e vínculo (fixo ou diarista), inclusive quando ele não tem acesso ao sistema. | RN-27 |
-| RF-70 | Catálogo de tipos de tarefa | O sistema deve permitir manter o catálogo de tipos de tarefa, com nome, categoria e a declaração de se a tarefa é quantitativa por unidade e de se exige lote específico, espécie e recipiente. | RN-80, RN-81, RN-82 |
+| RF-70 | Catálogo de tipos de tarefa | O sistema deve permitir manter o catálogo de tipos de tarefa, com nome, categoria e a declaração de se a tarefa é quantitativa por unidade e de se exige lote específico, espécie e recipiente. | RN-55, RN-80, RN-81, RN-82 |
 | RF-71 | Montagem da agenda da semana | O sistema deve permitir montar a agenda da semana atribuindo, por funcionário e por dia, o tipo de tarefa e o turno, manhã ou tarde. | RN-48 |
 | RF-72 | Cópia da semana e tarefas recorrentes | O sistema deve permitir copiar a agenda da semana anterior e marcar tarefas como recorrentes, que passam a nascer preenchidas. | – |
 | RF-73 | Situação da semana | O sistema deve controlar a situação da semana (rascunho, publicada e fechada) e impedir alteração depois do fechamento. | RN-50 |
@@ -305,7 +305,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-104 | Gasto extra da tarefa | O sistema deve permitir registrar gasto extra da tarefa, com descrição e valor, atribuindo-o ao lote trabalhado. | RN-89 |
 | RF-105 | Sinalização de saldo negativo de insumo | O sistema deve sinalizar, sem recusar, o consumo que deixaria o saldo do insumo negativo. | RN-78, RN-88 |
 | RF-106 | Registro de entrada de insumo | O sistema deve permitir registrar entrada de insumo no estoque, informando insumo, motivo (compra, ajuste ou perda), quantidade e, na compra, o custo unitário. | RN-88 |
-| RF-107 | Encerramento da tarefa do grupo | O sistema deve permitir encerrar a tarefa de uma vez para todo o grupo escalado, apresentando os campos que o tipo de tarefa exigir: o lote uma vez para a tarefa, e a quantidade uma vez por participante. | RN-84, RN-91 |
+| RF-107 | Encerramento da tarefa do grupo | O sistema deve permitir encerrar a tarefa de uma vez para todo o grupo escalado, apresentando os campos que o tipo de tarefa exigir: o lote uma vez para a tarefa, e a quantidade uma vez por participante. | RN-81, RN-84, RN-91 |
 
 Fonte: Elaborado pelo autor (2026).
 

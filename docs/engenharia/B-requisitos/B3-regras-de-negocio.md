@@ -190,7 +190,7 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 | **RN-28** | A **nota fiscal é emitida em sistema externo**. O viveiro registra a exigência e o número; a emissão não pertence a este sistema | Restrição | `A2` §4 | RF-40, RF-45 | RNF-24 |
 | **RN-29** | A venda para **compensação ambiental** exige o nome científico da espécie e, em geral, nota fiscal | Restrição | `A2` §3 | RF-08, RF-45 | RNF-25 |
 | **RN-30** | Dado pessoal de cliente é tratado sob a **Lei nº 13.709/2018**, com finalidade, base legal e prazo de retenção declarados | Restrição | `E5`; `A1` §9 RE-8 | RF-37 | RNF-23 |
-| **RN-55** | O **tipo de tarefa** é vocabulário fechado, e carrega o tempo médio por unidade, é ele que liga a atividade de campo ao custo | Fato | `plans/P13` | RF-70 | RNF-01 |
+| **RN-55** | O **tipo de tarefa** é vocabulário fechado, e não digitação livre: é ele que declara o que o encerramento pede e é por ele que a atividade de campo se liga ao lote e ao custo | Fato | `plans/P13`; `rotinas/1-cadastros/00-visao-geral.md` | RF-70 | RNF-01 |
 | **RN-62** | Uma pessoa tem **mais de um endereço**, e o de entrega pode não ser o de cobrança. É o endereço de entrega que responde pela distância, e portanto pelo frete | Fato | `rotinas/4-financeiro/01-cadastro-unico.md`; `C8` §`addresses` | RF-34, RF-37 | RNF-24 |
 
 ### 3.6 Área F: Pedido, entrega e fornecedor
@@ -337,7 +337,7 @@ na seção 6.
 | RF-67 | RN-33 |
 | RF-68 | RN-04, RN-35 |
 | RF-69 | RN-27 |
-| RF-70 | RN-80, RN-81, RN-82 |
+| RF-70 | RN-55, RN-80, RN-81, RN-82 |
 | RF-71 | RN-48 |
 | RF-72 | - |
 | RF-73 | RN-50 |
@@ -374,7 +374,7 @@ na seção 6.
 | RF-104 | RN-89 |
 | RF-105 | RN-78, RN-88 |
 | RF-106 | RN-88 |
-| RF-107 | RN-84, RN-91 |
+| RF-107 | RN-81, RN-84, RN-91 |
 
 ---
 

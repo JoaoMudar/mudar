@@ -171,15 +171,18 @@ O que faz a agenda ser rápida de preencher: sem digitação livre, só escolha 
 
 | Campo | Nota |
 |---|---|
-| Nome | "Semeadura", "Repicagem", "Irrigação", "Limpeza de canteiro", "Carregamento" |
-| Categoria | produção · manutenção · pedido · outro |
-| Exige espécie? | semeadura sim; limpeza de canteiro não |
-| Exige recipiente? | repicagem sim; irrigação não |
-| Unidade de medida | mudas · bandejas · m² · horas: o que se conta ao concluir |
-| Tempo médio por unidade | alimenta o custeio (P1) e a estimativa da agenda |
-| Ativo | soft-delete |
+| Nome da atividade | "Colher semente", "Encher saquinho", "Repicar", "Irrigação", "Limpar mato" |
+| Categoria | semente · terra · plantio · manutenção · pós-morte · expedição. **Classifica, não comanda formulário** (RN-80) |
+| É quantitativa por unidade? | quando sim, o encerramento pede **quanto cada participante fez**; quando não, não pede número algum (RF-98) |
+| Lote específico? | quando sim, o encerramento exige o lote, que traz consigo canteiro, espécie e recipiente (RF-99) |
+| Exige espécie? | para a tarefa que pede espécie sem haver lote, como colher semente |
+| Exige recipiente? | para a tarefa que pede recipiente sem haver lote, como encher saquinho |
+| Ativo | soft-delete: inativar é o que retira a tarefa da lista da agenda |
 
-Este cadastro é o que liga a agenda ao custo: `tempo médio × quantidade × valor-hora médio`.
+Este cadastro é o que liga a agenda ao custo, mas **não por estimativa**: o custo de mão de obra sai
+das horas apontadas no encerramento, e a contagem por participante é o que dá o rendimento por hora.
+Não há tempo médio por unidade cadastrado, ninguém no viveiro cronometrou isso. Detalhe em
+[`C8` §`task_types`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md).
 
 ## Telas por perfil
 
@@ -204,4 +207,4 @@ Cadastros não consome nada: é a base de todas as outras.
 | Pedidos | cliente, espécie, recipiente |
 | Estoque / Perdas | espécie, recipiente, funcionário |
 | Financeiro | party (funcionário, fornecedor, cliente, banco) |
-| Custeio / Precificação | espécie, recipiente, insumo, tempo médio do tipo de tarefa |
+| Custeio / Precificação | espécie, recipiente, insumo, horas apontadas por tipo de tarefa |
