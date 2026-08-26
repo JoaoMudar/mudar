@@ -7,7 +7,7 @@ caixas vazias para entidade de outro módulo) é idêntica: muda a nomenclatura 
 **Os módulos grandes foram divididos.** Um diagrama de 20 entidades com 10 atributos cada tem
 cerca de 200 linhas de texto, que não cabem legíveis em uma página A4: a fonte cai para 3 pt.
 Cada módulo foi quebrado nas subseções que o próprio texto do C6 já usa, de modo que toda figura
-fica acima de 6 pt na mancha de 16 cm. São 15 figuras no lugar de 6.
+fica acima de 6 pt na mancha de 16 cm. São 19 figuras no lugar de 6.
 
 Fonte Mermaid em `mmd/`, PNGs em `img/`, layout em `mermaid-config.json` (`nodeSpacing` 30 e
 `rankSpacing` 45 no lugar dos padrões 140 e 80 do Mermaid, que são a causa do espalhamento).
@@ -46,6 +46,8 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 | 20 | `fig20-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
 | 21 | `fig21-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,5 pt |
 | 22 | `fig22-financeiro-custo-preco` | Financeiro: do custo ao preço | 6,9 pt |
+| 23 | `fig23-producao-protocolo` | Produção: o protocolo e suas etapas | 7,4 pt |
+| 24 | `fig24-producao-protocolo-do-lote` | Produção: o lote seguindo o protocolo | 10,1 pt |
 
 **A antiga Figura 13 virou três, em 26/08/2026, e daí a renumeração.** Ela juntava planejamento e
 execução e já era a mais apertada da série, a 6,2 pt. A tarefa recorrente entrou, e com ela as
@@ -72,9 +74,17 @@ largura a esmaga para 5,5 pt; girada, a dimensão longa ocupa a altura e sobe pa
 quase quadrada (3918 x 2994 px) e sobe de 5,6 para 7,3 pt pelo mesmo motivo: a mancha é mais larga
 do que alta quando girada, e a largura é o que aperta ali.
 
-**As figuras posteriores deslocam em 11.** O capítulo 4 ia até a Figura 18 antes destas; com 17
-figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 23 e a segurança
-(4.7) na 29.
+**As figuras posteriores deslocam em 13.** O capítulo 4 ia até a Figura 18 antes destas; com 19
+figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 25 e a segurança
+(4.7) na 31.
+
+**As figuras 23 e 24 entraram em 26/08/2026**, com o protocolo de atividades por lote, e já
+nasceram divididas. Juntas davam uma faixa de 24 x 48 cm e **6,0 pt**, em cima do piso: o corte foi
+feito antes de a figura ir para o Word, e não depois de alguém não conseguir ler a impressão. O
+critério é o mesmo que o texto já usa: a **definição** do protocolo é cadastro
+([`B2`](../B-requisitos/B2-especificacao-requisitos.md) §2.2.4) e o **lote seguindo** o protocolo é
+produção (§2.3.8). Separadas, sobem a 7,4 e 10,1 pt, e a conferência de relacionamentos fecha:
+oito mais cinco, treze, o mesmo total da figura única.
 
 ## Como as divisões foram feitas
 
@@ -85,6 +95,7 @@ figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura
 | 9 · Produção (14) | 13, 14, 15, 16 e 17 | O dia planejado, a regra que o gera, o dia realizado, o lote, o que se consome e se perde |
 | 10 · Comercial (8) | 18 e 19 | Ciclo do pedido, contra a cotação que o complementa |
 | 11 · Financeiro (14) | 20, 21 e 22 | As duas subseções do texto (extrato, custo ao preço), mais a classificação |
+| *(sem original)* · Protocolo (6) | 23 e 24 | A definição do protocolo, contra o lote que o segue |
 
 **Por que o conceitual foi dividido em 24/08/2026.** Ele resistiu à primeira rodada de divisões
 como figura única, ao custo de virar uma faixa de 3,5:1 que só se lia em paisagem, a 8,2 pt. Com o

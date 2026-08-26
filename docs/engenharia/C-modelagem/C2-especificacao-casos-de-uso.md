@@ -11,10 +11,16 @@
 
 ## Como ler
 
-Doze casos de uso, dos cinquenta e cinco catalogados em [`C1`](C1-diagrama-casos-de-uso.md), estão
+Quinze casos de uso, dos cinquenta e nove catalogados em [`C1`](C1-diagrama-casos-de-uso.md), estão
 especificados aqui. O critério de seleção foi duplo: **concentração de fluxos alternativos** e
 **custo operacional do erro**. Cadastrar um insumo errado corrige-se em segundos; separar a carga
 errada põe um caminhão na estrada com a muda errada.
+
+**Os três últimos, UC-57 a UC-59, entraram em 26/08/2026 e esticam o critério.** Dois deles são
+manutenção de cadastro, e pela regra acima ficariam de fora. Entram porque o **custo do erro é
+diferido**: âncora escolhida errada no protocolo não produz sintoma nenhum na hora, e aparece
+semanas depois no lote que foi classificado cedo demais. Erro que não se manifesta quando é
+cometido precisa de fluxo de exceção escrito, e não de tela de cadastro genérica.
 
 Todos têm como pré-condição comum uma **sessão autenticada** cujo perfil autoriza a operação, a
 verificação ocorre a cada ação, e não apenas na entrada da tela (RF-06).
@@ -630,11 +636,161 @@ classificação automaticamente e o mantém fora da fila.
 No passo 3, o lançamento pertence a mês travado. O sistema recusa a alteração e informa que é
 necessário reabrir o período.
 
+
+---
+
+## UC-57 · Manter protocolo de atividades
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Definir, por tipo de embalagem, a sequência de etapas que todo lote daquele tipo passa a seguir sozinho |
+| **Requisitos** | RF-121, RF-122, RF-123, RF-124, RF-125 |
+| **Frequência** | Raríssima: uma vez por tipo de embalagem, revista por safra |
+| **Pré-condições** | Existem tipos de tarefa no catálogo e ao menos um tipo de embalagem |
+| **Pós-condições** | Protocolo vigente para o tipo; lotes criados a partir daí passam a segui-lo |
+
+### FP: Fluxo principal
+
+1. A gerência abre Configurações e escolhe o tipo de embalagem, ou cria um novo (RF-121).
+2. O sistema apresenta o protocolo vigente do tipo, ou um protocolo vazio quando não há.
+3. A gerência acrescenta uma etapa, escolhendo o tipo de tarefa no catálogo e dando-lhe um rótulo.
+4. A gerência declara o agendamento: **sequencial**, que ocorre uma vez, ou **recorrente**, que repete (RF-123).
+5. A gerência declara o **evento de referência**: a criação do lote, ou a conclusão de uma etapa já existente no protocolo, escolhida numa lista (RF-124).
+6. A gerência informa o tempo em dias e, quando recorrente, o intervalo entre ocorrências.
+7. A gerência informa o turno e decide se a etapa tem **alerta de atraso** ligado (RF-125).
+8. Quando sequencial, a gerência escolhe, de forma opcional, a fase do lote que a conclusão da etapa passa a gravar.
+9. O sistema valida a etapa e a acrescenta ao protocolo, na ordem escolhida.
+10. A alteração passa a valer **apenas para o que ainda vai ser gerado** (RN-107).
+
+### FA-1: Etapa que não altera a fase
+
+No passo 8, a etapa é sequencial mas não corresponde a nenhuma mudança de fase do lote. A gerência
+deixa o campo vazio e o sistema aceita: nem toda etapa sequencial promove o lote, e obrigar a
+escolher uma fase faria inventar transições que o ciclo produtivo não tem.
+
+### FA-2: Etapa com janela de aviso própria
+
+No passo 7, a etapa precisa avisar antes ou depois do padrão. A gerência informa a janela própria,
+em percentual do intervalo, e ela prevalece sobre o parâmetro geral (RN-104).
+
+### FA-3: Alteração de protocolo com lotes em andamento
+
+No passo 10, existem lotes seguindo o protocolo. O sistema **não** reescreve as ordens já emitidas
+nem as datas já cumpridas: a alteração vale para a próxima geração de cada lote (RN-107). É a
+mesma garantia que a recorrência de calendário dá em RN-96, e a razão é a mesma: regra que
+reescrevesse o passado apagaria dia já trabalhado.
+
+### FE-1: Âncora circular
+
+No passo 5, a etapa é apontada como âncora de outra que já é âncora dela, direta ou indiretamente.
+O sistema recusa e indica o ciclo. **É validação de aplicação, e não do banco**: a restrição não
+cabe em verificação declarativa, e sem ela as duas etapas nunca ganhariam data de referência, e
+nenhuma das duas venceria coisa alguma, em silêncio.
+
+### FE-2: Etapa recorrente sem intervalo
+
+No passo 6, o agendamento é recorrente e o intervalo está vazio. O sistema recusa: recorrente sem
+intervalo não tem como produzir a ocorrência seguinte, e aceitá-la criaria uma etapa que ocorre uma
+vez e se apresenta como se repetisse.
+
+### FE-3: Segundo protocolo vigente para o mesmo tipo
+
+No passo 2, já existe protocolo vigente e a gerência tenta criar outro para o mesmo tipo de
+embalagem. O sistema recusa e oferece editar o existente: dois vigentes tornariam indeterminado
+qual deles o lote novo segue.
+
+---
+
+## UC-58 · Dividir lote
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Separar uma leva em dois lotes que passam a ser conduzidos de forma independente |
+| **Requisitos** | RF-135, RF-134 |
+| **Frequência** | Ocasional |
+| **Pré-condições** | Lote aberto, com saldo maior que um |
+| **Pós-condições** | Dois lotes abertos, cada um com o seu saldo e o seu protocolo; lote original encerrado com motivo `dividido` |
+
+### FP: Fluxo principal
+
+1. A gerência aciona "dividir" na ficha do lote.
+2. O sistema apresenta o saldo atual e pede a quantidade que vai para o segundo lote.
+3. A gerência informa a quantidade e o canteiro de cada resultante, que podem ser o mesmo.
+4. O sistema cria os dois lotes, ambos apontando para o original como lote de origem.
+5. O sistema **copia para cada um o acompanhamento do protocolo do original**: a fase e a data da última execução de cada etapa (RN-109).
+6. O sistema encerra o original com motivo `dividido`, e **cancela** as ordens dele ainda em aberto (RN-108).
+7. O sistema grava os movimentos que explicam o saldo dos três lotes.
+8. Daí em diante, os dois resultantes vencem e cumprem etapas de forma independente.
+
+### FA-1: Divisão que mantém os dois no mesmo canteiro
+
+No passo 3, os dois resultantes ficam onde estavam. O sistema aceita: um canteiro comporta vários
+lotes (RN-76), e a divisão é frequentemente contábil, e não física.
+
+### FA-2: Etapa já vencida no momento da divisão
+
+No passo 5, o original tem etapa vencida e não executada. Os dois resultantes **herdam o
+vencimento vencido**, e nascem os dois em atraso naquela etapa. É o correto: a limpeza que não foi
+feita continua não tendo sido feita, em nenhuma das duas metades.
+
+### FE-1: Quantidade igual ou maior que o saldo
+
+No passo 3, a quantidade informada não deixa saldo para o primeiro lote. O sistema recusa: divisão
+que esvazia um dos lados não é divisão, é transferência de canteiro, e existe caminho próprio para
+ela.
+
+### FE-2: Lote com apontamento em curso
+
+No passo 1, há tarefa aberta sobre o lote. O sistema recusa e indica a tarefa: dividir com
+apontamento em curso deixaria a execução apontando para um lote que passou a estar encerrado, e a
+hora trabalhada perderia destino.
+
+---
+
+## UC-59 · Customizar tempo de etapa por espécie
+
+| | |
+|---|---|
+| **Ator principal** | Gerência |
+| **Objetivo** | Ajustar, para uma espécie, o tempo de uma etapa específica do protocolo |
+| **Requisitos** | RF-133 |
+| **Frequência** | Rara, e apenas para as espécies que fogem da média |
+| **Pré-condições** | Espécie cadastrada e protocolo montado para o tipo de embalagem em questão |
+| **Pós-condições** | A espécie passa a usar o tempo próprio; as demais seguem o do tipo de embalagem |
+
+### FP: Fluxo principal
+
+1. A gerência abre o cadastro da espécie e a seção de tempos do protocolo.
+2. O sistema apresenta as etapas dos protocolos, com o tempo padrão de cada uma.
+3. A gerência informa o tempo próprio da espécie na etapa que difere.
+4. O sistema grava apenas o que foi preenchido, e o que ficou em branco continua vindo do protocolo (RN-106).
+5. Lotes daquela espécie criados a partir daí passam a usar o tempo próprio.
+
+### FA-1: Remover a customização
+
+No passo 3, a gerência apaga o valor informado antes. O sistema remove a customização em vez de
+gravar zero: zero seria uma etapa que vence no mesmo dia da âncora, e é o oposto do que apagar
+significa.
+
+### FE-1: Nenhum dos dois tempos preenchido
+
+No passo 3, a gerência abre a customização de uma etapa e confirma sem informar nada. O sistema não
+grava linha alguma: registro sem nenhum valor próprio faz a consulta de tempo efetivo percorrer um
+caminho a mais para chegar ao mesmo número.
+
+### FE-2: Alteração com lotes em andamento
+
+No passo 5, existem lotes da espécie em curso. O novo tempo vale para os vencimentos **ainda não
+gerados**, e não reescreve ordem já emitida (RN-107). O sistema informa quantos lotes serão
+afetados na próxima geração, para que a gerência saiba o alcance antes de confirmar.
+
 ---
 
 ## Casos de uso não especificados
 
-Os quarenta e três casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
+Os quarenta e quatro casos restantes de [`C1`](C1-diagrama-casos-de-uso.md) são operações de manutenção
 de cadastro e de consulta, cujo fluxo se resume a selecionar, preencher e confirmar, sem alternativas
 relevantes. Especificá-los produziria repetição sem ganho analítico.
 

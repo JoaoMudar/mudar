@@ -150,6 +150,7 @@ Financeiro as compras que ficam disponíveis para uso.
 | Montar a agenda da semana ([`2-producao/01-agenda-de-pessoal.md`](2-producao/01-agenda-de-pessoal.md)) | Gerência |
 | Ver minhas tarefas de hoje / concluir | Colaborador |
 | Apontar início e fim de tarefa na agenda do dia ([`2-producao/05-apontamento-de-tarefas.md`](2-producao/05-apontamento-de-tarefas.md)) | Gerência |
+| Montar o protocolo de atividades por tipo de embalagem ([`2-producao/06-protocolo-de-atividades.md`](2-producao/06-protocolo-de-atividades.md)) | Gerência |
 | Registro de atividade (semeadura, repicagem, irrigação, adubação) | Colaborador |
 | Criar lote e consultar a ocupação do viveiro ([`2-producao/04-lotes-e-canteiros.md`](2-producao/04-lotes-e-canteiros.md)) | Gerência |
 | Repicar lote, gerando o lote de destino | Colaborador |
@@ -237,6 +238,7 @@ docs/rotinas/
 │   ├── 03-perdas.md
 │   ├── 04-lotes-e-canteiros.md     onde a muda está e de que leva veio
 │   ├── 05-apontamento-de-tarefas.md  a fonte das horas
+│   ├── 06-protocolo-de-atividades.md  o que o lote tem de receber
 │   └── 99-tarefas-diarias-historico.md   absorvida; fica como registro
 ├── 3-comercial/
 │   ├── 00-visao-geral.md           pedidos + cotação + entregas

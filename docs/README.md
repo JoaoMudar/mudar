@@ -57,8 +57,8 @@ Comece por [`engenharia/README.md`](engenharia/README.md), explica a estrutura d
 | Bloco | Artefatos |
 |-------|-----------|
 | A: Fundação | Documento de Visão, Glossário do domínio |
-| B: Requisitos | Especificação de Requisitos (107 RF, 26 RNF), Regras de negócio (83 RN), Quadros do TCC, Matriz de rastreabilidade |
-| C: Modelagem | Casos de uso (56 UC), Especificação de casos de uso, MER/DER (55 entidades), Dicionário de dados |
+| B: Requisitos | Especificação de Requisitos (136 RF, 26 RNF), Regras de negócio (103 RN), Quadros do TCC, Matriz de rastreabilidade |
+| C: Modelagem | Casos de uso (59 UC), Especificação de casos de uso, MER/DER (62 entidades), Dicionário de dados |
 | D: Arquitetura | Arquitetura C4, Diagrama de implantação, Matriz RBAC |
 | E: Qualidade | Casos de teste de aceite, Riscos, Modelagem de ameaças, LGPD, Backup |
 | F: Usabilidade | Plano de avaliação (5 atributos de Nielsen) |
@@ -84,6 +84,7 @@ O mapa traz também o **diagrama de como os quatro módulos se relacionam** e um
 | **2 · Produção** | Perdas | [`rotinas/2-producao/03-perdas.md`](rotinas/2-producao/03-perdas.md) |
 | **2 · Produção** | Lotes e canteiros | [`rotinas/2-producao/04-lotes-e-canteiros.md`](rotinas/2-producao/04-lotes-e-canteiros.md) |
 | **2 · Produção** | Apontamento de tarefas | [`rotinas/2-producao/05-apontamento-de-tarefas.md`](rotinas/2-producao/05-apontamento-de-tarefas.md) |
+| **2 · Produção** | Protocolo de atividades por lote | [`rotinas/2-producao/06-protocolo-de-atividades.md`](rotinas/2-producao/06-protocolo-de-atividades.md) |
 | **3 · Comercial** | Comercial (visão geral do módulo) | [`rotinas/3-comercial/00-visao-geral.md`](rotinas/3-comercial/00-visao-geral.md) |
 | **3 · Comercial** | Pedidos (visão geral + detalhamento) | [`rotinas/3-comercial/pedidos.md`](rotinas/3-comercial/pedidos.md) e a pasta [`rotinas/3-comercial/pedidos/`](rotinas/3-comercial/pedidos/) |
 | **3 · Comercial** | Cotação com fornecedores | sem rotina própria: está no plano [`P11`](../plans/P11-fornecedores-cotacao.md) |

@@ -11,13 +11,14 @@ Débora distribui tarefas verbalmente de manhã. Produção é decidida conforme
 registro de quem fez o quê, de quando cada lote foi semeado nem de quanto tempo leva para
 ficar pronto.
 
-## As três subrotinas
+## As quatro subrotinas
 
 | # | Subrotina | Pergunta que responde | Documento |
 |---|---|---|---|
 | 1 | **Agenda de pessoal** | O que cada um vai fazer nesta semana? | [`01-agenda-de-pessoal.md`](01-agenda-de-pessoal.md) |
 | 2 | **Apontamento de tarefas** | O que foi feito de fato, quanto e em quanto tempo? | [`05-apontamento-de-tarefas.md`](05-apontamento-de-tarefas.md) |
 | 3 | **Lotes e canteiros** | Onde está cada lote, de onde veio e quando fica pronto? | [`04-lotes-e-canteiros.md`](04-lotes-e-canteiros.md) |
+| 4 | **Protocolo de atividades** | O que cada lote tem de receber, e quando? | [`06-protocolo-de-atividades.md`](06-protocolo-de-atividades.md) |
 
 > **A numeração dos arquivos não acompanha a das subrotinas**, e é deliberado: `02-estoque.md` e
 > `03-perdas.md` já ocupavam os números quando estas foram escritas, e renumerá-los quebraria

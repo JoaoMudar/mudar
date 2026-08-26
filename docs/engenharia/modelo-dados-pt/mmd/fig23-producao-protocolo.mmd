@@ -1,0 +1,57 @@
+erDiagram
+  tipos_embalagem {
+    uuid id PK
+    text codigo UK
+    text nome
+    int ordem
+    boolean ativo
+  }
+  protocolos {
+    uuid id PK
+    uuid tipo_embalagem_id FK
+    text nome
+    boolean ativo
+    text observacao
+    uuid criado_por FK
+  }
+  etapas_protocolo {
+    uuid id PK
+    uuid protocolo_id FK
+    uuid tipo_tarefa_id FK
+    uuid turno_id FK
+    text rotulo
+    int ordem
+    text tipo_agendamento
+    text tipo_ancora
+    uuid etapa_ancora_id FK
+    int dias_apos_ancora
+    int dias_intervalo
+    boolean alerta_ativo
+    numeric percentual_aviso
+    text fase_resultante
+    boolean ativa
+  }
+  tempos_por_especie {
+    uuid especie_id PK
+    uuid etapa_id PK
+    int dias_apos_ancora
+    int dias_intervalo
+    text observacao
+  }
+  recipientes {
+  }
+  tipos_tarefa {
+  }
+  turnos_trabalho {
+  }
+  especies {
+  }
+
+  tipos_embalagem  ||--o{ recipientes        : "classifica"
+  tipos_embalagem  ||--o| protocolos         : "tem protocolo vigente"
+  protocolos       ||--o{ etapas_protocolo   : "compõe-se de"
+  etapas_protocolo ||--o{ etapas_protocolo   : "é âncora de"
+  tipos_tarefa     ||--o{ etapas_protocolo   : "é executada em"
+  turnos_trabalho  ||--o{ etapas_protocolo   : "situa no dia"
+  especies         ||--o{ tempos_por_especie : "customiza"
+  etapas_protocolo ||--o{ tempos_por_especie : "é customizada por"

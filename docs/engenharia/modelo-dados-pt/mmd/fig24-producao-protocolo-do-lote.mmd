@@ -1,0 +1,46 @@
+erDiagram
+  protocolo_do_lote {
+    uuid lote_id PK
+    uuid etapa_id PK
+    date data_ancora
+    date data_ultima_execucao
+    int ocorrencias_concluidas
+    timestamptz concluida_em
+    uuid herdado_do_lote_id FK
+  }
+  vencimentos_do_lote {
+    uuid lote_id
+    uuid etapa_id
+    int ocorrencia
+    int dias_efetivos
+    date proximo_vencimento
+    int dias_de_aviso
+    text situacao
+  }
+  lotes {
+    uuid id PK
+    uuid protocolo_id FK
+    text fase
+    date data_criacao
+    date data_plantio
+    timestamptz encerrado_em
+    text motivo_encerramento
+  }
+  atribuicoes {
+    uuid id PK
+    uuid etapa_protocolo_id FK
+    int ocorrencia_protocolo
+    date vencimento_protocolo
+    date data_trabalho
+    text situacao
+  }
+  protocolos {
+  }
+  etapas_protocolo {
+  }
+
+  protocolos        ||--o{ lotes               : "rege"
+  lotes             ||--o{ protocolo_do_lote   : "percorre"
+  etapas_protocolo  ||--o{ protocolo_do_lote   : "é acompanhada em"
+  protocolo_do_lote ||--o| vencimentos_do_lote : "vence em"
+  etapas_protocolo  ||--o{ atribuicoes         : "gera ordem"

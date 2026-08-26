@@ -85,6 +85,11 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-70 | UC-42 | `task_types` | Tarefas | TA-61 |
 | RF-82 | UC-42, UC-51 | `task_types` | Tarefas | TA-61 |
 | RF-83 | UC-54 | `work_shifts` | Período de trabalho | TA-62 |
+| RF-121 | UC-57 | `container_types`, `containers` | Tipos de embalagem | TA-87 |
+| RF-122 | UC-57 | `protocols`, `container_types` | Protocolo de atividades | TA-87 |
+| RF-123 | UC-57 | `protocol_steps`, `task_types` | Protocolo de atividades | TA-87 |
+| RF-124 | UC-57 | `protocol_steps` *(reflexiva)* | Protocolo de atividades | TA-88 |
+| RF-125 | UC-57 | `protocol_steps`, `settings` | Protocolo de atividades | TA-89 |
 
 ### 2.3 Módulo 2 · Produção
 
@@ -173,6 +178,29 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-118 | *(pendente)* | `batch_health` *(visão)*, `assignments`, `settings` | Lotes | *(pendente)* |
 | RF-119 | *(pendente)* | `batch_health` *(visão)*, `task_types` | Lotes | *(pendente)* |
 | RF-120 | *(pendente)* | `batch_health` *(visão)* | Lotes | *(pendente)* |
+
+#### 2.3.8 Protocolo de atividades por lote
+
+| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
+|---|---|---|---|---|
+| RF-126 | UC-47 | `batches`, `protocols`, `batch_protocol_steps` | Protocolo de atividades | TA-90 |
+| RF-127 | UC-50 | `assignments`, `protocol_steps`, `batch_protocol_steps` | Protocolo de atividades | TA-91 |
+| RF-128 | UC-51 | `batches`, `protocol_steps`, `batch_protocol_steps` | Protocolo de atividades | TA-92 |
+| RF-129 | UC-51 | `batch_protocol_steps`, `batch_protocol_due` *(visão)* | Protocolo de atividades | TA-93 |
+| RF-130 | UC-51 | `assignments`, `batch_protocol_steps` | Protocolo de atividades | TA-94 |
+| RF-131 | UC-49 | `batch_protocol_due` *(visão)*, `protocol_steps` | Protocolo de atividades | TA-95 |
+| RF-132 | UC-49 | `batch_protocol_due` *(visão)*, `batch_health` *(visão)*, `settings` | Protocolo de atividades | TA-89 |
+| RF-133 | UC-59 | `species_protocol_overrides`, `species` | Protocolo de atividades | TA-96 |
+| RF-134 | UC-58, UC-17 | `batches`, `assignments`, `batch_movements` | Protocolo de atividades | TA-97 |
+| RF-135 | UC-58 | `batches`, `batch_protocol_steps`, `batch_movements` | Lotes | TA-98 |
+| RF-136 | UC-47, UC-51 | `batches` | Lotes | TA-90, TA-92 |
+
+**Esta seção nasceu completa, e é a diferença em relação à §2.3.7.** RF-108 a RF-120 entraram em
+26/08/2026 com entidade e acesso definidos e **sem caso de uso nem teste**, e a lacuna está contada
+na §5. RF-121 a RF-136 entraram no mesmo dia com as cinco colunas preenchidas: a especificação do
+protocolo passou por `C1`/`C2` e por `E2` na mesma alteração, em vez de deixá-los para depois.
+Nenhuma das entidades citadas existe no banco ainda, e a matriz liga o requisito à entidade
+**especificada**, que é o que ela sempre fez para o módulo Financeiro.
 
 ### 2.4 Módulo 3 · Comercial
 
@@ -383,10 +411,10 @@ teste era lacuna de verificação. A primeira ainda está aberta.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | 112 de 120 |
-| Requisitos funcionais com entidade ou derivação declarada | **120 de 120** |
-| Requisitos funcionais com regra de acesso definida | **120 de 120** |
-| Requisitos de prioridade *deve ter* com teste de aceite | 84 de 96 |
+| Requisitos funcionais com caso de uso | 128 de 136 |
+| Requisitos funcionais com entidade ou derivação declarada | **136 de 136** |
+| Requisitos funcionais com regra de acesso definida | **136 de 136** |
+| Requisitos de prioridade *deve ter* com teste de aceite | 99 de 111 |
 | Requisitos *deveria ter* / *poderia ter* sem teste | 13: deliberado |
 | Casos de uso sem requisito de origem | 0 |
 | Entidades sem requisito de origem | 0 |
@@ -397,6 +425,13 @@ uso nem teste de aceite**: `C1`/`C2` e `E2` não foram estendidos na mesma alter
 têm caso de uso (RF-108 e RF-114 a RF-120) e doze são *deve ter* sem teste. As duas lacunas são
 tarefa seguinte, e ficam aqui contadas em vez de arredondadas: matriz que se declara completa sem
 estar é pior do que matriz que aponta o próprio buraco.
+
+**RF-121 a RF-136 entraram no mesmo dia sem repetir o recuo**, e a diferença é deliberada. O
+protocolo de atividades foi especificado com caso de uso (UC-57 a UC-59) e teste de aceite (TA-87 a
+TA-98) **antes de existir migration**, porque o módulo tem um motor de geração automática de
+ordens: requisito de comportamento automático que não chega a virar caso de teste vira, na prática,
+requisito sem critério de aceitação, e ninguém saberia dizer se o motor está certo. Os quinze
+requisitos *deve ter* do bloco entram todos cobertos.
 
 Dos requisitos anteriores a 26/08/2026, dezoito estão sem caso de aceite próprio, e as duas
 ausências têm naturezas opostas. **Doze** são de prioridade inferior a *deve ter*: decisão declarada, não omissão, o critério de

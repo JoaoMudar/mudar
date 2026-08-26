@@ -64,6 +64,8 @@ contenha, sem contradição, recursos que a gerência lê (§3.2).
 | **1 · Cadastros** | | | | |
 | **Espécies** | C L A E | L | L | C L A E |
 | **Recipientes** | C L A E | L | L | C L A E |
+| **Tipos de embalagem** ⁶ | C L A | C L A | L | C L A E |
+| **Protocolo de atividades** ⁶ | C L A | C L A | L | L |
 | **Insumos** | C L A E | L | L | C L A E |
 | **Clientes** | C L A E | L | - | C L A E |
 | **Dados fiscais de cliente** | C L A | L | - | C L A |
@@ -77,6 +79,7 @@ contenha, sem contradição, recursos que a gerência lê (§3.2).
 | **Consumo de insumo** | L ¹ | L | **C L** | L |
 | **Coleta de sementes** | C L A E | L | - | C L A E |
 | **Lotes** ⁵ | L | C L A | **C L** | L |
+| **Divisão de lote** ⁶ | L | **C** | - | L |
 | **Apontamento** ⁵ | L | C L A E | L A ³ | L |
 | **Atividades de produção** | L ¹ | C L A | **C L** | L |
 | **Estoque** | L | C L A | L | L |
@@ -128,6 +131,11 @@ Requisitos: **RF-80/RF-81** para áreas e canteiros, **RF-83** para o período d
 **RF-84 a RF-91** para lotes, **RF-94 a RF-100** para o apontamento, **RF-101 a RF-103** para o
 estoque de insumo e **RF-104** para gastos de tarefa. As regras de acesso que não se leem direto
 da matriz estão em §3.13 e §3.14.
+
+⁶ **Recursos do protocolo de atividades por lote, escritos em 26/08/2026**, todos ainda sem tabela
+e sem tela. Requisitos: **RF-121** para tipos de embalagem, **RF-122 a RF-125 e RF-133** para o
+protocolo, **RF-135** para a divisão de lote. As regras de acesso que não se leem direto da matriz
+estão em §3.16.
 
 ---
 
@@ -329,6 +337,28 @@ omissão dela.
 
 A chefia altera porque os parâmetros são regra de negócio (o limiar de mortalidade, a margem
 mínima), não infraestrutura. A gerência não lê: um deles é a margem, que o §3.1 já fecha.
+
+### 3.16 O protocolo é da gerência tanto quanto da chefia, e a divisão é só da gerência
+
+*Acrescentada em 26/08/2026, com o protocolo de atividades por lote.*
+
+**A gerência monta protocolo, e é a exceção ao §3.8.** A regra geral é que cadastro pertence à
+chefia e a gerência apenas lê; aqui as duas têm `C L A`. O protocolo não é dado comercial nem
+financeiro: é a **receita de manejo**, e quem sabe em quantos dias o ipê germina no tubete é quem
+está no viveiro todo dia. Deixá-lo só com a chefia produziria protocolo desatualizado, e protocolo
+desatualizado gera ordem na data errada, que é pior do que não gerar ordem nenhuma.
+
+**Nenhum dos dois tem `E`, e a razão é a mesma do §3.15.** Excluir um protocolo em uso deixaria os
+lotes que o seguem sem receita, com o efeito aparecendo longe dali: eles simplesmente parariam de
+receber ordens, em silêncio. Encerrar um protocolo é desativá-lo (`A`), e os lotes em curso
+continuam apontando para ele. O administrador tem `E` sobre tipos de embalagem apenas para o caso
+de um tipo criado por engano que nada referencia.
+
+**A divisão de lote tem só `C`, e só para a gerência.** Não é cadastro: é um **evento**, como a
+repicagem, e por isso não admite alterar nem excluir. Dividir encerra o lote de origem e cria dois
+novos, e desfazer isso não é apagar uma linha, é reconstruir três estados de protocolo. O
+colaborador não divide porque a decisão é de condução da produção, e não de execução de tarefa: é
+a mesma fronteira do §3.13, onde ele cria lote mas não o edita.
 
 ---
 

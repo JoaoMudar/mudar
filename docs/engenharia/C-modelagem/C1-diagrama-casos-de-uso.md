@@ -194,7 +194,7 @@ graph LR
   CH --- UC39
 ```
 
-A concentração é acentuada: **vinte e sete dos cinquenta e seis casos de uso pertencem à chefia.** Não é
+A concentração é acentuada: **vinte e sete dos cinquenta e nove casos de uso pertencem à chefia.** Não é
 falha de distribuição: é o retrato de uma microempresa em que uma única pessoa responde por venda,
 preço, compra, finanças e decisão. O sistema não redistribui responsabilidade; ele torna
 verificável a que já existe.
@@ -209,6 +209,8 @@ graph LR
     UC42(["UC-42 · Manter tipos de tarefa"])
     UC46(["UC-46 · Manter áreas e canteiros"])
     UC54(["UC-54 · Manter período de trabalho"])
+    UC57(["UC-57 · Manter protocolo de atividades"])
+    UC59(["UC-59 · Customizar tempo por espécie"])
   end
 
   subgraph M2["2 · Produção"]
@@ -225,6 +227,7 @@ graph LR
     UC52(["UC-52 · Encerrar o dia do funcionário"])
     UC55(["UC-55 · Consultar saldo de insumos"])
     UC56(["UC-56 · Registrar entrada de insumo"])
+    UC58(["UC-58 · Dividir lote"])
   end
 
   subgraph M3["3 · Comercial"]
@@ -240,6 +243,9 @@ graph LR
   GE --- UC42
   GE --- UC46
   GE --- UC54
+  GE --- UC57
+  GE --- UC59
+  GE --- UC58
   GE --- UC43
   GE --- UC47
   GE --- UC49
@@ -385,10 +391,18 @@ alimenta a matriz de rastreabilidade [`B5`](../B-requisitos/B5-matriz-rastreabil
 | **UC-54** | Manter período de trabalho | 1 · Cad. | Gerência | RF-83 | - |
 | **UC-55** | Consultar saldo de insumos | 2 · Prod. | Gerência | RF-102, RF-103 | - |
 | **UC-56** | Registrar entrada de insumo | 2 · Prod. | Gerência | RF-106 | - |
+| **UC-57** | Manter protocolo de atividades | 1 · Cad. | Gerência | RF-121, RF-122, RF-123, RF-124, RF-125 | **✔ sim** |
+| **UC-58** | Dividir lote | 2 · Prod. | Gerência | RF-135 | **✔ sim** |
+| **UC-59** | Customizar tempo de etapa por espécie | 1 · Cad. | Gerência | RF-133 | **✔ sim** |
 
-**56 casos de uso.** Os doze marcados são especificados em detalhe em
+**59 casos de uso.** Os quinze marcados são especificados em detalhe em
 [`C2`](C2-especificacao-casos-de-uso.md): são os que concentram fluxos alternativos e exceções, e
 aqueles cujo erro tem maior custo operacional.
+
+**Os três últimos entraram em 26/08/2026, com o protocolo de atividades por lote.** UC-57 e UC-59
+são de cadastro e, pela regra de seleção, não seriam especificados; estão marcados assim mesmo
+porque o erro neles é **silencioso e diferido**: âncora escolhida errada só aparece semanas depois,
+no lote que foi classificado cedo demais.
 
 ---
 ## 5. Nota sobre a notação
