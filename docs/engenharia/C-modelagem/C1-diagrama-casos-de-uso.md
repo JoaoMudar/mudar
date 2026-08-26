@@ -55,6 +55,7 @@ graph LR
     S4["Perdas"]
     S14["Lotes e canteiros"]
     S15["Agenda e apontamento"]
+    S16["Protocolo de atividades"]
   end
   subgraph M3["3 · Comercial"]
     S7["Pedidos"]
@@ -77,6 +78,7 @@ graph LR
   CH --- S9
   CH --- S10
   CH --- S11
+  CH --- S16
 
   GE --- S13
   GE --- S1
@@ -87,6 +89,7 @@ graph LR
   GE --- S11
   GE --- S14
   GE --- S15
+  GE --- S16
 
   CO --- S13
   CO --- S2

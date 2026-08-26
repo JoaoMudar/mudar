@@ -175,16 +175,16 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF | Caso de uso | Entidade | Recurso em D4 | Teste |
 |---|---|---|---|---|
 | RF-117 | *(pendente)* | `batches`, `beds`, `areas`, `batch_health` *(visão)* | Lotes | *(pendente)* |
-| RF-118 | *(pendente)* | `batch_health` *(visão)*, `assignments`, `settings` | Lotes | *(pendente)* |
+| RF-118 | *(pendente)* | `batch_health` *(visão)*, `batch_protocol_due` *(visão)*, `settings` | Lotes | *(pendente)* |
 | RF-119 | *(pendente)* | `batch_health` *(visão)*, `task_types` | Lotes | *(pendente)* |
-| RF-120 | *(pendente)* | `batch_health` *(visão)* | Lotes | *(pendente)* |
+| RF-120 | *(pendente)* | `batch_health` *(visão)*, `batch_protocol_due` *(visão)* | Lotes | *(pendente)* |
 
 #### 2.3.8 Protocolo de atividades por lote
 
 | RF | Caso de uso | Entidade | Recurso em D4 | Teste |
 |---|---|---|---|---|
 | RF-126 | UC-47 | `batches`, `protocols`, `batch_protocol_steps` | Protocolo de atividades | TA-90 |
-| RF-127 | UC-50 | `assignments`, `protocol_steps`, `batch_protocol_steps` | Protocolo de atividades | TA-91 |
+| RF-127 | UC-50 | `assignments`, `week_plans`, `protocol_steps`, `batch_protocol_steps` | Protocolo de atividades | TA-91 |
 | RF-128 | UC-51 | `batches`, `protocol_steps`, `batch_protocol_steps` | Protocolo de atividades | TA-92 |
 | RF-129 | UC-51 | `batch_protocol_steps`, `batch_protocol_due` *(visão)* | Protocolo de atividades | TA-93 |
 | RF-130 | UC-51 | `assignments`, `batch_protocol_steps` | Protocolo de atividades | TA-94 |
@@ -192,7 +192,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-132 | UC-49 | `batch_protocol_due` *(visão)*, `batch_health` *(visão)*, `settings` | Protocolo de atividades | TA-89 |
 | RF-133 | UC-59 | `species_protocol_overrides`, `species` | Protocolo de atividades | TA-96 |
 | RF-134 | UC-58, UC-17 | `batches`, `assignments`, `batch_movements` | Protocolo de atividades | TA-97 |
-| RF-135 | UC-58 | `batches`, `batch_protocol_steps`, `batch_movements` | Lotes | TA-98 |
+| RF-135 | UC-58 | `batches`, `batch_protocol_steps`, `batch_movements` | Divisão de lote | TA-98 |
 | RF-136 | UC-47, UC-51 | `batches` | Lotes | TA-90, TA-92 |
 
 **Esta seção nasceu completa, e é a diferença em relação à §2.3.7.** RF-108 a RF-120 entraram em

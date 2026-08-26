@@ -302,13 +302,20 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Agenda da semana | 5 | RF-71 a RF-74, RF-92, RF-93 |
 | Apontamento | 8 | RF-75, RF-76, RF-94 a RF-100, RF-107 |
 | Insumos e gastos da tarefa | 5 | RF-101, RF-102, RF-104, RF-105, RF-106 |
+| Protocolo de atividades por lote | 12 | RF-121 a RF-132, RF-134, RF-135, RF-136 |
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
 | Fornecedores | 3 | RF-53, RF-54 |
 | Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **86** | **85 dos 85 requisitos de prioridade *deve ter*** |
+| **Total** | **98** | **100 dos 100 requisitos de prioridade *deve ter*** |
+
+**Os doze casos do protocolo cobrem quinze requisitos**, e é a única linha da tabela em que os
+casos foram escritos **antes** de existir migration. A razão está na §5.1.6: requisito de
+comportamento automático que não vira caso de teste é requisito sem critério de aceitação, e
+ninguém saberia dizer se o motor está certo. RF-133 é *deveria ter* e mesmo assim tem caso (TA-96),
+porque o tempo por espécie é o parâmetro que mais muda datas.
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de

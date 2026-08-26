@@ -33,7 +33,7 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 | 7 | `fig07-conceitual-comercial` | Conceitual: do custo ao dinheiro | 6,5 pt |
 | 8 | `fig08-acesso` | Acesso e parâmetros, transversais aos quatro módulos | 7,3 pt |
 | 9 | `fig09-cadastros-especie` | Cadastros: a espécie e seus nomes | 15,8 pt |
-| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,7 pt |
+| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, tipo de embalagem, insumo e tipo de tarefa | 6,5 pt |
 | 11 | `fig11-cadastros-viveiro` | Cadastros: área, canteiro e turno de trabalho | 16,3 pt |
 | 12 | `fig12-cadastros-pessoas` | Cadastros: identidade única e papéis | 6,9 pt |
 | 13 | `fig13-producao-agenda` | Produção: semana e atribuição | 5,6 pt · **usar paisagem** (7,3 pt) |
@@ -77,6 +77,12 @@ do que alta quando girada, e a largura é o que aperta ali.
 **As figuras posteriores deslocam em 13.** O capítulo 4 ia até a Figura 18 antes destas; com 19
 figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 25 e a segurança
 (4.7) na 31.
+
+**A `fig10` recebeu `tipos_embalagem` em 26/08/2026 e caiu de 7,7 para 6,5 pt.** Continua acima do
+piso, e a queda é o preço de o recipiente passar a ter tipo: são duas caixas a mais na largura, que
+é a dimensão que aperta ali. Se a figura receber mais alguma entidade, o corte natural é separar o
+catálogo de custeio (insumo e histórico de preços) do catálogo de manejo (recipiente, tipo de
+embalagem, tipo de tarefa).
 
 **As figuras 23 e 24 entraram em 26/08/2026**, com o protocolo de atividades por lote, e já
 nasceram divididas. Juntas davam uma faixa de 24 x 48 cm e **6,0 pt**, em cima do piso: o corte foi

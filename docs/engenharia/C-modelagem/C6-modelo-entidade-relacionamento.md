@@ -20,7 +20,7 @@ fornecedor referenciam-na por chave estrangeira. Essa centralidade não é prefe
 tradução direta da regra de negócio de que tudo no viveiro gira em torno da espécie.
 
 O modelo é apresentado em **cinco agrupamentos**: os quatro módulos do sistema, mais o Acesso,
-que atravessa todos. Um diagrama único com as 55 entidades seria ilegível em página impressa, e
+que atravessa todos. Um diagrama único com as 62 entidades seria ilegível em página impressa, e
 usar aqui o mesmo agrupamento dos requisitos ([`B2 §2`](../B-requisitos/B2-especificacao-requisitos.md))
 e da matriz de acesso ([`D4 §2`](../D-arquitetura/D4-matriz-rbac.md)) permite ler os três
 documentos lado a lado sem traduzir de um para o outro.
@@ -111,10 +111,13 @@ módulo, na seção seguinte.
 
 Sete leituras que o modelo conceitual já entrega:
 
-- **A espécie participa de sete relacionamentos**, e é a única entidade presente nos **quatro
-  módulos**: custeio e preço no Financeiro, lote, atividade e perda na Produção, item de pedido e
-  cotação no Comercial, e o próprio catálogo em Cadastros. É a confirmação estrutural da
-  centralidade declarada no §3.4 da metodologia: nenhuma outra entidade aparece em mais de dois.
+- **A espécie participa de oito relacionamentos**, e está presente nos **quatro módulos**: custeio
+  e preço no Financeiro, lote, atividade e perda na Produção, item de pedido e cotação no Comercial,
+  e o próprio catálogo em Cadastros. É a confirmação estrutural da centralidade declarada no §3.4
+  da metodologia. **O oitavo entrou em 26/08/2026 e é de outra natureza que os sete primeiros**:
+  em `ESPECIE customiza o tempo de ETAPA_PROTOCOLO`, a espécie deixa de apenas participar do ciclo
+  produtivo e passa a **parametrizá-lo**, decidindo em quantos dias cada etapa do manejo vence
+  naquela espécie (RN-106).
 - **Produção e perda são simétricas em torno da espécie.** Uma soma, a outra subtrai, e o estoque é
   a diferença: razão pela qual ele não aparece no modelo como entidade.
 - **O modelo tem duas entidades reflexivas, e a segunda entrou em 26/08/2026.** `LOTE dá origem a LOTE` é a repicagem: a leva
@@ -149,8 +152,8 @@ modela é o sistema especificado, o que se constrói é o recorte que cabe no pr
 | Módulo | No banco | Só especificadas | Quais faltam |
 |---|---:|---:|---|
 | *(transversal)* Acesso | 5 | 0 | - |
-| 1 · Cadastros | 16 | 0 | - |
-| 2 · Produção | 14 | 5 | as cinco do protocolo de atividades, mais a visão `batch_protocol_due` |
+| 1 · Cadastros | 16 | 4 | `container_types` e as três do protocolo de atividades |
+| 2 · Produção | 14 | 1 | `batch_protocol_steps`, mais a visão `batch_protocol_due` |
 | 3 · Comercial | 8 | 0 | - |
 | 4 · Financeiro | 3 | 11 | as nove de `financeiro`, mais `sale_channels` e `sale_prices` |
 | **Total** | **46** | **16** | |
@@ -284,8 +287,14 @@ hoje exige uma implantação.
 ### 3.2 Módulo 1 · Cadastros
 
 O que é estável e se repete. Não consome nada e alimenta os outros três: as únicas arestas que
-saem daqui apontam para entidades da Produção, e é por isso que `assignments`, `assignment_members`
-e `batches` aparecem como caixa vazia no fim do diagrama.
+saem daqui apontam para entidades da Produção, e é por isso que `assignments`, `assignment_members`,
+`batches` e `batch_protocol_steps` aparecem como caixa vazia no fim do diagrama.
+
+**O protocolo de atividades entrou aqui em 26/08/2026, e não na Produção**, junto com
+`container_types`. É a mesma regra que já colocava `task_types` e `work_shifts` neste módulo: o que
+é **mantido uma vez e consultado sempre** é cadastro, ainda que só a Produção o consuma. O que a
+Produção guarda é o percurso de **cada lote** pelo protocolo (`batch_protocol_steps`), que é dado de
+movimento e fica na §3.3.
 
 ```mermaid
 erDiagram
@@ -314,6 +323,7 @@ erDiagram
   containers {
     uuid id PK
     text name UK
+    uuid container_type_id FK
     numeric volume_liters
     numeric substrate_per_unit_liters
     numeric unit_cost
@@ -431,11 +441,52 @@ erDiagram
     int sort_order
     boolean active
   }
+  container_types {
+    uuid id PK
+    text code UK
+    text name
+    int sort_order
+    boolean active
+  }
+  protocols {
+    uuid id PK
+    uuid container_type_id FK
+    text name
+    boolean active
+    text notes
+    uuid created_by FK
+  }
+  protocol_steps {
+    uuid id PK
+    uuid protocol_id FK
+    uuid task_type_id FK
+    uuid shift_id FK
+    text label
+    int sort_order
+    text schedule_type
+    text anchor_type
+    uuid anchor_step_id FK
+    int offset_days
+    int interval_days
+    boolean alert_enabled
+    numeric warning_pct
+    text resulting_stage
+    boolean active
+  }
+  species_protocol_overrides {
+    uuid species_id PK
+    uuid step_id PK
+    int offset_days
+    int interval_days
+    text notes
+  }
   assignments {
   }
   assignment_members {
   }
   batches {
+  }
+  batch_protocol_steps {
   }
 
   species   ||--o{ species_popular_names : "conhecida como"
@@ -451,6 +502,18 @@ erDiagram
   work_shifts ||--o{ assignments          : "situa no dia"
   areas       ||--o{ beds                 : "divide-se em"
   beds        ||--o{ batches              : "abriga"
+
+  container_types ||--o{ containers                 : "classifica"
+  container_types ||--o| protocols                  : "tem protocolo vigente"
+  protocols       ||--o{ protocol_steps             : "compõe-se de"
+  protocol_steps  ||--o{ protocol_steps             : "é âncora de"
+  task_types      ||--o{ protocol_steps             : "é executada em"
+  work_shifts     ||--o{ protocol_steps             : "situa no dia"
+  species         ||--o{ species_protocol_overrides : "customiza"
+  protocol_steps  ||--o{ species_protocol_overrides : "é customizada por"
+  protocols       ||--o{ batches                    : "rege"
+  protocol_steps  ||--o{ assignments                : "gera ordem"
+  protocol_steps  ||--o{ batch_protocol_steps       : "é acompanhada em"
 ```
 
 **Por que `species_popular_names` é entidade separada.** O nome popular é atributo **multivalorado**
@@ -536,16 +599,82 @@ corromperia a base do custeio para representar um dado que não a alimenta.
 tratamento de seus dados para contato comercial, e não um estado operacional. Ver
 [`E5`](../E-qualidade/E5-mapeamento-lgpd.md).
 
+#### O protocolo: o que o lote tem de receber, lembre alguém ou não
+
+**As cinco entidades do protocolo respondem uma pergunta que o modelo não respondia: *quando*.**
+`batches` diz o que a muda é e onde ela está; `assignments` diz o que alguém planejou fazer. Nada
+dizia o que a leva **precisa** receber ao longo do ciclo, de modo que tarefa não lançada era tarefa
+que o sistema não sabia que faltava. É a lacuna que [`rotinas/2-producao/06`](../../rotinas/2-producao/06-protocolo-de-atividades.md)
+descreve, e ela tem efeito visível: `batch_health` deriva a cor do atraso das tarefas **lançadas**,
+então o lote esquecido por completo aparecia como saudável.
+
+**`protocols` pende de `container_types`, e não de `containers`.** É a cardinalidade que carrega a
+RN-98: os quatro sacos (10x18, 17x22, 20x26, 28x32) são quatro linhas de `containers` e **um** tipo
+de embalagem, porque o que muda o manejo é ser saco, não a medida do saco. Pendurar o protocolo no
+recipiente obrigaria a manter quatro cópias da mesma receita e a mantê-las iguais para sempre.
+`container_types` é tabela, e não lista fechada, porque "outros tipos a criar" é requisito
+(RF-121): o dia em que o viveiro adotar bandeja, a gerência cria a bandeja.
+
+**`protocol_steps` é reflexiva, e é a segunda reflexiva do modelo.** `anchor_step_id` aponta para a
+etapa cuja conclusão inicia a contagem desta, e **não é a etapa anterior**: "Classificar
+pós-germinação" ancora em "Plantar no tubete", que pode estar várias posições atrás. Derivar a
+âncora de `sort_order` faria a classificação contar da criação do lote, e a semente pode ficar dias
+esperando plantio antes de germinar (RN-99). A âncora é atributo justamente para não ser
+consequência da posição na lista.
+
+> **O ciclo na cadeia de âncoras não é impedido pelo modelo.** A etapa A ancorando em B e B em A é
+> estruturalmente representável, e nenhuma restrição declarativa o barra: a validação é da
+> aplicação. Está registrado aqui, e não omitido, porque limite conhecido documentado é limite; o
+> mesmo não vale para o que se descobre em produção.
+
+**`species_protocol_overrides` é associativa entre espécie e etapa, e existe para não duplicar
+protocolo.** Espécie de germinação lenta precisa de setenta dias onde o padrão são quarenta, e a
+alternativa seria um protocolo inteiro por espécie: cento e quarenta e duas cópias de quinze etapas
+para variar um número. Colunas em `species` produziriam uma matriz quase toda nula, pela mesma
+regra de corte que separa `settings` de entidade.
+
+**`batch_protocol_steps` guarda fatos, e nunca o vencimento.** As colunas são a data da âncora já
+resolvida, a data **real** da última execução e quantas ocorrências foram concluídas. O próximo
+vencimento sai delas na visão `batch_protocol_due`, e não é coluna, pela mesma razão de
+`batch_health` e `input_stock_balance` não serem tabelas (RN-110): número gravado que depende da
+data de hoje envelhece sozinho.
+
+**`anchor_date` nula é o estado que faz a etapa esperar.** Enquanto o plantio não é concluído, as
+etapas ancoradas nele não têm âncora, e não vencem nada. É o que representa "ainda não germinou", e
+é diferente de "germinou hoje": nulo, aqui, é informação, e não ausência de dado.
+
+**A ordem gerada é `assignments`, e não entidade nova.** `protocol_step_id` marca de que etapa ela
+nasceu, exatamente como `recurrence_id` marca de que recorrência de calendário (RN-111). A agenda,
+o apontamento e a tela do colaborador continuam lendo uma tabela só, e quem executa não precisa
+saber de onde a tarefa veio. Uma entidade paralela de ordens duplicaria a noção de pendência e
+obrigaria a reescrever `batch_health`.
+
+> **Não há entidade de eventos do protocolo, e é decisão declarada.** O razão que explica o estado
+> é o par `assignments` + `task_executions`: a ordem sabe a etapa e a ocorrência, e a execução sabe
+> a data real. Uma terceira tabela criaria duas verdades sobre o mesmo fato, que é o que
+> `batch_movements` evita fazer com o saldo. **A consequência aceita:** marcar uma etapa como feita
+> fora da agenda tem de gerar a ordem e a execução correspondentes, e não escrever direto no
+> estado.
+
+**`batches` ganhou quatro atributos, e um deles muda o sentido de outro.** `protocol_id` fotografa
+o protocolo na criação, para que trocar o recipiente do lote não troque a receita dele no meio do
+caminho. `closed_reason` distingue a divisão da repicagem, que também usa `parent_batch_id` mas
+**não** encerra o lote de origem. E `filled_at` entra ao lado de `planted_at`, que passa a ser
+**nulo até o plantio ocorrer**: são as duas datas da RN-103, e antes disso a segunda fazia o papel
+das duas.
+
+
 ### 3.3 Módulo 2 · Produção
 
 Registro do que acontece no campo. Consome o catálogo do módulo 1 (daí as caixas vazias) e
 entrega estoque para o Comercial e medida de consumo e de horas para o custeio.
 
 **É o maior módulo do modelo, e passou a ser em 24/08/2026**, quando o lote entrou no escopo
-([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). Dezenove entidades e três visões derivadas: a
+([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). Quinze entidades e três visões derivadas: a
 tarefa recorrente e a situação do lote entraram em 26/08/2026, com o protótipo da tela inicial do
-módulo, e o **protocolo de atividades por lote** entrou no mesmo dia, com cinco entidades e uma
-visão que ainda **não existem no banco** (§2.1).
+módulo, e no mesmo dia entraram `batch_protocol_steps` e a visão `batch_protocol_due`, o percurso de
+cada lote pelo protocolo, que ainda **não existem no banco** (§2.1). O protocolo em si é cadastro e
+está na §3.2.
 
 ```mermaid
 erDiagram
@@ -719,45 +848,6 @@ erDiagram
     int seeds_collected_qty
     numeric cost_per_seed
   }
-  container_types {
-    uuid id PK
-    text code UK
-    text name
-    int sort_order
-    boolean active
-  }
-  protocols {
-    uuid id PK
-    uuid container_type_id FK
-    text name
-    boolean active
-    text notes
-    uuid created_by FK
-  }
-  protocol_steps {
-    uuid id PK
-    uuid protocol_id FK
-    uuid task_type_id FK
-    uuid shift_id FK
-    text label
-    int sort_order
-    text schedule_type
-    text anchor_type
-    uuid anchor_step_id FK
-    int offset_days
-    int interval_days
-    boolean alert_enabled
-    numeric warning_pct
-    text resulting_stage
-    boolean active
-  }
-  species_protocol_overrides {
-    uuid species_id PK
-    uuid step_id PK
-    int offset_days
-    int interval_days
-    text notes
-  }
   batch_protocol_steps {
     uuid batch_id PK
     uuid step_id PK
@@ -789,6 +879,10 @@ erDiagram
   task_types {
   }
   work_shifts {
+  }
+  protocols {
+  }
+  protocol_steps {
   }
   parties {
   }
@@ -859,19 +953,11 @@ erDiagram
 
   species     ||--o{ seed_collection_costs : "coletada em"
 
-  container_types ||--o{ containers                 : "classifica"
-  container_types ||--o| protocols                  : "tem protocolo vigente"
-  protocols       ||--o{ protocol_steps             : "compõe-se de"
-  protocol_steps  ||--o{ protocol_steps             : "é âncora de"
-  task_types      ||--o{ protocol_steps             : "é executada em"
-  work_shifts     ||--o{ protocol_steps             : "situa no dia"
-  species         ||--o{ species_protocol_overrides : "customiza"
-  protocol_steps  ||--o{ species_protocol_overrides : "é customizada por"
-  protocols       ||--o{ batches                    : "rege"
-  batches         ||--o{ batch_protocol_steps       : "percorre"
-  protocol_steps  ||--o{ batch_protocol_steps       : "é acompanhada em"
-  protocol_steps  ||--o{ assignments                : "gera ordem"
-  batch_protocol_steps ||--o| batch_protocol_due    : "vence em"
+  protocols            ||--o{ batches              : "rege"
+  batches              ||--o{ batch_protocol_steps : "percorre"
+  protocol_steps       ||--o{ batch_protocol_steps : "é acompanhada em"
+  protocol_steps       ||--o{ assignments          : "gera ordem"
+  batch_protocol_steps ||--o| batch_protocol_due   : "vence em"
 ```
 
 #### O lote: onde a muda está e de que leva veio
@@ -1056,70 +1142,46 @@ leva**, e não só por espécie: é onde a regra ganha poder de apontar qual pla
 depende do funcionamento sem conexão. Está no módulo do colaborador, não no do dinheiro, porque
 quem a preenche é quem está com as mãos na terra.
 
-#### O protocolo: o que o lote tem de receber, lembre alguém ou não
+#### O percurso do lote pelo protocolo
 
-**As cinco entidades do protocolo respondem uma pergunta que o modelo não respondia: *quando*.**
-`batches` diz o que a muda é e onde ela está; `assignments` diz o que alguém planejou fazer. Nada
-dizia o que a leva **precisa** receber ao longo do ciclo, de modo que tarefa não lançada era tarefa
-que o sistema não sabia que faltava. É a lacuna que [`rotinas/2-producao/06`](../../rotinas/2-producao/06-protocolo-de-atividades.md)
-descreve, e ela tem efeito visível: `batch_health` deriva a cor do atraso das tarefas **lançadas**,
-então o lote esquecido por completo aparecia como saudável.
-
-**`protocols` pende de `container_types`, e não de `containers`.** É a cardinalidade que carrega a
-RN-98: os quatro sacos (10x18, 17x22, 20x26, 28x32) são quatro linhas de `containers` e **um** tipo
-de embalagem, porque o que muda o manejo é ser saco, não a medida do saco. Pendurar o protocolo no
-recipiente obrigaria a manter quatro cópias da mesma receita e a mantê-las iguais para sempre.
-`container_types` é tabela, e não lista fechada, porque "outros tipos a criar" é requisito
-(RF-121): o dia em que o viveiro adotar bandeja, a gerência cria a bandeja.
-
-**`protocol_steps` é reflexiva, e é a segunda reflexiva do modelo.** `anchor_step_id` aponta para a
-etapa cuja conclusão inicia a contagem desta, e **não é a etapa anterior**: "Classificar
-pós-germinação" ancora em "Plantar no tubete", que pode estar várias posições atrás. Derivar a
-âncora de `sort_order` faria a classificação contar da criação do lote, e a semente pode ficar dias
-esperando plantio antes de germinar (RN-99). A âncora é atributo justamente para não ser
-consequência da posição na lista.
-
-> **O ciclo na cadeia de âncoras não é impedido pelo modelo.** A etapa A ancorando em B e B em A é
-> estruturalmente representável, e nenhuma restrição declarativa o barra: a validação é da
-> aplicação. Está registrado aqui, e não omitido, porque limite conhecido documentado é limite; o
-> mesmo não vale para o que se descobre em produção.
-
-**`species_protocol_overrides` é associativa entre espécie e etapa, e existe para não duplicar
-protocolo.** Espécie de germinação lenta precisa de setenta dias onde o padrão são quarenta, e a
-alternativa seria um protocolo inteiro por espécie: cento e quarenta e duas cópias de quinze etapas
-para variar um número. Colunas em `species` produziriam uma matriz quase toda nula, pela mesma
-regra de corte que separa `settings` de entidade.
-
-**`batch_protocol_steps` guarda fatos, e nunca o vencimento.** As colunas são a data da âncora já
-resolvida, a data **real** da última execução e quantas ocorrências foram concluídas. O próximo
-vencimento sai delas na visão `batch_protocol_due`, e não é coluna, pela mesma razão de
-`batch_health` e `input_stock_balance` não serem tabelas (RN-110): número gravado que depende da
-data de hoje envelhece sozinho.
+**`batch_protocol_steps` é o que a Produção guarda do protocolo, e só isso.** A receita em si é
+cadastro e está na §3.2; aqui fica uma linha por par lote e etapa, com **fatos**: a data do evento
+de referência já resolvido, a data **real** da última execução e quantas ocorrências foram
+concluídas.
 
 **`anchor_date` nula é o estado que faz a etapa esperar.** Enquanto o plantio não é concluído, as
 etapas ancoradas nele não têm âncora, e não vencem nada. É o que representa "ainda não germinou", e
 é diferente de "germinou hoje": nulo, aqui, é informação, e não ausência de dado.
 
+**`last_done_on` é a data da execução, e não a da ordem.** É o que faz a ocorrência seguinte contar
+de quando o serviço foi de fato feito (RN-100). Usar a data planejada devolveria o comportamento de
+calendário fixo que o módulo existe para não ter.
+
+**`next_due_on` não é coluna: é a visão `batch_protocol_due`.** O vencimento é função do que já está
+na tabela, e gravá-lo criaria um número que depende da data de hoje e envelhece sozinho, pela mesma
+razão de `batch_health`, `input_stock_balance` e `species_unit_cost` não serem tabelas (RN-110). É
+dela que `batch_health` passa a tirar a cor do lote, e é a correção que motivou o módulo: o critério
+anterior lia o atraso das tarefas **lançadas**, de modo que o lote esquecido por completo aparecia
+como saudável.
+
 **A ordem gerada é `assignments`, e não entidade nova.** `protocol_step_id` marca de que etapa ela
-nasceu, exatamente como `recurrence_id` marca de que recorrência de calendário (RN-111). A agenda,
-o apontamento e a tela do colaborador continuam lendo uma tabela só, e quem executa não precisa
-saber de onde a tarefa veio. Uma entidade paralela de ordens duplicaria a noção de pendência e
-obrigaria a reescrever `batch_health`.
+nasceu, exatamente como `recurrence_id` marca de que recorrência de calendário (RN-111). A agenda, o
+apontamento e a tela do colaborador continuam lendo uma tabela só. Ela entra na semana do vencimento
+(RN-112) e **nasce sem ninguém escalado** (RN-113): `assignment_members` só recebe linha quando a
+gerência atribui as pessoas.
 
-> **Não há entidade de eventos do protocolo, e é decisão declarada.** O razão que explica o estado
-> é o par `assignments` + `task_executions`: a ordem sabe a etapa e a ocorrência, e a execução sabe
-> a data real. Uma terceira tabela criaria duas verdades sobre o mesmo fato, que é o que
+> **Não há entidade de eventos do protocolo, e é decisão declarada.** O razão que explica o estado é
+> o par `assignments` + `task_executions`: a ordem sabe a etapa e a ocorrência, e a execução sabe a
+> data real. Uma terceira tabela criaria duas verdades sobre o mesmo fato, que é o que
 > `batch_movements` evita fazer com o saldo. **A consequência aceita:** marcar uma etapa como feita
-> fora da agenda tem de gerar a ordem e a execução correspondentes, e não escrever direto no
-> estado.
+> fora da agenda precisa gerar a ordem e a execução correspondentes, e não escrever direto no estado.
 
-**`batches` ganhou quatro atributos, e um deles muda o sentido de outro.** `protocol_id` fotografa
-o protocolo na criação, para que trocar o recipiente do lote não troque a receita dele no meio do
+**`batches` ganhou quatro atributos, e um deles muda o sentido de outro.** `protocol_id` fotografa o
+protocolo na criação, para que trocar o recipiente do lote não troque a receita dele no meio do
 caminho. `closed_reason` distingue a divisão da repicagem, que também usa `parent_batch_id` mas
 **não** encerra o lote de origem. E `filled_at` entra ao lado de `planted_at`, que passa a ser
 **nulo até o plantio ocorrer**: são as duas datas da RN-103, e antes disso a segunda fazia o papel
 das duas.
-
 
 ### 3.4 Módulo 3 · Comercial
 

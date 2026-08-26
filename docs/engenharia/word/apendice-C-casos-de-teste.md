@@ -147,6 +147,43 @@ abaixo cobrem esses e os requisitos da rotina de produção (RF-80 a RF-106).
 > é garantida por índice único parcial no banco, e não por validação de tela: um teste feito num
 > aparelho só passaria mesmo que a garantia estivesse apenas na interface.
 
+### 5.1.6 Protocolo de atividades por lote
+
+*Acrescentada em 26/08/2026, junto com a especificação do módulo.* Cobre RF-121 a RF-136. **Os
+casos foram escritos antes de qualquer linha de código**, e as datas de TA-93, TA-94 e TA-98 saem
+da prova de mesa de
+[`rotinas/2-producao/06`](../../rotinas/2-producao/06-protocolo-de-atividades.md): são elas que
+qualquer implementação do motor tem de reproduzir.
+
+| ID | Requisito | Pré-condição | Passos | Resultado esperado | Situação |
+|---|---|---|---|---|---|
+| **TA-87** | RF-121, RF-122, RF-123 | Catálogo de tarefas carregado, sem protocolo montado | 1. Criar o tipo de embalagem "bandeja"<br>2. Montar um protocolo para ele com duas etapas, uma sequencial e uma recorrente<br>3. Consultar o protocolo do tubete | O protocolo da bandeja existe com as duas etapas na ordem definida, e o do tubete não foi afetado | Não executado |
+| **TA-88** | RF-124 | Protocolo com as etapas "Plantar no tubete" e "Classificar pós-germinação" | 1. Ancorar a classificação na conclusão do plantio<br>2. Tentar ancorar o plantio na conclusão da classificação | A primeira âncora é aceita; a segunda é **recusada** por formar ciclo, com o ciclo indicado | Não executado |
+| **TA-89** | RF-125, RF-132 | Protocolo com uma etapa trimestral (90 dias) com alerta ligado e uma diária com alerta desligado | 1. Consultar um lote 75 dias depois da última execução da trimestral<br>2. Consultar a etapa diária no mesmo lote | A trimestral aparece em **atenção** (janela de 20% de 90 dias, ou seja, 18 dias); a diária aparece **sem indicação de situação**, feita ou não | Não executado |
+| **TA-90** | RF-126, RF-136 | Protocolo montado para tubete | 1. Criar um lote de tubete em 10 de janeiro<br>2. Consultar a ficha do lote | O lote exibe as etapas do protocolo do tubete, a data de criação 10/01 e a **data de plantio vazia** | Não executado |
+| **TA-91** | RF-127 | Lote criado com protocolo, horizonte de 14 dias | 1. Abrir a agenda do dia<br>2. Consultar a semana<br>3. Abrir a agenda do dia de novo | As ordens do protocolo aparecem na agenda **sem terem sido digitadas**, e a segunda abertura **não** as duplica | Não executado |
+| **TA-92** | RF-128 | Lote com a etapa sequencial de plantio pendente e uma etapa recorrente de irrigação | 1. Concluir a ordem de plantio<br>2. Consultar a fase do lote<br>3. Concluir uma ordem de irrigação<br>4. Consultar a fase do lote de novo | A fase avança no passo 2 e **permanece a mesma** no passo 4; a data de plantio do lote passa a ser a data real da execução | Não executado |
+| **TA-93** | RF-129 | Lote criado em 10 de janeiro, etapa "Limpar mato" recorrente de 90 dias, vencida em 10 de abril e não executada | 1. Concluir a limpeza em 15 de setembro<br>2. Consultar o próximo vencimento da etapa | O próximo vencimento é **14 de dezembro**, e não julho nem outubro: conta da data real da execução, e não do calendário previsto | Não executado |
+| **TA-94** | RF-130 | Lote com etapa recorrente vencida em 10 de abril e não executada | 1. Abrir a agenda do dia em 10 de julho<br>2. Contar as pendências daquela etapa no lote | Existe **uma** pendência, com 91 dias de atraso, e não três nem quatro: a contagem não reiniciou e nenhuma ocorrência nova nasceu | Não executado |
+| **TA-95** | RF-131 | Lote com uma etapa concluída, uma vencida e uma ainda sem âncora resolvida | 1. Abrir a ficha do lote | As três aparecem com o estado correspondente: a concluída com a data real, a vencida com o atraso, e a sem âncora **sem vencimento nenhum** | Não executado |
+| **TA-96** | RF-133 | Protocolo com classificação em 40 dias e uma espécie com 70 dias próprios | 1. Criar um lote da espécie customizada e outro de espécie sem customização, ambos plantados no mesmo dia<br>2. Consultar o vencimento da classificação nos dois | O primeiro vence 70 dias depois do plantio, o segundo 40: cada um usa o tempo que lhe cabe | Não executado |
+| **TA-97** | RF-134 | Lote com ordens do protocolo em aberto para os próximos dias | 1. Registrar perda que zera o saldo do lote<br>2. Consultar as ordens daquele lote | O lote encerra, as ordens em aberto aparecem **canceladas** e continuam consultáveis, e nenhuma ordem nova é gerada | Não executado |
+| **TA-98** | RF-135 | Lote com a limpeza executada em 15 de setembro, próximo vencimento em 14 de dezembro | 1. Dividir o lote em dois, em 20 de dezembro<br>2. Consultar o vencimento da limpeza nos dois resultantes<br>3. Concluir a limpeza apenas no primeiro, em 22 de dezembro<br>4. Consultar os dois de novo | Os dois herdam o vencimento **14 de dezembro**, já em atraso, e não recomeçam em 20 de março; depois do passo 3, o primeiro vence em **22 de março** e o segundo continua em atraso desde 14 de dezembro | Não executado |
+
+> **TA-93 e TA-98 são os casos que decidem se o motor está certo.** Os dois separam a contagem a
+> partir da **execução real** (RN-100, RN-109) de uma contagem de calendário, e é a diferença que o
+> módulo inteiro existe para produzir. Implementação que passe em todos os outros e falhe nestes
+> dois entregou uma agenda recorrente comum, e não um protocolo de lote.
+
+> **TA-91 verifica idempotência abrindo a mesma tela duas vezes**, e é de propósito. A geração das
+> ordens é preguiçosa, disparada pela abertura da agenda, e a garantia contra duplicação é índice
+> único no banco, e não validação de aplicação: duas telas abertas ao mesmo tempo dobrariam as
+> ordens do dia, e as horas planejadas dobrariam com elas.
+
+> **TA-89 é o caso que protege o mapa de virar ruído.** Etapa diária com cor deixaria o viveiro
+> inteiro em atraso toda manhã (RN-105), e o teste falha se a irrigação receber qualquer indicação
+> de situação, mesmo verde.
+
 ---
 
 ## 6. Precificação
@@ -262,13 +299,20 @@ requisitos de prioridade *deve ter* sem verificação correspondente.
 | Agenda da semana | 5 | RF-71 a RF-74, RF-92, RF-93 |
 | Apontamento | 8 | RF-75, RF-76, RF-94 a RF-100, RF-107 |
 | Insumos e gastos da tarefa | 5 | RF-101, RF-102, RF-104, RF-105, RF-106 |
+| Protocolo de atividades por lote | 12 | RF-121 a RF-132, RF-134, RF-135, RF-136 |
 | Precificação | 3 | RF-31, RF-32, RF-33, RF-35 |
 | Clientes e pedidos | 12 | RF-36, RF-38 a RF-48, RF-51, RF-66 a RF-68 |
 | Fornecedores | 3 | RF-53, RF-54 |
 | Financeiro | 9 | RF-56 a RF-61, RF-77 a RF-79 |
 | Indicadores | 2 | RF-63, RF-64, RF-65 |
 | Não funcionais | 7 | RNF-01, RNF-02, RNF-05 a RNF-07, RNF-09, RNF-10, RNF-12 |
-| **Total** | **86** | **85 dos 85 requisitos de prioridade *deve ter*** |
+| **Total** | **98** | **100 dos 100 requisitos de prioridade *deve ter*** |
+
+**Os doze casos do protocolo cobrem quinze requisitos**, e é a única linha da tabela em que os
+casos foram escritos **antes** de existir migration. A razão está na §5.1.6: requisito de
+comportamento automático que não vira caso de teste é requisito sem critério de aceitação, e
+ninguém saberia dizer se o motor está certo. RF-133 é *deveria ter* e mesmo assim tem caso (TA-96),
+porque o tempo por espécie é o parâmetro que mais muda datas.
 
 Requisitos sem caso de aceite correspondente são identificados pela matriz de rastreabilidade
 [`B5`](../B-requisitos/B5-matriz-rastreabilidade.md). Ausência de cobertura em requisito de

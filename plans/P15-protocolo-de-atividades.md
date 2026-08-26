@@ -97,7 +97,7 @@ Todos já aplicados em 26/08/2026.
 
 - [ ] **T15.12** `src/lib/protocol/schedule.ts`: funções puras de cálculo. `tempoEfetivo(etapa, override)`, `proximoVencimento(estado, dias)`, `janelaDeAviso(dias, pct)`, `situacao(vencimento, janela, alertaAtivo, hoje)`. **Sem acesso ao banco**: é o núcleo testável do módulo.
 - [ ] **T15.13** Testes unitários de T15.12, com os casos da prova de mesa como fixtures. Cobrir: contagem da execução real, âncora não resolvida, etapa sem alerta, janela proporcional em intervalo trimestral e semanal.
-- [ ] **T15.14** `src/lib/protocol/engine.ts`: `montarAcompanhamento(loteId)`, `resolverAncoras(loteId, etapaConcluida)`, `gerarOrdens(loteId, horizonte)`, `varrerLotesAbertos()`. Idempotência por `ON CONFLICT DO NOTHING` sobre o índice único.
+- [ ] **T15.14** `src/lib/protocol/engine.ts`: `montarAcompanhamento(loteId)`, `resolverAncoras(loteId, etapaConcluida)`, `gerarOrdens(loteId, horizonte)`, `varrerLotesAbertos()`. Idempotência por `ON CONFLICT DO NOTHING` sobre o índice único. **`gerarOrdens` resolve o `week_plan_id` antes de inserir** (RN-112): usa a semana do vencimento, abre-a em rascunho se não existir, e cai na semana aberta corrente quando a do vencimento estiver fechada. A ordem é inserida **sem linha em `assignment_members`** (RN-113).
 - [ ] **T15.15** Validação de ciclo na cadeia de âncoras, com teste dedicado. **Não cabe em CHECK**: é a única barreira contra duas etapas que nunca vencem nada.
 - [ ] **T15.16** Ganchos: criação de lote (T15.14 monta e gera), conclusão de apontamento com `protocol_step_id` (grava data real, avança fase, resolve âncoras), encerramento de lote (cancela ordens), divisão (copia estado).
 - [ ] **T15.17** Varredura de recuperação na abertura da agenda do dia e do mapa de produção.
@@ -119,6 +119,7 @@ Todos já aplicados em 26/08/2026.
 
 - [ ] **T15.28** Executar TA-87 a TA-98 e registrar a situação em `E2` §14.
 - [ ] **T15.29** Conferir o banco migrado contra `C6`/`C8`, coluna por coluna, e registrar divergências em `docs/auditoria-divergencias.md`. **É a conferência que a rodada de 24/08 fez e que encontrou nove correções.**
+- [ ] **T15.30** Conferir que todo termo novo do módulo está no glossário [`A2`](../docs/engenharia/A-fundacao/A2-glossario-dominio.md) e que nenhuma tela usa palavra que não esteja lá. **A regra do `B3` §8 é que o termo vai ao glossário primeiro**, e a auditoria de 26/08 achou os cinco verbetes faltando depois de o módulo inteiro estar escrito.
 
 ---
 

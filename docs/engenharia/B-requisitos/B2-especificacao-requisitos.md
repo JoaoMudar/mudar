@@ -349,7 +349,7 @@ apontar o lote mostra a tarefa que falta.
 | ID | Requisito | Ator | Prior. | Origem | Verificação |
 |---|---|---|---|---|---|
 | **RF-117** | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação | Gerência | D | EN | Canteiro com seis lotes abertos apresenta os seis, cada um com a sua situação |
-| **RF-118** | O sistema deve classificar o lote em saudável, atenção e crítico a partir do atraso das tarefas planejadas para ele, sem que a situação seja digitada | - | D | ORG | Lote com tarefa atrasada além do limite aparece como crítico; concluída a tarefa, volta a saudável no mesmo dia |
+| **RF-118** | O sistema deve classificar o lote em saudável, atenção e crítico a partir das etapas do protocolo vencidas ou a vencer nele, sem que a situação seja digitada | - | D | ORG | Lote com etapa do protocolo vencida aparece como crítico, mesmo que nenhuma tarefa tenha sido lançada na agenda; concluída a etapa, volta a saudável no mesmo dia |
 | **RF-119** | O sistema deve apresentar, ao apontar o lote, a tarefa pendente que determina a situação dele e o atraso em dias | Gerência | D | OP | Apontar o lote crítico exibe o nome da tarefa pendente mais antiga e há quantos dias ela espera |
 | **RF-120** | O sistema deveria apresentar o total de lotes por situação, no geral e por área | Gerência | DV | EN | A soma dos totais por área reproduz o total geral |
 
@@ -361,6 +361,16 @@ mostrar (RN-93).
 **O limite que separa atenção de crítico é parâmetro, não constante** (RN-94), pelo mesmo motivo
 que a duração do turno passou a ser (RN-85): muda com a estação e com o tipo de tarefa, e convenção
 que muda é dado.
+
+**RF-118 foi emendado em 26/08/2026, e o identificador não mudou.** Ele dizia "a partir do atraso
+das tarefas planejadas para ele", e passa a dizer "a partir das etapas do protocolo". A redação
+anterior tinha um defeito que só ficou visível quando o protocolo foi especificado: a situação
+derivava do atraso das tarefas **já lançadas** na agenda, de modo que **o lote esquecido por
+completo aparecia como saudável**, porque não havia tarefa atrasada nele. A tela que existe para
+mostrar o esquecimento mostrava o contrário dele. Com o protocolo, o que se cobra é o que o lote
+**tem** de receber, lembre alguém de lançar ou não (RN-93 emendada, §2.3.8). O limite em dias de
+RN-94 continua valendo para as atribuições lançadas à mão; a etapa do protocolo usa a janela
+proporcional de RN-104.
 
 #### 2.3.8 Protocolo de atividades por lote
 
@@ -409,6 +419,21 @@ não aprende nada novo, e passa a dizer a verdade.
 frente e apresenta o que vence depois disso na ficha do lote, sem materializá-lo na agenda: gerar
 um ano de limpezas trimestrais encheria a grade de tarefas que ninguém olha por nove meses. É a
 mesma justificativa de RN-85 e RN-94, e o parâmetro mora com os outros (RF-83).
+
+**A ordem entra na semana do vencimento, e a semana fechada é a exceção** (RN-112). Se a semana
+ainda não existe, o sistema a abre em rascunho; se já está fechada, a ordem entra na semana aberta
+corrente, porque semana fechada não se altera (RF-73). O que determina o atraso continua sendo o
+**vencimento**, e não o dia em que a ordem coube na agenda: sem essa separação, empurrar a ordem
+para a semana seguinte apagaria o atraso que ela existe para denunciar.
+
+**A ordem nasce sem ninguém escalado** (RN-113). O protocolo responde o que fazer e quando; quem faz
+segue sendo decisão de quem monta a agenda (RF-92, RN-84). Enquanto ninguém for atribuído, ela é uma
+pendência do lote e **não entra no cálculo de horas** do dia sem apontamento (RF-75, RF-100).
+
+**O lote da ordem do protocolo vem da ordem, e não do formulário.** A ordem sempre carrega o lote,
+inclusive quando o tipo de tarefa não declara lote específico: irrigar *aquele* lote é o que o
+protocolo mandou. Não há conflito com RF-82, que rege o que a tela **pede** a quem preenche: campo
+já respondido pela origem da tarefa não é campo a pedir.
 
 ### 2.4 Módulo 3 · Comercial
 

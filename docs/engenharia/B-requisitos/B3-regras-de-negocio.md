@@ -21,7 +21,7 @@ O documento tem uma finalidade dupla:
 
 ### Instruções para quem for gerar as tabelas a partir deste arquivo
 
-- **Não invente identificadores.** `RN-01` a `RN-111` (regras, das quais RN-36, RN-49, RN-54, RN-60, RN-61, RN-63, RN-64, RN-65 saíram do catálogo
+- **Não invente identificadores.** `RN-01` a `RN-113` (regras, das quais RN-36, RN-49, RN-54, RN-60, RN-61, RN-63, RN-64, RN-65 saíram do catálogo
   e cujos números não se reutilizam), `RF-01` a `RF-136` (requisitos
   funcionais), `RNF-01` a `RNF-26` (não funcionais) e `RE-1` a `RE-8` (restrições) são os únicos
   válidos. A numeração de RF/RNF vem de [`B2`](B2-especificacao-requisitos.md) e a de RE de
@@ -186,10 +186,12 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 | **RN-105** | Etapa com o **alerta desligado não recebe situação**, e apenas registra feito ou não feito no dia. Adubo e irrigação são diários: colori-los deixaria o viveiro inteiro em atraso toda manhã, e o mapa deixaria de ser olhado dentro de uma semana. Alerta que soa sempre não é alerta | Restrição | `rotinas/2-producao/06` | RF-125, RF-132 | RNF-02 |
 | **RN-106** | O **tempo cadastrado na espécie sobrescreve o do protocolo** para aquela etapa; sem valor na espécie, vale o do tipo de embalagem. É override pontual, e não protocolo paralelo: espécie de germinação lenta muda um número, e não obriga a duplicar a receita inteira para alterá-lo | Derivação | `rotinas/2-producao/06` | RF-133 | - |
 | **RN-107** | **Alteração no protocolo não retroage.** Vale para o que ainda vai ser gerado, e não reescreve ordem já emitida nem dia já trabalhado. Mesma razão da RN-96: regra que reescrevesse o passado apagaria hora já trabalhada | Restrição | `rotinas/2-producao/06` | RF-122, RF-127 | - |
-| **RN-108** | **Lote encerrado não gera ordem.** O lote se encerra por saldo zero (RN-79), por expedição total ou por divisão, e as três param o motor. As ordens ainda em aberto são **canceladas, nunca removidas**: apagá-las apagaria o vínculo de dias já planejados, e o histórico do lote deixaria de explicar-se | Restrição | `rotinas/2-producao/06` | RF-134, RF-89 | - |
+| **RN-108** | **Lote encerrado não gera ordem.** O lote se encerra por saldo zero (RN-79), por expedição total ou por divisão, e as três param o motor. O saldo chega a zero pelas perdas registradas contra a quantidade original, e é a categoria **pós-morte** do catálogo (RN-80) que reúne as tarefas em que elas aparecem. As ordens ainda em aberto são **canceladas, nunca removidas**: apagá-las apagaria o vínculo de dias já planejados, e o histórico do lote deixaria de explicar-se | Restrição | `rotinas/2-producao/06` | RF-134, RF-89 | - |
 | **RN-109** | A **divisão do lote produz dois lotes que seguem o protocolo de forma independente**, herdando do original a fase e a data da última execução de cada etapa. A partir da divisão eles podem divergir, e é o esperado. Recomeçar do zero mandaria classificar de novo mudas já classificadas: a leva é a mesma, só passou a ocupar dois lugares | Derivação | `rotinas/2-producao/06` | RF-135 | - |
 | **RN-110** | O **vencimento da etapa é derivado, nunca digitado**: sai do evento de referência, da última execução e do tempo efetivo. Vencimento gravado envelhece sozinho, pela mesma razão da RN-93 e da RN-88 | Derivação | `rotinas/2-producao/06` | RF-131, RF-132 | - |
 | **RN-111** | A **ordem gerada pelo protocolo é atribuição comum**: alterar ou excluir a ordem de um dia não altera a etapa, e alterar a etapa não reescreve ordem passada. Espelha a RN-96, que diz o mesmo da recorrência de calendário, e é o que permite as duas conviverem na mesma grade sem que quem executa precise saber de qual delas a tarefa veio | Restrição | `rotinas/2-producao/06` | RF-127 | RNF-01 |
+| **RN-112** | A **ordem do protocolo entra na semana do seu vencimento**, e o sistema abre essa semana em rascunho se ela ainda não existir. Se a semana do vencimento já estiver **fechada**, a ordem entra na semana aberta corrente, porque semana fechada não se altera (RN-50); o vencimento original continua registrado e é ele, e não o dia em que a ordem caiu, que determina o atraso | Restrição | `rotinas/2-producao/06` | RF-127, RF-73 | - |
+| **RN-113** | A **ordem do protocolo nasce sem ninguém escalado.** O protocolo diz o que fazer e quando; **quem faz continua sendo decisão de quem monta a agenda** (RN-84). Ela aparece como pendência do lote até a gerência atribuir as pessoas, e enquanto não houver ninguém escalado ela **não gera horas** pelo caminho do dia sem apontamento (RN-51): tarefa que ninguém pegou não consumiu mão de obra, e assumi-la como feita inflaria o custo com trabalho que não houve | Restrição | `rotinas/2-producao/06` | RF-127, RF-100 | - |
 
 ### 3.4 Área D: Precificação
 
@@ -267,19 +269,19 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 |---|---|---:|
 | A: Domínio e produto | RN-01 a RN-06 | 6 |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | 8 |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-111 | 49 |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-113 | 51 |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-73 | 11 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| **Total** | | **103** |
+| **Total** | | **105** |
 
 | Tipo | Quantidade |
 |---|---:|
 | Fato | 36 |
-| Restrição | 37 |
+| Restrição | 39 |
 | Derivação | 26 |
 | Acionamento | 4 |
 
@@ -364,7 +366,7 @@ na seção 6.
 | RF-70 | RN-55, RN-80, RN-81, RN-82 |
 | RF-71 | RN-48 |
 | RF-72 | - |
-| RF-73 | RN-50 |
+| RF-73 | RN-50, RN-112 |
 | RF-74 | RN-52 |
 | RF-75 | RN-51 |
 | RF-76 | RN-48, RN-53, RN-56 |
@@ -409,7 +411,7 @@ na seção 6.
 | RF-115 | RN-96 |
 | RF-116 | RN-96 |
 | RF-117 | RN-74, RN-76, RN-79, RN-92, RN-93 |
-| RF-118 | RN-93, RN-94 |
+| RF-118 | RN-93, RN-94, RN-110 |
 | RF-119 | RN-93 |
 | RF-120 | RN-93 |
 | RF-121 | RN-98 |
@@ -418,7 +420,7 @@ na seção 6.
 | RF-124 | RN-99 |
 | RF-125 | RN-104, RN-105 |
 | RF-126 | RN-98, RN-99 |
-| RF-127 | RN-101, RN-107, RN-111 |
+| RF-127 | RN-101, RN-107, RN-111, RN-112, RN-113 |
 | RF-128 | RN-102 |
 | RF-129 | RN-100 |
 | RF-130 | RN-101 |
@@ -665,7 +667,7 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-115 | O sistema deve gerar as atribuições da recorrência na agenda sem digitação, e permitir alterar ou excluir a ocorrência de um dia sem alterar a regra | D | ORG |
 | RF-116 | O sistema deve permitir encerrar a vigência da recorrência preservando as ocorrências já geradas | D | ORG |
 | RF-117 | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação | D | EN |
-| RF-118 | O sistema deve classificar o lote em saudável, atenção e crítico a partir do atraso das tarefas planejadas para ele, sem que a situação seja digitada | D | ORG |
+| RF-118 | O sistema deve classificar o lote em saudável, atenção e crítico a partir das etapas do protocolo vencidas ou a vencer nele, sem que a situação seja digitada | D | ORG |
 | RF-119 | O sistema deve apresentar, ao apontar o lote, a tarefa pendente que determina a situação dele e o atraso em dias | D | OP |
 | RF-120 | O sistema deveria apresentar o total de lotes por situação, no geral e por área | DV | EN |
 | RF-121 | O sistema deve permitir manter tipos de embalagem, permitindo criar outros além de saco e tubete, e associar cada recipiente a um deles | D | DOM |

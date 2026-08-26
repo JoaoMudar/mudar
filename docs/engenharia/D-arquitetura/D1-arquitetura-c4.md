@@ -84,7 +84,7 @@ graph TB
   end
 
   subgraph dados["Camada de dados"]
-    BD[("<b>Banco relacional</b><br/>55 entidades em 3 esquemas")]
+    BD[("<b>Banco relacional</b><br/>62 entidades em 3 esquemas")]
     ARQ["<b>Armazenamento de imagens</b><br/>Fotografias das espécies"]
   end
 
@@ -110,7 +110,7 @@ graph TB
 | **Renderização no servidor** | Permite que a tela chegue ao celular já com os dados, reduzindo o número de idas e voltas sob rede lenta (RNF-07) |
 | **Ações de servidor** | Concentram regra de negócio e verificação de permissão do lado do servidor, atendendo ao RNF-12 |
 | **Controle de acesso** | Verificação por operação, e não apenas ocultação de elementos na interface (RF-06) |
-| **Banco relacional** | Integridade referencial e restrições declarativas, indispensáveis a um modelo com 55 entidades interligadas |
+| **Banco relacional** | Integridade referencial e restrições declarativas, indispensáveis a um modelo com 62 entidades interligadas |
 
 ---
 

@@ -218,6 +218,20 @@ trimestrais encheria a grade de tarefas que ninguém vai olhar por nove meses.
 Ordem cujo vencimento **já passou** nasce com a data no passado mesmo, e nasce vermelha. É a
 informação que se quer: esconder o atraso seria o mesmo que não ter o módulo.
 
+### Em que semana a ordem cai, e com quem
+
+A ordem entra na **semana do seu vencimento**, e o sistema abre essa semana em rascunho se ela ainda
+não existir. Se a semana do vencimento já estiver **fechada**, a ordem entra na semana aberta
+corrente, porque semana fechada não se altera. O que continua contando o atraso é o **vencimento**,
+e não o dia em que a ordem coube na agenda: sem essa separação, empurrar a ordem para a semana
+seguinte apagaria justamente o atraso que ela existe para denunciar.
+
+E ela **nasce sem ninguém escalado**. O protocolo responde *o que* e *quando*; **quem faz continua
+sendo decisão de quem monta a agenda**, que é como o viveiro já trabalha. Ela aparece como pendência
+do lote até a Débora arrastar as pessoas para ela, e enquanto ninguém estiver escalado **não conta
+hora nenhuma**: tarefa que ninguém pegou não consumiu mão de obra, e assumi-la como feita no
+fechamento da semana inflaria o custo com trabalho que não houve.
+
 ## As telas
 
 ### Configurações: montar o protocolo
@@ -264,7 +278,7 @@ A ordem do protocolo é atribuição comum e aparece onde as atribuições apare
 | **Lotes e canteiros** | o lote ganha protocolo, a segunda data e a divisão; a situação passa a vir daqui |
 | **Agenda de pessoal** | recebe as ordens emitidas, como atribuições comuns |
 | **Apontamento de tarefas** | concluir a ordem é o que move o protocolo; a data real da execução é o relógio |
-| **Perdas** | a classificação continua produzindo perda no mesmo gesto (RN-90); a perda zera o lote, e o encerramento para o motor |
+| **Perdas** | a classificação continua produzindo perda no mesmo gesto (RN-90); as perdas registradas contra a quantidade original zeram o lote, e o encerramento para o motor. As tarefas em que elas aparecem são as da categoria **pós-morte** do catálogo |
 
 ## O que isso destrava
 

@@ -101,11 +101,27 @@ Fonte: Elaborado pelo autor (2026).
 | RN-90 | A classificação separa mortas de vivas, e a parte morta vira perda do lote no mesmo registro. |
 | RN-91 | A quantidade realizada é de cada pessoa, e não da tarefa: quatro pessoas produzem quatro números, e não um dividido por quatro. |
 | RN-92 | A ocupação do canteiro é a soma dos saldos dos lotes abertos nele. A capacidade cadastrada é aviso ao criar lote, nunca trava. |
-| RN-93 | A situação do lote é derivada, nunca digitada: saudável, atenção e crítico saem do atraso das tarefas planejadas para ele. |
+| RN-93 | A situação do lote é derivada, nunca digitada: saudável, atenção e crítico saem das etapas do protocolo vencidas ou a vencer nele. |
 | RN-94 | O limite de dias que separa atenção de crítico é parâmetro mantido, não constante. |
 | RN-95 | A tarefa recorrente declara hora de início e de fim, e é a exceção à regra de planejamento por turno. |
 | RN-96 | A ocorrência gerada pela recorrência é atribuição comum: alterar ou excluir o dia não altera a regra, e alterar a regra não reescreve dia passado. |
 | RN-97 | Dois apontamentos da mesma pessoa não se sobrepõem no tempo, nem os abertos nem os já encerrados. |
+| RN-98 | O protocolo de atividades é do tipo de embalagem, e não do recipiente: os quatro sacos seguem um protocolo só. |
+| RN-99 | O evento de referência da etapa é declarado, e não é a etapa anterior: pode ser a criação do lote ou a conclusão de uma etapa específica. |
+| RN-100 | A ocorrência seguinte de etapa recorrente conta da data real da execução anterior, e nunca de uma data prevista de calendário. |
+| RN-101 | Uma etapa tem no máximo uma ocorrência em aberto, e a contagem não reinicia enquanto ela estiver pendente. |
+| RN-102 | A etapa sequencial ocorre uma vez e avança a fase do lote; a recorrente repete indefinidamente e não avança fase nenhuma. |
+| RN-103 | O lote tem duas datas: a de criação, quando o recipiente é preenchido, e a de plantio, quando a etapa de plantio é concluída. |
+| RN-104 | A janela de aviso é proporcional ao intervalo da etapa, e não um número fixo de dias. |
+| RN-105 | Etapa com o alerta desligado não recebe situação, e apenas registra feito ou não feito no dia. |
+| RN-106 | O tempo cadastrado na espécie sobrescreve o do protocolo para aquela etapa; sem valor na espécie, vale o do tipo de embalagem. |
+| RN-107 | Alteração no protocolo não retroage: vale para o que ainda vai ser gerado, e não reescreve ordem já emitida nem dia já trabalhado. |
+| RN-108 | Lote encerrado não gera ordem, e as ordens ainda em aberto são canceladas, nunca removidas. |
+| RN-109 | A divisão do lote produz dois lotes que seguem o protocolo de forma independente, herdando a fase e a data da última execução de cada etapa. |
+| RN-110 | O vencimento da etapa é derivado, nunca digitado: sai do evento de referência, da última execução e do tempo efetivo. |
+| RN-111 | A ordem gerada pelo protocolo é atribuição comum: alterar ou excluir a ordem de um dia não altera a etapa, e alterar a etapa não reescreve ordem passada. |
+| RN-112 | A ordem do protocolo entra na semana do seu vencimento, e na semana aberta corrente quando aquela já estiver fechada. |
+| RN-113 | A ordem do protocolo nasce sem ninguém escalado: quem faz continua sendo decisão de quem monta a agenda. |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -190,14 +206,14 @@ Fonte: Elaborado pelo autor (2026).
 |---|---|---|
 | A: Domínio e produto | RN-01 a RN-06 | 6 |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | 8 |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-97 | 35 |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-113 | 51 |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-73 | 11 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| Total |  | 89 |
+| Total |  | 105 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -326,9 +342,25 @@ Fonte: Elaborado pelo autor (2026).
 | RF-115 | Geração das ocorrências da recorrência | O sistema deve gerar as atribuições da recorrência na agenda sem digitação, e permitir alterar ou excluir a ocorrência de um dia sem alterar a regra. | RN-96 |
 | RF-116 | Encerramento da vigência da recorrência | O sistema deve permitir encerrar a vigência da recorrência preservando as ocorrências já geradas. | RN-96 |
 | RF-117 | Mapa de produção | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação. | RN-74, RN-76, RN-79, RN-92, RN-93 |
-| RF-118 | Classificação da situação do lote | O sistema deve classificar o lote em saudável, atenção e crítico a partir do atraso das tarefas planejadas para ele, sem que a situação seja digitada. | RN-93, RN-94 |
+| RF-118 | Classificação da situação do lote | O sistema deve classificar o lote em saudável, atenção e crítico a partir das etapas do protocolo vencidas ou a vencer nele, sem que a situação seja digitada. | RN-93, RN-94, RN-110 |
 | RF-119 | Tarefa pendente do lote | O sistema deve apresentar, ao apontar o lote, a tarefa pendente que determina a situação dele e o atraso em dias. | RN-93 |
 | RF-120 | Totais por situação do lote | O sistema deveria apresentar o total de lotes por situação, no geral e por área. | RN-93 |
+| RF-121 | Manutenção de tipos de embalagem | O sistema deve permitir manter tipos de embalagem, permitindo criar outros além de saco e tubete, e associar cada recipiente a um deles. | RN-98 |
+| RF-122 | Manutenção do protocolo de atividades | O sistema deve permitir manter, por tipo de embalagem, um protocolo de atividades como sequência ordenada de etapas. | RN-98, RN-107 |
+| RF-123 | Agendamento da etapa do protocolo | O sistema deve permitir que cada etapa do protocolo referencie um tipo de tarefa do catálogo e declare se o agendamento é sequencial ou recorrente, com o tempo em dias. | RN-100, RN-102 |
+| RF-124 | Evento de referência da etapa | O sistema deve permitir que cada etapa do protocolo declare o seu evento de referência: a criação do lote ou a conclusão de uma etapa específica do mesmo protocolo. | RN-99 |
+| RF-125 | Alerta de atraso por etapa | O sistema deve permitir ligar e desligar o alerta de atraso por etapa do protocolo, e sobrescrever nela a janela de aviso padrão. | RN-104, RN-105 |
+| RF-126 | Atribuição do protocolo ao lote | O sistema deve atribuir ao lote, na criação, o protocolo vigente do tipo de embalagem do recipiente dele, e acompanhar o lote etapa a etapa. | RN-98, RN-99 |
+| RF-127 | Geração das ordens do protocolo | O sistema deve gerar as ordens de tarefa do protocolo na agenda sem digitação, e permitir alterar ou excluir a ordem de um dia sem alterar a etapa. | RN-101, RN-107, RN-111, RN-112, RN-113 |
+| RF-128 | Avanço da fase do lote | O sistema deve avançar a fase do lote ao concluir uma etapa sequencial que declare fase resultante, e não deve avançá-la ao concluir etapa recorrente. | RN-102 |
+| RF-129 | Contagem a partir da execução real | O sistema deve contar a ocorrência seguinte de etapa recorrente a partir da data real da execução anterior, e nunca de uma data de calendário prevista. | RN-100 |
+| RF-130 | Uma ocorrência em aberto por etapa | O sistema deve manter no máximo uma ordem em aberto por etapa e por lote, sem gerar ocorrência nova enquanto a anterior estiver pendente. | RN-101 |
+| RF-131 | Protocolo do lote | O sistema deve apresentar, no lote, as etapas do protocolo com a data da última execução, o próximo vencimento e a situação de cada uma. | RN-110 |
+| RF-132 | Situação da etapa do protocolo | O sistema deve apresentar a etapa em atenção dentro da janela de aviso e em atraso depois do vencimento, e sem indicação de situação quando o alerta da etapa estiver desligado. | RN-93, RN-104, RN-105, RN-110 |
+| RF-133 | Tempo da etapa por espécie | O sistema deveria permitir, no cadastro da espécie, sobrescrever o tempo em dias de uma etapa específica do protocolo. | RN-106 |
+| RF-134 | Encerramento do protocolo do lote | O sistema deve encerrar o protocolo do lote quando ele se encerra por saldo zero, por expedição total ou por divisão, cancelando as ordens ainda em aberto sem removê-las. | RN-79, RN-108 |
+| RF-135 | Divisão de lote | O sistema deve permitir dividir um lote em dois, com cada resultante seguindo o protocolo de forma independente e herdando do original a fase e a data da última execução de cada etapa. | RN-109 |
+| RF-136 | Datas de criação e de plantio do lote | O sistema deve registrar no lote a data de criação, quando o recipiente é preenchido, e a data de plantio, quando a etapa de plantio é concluída, como datas distintas. | RN-103 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -384,10 +416,10 @@ Fonte: Elaborado pelo autor (2026).
 
 | Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
-| Regra de negócio | 115 | 95,8 | 3 | 11,5 |
+| Regra de negócio | 131 | 96,3 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
-| Política do projeto | 5 | 4,2 | 13 | 50,0 |
-| Total | 120 | 100,0 | 26 | 100,0 |
+| Política do projeto | 5 | 3,7 | 13 | 50,0 |
+| Total | 136 | 100,0 | 26 | 100,0 |
 
 Fonte: Elaborado pelo autor (2026).
 

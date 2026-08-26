@@ -56,8 +56,8 @@ completa de requisitos, e a construção segue a priorização declarada em
 | Módulo | No banco | Só especificadas |
 |---|---:|---:|
 | *(transversal)* Acesso | 5 | 0 |
-| 1 · Cadastros | 16 | 0 |
-| 2 · Produção | 14 | 5 |
+| 1 · Cadastros | 16 | 4 |
+| 2 · Produção | 14 | 1 |
 | 3 · Comercial | 8 | 0 |
 | 4 · Financeiro | 3 | 11 |
 | **Total** | **46** | **16** |
@@ -66,9 +66,13 @@ As 11 do Financeiro são `sale_channels`, `sale_prices` e as nove do esquema `fi
 (`accounts`, `cost_centers`, `category_groups`, `categories`, `statement_imports`, `transactions`,
 `transaction_splits`, `classification_rules`, `periods`).
 
-As 5 da Produção são as do **protocolo de atividades por lote**: `container_types`, `protocols`,
-`protocol_steps`, `species_protocol_overrides` e `batch_protocol_steps`, mais a visão
-`batch_protocol_due`.
+As 4 dos Cadastros são as do **protocolo de atividades por lote**: `container_types`, `protocols`,
+`protocol_steps` e `species_protocol_overrides`. A 1 da Produção é `batch_protocol_steps`, o
+percurso de cada lote pelo protocolo, mais a visão `batch_protocol_due`.
+
+> **O protocolo é cadastro, e não produção.** É mantido uma vez e consultado sempre, como
+> `task_types` e `work_shifts`, e por isso mora no módulo 1 ainda que só a Produção o consuma. O que
+> a Produção guarda é o **movimento**: por onde cada lote já passou.
 
 **A Produção deixou de ser o módulo mais especificado e menos construído em 24/08/2026**, quando as
 migrations `20260824000001` a `20260824000007` criaram as dezesseis entidades do lote, da agenda,
@@ -515,6 +519,130 @@ estação e com a combinação da equipe é dado, não constante (RN-85).
 > `shift_id`, mas relatório e carga inicial precisam de um identificador que sobreviva a alguém
 > renomear "Manhã" para "Manhã (verão)".
 
+## `container_types`: tipo de embalagem
+
+**Especificada, não implementada.**
+
+O que separa um protocolo de atividades do outro. Saco e tubete têm manejos diferentes, e é isso
+que o tipo representa. Os quatro sacos (10x18, 17x22, 20x26, 28x32) são quatro linhas de
+`containers` e **um** tipo (RN-98).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `code` | text | ● | UK | Chave estável em minúsculas: `saco`, `tubete`, `balde` |
+| `name` | text | ● | | Rótulo editável, apresentado na tela |
+| `sort_order` | integer | ● | | Ordem de apresentação em Configurações |
+| `active` | boolean | ● | | Em uso |
+
+> **É tabela, e não lista fechada no código.** "Outros tipos a criar" é requisito (RF-121): o dia
+> em que o viveiro adotar bandeja, a gerência cria a bandeja e monta o protocolo dela, sem
+> implantação. É a mesma razão de `task_types` ser catálogo, e não campo digitado.
+
+> **`code` é estável e `name` é editável**, mesmo par de `work_shifts`. Relatório e carga inicial
+> precisam de um identificador que sobreviva a alguém renomear "Saco" para "Saco (novo padrão)".
+
+## `protocols`: protocolo de atividades
+
+**Especificada, não implementada.**
+
+A receita de manejo de um tipo de embalagem: a sequência de etapas que todo lote daquele tipo passa
+a seguir sozinho (RF-122).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `container_type_id` | uuid | ● | FK → `container_types` | Tipo de embalagem que o protocolo rege |
+| `name` | text | ● | | Designação: "Protocolo do tubete" |
+| `active` | boolean | ● | | Vigente. Restrição: **um vigente por tipo de embalagem**, por índice único parcial |
+| `notes` | text | ○ | | Observação |
+| `created_by` | uuid | ● | FK → `users` | Quem montou |
+
+> **O protocolo não é versionado, e a edição não retroage** (RN-107). Vale um vigente por tipo, e
+> a alteração é lida apenas na próxima geração de ordens: ordem já emitida e dia já trabalhado
+> permanecem como estão, pela mesma razão da RN-96. Versionar exigiria fotografar a árvore de
+> etapas dentro de cada lote, e o viveiro muda o protocolo raramente. **A suposição está declarada
+> aqui de propósito**, porque é a que mais custaria reverter depois.
+
+> **`batches.protocol_id` fotografa o protocolo na criação**, em vez de o lote consultá-lo pelo
+> recipiente a cada leitura. Sem isso, trocar o recipiente de um lote trocaria a receita dele no
+> meio do caminho, e as datas já cumpridas passariam a pertencer a um protocolo que ele nunca
+> seguiu.
+
+## `protocol_steps`: etapa do protocolo
+
+**Especificada, não implementada.**
+
+Uma linha da receita. Aponta para uma tarefa do catálogo e declara **quando** ela ocorre (RF-123,
+RF-124). É a entidade que carrega a lógica do módulo inteiro.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `protocol_id` | uuid | ● | FK → `protocols` | Protocolo a que pertence |
+| `task_type_id` | uuid | ● | FK → `task_types` | Tarefa do catálogo que a etapa manda executar |
+| `label` | text | ● | | Rótulo da etapa: "Classificar, pós-germinação" |
+| `sort_order` | integer | ● | | Ordem de leitura. Restrição: única dentro do protocolo |
+| `schedule_type` | text | ● | | **Lista fechada**: `sequencial` ou `recorrente` (RN-102) |
+| `anchor_type` | text | ● | | **Lista fechada**: `criacao_do_lote` ou `conclusao_de_etapa` (RN-99) |
+| `anchor_step_id` | uuid | ○ | FK → `protocol_steps` | Etapa cuja conclusão inicia a contagem. Obrigatória quando `anchor_type` é `conclusao_de_etapa`, nula no outro caso. Restrição: diferente da própria etapa |
+| `offset_days` | integer | ● | | Dias entre a âncora e a primeira ocorrência, que é também a única quando sequencial. Restrição: não negativo |
+| `interval_days` | integer | ○ | | Só recorrente: dias entre uma ocorrência e a seguinte, contados da **execução real** (RN-100). Restrição: maior que zero quando preenchido, nulo quando sequencial |
+| `shift_id` | uuid | ● | FK → `work_shifts` | Turno que a ordem gerada herda |
+| `alert_enabled` | boolean | ● | | Liga a regra de atraso. Falso nas rotinas diárias (RN-105) |
+| `warning_pct` | numeric(5,2) | ○ | | Janela de aviso própria, em percentual do intervalo. **Nula = usa `producao.protocolo_janela_aviso_pct`** (RN-104). Restrição: entre 0 e 100 |
+| `resulting_stage` | text | ○ | | Só sequencial: a fase que a conclusão grava em `batches.stage`, na mesma lista fechada de lá. Nula = não altera a fase (RN-102) |
+| `active` | boolean | ● | | Etapa em uso |
+
+> **A âncora é atributo, e não consequência de `sort_order`.** Derivar "a etapa anterior" da ordem
+> da lista faria "Classificar pós-germinação" contar da criação do lote, e a semente pode ficar
+> dias esperando plantio antes de germinar: mandaria classificar muda que ainda não nasceu (RN-99).
+> A etapa âncora não precisa ser a imediatamente anterior, e é justamente esse o caso que a coluna
+> existe para representar.
+
+> **O ciclo na cadeia de âncoras não cabe em restrição declarativa.** A etapa A ancorando em B e B
+> ancorando em A é estruturalmente representável, e a única barreira contra ela é a validação da
+> aplicação, com teste dedicado. **Limite conhecido, declarado aqui em vez de descoberto em
+> produção.**
+
+> **`shift_id` é obrigatório pelo mesmo motivo de `task_recurrences.shift_id`** (RN-95):
+> `assignments.shift_id` é `NOT NULL`, e a ordem gerada precisa de um. A pergunta que resolve
+> ("esta etapa é de manhã ou de tarde?") a gerência responde sem pensar, e derivá-la de qualquer
+> outra coisa obrigaria a escolher entre errar e recusar.
+
+> **A mesma tarefa aparece duas vezes no protocolo, e por isso existe `label`.** "Classificar
+> pós-germinação" e "Classificar seleção" são duas etapas com propósitos distintos, e o catálogo já
+> as separa desde 24/08/2026. `label` é o que permite ao protocolo distinguir duas manifestações da
+> mesma tarefa sem inflar o catálogo com entradas quase iguais.
+
+> **A janela de aviso é percentual, e só percentual.** Um override absoluto em dias conviveria com
+> o percentual como duas formas de dizer a mesma coisa, e a segunda forma existe para alguém
+> preencher as duas e elas discordarem. **Suposição declarada:** aviso fixo em dias não é
+> representável, e a alternativa para quem precisar dele é ajustar o percentual da etapa.
+
+## `species_protocol_overrides`: tempo da etapa por espécie
+
+**Especificada, não implementada.**
+
+O que permite a uma espécie de germinação lenta usar setenta dias onde o protocolo diz quarenta,
+sem duplicar a receita inteira (RF-133, RN-106).
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `species_id` | uuid | ● | PK, FK → `species` | Espécie |
+| `step_id` | uuid | ● | PK, FK → `protocol_steps` | Etapa customizada |
+| `offset_days` | integer | ○ | | Sobrescreve o da etapa. Nulo = usa o da etapa |
+| `interval_days` | integer | ○ | | Sobrescreve o da etapa. Nulo = usa o da etapa |
+| `notes` | text | ○ | | Por que esta espécie difere |
+
+> **Restrição: pelo menos um dos dois preenchido.** Linha sem nenhum override é ruído que faz a
+> consulta de tempo efetivo passar por um caminho a mais para chegar ao mesmo valor.
+
+> **Não são colunas em `species`.** São 142 espécies contra as etapas de cada protocolo, e a
+> maioria não sobrescreve nada: colunas produziriam uma matriz quase toda nula, e cada etapa nova
+> exigiria migration em `species`. É a mesma regra de corte que separa `settings` de entidade.
+
+
 # Módulo 2 · Produção
 
 ## `batches`: lote
@@ -527,7 +655,7 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `code` | text | ● | UK | Código legível, gerado pelo sistema, no formato `AAAA-NNNN`: ano do plantio e sequência de quatro dígitos dentro do ano |
+| `code` | text | ● | UK | Código legível, gerado pelo sistema, no formato `AAAA-NNNN`: ano de **criação** do lote (`filled_at`) e sequência de quatro dígitos dentro do ano |
 | `species_id` | uuid | ● | FK → `species` | Espécie da leva |
 | `container_id` | uuid | ● | FK → `containers` | Recipiente, que define o porte da muda |
 | `bed_id` | uuid | ○ | FK → `beds` | Canteiro ocupado. Nulo quando o lote está encerrado |
@@ -936,6 +1064,24 @@ horas dos dias sem apontamento (RF-100), e a duração do turno vem de `work_shi
 > **`party_id` saiu para `assignment_members`.** Quem executa deixou de ser coluna e virou lista:
 > uma tarefa admite vários executores (RN-84). Ver a entidade para o porquê.
 
+> **A ordem do protocolo nasce sem nenhuma linha em `assignment_members`** (RN-113), e é
+> intencional. O protocolo responde o que fazer e quando; quem faz continua sendo de quem monta a
+> agenda. Enquanto não houver ninguém escalado, ela é pendência do lote e **não entra no cálculo de
+> horas** do dia sem apontamento (RN-51): assumir como feita uma tarefa que ninguém pegou inflaria o
+> custo de mão de obra com trabalho que não houve.
+
+> **`week_plan_id` é `NOT NULL`, e a ordem gerada precisa de um** (RN-112). O motor usa a semana do
+> vencimento e a abre em `rascunho` se ela não existir; se a semana do vencimento estiver
+> `fechada`, a ordem entra na semana aberta corrente, porque semana fechada não se altera (RN-50).
+> **É por isso que `protocol_due_on` existe ao lado de `work_date`**: sem separar o vencimento do
+> dia em que a ordem coube na agenda, empurrá-la para a semana seguinte apagaria o atraso que ela
+> existe para denunciar.
+
+> **A ordem do protocolo carrega `batch_id` sempre**, inclusive quando o tipo de tarefa não declara
+> lote específico: irrigar *aquele* lote é o que o protocolo mandou. Não conflita com RF-82, que
+> rege o que a tela **pede** a quem preenche: campo já respondido pela origem da tarefa não é campo
+> a pedir.
+
 > **`shift` deixou de ser texto e virou chave estrangeira.** O par `manha`/`tarde` continua sendo o
 > vocabulário, mas a hora de início e de fim mora agora em `work_shifts`, e é dela que sai a
 > duração. O valor de quatro horas saiu do enunciado da RN-48 e virou parâmetro (RN-85).
@@ -1069,129 +1215,6 @@ decorre: `saudavel`, `atencao` ou `critico`. É o que pinta o mapa de produção
 > duas chaves existem: sem elas a subconsulta devolveria nulo e **todo** lote apareceria como
 > saudável, que é a falha silenciosa mais cara possível nesta tela.
 
-
-## `container_types`: tipo de embalagem
-
-**Especificada, não implementada.**
-
-O que separa um protocolo de atividades do outro. Saco e tubete têm manejos diferentes, e é isso
-que o tipo representa. Os quatro sacos (10x18, 17x22, 20x26, 28x32) são quatro linhas de
-`containers` e **um** tipo (RN-98).
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `code` | text | ● | UK | Chave estável em minúsculas: `saco`, `tubete`, `balde` |
-| `name` | text | ● | | Rótulo editável, apresentado na tela |
-| `sort_order` | integer | ● | | Ordem de apresentação em Configurações |
-| `active` | boolean | ● | | Em uso |
-
-> **É tabela, e não lista fechada no código.** "Outros tipos a criar" é requisito (RF-121): o dia
-> em que o viveiro adotar bandeja, a gerência cria a bandeja e monta o protocolo dela, sem
-> implantação. É a mesma razão de `task_types` ser catálogo, e não campo digitado.
-
-> **`code` é estável e `name` é editável**, mesmo par de `work_shifts`. Relatório e carga inicial
-> precisam de um identificador que sobreviva a alguém renomear "Saco" para "Saco (novo padrão)".
-
-## `protocols`: protocolo de atividades
-
-**Especificada, não implementada.**
-
-A receita de manejo de um tipo de embalagem: a sequência de etapas que todo lote daquele tipo passa
-a seguir sozinho (RF-122).
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `container_type_id` | uuid | ● | FK → `container_types` | Tipo de embalagem que o protocolo rege |
-| `name` | text | ● | | Designação: "Protocolo do tubete" |
-| `active` | boolean | ● | | Vigente. Restrição: **um vigente por tipo de embalagem**, por índice único parcial |
-| `notes` | text | ○ | | Observação |
-| `created_by` | uuid | ● | FK → `users` | Quem montou |
-
-> **O protocolo não é versionado, e a edição não retroage** (RN-107). Vale um vigente por tipo, e
-> a alteração é lida apenas na próxima geração de ordens: ordem já emitida e dia já trabalhado
-> permanecem como estão, pela mesma razão da RN-96. Versionar exigiria fotografar a árvore de
-> etapas dentro de cada lote, e o viveiro muda o protocolo raramente. **A suposição está declarada
-> aqui de propósito**, porque é a que mais custaria reverter depois.
-
-> **`batches.protocol_id` fotografa o protocolo na criação**, em vez de o lote consultá-lo pelo
-> recipiente a cada leitura. Sem isso, trocar o recipiente de um lote trocaria a receita dele no
-> meio do caminho, e as datas já cumpridas passariam a pertencer a um protocolo que ele nunca
-> seguiu.
-
-## `protocol_steps`: etapa do protocolo
-
-**Especificada, não implementada.**
-
-Uma linha da receita. Aponta para uma tarefa do catálogo e declara **quando** ela ocorre (RF-123,
-RF-124). É a entidade que carrega a lógica do módulo inteiro.
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `id` | uuid | ● | PK | Identificador |
-| `protocol_id` | uuid | ● | FK → `protocols` | Protocolo a que pertence |
-| `task_type_id` | uuid | ● | FK → `task_types` | Tarefa do catálogo que a etapa manda executar |
-| `label` | text | ● | | Rótulo da etapa: "Classificar, pós-germinação" |
-| `sort_order` | integer | ● | | Ordem de leitura. Restrição: única dentro do protocolo |
-| `schedule_type` | text | ● | | **Lista fechada**: `sequencial` ou `recorrente` (RN-102) |
-| `anchor_type` | text | ● | | **Lista fechada**: `criacao_do_lote` ou `conclusao_de_etapa` (RN-99) |
-| `anchor_step_id` | uuid | ○ | FK → `protocol_steps` | Etapa cuja conclusão inicia a contagem. Obrigatória quando `anchor_type` é `conclusao_de_etapa`, nula no outro caso. Restrição: diferente da própria etapa |
-| `offset_days` | integer | ● | | Dias entre a âncora e a primeira ocorrência, que é também a única quando sequencial. Restrição: não negativo |
-| `interval_days` | integer | ○ | | Só recorrente: dias entre uma ocorrência e a seguinte, contados da **execução real** (RN-100). Restrição: maior que zero quando preenchido, nulo quando sequencial |
-| `shift_id` | uuid | ● | FK → `work_shifts` | Turno que a ordem gerada herda |
-| `alert_enabled` | boolean | ● | | Liga a regra de atraso. Falso nas rotinas diárias (RN-105) |
-| `warning_pct` | numeric(5,2) | ○ | | Janela de aviso própria, em percentual do intervalo. **Nula = usa `producao.protocolo_janela_aviso_pct`** (RN-104). Restrição: entre 0 e 100 |
-| `resulting_stage` | text | ○ | | Só sequencial: a fase que a conclusão grava em `batches.stage`, na mesma lista fechada de lá. Nula = não altera a fase (RN-102) |
-| `active` | boolean | ● | | Etapa em uso |
-
-> **A âncora é atributo, e não consequência de `sort_order`.** Derivar "a etapa anterior" da ordem
-> da lista faria "Classificar pós-germinação" contar da criação do lote, e a semente pode ficar
-> dias esperando plantio antes de germinar: mandaria classificar muda que ainda não nasceu (RN-99).
-> A etapa âncora não precisa ser a imediatamente anterior, e é justamente esse o caso que a coluna
-> existe para representar.
-
-> **O ciclo na cadeia de âncoras não cabe em restrição declarativa.** A etapa A ancorando em B e B
-> ancorando em A é estruturalmente representável, e a única barreira contra ela é a validação da
-> aplicação, com teste dedicado. **Limite conhecido, declarado aqui em vez de descoberto em
-> produção.**
-
-> **`shift_id` é obrigatório pelo mesmo motivo de `task_recurrences.shift_id`** (RN-95):
-> `assignments.shift_id` é `NOT NULL`, e a ordem gerada precisa de um. A pergunta que resolve
-> ("esta etapa é de manhã ou de tarde?") a gerência responde sem pensar, e derivá-la de qualquer
-> outra coisa obrigaria a escolher entre errar e recusar.
-
-> **A mesma tarefa aparece duas vezes no protocolo, e por isso existe `label`.** "Classificar
-> pós-germinação" e "Classificar seleção" são duas etapas com propósitos distintos, e o catálogo já
-> as separa desde 24/08/2026. `label` é o que permite ao protocolo distinguir duas manifestações da
-> mesma tarefa sem inflar o catálogo com entradas quase iguais.
-
-> **A janela de aviso é percentual, e só percentual.** Um override absoluto em dias conviveria com
-> o percentual como duas formas de dizer a mesma coisa, e a segunda forma existe para alguém
-> preencher as duas e elas discordarem. **Suposição declarada:** aviso fixo em dias não é
-> representável, e a alternativa para quem precisar dele é ajustar o percentual da etapa.
-
-## `species_protocol_overrides`: tempo da etapa por espécie
-
-**Especificada, não implementada.**
-
-O que permite a uma espécie de germinação lenta usar setenta dias onde o protocolo diz quarenta,
-sem duplicar a receita inteira (RF-133, RN-106).
-
-| Atributo | Tipo | Ob. | Chave | Descrição |
-|---|---|:--:|:--:|---|
-| `species_id` | uuid | ● | PK, FK → `species` | Espécie |
-| `step_id` | uuid | ● | PK, FK → `protocol_steps` | Etapa customizada |
-| `offset_days` | integer | ○ | | Sobrescreve o da etapa. Nulo = usa o da etapa |
-| `interval_days` | integer | ○ | | Sobrescreve o da etapa. Nulo = usa o da etapa |
-| `notes` | text | ○ | | Por que esta espécie difere |
-
-> **Restrição: pelo menos um dos dois preenchido.** Linha sem nenhum override é ruído que faz a
-> consulta de tempo efetivo passar por um caminho a mais para chegar ao mesmo valor.
-
-> **Não são colunas em `species`.** São 142 espécies contra as etapas de cada protocolo, e a
-> maioria não sobrescreve nada: colunas produziriam uma matriz quase toda nula, e cada etapa nova
-> exigiria migration em `species`. É a mesma regra de corte que separa `settings` de entidade.
 
 ## `batch_protocol_steps`: acompanhamento do lote na etapa
 
