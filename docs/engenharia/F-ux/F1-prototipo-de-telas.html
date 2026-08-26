@@ -1,0 +1,430 @@
+<title>Prancha de Telas do Viveiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1EA; --plate:#FFFFFF; --ink:#161D17; --ink2:#56624F; --rule:#D2D9CB;
+  --accent:#15803D; --accent-deep:#14532D; --accent-soft:#DCEBDF;
+  --a-chefia:#1F5D3A; --a-gerencia:#23566F; --a-colab:#8A4A20; --a-todos:#574F6B;
+  --built:#15803D; --planned:#8A8F84;
+  --shadow:0 1px 2px rgba(20,35,22,.08), 0 8px 24px -12px rgba(20,35,22,.22);
+  --sans:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --serif:"Source Serif 4",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11150F; --plate:#191E17; --ink:#E6EBE2; --ink2:#98A492; --rule:#2C332A;
+    --accent:#4ADE80; --accent-deep:#86EFAC; --accent-soft:#1D2A20;
+    --a-chefia:#7FCFA0; --a-gerencia:#82BEDC; --a-colab:#E0A472; --a-todos:#B3A9CE;
+    --built:#4ADE80; --planned:#767C70;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11150F; --plate:#191E17; --ink:#E6EBE2; --ink2:#98A492; --rule:#2C332A;
+  --accent:#4ADE80; --accent-deep:#86EFAC; --accent-soft:#1D2A20;
+  --a-chefia:#7FCFA0; --a-gerencia:#82BEDC; --a-colab:#E0A472; --a-todos:#B3A9CE;
+  --built:#4ADE80; --planned:#767C70;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--serif); font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-family:var(--sans);text-wrap:balance;margin:0;line-height:1.1}
+a{color:inherit}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink2);
+}
+
+/* ---------- capa ---------- */
+.cover{padding:64px 0 40px;border-bottom:1px solid var(--rule)}
+.cover h1{font-size:clamp(38px,6.2vw,68px);font-weight:800;letter-spacing:-.03em;max-width:14ch;margin-top:14px}
+.cover .lede{font-size:20px;max-width:62ch;margin-top:22px;color:var(--ink)}
+.cover .lede b{font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:28px}
+.meta div{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.meta b{color:var(--ink);font-weight:600}
+
+/* ---------- panorama ---------- */
+.panorama{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:34px 0 8px}
+.pan-card{
+  background:var(--plate);border:1px solid var(--rule);border-radius:4px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.pan-card .n{font-family:var(--sans);font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.pan-card .t{font-family:var(--sans);font-weight:600;font-size:15px}
+.pan-card .d{font-size:14px;color:var(--ink2);line-height:1.45}
+.pan-bar{height:3px;border-radius:2px;background:var(--accent);width:100%}
+
+/* ---------- barra de controle ---------- */
+.controls{
+  position:sticky;top:0;z-index:20;background:var(--paper);
+  border-bottom:1px solid var(--rule);margin-top:36px;
+}
+.controls .wrap{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center;padding-top:12px;padding-bottom:12px}
+.cgroup{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cgroup > span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.chip{
+  font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;
+  border:1px solid var(--rule);background:transparent;color:var(--ink2);
+  padding:5px 11px;border-radius:999px;cursor:pointer;transition:.15s;
+}
+.chip:hover{border-color:var(--ink2);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink2)}
+
+/* ---------- seções de módulo ---------- */
+.module{padding:56px 0 12px;scroll-margin-top:76px}
+.module[hidden]{display:none}
+.module-head{display:flex;gap:20px;align-items:flex-start;border-top:2px solid var(--ink);padding-top:16px}
+.module-head .idx{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:.1em;color:var(--ink2);padding-top:8px}
+.module-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:800;letter-spacing:-.025em}
+.module-head p{margin:8px 0 0;color:var(--ink2);font-size:16px;max-width:66ch}
+
+/* ---------- grade de pranchas ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:34px 24px;margin-top:30px}
+.plate{display:flex;flex-direction:column;gap:12px}
+.plate[hidden]{display:none}
+
+.phone{
+  width:100%;max-width:320px;background:#0E120D;border-radius:22px;padding:7px;
+  box-shadow:var(--shadow);
+}
+.screen{
+  background:#F9FAFB;border-radius:16px;overflow:hidden;height:520px;
+  display:flex;flex-direction:column;font-family:var(--ui);color:#111827;
+  font-size:12px;line-height:1.35;
+}
+
+.cap{display:flex;flex-direction:column;gap:6px;max-width:320px}
+.cap-top{display:flex;align-items:center;gap:8px}
+.cap-uc{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink2);letter-spacing:.02em}
+.dot{width:7px;height:7px;border-radius:50%;flex:none}
+.dot.built{background:var(--built)}
+.dot.planned{background:transparent;box-shadow:inset 0 0 0 1.5px var(--planned)}
+.cap h3{font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:-.01em}
+.cap .why{font-size:14px;color:var(--ink2);line-height:1.45}
+.cap-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.actor{
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border-radius:3px;border:1px solid currentColor;
+}
+.actor.chefia{color:var(--a-chefia)} .actor.gerencia{color:var(--a-gerencia)}
+.actor.colab{color:var(--a-colab)} .actor.todos{color:var(--a-todos)}
+.rfs{font-family:var(--mono);font-size:10.5px;color:var(--ink2);letter-spacing:.02em}
+.route{font-family:var(--mono);font-size:10.5px;color:var(--accent)}
+
+/* ---------- vocabulário de UI dos mockups ---------- */
+.mk-hd{background:#166534;color:#fff;padding:10px 12px;flex:none}
+.mk-hd .b{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#86EFAC;font-weight:700}
+.mk-hd .t{font-size:14px;font-weight:700;line-height:1.2;margin-top:1px}
+.mk-hd .r{font-size:10px;color:#BBF7D0}
+.mk-hd.row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.mk-tabs{display:flex;gap:2px;background:#fff;border-bottom:1px solid #E5E7EB;padding:0 8px;flex:none}
+.mk-tabs span{padding:7px 8px;font-size:10.5px;color:#6B7280;font-weight:600;white-space:nowrap}
+.mk-tabs span.on{color:#166534;box-shadow:inset 0 -2px 0 #166534}
+.mk-body{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1;overflow:hidden}
+.mk-body.tight{gap:6px}
+.mk-lbl{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6B7280}
+.mk-card{background:#fff;border:1px solid #E5E7EB;border-radius:9px;padding:9px 10px;display:flex;flex-direction:column;gap:5px}
+.mk-card.pad{padding:11px 12px}
+.mk-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mk-row .s{font-size:10.5px;color:#6B7280}
+.mk-nm{font-weight:600;color:#111827}
+.mk-it{font-style:italic;color:#4B5563;font-size:10.5px}
+.mk-in{border:1.5px solid #D1D5DB;border-radius:8px;padding:8px 9px;background:#fff;color:#9CA3AF;font-size:12px}
+.mk-in.f{border-color:#166534;color:#111827}
+.mk-in.v{color:#111827}
+.mk-btn{background:#15803D;color:#fff;text-align:center;font-weight:700;padding:11px;border-radius:12px;font-size:13px}
+.mk-btn.sec{background:#F3F4F6;color:#1F2937;font-weight:600;padding:9px;font-size:12px}
+.mk-btn.gh{background:#fff;border:1.5px solid #15803D;color:#15803D}
+.mk-num{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.mk-num.sm{font-size:17px}
+.mk-alert{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:9px;padding:8px 10px;font-size:10.5px;line-height:1.35}
+.mk-warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E;border-radius:9px;padding:8px 10px;font-size:10.5px;line-height:1.35}
+.mk-ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534;border-radius:9px;padding:8px 10px;font-size:10.5px;line-height:1.35}
+.mk-info{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;border-radius:9px;padding:8px 10px;font-size:10.5px;line-height:1.35}
+.mk-pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;letter-spacing:.03em}
+.mk-pill.g{background:#DCFCE7;color:#166534} .mk-pill.a{background:#FEF3C7;color:#92400E}
+.mk-pill.r{background:#FEE2E2;color:#991B1B} .mk-pill.n{background:#F3F4F6;color:#4B5563}
+.mk-pill.b{background:#DBEAFE;color:#1E40AF}
+.mk-seg{display:flex;background:#F3F4F6;border-radius:9px;padding:2px;gap:2px}
+.mk-seg span{flex:1;text-align:center;font-size:10.5px;font-weight:600;color:#6B7280;padding:6px 2px;border-radius:7px}
+.mk-seg span.on{background:#fff;color:#111827;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.mk-bar{height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden}
+.mk-bar i{display:block;height:100%;background:#15803D;border-radius:3px}
+.mk-bar i.a{background:#D97706} .mk-bar i.r{background:#DC2626}
+.mk-grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mk-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.mk-tile{background:#fff;border:1px solid #E5E7EB;border-radius:9px;padding:8px;text-align:center}
+.mk-tile .k{font-size:8.5px;color:#6B7280;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.mk-hr{height:1px;background:#E5E7EB}
+.mk-ph{background:#E7EDE6;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6B7280;font-size:10px}
+.mk-nav{display:flex;border-top:1px solid #E5E7EB;background:#fff;flex:none}
+.mk-nav span{flex:1;text-align:center;padding:8px 2px;font-size:9px;color:#9CA3AF;font-weight:600}
+.mk-nav span.on{color:#166534}
+.mk-tl{display:flex;flex-direction:column;gap:5px}
+.mk-tlrow{display:flex;align-items:center;gap:6px}
+.mk-tlrow .who{width:52px;font-size:9.5px;font-weight:600;color:#4B5563;flex:none}
+.mk-tlrow .track{flex:1;height:17px;background:#F3F4F6;border-radius:4px;position:relative;overflow:hidden}
+.mk-tlrow .track i{position:absolute;top:0;bottom:0;border-radius:4px;font-size:8px;color:#fff;display:flex;align-items:center;padding:0 4px;font-weight:700;overflow:hidden;white-space:nowrap;font-style:normal}
+.mk-scale{display:flex;justify-content:space-between;font-size:8px;color:#9CA3AF;padding-left:58px}
+.mk-map{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.mk-map i{aspect-ratio:1;border-radius:3px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:#6B7280;font-style:normal}
+.mk-map i.g{background:#BBF7D0;color:#14532D} .mk-map i.a{background:#FDE68A;color:#78350F}
+.mk-map i.r{background:#FECACA;color:#7F1D1D}
+.mk-chk{width:16px;height:16px;border-radius:5px;border:1.5px solid #D1D5DB;flex:none}
+.mk-chk.on{background:#15803D;border-color:#15803D}
+.mk-sw{width:30px;height:17px;border-radius:999px;background:#D1D5DB;position:relative;flex:none}
+.mk-sw.on{background:#15803D}
+.mk-sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff}
+.mk-sw.on::after{left:15px}
+.mk-fab{position:absolute;right:12px;bottom:12px;width:44px;height:44px;border-radius:50%;background:#15803D;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.mk-rel{position:relative;flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ---------- rodapé ---------- */
+.notes{border-top:2px solid var(--ink);margin-top:70px;padding:34px 0 90px}
+.notes h2{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.notes .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;margin-top:22px}
+.notes h4{font-family:var(--sans);font-size:14px;font-weight:600;margin-bottom:6px}
+.notes p{margin:0 0 12px;font-size:15.5px;color:var(--ink2);line-height:1.55}
+.notes p b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:18px}
+.legend span{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+
+.empty{padding:60px 0;text-align:center;color:var(--ink2);font-family:var(--mono);font-size:13px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .cover{padding:40px 0 28px}
+  .screen{height:480px}
+}
+</style>
+
+<header class="cover">
+  <div class="wrap">
+    <p class="eyebrow">F1 &middot; Bloco F, usabilidade &middot; Protótipo de telas</p>
+    <h1>Prancha de telas do viveiro</h1>
+    <p class="lede">
+      Os cinquenta e nove casos de uso do sistema, um a um, desenhados como a tela que
+      o usuário veria. Cada prancha traz embaixo a sua ficha de engenharia: quem opera,
+      quais requisitos ela satisfaz e se a tela <b>já existe no código</b> ou ainda é
+      especificação. É a peça que faltava entre o documento e o aparelho na mão do Rogério.
+    </p>
+    <div class="meta">
+      <div>59 <b>casos de uso</b></div>
+      <div>136 <b>requisitos funcionais</b></div>
+      <div>4 <b>atores</b></div>
+      <div>23 <b>telas construídas</b></div>
+      <div>36 <b>a construir</b></div>
+      <div>Viveiro Mudar &middot; <b>UNIDAVI 2026</b></div>
+    </div>
+
+    <div class="panorama">
+      <div class="pan-card">
+        <div class="pan-bar" style="background:var(--a-todos)"></div>
+        <div class="n">4</div>
+        <div class="t">Acesso</div>
+        <div class="d">Transversal aos quatro módulos. Nenhuma outra tela abre sem passar por aqui.</div>
+      </div>
+      <div class="pan-card">
+        <div class="pan-bar"></div>
+        <div class="n">14</div>
+        <div class="t">1 &middot; Cadastros</div>
+        <div class="d">O que o viveiro é: espécie, recipiente, insumo, canteiro, pessoa, protocolo.</div>
+      </div>
+      <div class="pan-card">
+        <div class="pan-bar"></div>
+        <div class="n">22</div>
+        <div class="t">2 &middot; Produção</div>
+        <div class="d">O maior módulo. É onde o colaborador entra, e onde o dado nasce.</div>
+      </div>
+      <div class="pan-card">
+        <div class="pan-bar"></div>
+        <div class="n">10</div>
+        <div class="t">3 &middot; Comercial</div>
+        <div class="d">Do pedido no WhatsApp à carga confirmada na entrega.</div>
+      </div>
+      <div class="pan-card">
+        <div class="pan-bar"></div>
+        <div class="n">9</div>
+        <div class="t">4 &middot; Financeiro</div>
+        <div class="d">Custo, preço e extrato. Quase todo restrito à chefia por regra de negócio.</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="controls">
+  <div class="wrap">
+    <div class="cgroup">
+      <span>Ator</span>
+      <button class="chip" data-filter="actor" data-value="all" aria-pressed="true">todos</button>
+      <button class="chip" data-filter="actor" data-value="chefia" aria-pressed="false">chefia</button>
+      <button class="chip" data-filter="actor" data-value="gerencia" aria-pressed="false">gerência</button>
+      <button class="chip" data-filter="actor" data-value="colab" aria-pressed="false">colaborador</button>
+      <button class="chip" data-filter="actor" data-value="todos" aria-pressed="false">acesso</button>
+    </div>
+    <div class="cgroup">
+      <span>Situação</span>
+      <button class="chip" data-filter="status" data-value="all" aria-pressed="true">tudo</button>
+      <button class="chip" data-filter="status" data-value="built" aria-pressed="false">construída</button>
+      <button class="chip" data-filter="status" data-value="planned" aria-pressed="false">a construir</button>
+    </div>
+    <div class="count" id="count"></div>
+  </div>
+</nav>
+
+<main class="wrap" id="app"></main>
+
+<footer class="notes">
+  <div class="wrap">
+    <h2>Como ler esta prancha</h2>
+    <div class="legend">
+      <span><i class="dot built"></i> tela que já existe em <code>src/app</code></span>
+      <span><i class="dot planned"></i> especificada, ainda não construída</span>
+      <span><i class="actor chefia" style="border-style:solid">chefia</i> ator principal do caso de uso</span>
+      <span>RF-00 requisito satisfeito pela tela</span>
+    </div>
+    <div class="cols">
+      <div>
+        <h4>O desenho não é livre</h4>
+        <p>
+          Cada tela usa a linguagem visual que o app já tem: cabeçalho verde-escuro, fundo cinza-claro,
+          cartão branco de canto arredondado, botão de ação ocupando a largura toda. Isso não é escolha
+          estética desta prancha, vem de <b>globals.css</b> e do <b>ModuleShell</b>. As telas a construir
+          herdam a mesma gramática para que a diferença entre o que existe e o que falta seja de
+          conteúdo, nunca de aparência.
+        </p>
+        <p>
+          Os aparelhos aparecem sempre claros porque o app não tem tema escuro. A página em volta tem;
+          o aparelho, não. A diferença é intencional.
+        </p>
+      </div>
+      <div>
+        <h4>Por que o colaborador tem tão poucas telas</h4>
+        <p>
+          Oito casos de uso, todos de registro. Ele alimenta o sistema e não consulta resultado: não vê
+          preço, não vê custo, não vê indicador. Cada tela a mais nesse ator aumenta a chance de que
+          <b>nenhuma</b> seja usada. Repicar lote e lançar insumo da tarefa aparecem aqui como pranchas
+          porque têm regra própria, mas na vida real são gestos dentro do encerramento da tarefa, não
+          itens de menu.
+        </p>
+      </div>
+      <div>
+        <h4>Onde a engenharia concentra o peso</h4>
+        <p>
+          Vinte e sete dos cinquenta e nove casos são da chefia. Não é falha de distribuição, é o retrato
+          de uma microempresa em que uma pessoa responde por venda, preço, compra e finanças. O sistema
+          não redistribui essa responsabilidade, apenas torna verificável a que já existe.
+        </p>
+        <p>
+          O módulo Financeiro toca um ator só pelo mesmo motivo: a base bancária mistura gasto do viveiro
+          com gasto pessoal da família. A restrição é do recurso, não da porta do módulo.
+        </p>
+      </div>
+      <div>
+        <h4>Fontes</h4>
+        <p>
+          Casos de uso e atores de <b>C1</b>; texto dos requisitos de <b>B2</b>; regra de cada tela de
+          <b>B3</b>; permissão por perfil de <b>D4</b>. Os dados que aparecem nos mockups são
+          plausíveis e ilustrativos, não vieram do banco. Espécies, recipientes, áreas e canteiros
+          seguem o vocabulário do <b>A2</b>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const MODULES = [
+  {id:'acesso', idx:'00', name:'Acesso', lead:'Transversal aos quatro módulos. Todo caso de uso do sistema tem como pré-condição uma sessão autenticada, e é por isso que estas quatro telas vêm antes de qualquer outra.'},
+  {id:'cadastros', idx:'01', name:'Cadastros', lead:'O que o viveiro é, antes de qualquer movimento. Espécie é a entidade central: recipiente, insumo, canteiro, protocolo e pessoa existem para qualificá-la. Errar aqui contamina os outros três módulos em silêncio.'},
+  {id:'producao', idx:'02', name:'Produção', lead:'O maior módulo, e o único que o colaborador toca. Aqui o dado nasce, no celular, em pé, com a mão suja. Cada campo a mais nesta seção é um registro a menos que acontece de verdade.'},
+  {id:'comercial', idx:'03', name:'Comercial', lead:'Do pedido que chega pelo WhatsApp à carga confirmada na entrega. O sistema não substitui a negociação, registra o que ela decidiu, e trava o que não pode sair sem preço aprovado.'},
+  {id:'financeiro', idx:'04', name:'Financeiro', lead:'Custo, preço e extrato. Quase todo restrito à chefia, porque a base bancária mistura gasto do viveiro com gasto pessoal da família. Custeio, precificação e indicadores derivam dela sem expô-la.'}
+];
+const S = [];
+/*NEXT*/
+</script>
+<script>
+const ACTOR_LABEL = {chefia:'Chefia', gerencia:'Gerência', colab:'Colaborador', todos:'Todos'};
+
+function plate(s){
+  const el = document.createElement('article');
+  el.className = 'plate';
+  el.dataset.actor = s.actors.join(' ');
+  el.dataset.status = s.built ? 'built' : 'planned';
+  el.innerHTML =
+    '<div class="phone"><div class="screen">' + s.ui + '</div></div>' +
+    '<div class="cap">' +
+      '<div class="cap-top"><i class="dot ' + (s.built?'built':'planned') + '"></i>' +
+        '<span class="cap-uc">' + s.id + '</span></div>' +
+      '<h3>' + s.name + '</h3>' +
+      '<p class="why">' + s.why + '</p>' +
+      '<div class="cap-foot">' +
+        s.actors.map(a => '<span class="actor ' + a + '">' + ACTOR_LABEL[a] + '</span>').join('') +
+        '<span class="rfs">' + s.rf + '</span>' +
+      '</div>' +
+      (s.route ? '<div class="route">' + s.route + '</div>' : '') +
+    '</div>';
+  return el;
+}
+
+const app = document.getElementById('app');
+MODULES.forEach(m => {
+  const sec = document.createElement('section');
+  sec.className = 'module';
+  sec.id = m.id;
+  const screens = S.filter(s => s.mod === m.id);
+  sec.innerHTML =
+    '<div class="module-head"><div class="idx">' + m.idx + '</div>' +
+    '<div><h2>' + m.name + '</h2><p>' + m.lead + '</p></div></div>' +
+    '<div class="grid"></div>';
+  const grid = sec.querySelector('.grid');
+  screens.forEach(s => grid.appendChild(plate(s)));
+  app.appendChild(sec);
+});
+
+const state = {actor:'all', status:'all'};
+const countEl = document.getElementById('count');
+
+function apply(){
+  let shown = 0;
+  document.querySelectorAll('.plate').forEach(p => {
+    const okA = state.actor === 'all' || p.dataset.actor.split(' ').includes(state.actor);
+    const okS = state.status === 'all' || p.dataset.status === state.status;
+    const ok = okA && okS;
+    p.hidden = !ok;
+    if (ok) shown++;
+  });
+  document.querySelectorAll('.module').forEach(m => {
+    m.hidden = m.querySelectorAll('.plate:not([hidden])').length === 0;
+  });
+  countEl.textContent = shown + ' de ' + S.length + ' telas';
+}
+
+document.querySelectorAll('.chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.filter;
+    state[f] = btn.dataset.value;
+    document.querySelectorAll('.chip[data-filter="' + f + '"]').forEach(b => {
+      b.setAttribute('aria-pressed', String(b === btn));
+    });
+    apply();
+  });
+});
+
+apply();
+</script>

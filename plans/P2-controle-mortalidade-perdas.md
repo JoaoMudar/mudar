@@ -1,12 +1,5 @@
 # P2: Controle de Mortalidade e Perdas
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🗂️ **Módulo 2 · Produção** (reorganização de 19/08/2026). Lotes, contagens, perdas, análise
 > de perdas e alerta de mortalidade são registro de campo, ficam em `/producao/*`. As rotas
 > deste plano já estão atualizadas; o `/app/...` de antes nunca existiu como prefixo real.
@@ -103,7 +96,8 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
   -- Usado no P1 para corrigir custo real
   ```
 - [ ] **T2.7** Criar trigger: quando `batch_counts` é inserido, atualizar `batches.current_quantity`
-- [ ] **T2.8** Criar RLS policies consistentes com P1
+- [ ] **T2.8** Aplicar a checagem de perfil das Server Actions de perdas, consistente com a T1.8 do
+  P1 e com a [Matriz RBAC (D4)](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md)
 
 ### Fase 2: Formulário Mobile, Registro de Lote
 
@@ -137,8 +131,8 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 
 ### Fase 4: Alertas e Motor de Mortalidade
 
-- [ ] **T2.14** Criar Edge Function `check-mortality-alerts`:
-  - Roda diariamente (cron)
+- [ ] **T2.14** Criar a rota `src/app/api/cron/alertas-mortalidade/route.ts`:
+  - Roda diariamente, chamada pelo Vercel Cron
   - Compara mortalidade de cada lote com threshold da espécie
   - Se ultrapassou: cria notificação no sistema + envia mensagem WhatsApp para João/Débora
 - [ ] **T2.15** Criar página `/producao/alertas-mortalidade`
@@ -174,5 +168,8 @@ Hoje ninguém sabe a taxa de mortalidade. Pode ser 10%, pode ser 40%. Sem esse d
 ## Notas Técnicas
 - A `batch_mortality_summary` view será consumida pelo Dashboard (P6) como KPI central.
 - Quando P4 (WhatsApp) estiver pronto, alertas de mortalidade serão enviados por WhatsApp.
-- A foto de perda pode ser armazenada no Supabase Storage (bucket `loss-photos`).
+- A foto de perda entra no banco, como linha de uma tabela de fotos servida por rota, no molde de
+  `species_photos` + `/api/fotos/[id]`. O filesystem da Vercel é somente-leitura e descartado a
+  cada deploy: gravar em `public/uploads/` não funciona em produção
+  (migration `20260811000001_species_photos.sql`).
 - O código de lote na plaquinha física DEVE ser idêntico ao digital, é o elo de ligação.

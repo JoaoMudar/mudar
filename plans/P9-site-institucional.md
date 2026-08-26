@@ -1,12 +1,5 @@
 # P9: Site Institucional
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
 > Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
 > e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão: ela lê
@@ -82,7 +75,8 @@ Sem site, o viveiro depende 100% de indicação. Prefeituras e construtoras pesq
 - [ ] **T9.7** Integrar catálogo (P7) na rota `/catalogo` (já implementado)
 - [ ] **T9.8** Criar página Contato (`/contato`)
   - Formulário: nome, email, telefone, assunto, mensagem
-  - Envio para email do viveiro (Supabase Edge Function + Resend ou similar)
+  - Envio para email do viveiro por rota de API do próprio Next (`src/app/api/contato/route.ts`)
+    chamando Resend ou similar
   - Mapa do Google Maps com localização
   - Botão WhatsApp flutuante
   - Informações: endereço, telefone, email, horário

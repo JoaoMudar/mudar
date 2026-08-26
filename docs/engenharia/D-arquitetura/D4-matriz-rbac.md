@@ -398,6 +398,30 @@ determina que a permissão seja verificada **a cada operação, e não apenas oc
 interface**. Ocultar um botão não é controle de acesso, é o inverso: dá a impressão de proteção
 onde não há.
 
+### 4.1 Por que não há um quarto nível no banco
+
+A pergunta reaparece a cada rodada, e a resposta é sempre a mesma: **Row Level Security não se
+aplica a este sistema**, nem no Postgres local nem no Neon. Quatro razões, todas verificáveis:
+
+1. **Não há identidade de usuário dentro do banco.** A aplicação abre a conexão com um papel só,
+   o da `DATABASE_URL` (`src/lib/db.ts`), a partir de Server Components e Server Actions. Não
+   existe token do usuário mapeado para papel de banco, nem API de dados exposta ao navegador: a
+   sessão vive em `sessions` e só o servidor a lê. Uma política de linha não teria sobre o que
+   discriminar.
+2. **Fazê-la funcionar significaria duplicar esta matriz em SQL.** Seria preciso declarar o usuário
+   corrente a cada requisição e reescrever os recursos da seção 2 como política de tabela: duas
+   fontes da verdade para a mesma regra, que é exatamente o que produz divergência.
+3. **O risco que ela mitigaria, ela não mitigaria aqui.** O papel de conexão é o **dono** das
+   tabelas, e dono ignora RLS enquanto não houver `FORCE ROW LEVEL SECURITY`. Vazada a
+   `DATABASE_URL`, vaza tudo, com política ou sem.
+4. **O controle real existe e é conferido por teste.** `src/lib/permissions.ts` é a fonte única, e
+   `src/lib/__tests__/permissions.test.ts` e `authz-cobertura.test.ts` comparam o código com a
+   seção 2 deste documento.
+
+É a mesma conclusão que `migrations/20260413000002_p1_rls.sql` registrou em 13/04/2026, quando o
+conceito saiu do projeto, e que a conferência de 26/08/2026 confirmou no banco: nenhuma tabela com
+RLS ligado, nenhuma política.
+
 ---
 
 ## 5. O compromisso entre proteção e produtividade

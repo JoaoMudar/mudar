@@ -1,12 +1,5 @@
 # P7: Catálogo Digital de Espécies
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🗂️ **Fora dos quatro módulos** (reorganização de 19/08/2026). Cadastros, Produção,
 > Comercial e Financeiro descrevem o **sistema interno**, usado por quem trabalha no viveiro
 > e sempre atrás de login. Este plano constrói superfície **pública**, sem sessão: ela lê
@@ -57,7 +50,9 @@ Clientes ligam ou mandam WhatsApp perguntando "vocês têm ipê amarelo?", Gilbe
   seed_collection_months (int[] — ex: [3,4,5] para mar-mai),
   planting_tips, is_published (boolean default false)
   ```
-- [ ] **T7.2** Configurar Supabase Storage bucket `species-photos` (público)
+- [ ] **T7.2** Reaproveitar o armazenamento de fotos que já existe: linha em `species_photos`
+  (BYTEA) referenciada por `species.photo_url` no formato `/api/fotos/<uuid>`. Não há bucket nem
+  arquivo em disco, e não deve haver: o filesystem da Vercel é somente-leitura e some a cada deploy
 - [ ] **T7.3** Criar script para upload em massa de fotos e vincular às espécies
 
 ### Fase 2: Catálogo Público

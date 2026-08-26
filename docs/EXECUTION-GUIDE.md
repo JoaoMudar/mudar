@@ -61,8 +61,8 @@ P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
 1. **Confirmar a branch.** `git branch --show-current`. Se estiver em `main`, parar e criar
    `git checkout -b feat/nome-da-tarefa`. Nunca editar direto na main.
 2. **Ler o plan file da fase** e a rotina de domínio correspondente em `docs/rotinas/`.
-3. **Conferir a auditoria.** Vários planos foram escritos para Supabase, traduzir antes de
-   implementar. Ver [`auditoria-divergencias.md`](auditoria-divergencias.md).
+3. **Conferir a auditoria.** Plano antigo pode estar à frente ou atrás do sistema real. Ver
+   [`auditoria-divergencias.md`](auditoria-divergencias.md).
 4. **Uma task por vez**, marcando `[x]` no plan file ao concluir. O plan file é o checkpoint
    entre sessões.
 5. **Testes junto com o código.** Vitest em `__tests__/` ao lado do arquivo. Server Action que
@@ -91,10 +91,19 @@ P4, P5, P7, P8, P9 e P10 seguem depois, na ordem do
 | Desenvolvimento | Postgres local (`localhost:5432`) | `pg`, pool TCP |
 | Produção (Vercel) | Neon, `sa-east-1` | `@neondatabase/serverless` |
 
-> **Neon é só o banco.** Não tem Edge Functions, Storage, Realtime nem RLS ligado a
-> autenticação: nada da plataforma Supabase, que o projeto chegou a considerar e abandonou.
-> Controle de acesso é checagem de perfil dentro da Server Action, conforme a
+> **Neon é só o banco.** É Postgres gerenciado, e nada além disso: não há função de borda,
+> armazenamento de arquivo, canal de tempo real nem identidade de usuário dentro do banco.
+>
+> **Por isso o controle de acesso não é RLS**, e não adianta ligar: a aplicação conecta com um
+> papel só, o da `DATABASE_URL`, que é dono das tabelas, e dono ignora política de linha. Uma
+> policy não teria sobre o que discriminar, e fazê-la funcionar significaria duplicar a matriz de
+> acesso em SQL. O controle é a checagem de perfil dentro da Server Action, com
+> `src/lib/permissions.ts` como fonte única, conforme a
 > [Matriz RBAC (D4)](engenharia/D-arquitetura/D4-matriz-rbac.md).
+>
+> **Arquivo também não vai para disco**: o filesystem da Vercel é somente-leitura fora de `/tmp` e
+> some a cada deploy. Foto vira linha no banco, servida por rota (`species_photos` +
+> `/api/fotos/[id]`).
 
 Toda migration aplicada no local precisa ser aplicada também no Neon antes do deploy.
 

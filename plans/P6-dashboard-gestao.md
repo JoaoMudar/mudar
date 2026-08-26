@@ -1,19 +1,11 @@
 # P6: Dashboard de Gestão
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
-> 📊 **Os indicadores deste painel estão especificados em
-> [`G2: Fichas de indicadores`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md),
-> que é a fonte da verdade.** São 9 (IND-01 a IND-09), cada um com fórmula, fonte, janela, meta,
-> faixas e responsável, mais o painel por perfil e a regra de que mês não fechado exibe travessão
-> e nunca zero (RF-61). As listas de KPI deste plano são anteriores ao G2 e ficam como histórico.
-> **não implemente por elas.** Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md),
-> achado G.
+> 📊 **Os indicadores deste painel são os nove do
+> [`G2: Fichas de indicadores`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md)**, IND-01 a
+> IND-09, cada um com fórmula, fonte, janela, meta, faixas e responsável. As tarefas abaixo já
+> foram reescritas por eles em 26/08/2026: as listas de KPI próprias que o plano tinha, anteriores
+> ao G2, foram apagadas em vez de mantidas como histórico, porque quem implementa lê a tarefa, e
+> não o aviso. Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado G.
 
 > 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Indicadores deixaram de ser
 > módulo próprio: são os painéis do Financeiro, em `/financeiro/indicadores`. **Isso não os
@@ -36,16 +28,17 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 
 ## Resultado Esperado
 - Dashboard web responsivo (prioridade celular)
-- KPIs principais visíveis na tela inicial
+- Os 9 indicadores do `G2` visíveis na tela inicial, filtrados pelo perfil de quem entra
 - Filtros por período, espécie, canal, cliente
-- Rankings de rentabilidade e mortalidade
-- Projeção de receita baseada em estoque disponível
+- Mês não fechado exibe travessão, nunca zero (RF-61)
+- Projeção de receita baseada em estoque disponível (fora das fichas, ver Fase 3)
 
 ---
 
 ## Dados que a Equipe de Campo Precisa Levantar (PARALELO)
 
-- [ ] **KPIs prioritários**: João + Gilberto escolherem os 5-7 indicadores mais importantes, sugestão: faturamento mensal, margem média, mortalidade média, estoque total, pedidos em aberto, ticket médio, mix de canais
+- [ ] **Metas e faixas**: João + Gilberto confirmarem a meta e as faixas de cada uma das 9 fichas do
+  `G2`. **Quais** indicadores já estão decididos; o que falta da equipe é o número-alvo
 - [ ] **Frequência de consulta**: definir se vão olhar diariamente, semanalmente ou sob demanda
 - [ ] **Auditoria de dados**: Débora validar nas primeiras 4 semanas se os dados dos P1-P3 estão sendo preenchidos corretamente
 
@@ -112,36 +105,37 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
   WHERE status NOT IN ('cancelado', 'pago')
   GROUP BY status
   ```
-- [ ] **T6.6** Criar Edge Function `dashboard-summary` que retorna todos os KPIs em uma chamada:
-  - Faturamento do mês atual vs mês anterior (% variação)
-  - Margem média ponderada
-  - Mortalidade média geral
-  - Estoque total (unidades) e valor estimado
-  - Pedidos em aberto (qtd e valor)
-  - Ticket médio
-  - Top 5 espécies por faturamento
-  - Top 5 espécies por mortalidade (piores)
+- [ ] **T6.6** Criar a Server Action `getIndicadores` (`src/app/financeiro/indicadores/actions.ts`),
+  que devolve numa chamada só os indicadores que o perfil de quem pede pode ver:
+
+  | Ficha | Indicador | Fonte principal |
+  |---|---|---|
+  | IND-01 | Taxa de mortalidade por espécie | `loss_events`, `batches` (P2) |
+  | IND-02 | Custo unitário por espécie e recipiente | `species_unit_cost` (P1) |
+  | IND-03 | Prazo médio de produção | `batches`, `batch_movements` |
+  | IND-04 | Margem por canal de venda | `sale_prices` + IND-02 (P3) |
+  | IND-05 | Taxa de atendimento de pedidos | `orders`, `order_items` |
+  | IND-06 | Taxa de conversão de cotações | `supplier_quotes` (P11) |
+  | IND-07 | Resultado dos centros de negócio | `financeiro.transactions` (P12) |
+  | IND-08 | Estrutura de custo fixo | `fixed_costs`, `financeiro.categories` |
+  | IND-09 | Fila de lançamentos pendentes | `financeiro.transactions` (P12) |
+
+  Fórmula, janela, meta, faixas e responsável de cada um estão na ficha do `G2`. **Não inventar
+  indicador aqui**: o que não tem ficha não entra no painel (ver Fase 3).
 
 ### Fase 2: Interface do Dashboard
 
-- [ ] **T6.7** Criar página `/financeiro/indicadores` (tela principal)
+- [ ] **T6.7** Criar página `/financeiro/indicadores` (tela principal), montada pelo **painel por
+  perfil** do [`G2 §6`](../docs/engenharia/G-gestao/G2-fichas-de-indicadores.md):
+  - **Chefia e administrador**: IND-01 a IND-09
+  - **Gerência**: IND-01, IND-02, IND-03 e IND-05. Os cinco financeiros **não são renderizados**
+    para o perfil, nem em travessão
+  - **Colaborador**: não acessa a tela
   - **Header**: período selecionado + filtros rápidos
-  - **Linha 1: KPI Cards** (6 cards):
-    - Faturamento (R$ + % vs mês anterior)
-    - Margem Média (% + indicador cor)
-    - Estoque Disponível (unidades)
-    - Valor em Estoque (R$)
-    - Pedidos em Aberto (qtd)
-    - Mortalidade Média (%)
-  - **Linha 2: Gráficos**:
-    - Faturamento mensal (barras, últimos 12 meses)
-    - Distribuição por canal (pizza/donut)
-  - **Linha 3: Rankings**:
-    - Top espécies por faturamento (barra horizontal)
-    - Piores espécies por mortalidade (barra horizontal vermelha)
-  - **Linha 4: Tabela resumo**:
-    - Espécie | Estoque | Custo | Preço | Margem | Mortalidade
-    - Ordenável por qualquer coluna
+  - Cada ficha vira um card com valor, faixa e seta de direção, e o detalhe abre a série do
+    período. A codificação **nunca é só cor**: acompanha símbolo e rótulo (`G2`, codificação
+    visual)
+  - **Sem dado exibe travessão, jamais zero** (RF-61): mês não fechado não tem número
 - [ ] **T6.8** Implementar filtros globais:
   - Período: 7d, 30d, 90d, 12m, custom
   - Espécie (multi-select)
@@ -153,9 +147,14 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
   - Tabela com scroll horizontal
   - Touch-friendly (botões grandes)
 - [ ] **T6.10** Usar Recharts ou Chart.js para gráficos
-- [ ] **T6.11** Implementar refresh automático dos dados (polling a cada 5min ou Supabase Realtime)
+- [ ] **T6.11** Manter o painel atualizado com `revalidatePath` nas Server Actions que alimentam os
+  indicadores, e `revalidate` na própria rota para o caso de ninguém ter escrito nada
 
 ### Fase 3: Projeção e Análise
+
+> **Fora das nove fichas.** O que segue não tem ficha no `G2` e não é indicador: são seções de
+> apoio da mesma tela. Se alguma delas virar número acompanhado com meta, ganha ficha no `G2`
+> primeiro, e só depois entra no painel.
 
 - [ ] **T6.12** Criar seção "Projeção de Receita":
   - Estoque atual × preço médio por canal = receita potencial
@@ -172,7 +171,9 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 
 ## Critérios de Aceite
 - [ ] Dashboard carrega em menos de 3 segundos no celular
-- [ ] KPIs refletem dados reais dos P1-P3
+- [ ] Os nove indicadores calculam pela fórmula da ficha do `G2`, e não por fórmula deste plano
+- [ ] Mês não fechado exibe travessão, e nunca zero (RF-61)
+- [ ] A gerência vê IND-01, 02, 03 e 05, e os cinco financeiros não chegam ao navegador dela
 - [ ] Filtros funcionam e atualizam todos os componentes
 - [ ] Gráficos são legíveis no celular
 - [ ] Projeção de receita calcula com base no estoque real
@@ -184,7 +185,7 @@ Hoje ninguém tem visão consolidada do negócio. Gilberto sabe de vendas de cab
 ## Notas Técnicas
 - Dashboard é consumidor, não produtor de dados. Depende de P1-P3 terem dados.
 - Começar com dados mockados se P1-P3 ainda não tiverem dados reais suficientes.
-- Usar Supabase views para agregar dados: não calcular no frontend.
-- Cache de 5 minutos para queries pesadas (via Edge Function ou React Query staleTime).
+- Agregar em visão do próprio Postgres: não calcular no frontend.
+- Cache das consultas pesadas com `unstable_cache` ou `revalidate` de rota.
 - O dashboard vai crescer progressivamente: começa com KPIs de P1-P3, depois adiciona métricas de P4-P5 quando implementados.
 - Gilberto vai querer ver isso no celular durante o café da manhã, precisa ser rápido e claro.

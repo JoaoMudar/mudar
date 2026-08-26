@@ -82,8 +82,11 @@ um `-w` diferente, e regerar com o valor errado reescalava a figura sem ninguém
 
 O PNG é a fonte para leitura e para o TCC; o `.mmd` é a fonte para edição.
 
-`img/mapa-sistema.mmd` é a versão anterior, de seis blocos, mantida só como registro do que
-o mapa dizia antes da reconciliação.
+`img/mapa-sistema.mmd` é a versão anterior, mantida só como registro do que o mapa dizia antes
+da reconciliação dos quatro módulos, e o próprio arquivo abre declarando isso. **Não editar.**
+Atenção a um detalhe do gerador: `npm run docs:mapas` sem argumento rerenderiza *todos* os `.mmd`
+da pasta, este inclusive, então o PNG superado continua nascendo junto. Ele não é referenciado por
+nenhum documento; quem quiser gerar só os vivos passa os nomes na linha de comando.
 
 </details>
 

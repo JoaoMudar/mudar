@@ -123,6 +123,12 @@ Três leituras que o diagrama torna imediatas:
 
 ## 3. Casos de uso por ator
 
+> **Esta seção é por ator, e é de propósito.** A seção 2 agrupa por módulo, e o catálogo da seção 4
+> traz a coluna **Módulo**: são três cortes do mesmo conjunto, e não resíduo da taxonomia anterior
+> ao reagrupamento de 19/08/2026. Quem quer saber *o que este perfil faz* lê aqui; quem quer saber
+> *o que este módulo contém* lê a seção 2. Registrado em 26/08/2026 para não ser "corrigido" numa
+> próxima passada (achado K da [auditoria](../../auditoria-divergencias.md)).
+
 ### 3.1 Chefia
 
 ```mermaid

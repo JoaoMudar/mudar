@@ -287,7 +287,7 @@ Cada bloco é fechado: começa e termina com algo escrito no disco. Não pule o 
 - **Não cite número de linha neste guia.** As referências deste arquivo apontam para seções (`§4`,
   `§5`), e não para linhas: um artefato que cresce invalida toda citação de linha silenciosamente.
   Foi assim que a versão anterior passou a apontar para o lugar errado em sete lugares.
-- **Vários plan files antigos foram escritos para Supabase**, que não é a stack. Se for buscar
-  material em `plans/`, leia antes [`docs/auditoria-divergencias.md`](../auditoria-divergencias.md).
+- **Plan file antigo pode estar à frente ou atrás do sistema.** Se for buscar material em `plans/`,
+  leia antes [`docs/auditoria-divergencias.md`](../auditoria-divergencias.md).
 - **Regra sem requisito** é sinal de lacuna: ou falta o RF, ou a regra não é do escopo. Foi
   exatamente assim que `B5` encontrou 25 lacunas, vale a pena repetir o exercício.

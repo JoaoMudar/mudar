@@ -9,7 +9,7 @@
 |-------|---------|------------|
 | `CLAUDE.md` (raiz) | Regras, stack, convenções, workflow. Carregado sempre. | Sempre: é a fonte das regras. |
 | `docs/` | Documentação de referência (este diretório). | Para entender contexto, domínio e fluxo de trabalho. |
-| `plans/` (raiz) | Roadmaps de implementação P1–P10 (trabalho ativo). | Antes de implementar uma feature. |
+| `plans/` (raiz) | Roadmaps de implementação, `P1` a `P15` (trabalho ativo). | Antes de implementar uma feature. |
 | `migrations/` (raiz) | Migrações SQL (`psql` puro), em ordem cronológica. | Ao mexer no schema do banco. |
 | `data/seeds/` (raiz) | Fontes de carga inicial (seed): ex.: export das 142 espécies. Ver `data/seeds/README.md`. | Ao gerar/re-importar dados de catálogo. |
 | `src/` (raiz) | Código da aplicação (Next.js App Router). | Ao implementar. |
@@ -27,7 +27,7 @@
 ### Referência geral
 | Arquivo | Conteúdo |
 |---------|----------|
-| [`contexto-projeto.md`](contexto-projeto.md) | Histórico, arquitetura P1→P10, princípios de formulário de campo. |
+| [`contexto-projeto.md`](contexto-projeto.md) | Histórico, os quatro módulos, o roadmap e o estado real de cada projeto, princípios de formulário de campo. **É a fonte única do roadmap.** |
 | [`funcionarios-viveiro-mudar.md`](funcionarios-viveiro-mudar.md) | A equipe e os perfis de acesso. |
 
 ### Como trabalhar no projeto (workflow)
@@ -37,7 +37,7 @@
 | [`banco-local-espelho.md`](banco-local-espelho.md) | Espelhar o Neon para um Postgres local descartável (`npm run db:refresh-local`) para testes seguros. |
 | [`EXECUTION-GUIDE.md`](EXECUTION-GUIDE.md) | Como conduzir as sessões de desenvolvimento e a ordem dos sprints. |
 | [`plano-seguranca-commits.md`](plano-seguranca-commits.md) | Plano histórico de segurança de commits (hooks, gitignore). |
-| [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria 10/08/2026**: divergências entre docs, planos e código, com ordem de correção. Ler antes de retomar o desenvolvimento. |
+| [`auditoria-divergencias.md`](auditoria-divergencias.md) | **Auditoria, sete passadas entre 10/08 e 26/08/2026**: divergências entre docs, planos e código, o que virou de cada uma e a lição de cada rodada. Ler antes de retomar o desenvolvimento. |
 | [`divida-tecnica.md`](divida-tecnica.md) | **Trabalho futuro (11/08/2026)**: o que falta para a produção ser segura de operar: backup, teste contra banco real, drift de schema. Prontidão medida: ~85%. |
 | [`postmortem-financeiro-bi.md`](postmortem-financeiro-bi.md) | Por que o BI sobre a planilha `DESPESAS AAAA.xls` foi abandonado (ago/2026). Ler antes de mexer em financeiro. |
 
@@ -110,28 +110,13 @@ visão geral do modelo (extrato como fonte da verdade), o cadastro único (`cada
 
 ## Roadmap de implementação (`plans/`)
 
-Projetos interdependentes: a ordem importa (detalhe em `docs/contexto-projeto.md`):
+**O roadmap mora em um lugar só:
+[`contexto-projeto.md`, Arquitetura dos Projetos](contexto-projeto.md#arquitetura-dos-projetos)**,
+com o encadeamento, o módulo de cada projeto e a situação real de cada um. Este arquivo apontava
+para lá e mantinha uma cópia do diagrama ao lado, que envelheceu e passou a discordar da fonte: a
+cópia saiu em 26/08/2026 (achado E da auditoria).
 
-```
-P1 (Custeio) ──┐
-P2 (Perdas)  ──┤──→ P6 (Dashboard) ──→ P7 (Catálogo)
-P3 (Preço)   ──┘                         ↓
-                                     P9 (Site) → P10 (E-commerce)
-P4 (WhatsApp) ← depende de P1+P3
-P5 (Automação n8n) ← depende de P4
-P8 (Instagram) ← independente
-```
-
-Planos: `plans/P1-custeio-por-especie.md` … `plans/P10-ecommerce-kits-tematicos.md`.
-
-Fora do encadeamento original:
-
-| Plano | Assunto | Status |
-|---|---|---|
-| [`P11-fornecedores-cotacao.md`](../plans/P11-fornecedores-cotacao.md) | Rede de fornecedores e cotação | ✅ concluído |
-| [`P12-conciliacao-bancaria.md`](../plans/P12-conciliacao-bancaria.md) | Financeiro sobre extratos | Fase 0 concluída |
-| [`P13-producao-agenda-cadastros.md`](../plans/P13-producao-agenda-cadastros.md) | Cadastro único + agenda de pessoal (destrava o custo de mão de obra do P1) | desenho fechado |
+Os quinze planos vivem em `plans/`, de `P1-custeio-por-especie.md` a
+`P15-protocolo-de-atividades.md`.
 
 > **P13 e P12 compartilham a Fase 1** (schema `cadastro`, tabela `parties`). Implementar uma vez.
-> O P13 lista também as **incongruências encontradas nos documentos de engenharia** que
-> precisam de revisão antes da entrega do Cap. 4.

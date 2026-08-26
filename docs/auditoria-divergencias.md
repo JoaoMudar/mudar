@@ -4,28 +4,41 @@
 > documentação na mesma linha, para que nenhum plano mande construir algo que o sistema
 > real não comporta.
 >
-> Método: leitura dos 13 planos, das 9 rotinas, dos 17 artefatos de engenharia e conferência
-> contra `migrations/`, `src/` e `package.json`.
+> Método: leitura dos planos, das rotinas e dos artefatos de engenharia, e conferência contra
+> `migrations/`, `src/` e `package.json`. *(Eram 13 planos, 9 rotinas e 17 artefatos na primeira
+> passada; as contagens mudaram e não são mantidas aqui.)*
 >
-> **Sequência:** as correções apontadas aqui foram executadas em 10–11/08/2026. O que ficou
-> pendente depois delas está em [`divida-tecnica.md`](divida-tecnica.md).
+> **Sequência:** as correções apontadas aqui foram executadas em 10–11/08/2026, e as passadas
+> seguintes estão registradas ao fim do arquivo, até a **sétima, de 26/08/2026**, que fechou os
+> achados que tinham sido apenas *marcados*. O que ficou pendente está em
+> [`divida-tecnica.md`](divida-tecnica.md).
+>
+> **O que este documento não guarda:** a diferença entre o modelo especificado e o implementado.
+> Essa conta vive em [`C6 §2.1`](engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) e na
+> seção *Recorte implementado* de [`C8`](engenharia/C-modelagem/C8-dicionario-de-dados.md), que são
+> mantidos junto do modelo. Havia aqui uma cópia dela, o antigo achado I, e ela envelheceu três
+> vezes: foi retirada em 26/08/2026.
 
 ## Resumo
 
-| # | Divergência | Gravidade |
+| # | Divergência | Situação |
 |---|---|---|
-| [A](#a--stack-fantasma-supabase-em-6-planos) | 6 planos escritos para uma stack (Supabase) que foi abandonada | 🔴 alta |
-| [B](#b--tarefa-marcada-como-feita-que-foi-desfeita) | `P1 T1.8` marcado `[x]` para RLS, que a migration seguinte removeu | 🔴 alta |
-| [C](#c--cabeçalho-de-status-mentindo) | `P1` diz "NÃO INICIADO" com 16 de 32 tarefas feitas | 🟠 média |
-| [D](#d--colaborador-nos-docs--funcionario-no-banco) | Perfil chamado `colaborador` nos docs e `funcionario` no banco | 🟠 média |
-| [E](#e--roadmap-desatualizado-em-três-lugares) | Roadmap P1→P10 repetido em 3 arquivos, sem P11, P12 e P13 | 🟠 média |
-| [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | 🟠 média |
-| [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | 🟠 média |
+| [A](#a--stack-fantasma-supabase-em-6-planos) | 6 planos escritos para uma stack (Supabase) que foi abandonada | ✅ resolvido 26/08 |
+| [B](#b--tarefa-marcada-como-feita-que-foi-desfeita) | `P1 T1.8` marcado `[x]` para RLS, que a migration seguinte removeu | ✅ resolvido 26/08 |
+| [C](#c--cabeçalho-de-status-mentindo) | `P1` diz "NÃO INICIADO" com 16 de 32 tarefas feitas | ✅ resolvido 26/08 |
+| [D](#d--colaborador-nos-docs--funcionario-no-banco) | Perfil chamado `colaborador` nos docs e `funcionario` no banco | 🟡 falta só conferir o Neon |
+| [E](#e--roadmap-desatualizado-em-três-lugares) | Roadmap P1→P10 repetido em 3 arquivos, sem P11, P12 e P13 | ✅ resolvido 26/08 |
+| [F](#f--execution-guide-fossilizado) | `EXECUTION-GUIDE.md` descreve um cronograma que a realidade não seguiu | ✅ resolvido 10/08 |
+| [G](#g--dois-documentos-definindo-os-mesmos-indicadores) | `P6` e `G2` definem indicadores diferentes para a mesma tela | ✅ resolvido 26/08 |
 | [H](#h--pendências-já-registradas-do-p13) | Agenda de pessoal e cadastro único ainda não estão na engenharia | ✅ resolvido 19/08 |
-| [I](#i--o-que-não-é-divergência) | 55 entidades especificadas × 44 tabelas reais | ⚪ não é erro |
-| [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | 🔴 alta |
-| [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | 🟠 média |
+| [J](#j--migrations-marcadas-como-aplicadas-que-nunca-rodaram) | Duas tabelas do P1 registradas em `_migrations` e inexistentes nos dois bancos | ✅ corrigido 11/08, prevenção em aberto |
+| [K](#k--sete-taxonomias-de-modulo-concorrentes) | Sete agrupamentos diferentes dos mesmos módulos, e o código não seguia nenhum | ✅ resolvido 19/08, conferido 26/08 |
 | [L](#l-lote-excluído-em-três-documentos-e-assumido-num-plano-24082026) | "Lote" fora de escopo em `A1`, `A2` e `C2`, e assumido pelo `P2` | ✅ resolvido 24/08 |
+| [M](#m-um-lote-por-canteiro-que-o-viveiro-nunca-praticou-26082026) | Um lote por canteiro, regra que o viveiro nunca praticou | ✅ resolvido 26/08 |
+| [N](#n-as-fotos-de-espécie-mudaram-de-lugar-e-o-claudemd-não-soube-26082026) | `CLAUDE.md` mandava gravar foto em `public/uploads/`, desfeito desde 11/08 | ✅ resolvido 26/08 |
+
+> A letra **I** não aparece mais: era "o que não é divergência", e foi retirada em 26/08/2026
+> (ver o cabeçalho). As letras não são reaproveitadas.
 
 ---
 
@@ -53,11 +66,21 @@ Mesmo assim, seis planos ainda mandam construir sobre Supabase:
 | P9 | linha 71 | Supabase Edge Function + Resend para o formulário de contato |
 
 **Conflito adicional:** P7 quer as fotos no Supabase Storage; o `CLAUDE.md` diz
-`public/uploads/especies/`, que é o que o código faz.
+`public/uploads/especies/`. *(Em 26/08/2026 descobriu-se que **nenhum dos dois** descrevia o
+código: a foto virou linha em `species_photos` em 11/08/2026, servida por `/api/fotos/[id]`. Ver o
+achado N.)*
 
 **Equivalência na stack real:** Edge Function → Server Action ou rota de API; RLS → verificação
 de perfil na Server Action (é o que `D4` já especifica); Realtime → `revalidatePath` ou polling;
-Storage → `public/uploads/`; webhook do Supabase → chamada HTTP a partir da própria Server Action.
+Storage → linha no banco servida por rota; webhook do Supabase → chamada HTTP a partir da própria
+Server Action.
+
+> ✅ **Resolvido em 26/08/2026.** A decisão de 10/08 tinha sido *marcar, não reescrever*: um banner
+> de tradução no topo dos sete planos. Quinze dias depois ficou claro que **quem implementa lê a
+> tarefa, e não o banner**, e que a tabela de tradução do próprio banner já estava errada num item
+> (mandava `public/uploads/`, ver achado N). Os sete banners saíram e as quinze tarefas e notas
+> foram reescritas na stack real. Sobra uma menção a Supabase em `plans/`, a do `P14 §Reconciliação`,
+> que é registro histórico e não instrução.
 
 ## B: Tarefa marcada como feita que foi desfeita
 
@@ -71,6 +94,19 @@ A migration correspondente não cria política nenhuma, remove o conceito. O `[x
 proteção que não existe. É o tipo de marca que, mantida, faz alguém assumir que o banco tem
 defesa própria e escrever uma Server Action sem checar perfil.
 
+> ✅ **Resolvido em 26/08/2026, com o veredicto que faltava.** Em 10/08 a tarefa foi desmarcada e
+> riscada, o que deixava a pergunta em aberto: *e no Neon, precisa?* **Não precisa, e não
+> funcionaria.** A aplicação conecta com um papel só, o da `DATABASE_URL`, a partir do servidor:
+> não há identidade de usuário dentro do banco sobre a qual uma política pudesse discriminar; fazê-la
+> funcionar significaria reescrever a matriz `D4` em SQL, com duas fontes da verdade para a mesma
+> regra; e o papel de conexão é **dono** das tabelas, e dono ignora RLS sem `FORCE ROW LEVEL
+> SECURITY`, de modo que a `DATABASE_URL` vazada continua abrindo tudo. Conferido no banco em
+> 26/08/2026: nenhuma tabela com RLS ligado, nenhuma política, papel `postgres` dono de todas.
+>
+> O raciocínio está gravado em [`D4 §4.1`](engenharia/D-arquitetura/D4-matriz-rbac.md), e não aqui,
+> porque é lá que a pergunta é feita. A `T1.8` deixou de ser tarefa riscada e voltou a ser tarefa:
+> *aplicar a checagem de perfil da `D4` em cada Server Action de custeio*.
+
 ## C: Cabeçalho de status mentindo
 
 | Plano | Cabeçalho diz | Caixas marcadas | Realidade |
@@ -82,6 +118,13 @@ defesa própria e escrever uma Server Action sem checar perfil.
 
 Só o **P1** afirma algo falso. O P11 usa um formato próprio de status, mais rico que o dos
 outros; a inconsistência é de forma, não de conteúdo.
+
+> ✅ **Resolvido em 26/08/2026, na segunda tentativa.** A correção de 10/08 trocou "NÃO INICIADO"
+> por "PARCIAL, 16 de 32 tarefas", e o número estava errado: **32 é o total de caixas do arquivo**,
+> que soma as 20 tarefas `T1.x` com 7 itens de levantamento de campo e 5 critérios de aceite, e as
+> marcadas eram 15, não 16. O cabeçalho passou a contar o que interessa, *15 das 20 tarefas de
+> desenvolvimento*, e a explicar de onde vinham as outras doze caixas. Lição pequena e cara:
+> **contagem de caixa em markdown precisa dizer quais caixas está contando.**
 
 ## D: `colaborador` nos docs × `funcionario` no banco
 
@@ -106,6 +149,18 @@ para gente que não tem login nenhum. Passa a haver dois `funcionario` com senti
 Gilberto é chefia no primeiro sentido e funcionário no segundo. Sem desambiguar, a matriz RBAC
 e o cadastro vão brigar na primeira consulta que juntar os dois.
 
+> 🟡 **Conferido em 26/08/2026: a regra está de pé, e falta um passo operacional.** O padrão é
+> `users.role = 'colaborador'` para nível de acesso, `party_roles.role = 'funcionario'` para vínculo
+> empregatício, e `funcionario` como **recurso** da matriz de permissões (quem pode ver a lista).
+> O banco local confirma o enum `admin · chefia · gerencia · colaborador`; `src/lib/parties.ts`,
+> `modules.ts` e `permissions.ts` usam `funcionario` só nos dois sentidos certos; `C8` e o cabeçalho
+> de `20260811000004_cadastro_unico_parties.sql` declaram a desambiguação por escrito.
+>
+> **O que falta é conferir o Neon**, e não se resolve desta máquina: a `DATABASE_URL` local aponta
+> para `127.0.0.1` e a de produção vive no painel da Vercel. Rodar
+> `DATABASE_URL="<neon>" npm run db:migrate:status` e confirmar
+> `20260810000001_rename_role_funcionario_to_colaborador.sql` aplicada antes do próximo deploy.
+
 ## E: Roadmap desatualizado em três lugares
 
 O diagrama `P1 → P10` está copiado em `CLAUDE.md`, `docs/contexto-projeto.md` e
@@ -115,6 +170,15 @@ continuam mostrando só o encadeamento original.
 
 A ordem real de execução também não foi a planejada: o que se construiu primeiro foi
 Pedidos/Clientes/Fornecedores: que sequer existiam no roadmap original.
+
+> ✅ **Resolvido em 26/08/2026.** A correção de 10/08 elegeu `contexto-projeto.md` como fonte, mas
+> **deixou a cópia no `docs/README.md` viva ao lado do ponteiro**, e ela envelheceu de novo: seguia
+> em P1→P10 enquanto a fonte já ia a P13. Agora a cópia saiu de vez, e o `README` só aponta. A
+> fonte ganhou **P14** e **P15**, o estado real de cada projeto e o elo que falta reescrito: a
+> agenda de pessoal já **tem banco** desde 24/08, o que não tem é tela. `CLAUDE.md` passou a dizer
+> "P1 a P15", sem repetir a lista.
+>
+> A lição é a mesma do achado A: **ponteiro ao lado de cópia não é ponteiro, é uma segunda fonte**.
 
 ## F: `EXECUTION-GUIDE` fossilizado
 
@@ -140,6 +204,16 @@ Três problemas:
 São a mesma tela especificada duas vezes, e `P6` é a versão mais fraca e mais antiga. Quem
 implementar o dashboard lendo só o plano vai construir a coisa errada.
 
+> ✅ **Resolvido em 26/08/2026.** Em 10/08 o `P6` ganhou um aviso no topo dizendo "implemente pelo
+> `G2`, as listas abaixo ficam como histórico". As listas continuaram ali, no corpo, exatamente onde
+> se lê ao implementar. Agora foram **substituídas**: `T6.6` devolve as nove fichas IND-01 a IND-09
+> com a fonte de dados de cada uma, `T6.7` monta o painel pelo perfil do `G2 §6` (chefia as nove,
+> gerência IND-01, 02, 03 e 05, colaborador nenhuma), os critérios de aceite passaram a exigir a
+> fórmula da ficha e o travessão de mês não fechado (RF-61), e o item de campo que mandava
+> *"escolher os 5-7 indicadores mais importantes"* virou *confirmar meta e faixa dos nove que já
+> foram escolhidos*. A Fase 3, que não tem ficha, ficou marcada como **fora das nove**, com a regra
+> de que ganhar ficha no `G2` é pré-requisito para virar indicador.
+
 ## H: Pendências já registradas do P13
 
 Cadastro único e agenda de pessoal ainda não constam da engenharia: faltam ~8 RF em `B2`, o
@@ -151,58 +225,6 @@ as linhas novas em `B5`. Lista completa em
 > `C1`, as quatro entidades da agenda em `C6`/`C8`, a regra §3.11 no `D4` e as linhas do `B5`.
 > Detalhe na terceira passada, no fim deste arquivo. Ficaram de fora, com motivo declarado, o `C2`
 > e os indicadores novos do `G2`.
-
-## I: O que **não** é divergência
-
-`C6`/`C8` especificam **55 entidades**; o banco tem **44 tabelas** e 2 visões. Isso é intencional e
-está declarado em `docs/engenharia/00-indice.md`:
-
-> Os artefatos são redigidos em tempo de projeto, como especificação da solução a ser
-> construída. São documentos de projeto, não relatórios de código.
-
-As entidades ainda não criadas são **onze, e todas do Financeiro**: `sale_channels`,
-`sale_prices` e as nove do esquema `financeiro` (`accounts`, `cost_centers`, `category_groups`,
-`categories`, `statement_imports`, `transactions`, `transaction_splits`, `classification_rules`,
-`periods`). Correspondem ao P12: projeto especificado e não implementado, dependente de acesso a
-extrato bancário que o protótipo ainda não tem.
-
-**A lista encolheu duas vezes.** `parties`, `party_roles` e `addresses` saíram em 11/08/2026, na
-Fase 1 do P12/P13. Em 24/08/2026 saíram as dezesseis da rotina de produção (`settings`,
-`task_types`, `areas`, `beds`, `work_shifts`, `batches`, `batch_movements`, `week_plans`,
-`assignments`, `assignment_members`, `task_executions`, `labor_rates`, `input_stock_entries`,
-`task_expenses`, `loss_events`, `stock_counts`), criadas pelas migrations `20260824000001` a
-`20260824000007`, junto da visão `input_stock_balance`. `production_activities` não saiu da lista:
-deixou de existir, substituída por `task_executions` antes de chegar ao banco.
-
-> **`task_types` mudou de forma em 25/08/2026**, depois da conferência acima.
-> `migrations/20260825000001_tipos_tarefa_simplificacao.sql` trocou `measurement_type` (lista de
-> `tempo`/`saco`/`tubete`) pelo booleano `is_quantitative` e removeu `avg_minutes_per_unit`. As
-> 22 tarefas da carga inicial continuam, 9 delas quantitativas. `C6`, `C8` e a figura 10 do
-> `modelo-dados-pt` foram atualizados na mesma alteração.
-
-**Uma coluna, e não uma entidade, também está nessa condição:** `users.party_id`, especificada em
-`C6 §3.1` e `C8`, com a justificativa da opcionalidade nos dois, não existe no banco. A migration
-`20260811000004` ligou `party_id` em `customers` e `suppliers`, e deixou `users` de fora. Fica
-registrada aqui pelo mesmo critério das entidades acima: é especificação à frente do código, não
-erro de documento. Desde 24/08/2026 a própria linha do `C8` traz a marca **Especificado, não
-implementado**, e o mesmo vale para `order_items.unit_price`, `order_items.sale_price_id` e
-`input_stock_entries.transaction_id`, este à espera do esquema `financeiro`.
-
-> ✅ **Conferência de 21/08/2026.** `C6` e `C8` foram confrontados com as 33 migrations, coluna por
-> coluna. Sete divergências no sentido inverso, banco à frente do documento, foram corrigidas:
-> a tabela `species_photos`, `customers.party_id`, `suppliers.party_id`,
-> `input_usages.client_id`, `order_items.availability_notes`, `supplier_species.notes` e
-> `supplier_quotes.notes`. `species.category`, coluna legada que sobreviveu à adoção de `tags`,
-> passou a ser declarada como tal no `C8`.
-
-**Também conferido e consistente:**
-
-- Os 8 estados de pedido (`cadastrado` → `pronto_envio`) batem entre código, `rotinas/3-comercial/pedidos/`,
-  `C2`, `C8`, `D4` e `E2`. É a área mais bem mantida do projeto.
-- Os 5 canais de venda batem entre `CLAUDE.md`, `orders.ts` e o banco.
-- O limite de mortalidade de 20% bate entre `CLAUDE.md`, `RF-29` e `IND-01`.
-- Contagens declaradas conferem: 68 RF, 26 RNF, 40 casos de uso. *(Em 19/08/2026 passaram a 76 RF e 44 casos de uso, com os requisitos da agenda de pessoal; em 24/08/2026, a 79 RF e 45 casos, com o cadastro de centros de custo; em 25/08/2026, a 107 RF, 83 RN e 86 casos de aceite, com a simplificação do catálogo de tipos de tarefa, RF-107 e RN-91.)*
-- Financeiro: as 9 contas e os 5 centros de custo **iniciais** batem entre `P12`, `4-financeiro/` e `C8`. Desde 24/08/2026 os centros são cadastro mantido pela chefia (RN-71 a RN-73, RF-77 a RF-79), e não lista fixa: o número deixa de ser conferível por igualdade, o que se confere é a carga inicial.
 
 ## J: Migrations marcadas como aplicadas que nunca rodaram
 
@@ -240,6 +262,17 @@ deploy em vez de passar em silêncio. O registro fantasma foi mantido: apagar li
 **Prevenção:** o achado só existiu porque alguém foi mexer na tabela. Não há hoje nada que
 compare o schema declarado nas migrations com o schema real. Fica registrado como candidato a
 teste de CI: comparar `CREATE TABLE` das migrations com `pg_tables` do banco alvo.
+
+> ✅ **Conferido em 26/08/2026, e o que sobra é a prevenção.** Leitura direta do banco local: os 47
+> arquivos de `migrations/` estão todos registrados em `_migrations`, `input_usages` e
+> `input_price_history` existem, e sobra **um** registro fantasma, sem arquivo,
+> `20260521100006_pedidos_partial_availability.sql` (o arquivo real é `20260521100008_…`, e
+> `20260521100006` é o `_pedidos_status_history`). Ele fica: apagar linha de `_migrations` à mão é
+> o que produz este tipo de problema.
+>
+> A parte viva do achado é a que nunca foi feita, e é a que teria pego tudo isso sozinha: o teste
+> que compara migration com `information_schema`, registrado em
+> [`divida-tecnica.md` §3](divida-tecnica.md).
 
 ---
 
@@ -511,8 +544,9 @@ Nove correções:
 1. **O recorte implementado ficou mentindo.** `C6` §2.1 e `C8` seguiam em "28 no banco, 27 só
    especificadas", e as dezesseis tabelas novas traziam a marca *Especificada, não implementada no
    protótipo*, embora existissem no banco. A conta passou a **44 no banco e 11 só especificadas**,
-   todas do Financeiro, e as duas visões passaram a implementadas. Em cascata: o achado I acima e
-   `word/`.
+   todas do Financeiro, e as duas visões passaram a implementadas. Em cascata: a seção I deste
+   arquivo, que na época guardava uma cópia da conta, e `word/`. *(A seção I foi retirada em
+   26/08/2026, e a conta vive só no `C6` e no `C8`, justamente para não precisar desta cascata.)*
 2. **`labor_rates` não batia em nenhuma coluna.** O `C8` declarava `year`, `month`,
    `payroll_total`, `hours_total` e `hourly_rate`; o banco tem `reference_month`, `total_payroll`,
    `total_hours` e `rate_per_hour`. O dicionário passou a seguir o banco, com a justificativa do mês
@@ -631,3 +665,83 @@ Os defeitos 1 e 2 só apareceram ao perguntar "isto é implementável?" e "quais
 aceita mesmo?", que são perguntas de conferência, não de redação. O defeito 3 já tinha aviso escrito
 e mesmo assim aconteceu: **aviso que depende de alguém lembrar não é controle**, e por isso virou
 comando.
+---
+
+## N: as fotos de espécie mudaram de lugar, e o `CLAUDE.md` não soube (26/08/2026)
+
+🔴 **Divergência entre a regra escrita e o banco, achada por acidente**, ao montar a tabela de
+tradução do achado A. O `CLAUDE.md`, seção Stack, dizia:
+
+> **Fotos de espécies**: `public/uploads/especies/`, servidas estaticamente.
+
+É falso **desde 11/08/2026**. A migration `20260811000001_species_photos.sql` moveu a foto para uma
+linha de `species_photos` (BYTEA), referenciada por `species.photo_url` no formato
+`/api/fotos/<uuid>`, e o motivo está escrito no cabeçalho dela: o filesystem da Vercel é
+somente-leitura fora de `/tmp` e é descartado a cada deploy, ou seja, **o upload em disco nunca
+funcionou em produção**. A mesma migration anulou os `photo_url` que apontavam para `/uploads/%`,
+porque eram imagem quebrada. O código confirma: `src/app/cadastros/especies/actions.ts` devolve
+`/api/fotos/<id>` e `src/middleware.ts` exclui essa rota do matcher.
+
+**O agravante é que a instrução errada estava sendo propagada.** A tabela de tradução repetida nos
+sete banners do achado A mandava, literalmente, *Storage → `public/uploads/`*: mandava construir o
+que já tinha sido desfeito, e o `P7 T7.2` teria sido implementado assim.
+
+**Correção.** O `CLAUDE.md` passou a descrever o armazenamento real, com o porquê; o `P7 T7.2`
+passou a mandar reaproveitar `species_photos` e `/api/fotos/[id]`, que já existem; a nota de foto de
+perda no `P2` seguiu o mesmo molde; e o `EXECUTION-GUIDE` ganhou a frase de que arquivo não vai
+para disco nesta stack.
+
+**A lição é sobre onde a regra morre primeiro.** A migration documentou a decisão muito bem, no
+lugar certo, e o `CLAUDE.md`, que é o arquivo **carregado em toda sessão**, continuou dizendo o
+contrário por quinze dias. Migration explica uma mudança; ela não revoga a regra escrita em outro
+arquivo. **Mexeu no que o `CLAUDE.md` afirma, o `CLAUDE.md` entra na mesma alteração.**
+
+---
+
+## Sétima passada: fechar o que tinha sido só marcado (26/08/2026)
+
+As seis passadas anteriores conferiram documento contra documento, documento contra banco e a
+entrega contra si mesma. Esta é de outra natureza: **não procurou divergência nova, foi cobrar as
+que ficaram marcadas em vez de resolvidas.** Sete dos treze achados tinham decisão registrada e
+execução parcial.
+
+| Achado | O que estava | O que ficou |
+|---|---|---|
+| **A** Supabase | banner de tradução em 7 planos, tarefas intactas | banners apagados, 15 tarefas e notas reescritas na stack real |
+| **B** RLS | tarefa riscada, sem veredicto sobre o Neon | veredicto com quatro razões, gravado em [`D4 §4.1`](engenharia/D-arquitetura/D4-matriz-rbac.md); `T1.8` virou tarefa de verdade |
+| **C** cabeçalho do P1 | "16 de 32", contagem errada e de listas misturadas | "15 das 20 tarefas de desenvolvimento", com as outras doze caixas explicadas |
+| **D** colaborador | regra certa, migration só no local | regra reconferida no banco; falta **só** aplicar/conferir no Neon |
+| **E** roadmap | fonte eleita, cópia mantida ao lado | cópia removida do `docs/README.md`; fonte com P14, P15 e estado real |
+| **G** indicadores | aviso no topo do `P6`, listas fracas no corpo | corpo reescrito pelas 9 fichas do `G2`, com o painel por perfil e a regra do travessão |
+| **I** contagem | seção permanente com número que envelhecia | retirada; a conta vive só em `C6 §2.1` e no `C8` |
+| **J** migrations | corrigido em 11/08 | reconferido no banco: 47 arquivos registrados, 1 fantasma conhecido, prevenção ainda em aberto |
+| **K** taxonomia | corrigido em 19/08 | conferido documento por documento; dois resíduos anotados, ambos deliberados |
+| **N** fotos | não existia | achado novo, acima |
+
+**Três resíduos anotados e deixados de propósito:**
+
+1. O registro fantasma em `_migrations` continua lá. Apagar linha à mão é o que gera o problema.
+2. `docs/rotinas/img/mapa-sistema.mmd`, a taxonomia de antes, continua no repositório com o aviso
+   de superada no próprio arquivo. `npm run docs:mapas` sem argumento ainda a rerenderiza, e isso
+   passou a estar dito no `00-mapa-de-rotinas`.
+3. `C1 §3` continua organizado por ator, enquanto `C1 §2` é por módulo. São eixos diferentes do
+   mesmo conjunto, e o `C1` passou a dizer isso, para não ser "corrigido" numa próxima passada.
+
+### A lição: marca de tradução é dívida, não conserto
+
+Em 10/08 a decisão foi *marcar, não reescrever*, com uma justificativa que parecia boa: reescrever
+tarefa de infraestrutura de sete planos não implementados produziria muito texto sobre decisões que
+seriam tomadas melhor com o código na frente. Quinze dias depois, o saldo dessa escolha:
+
+- **Ninguém lê o banner.** Quem implementa lê a tarefa, e a tarefa continuava dizendo *Edge
+  Function*.
+- **O banner apodrece igual.** A tabela de tradução dos sete banners mandava `public/uploads/`, que
+  o próprio projeto tinha desfeito no dia seguinte. O aviso passou a espalhar o erro que o achado N
+  registra.
+- **Aviso ao lado de fonte cria duas fontes**, e foi exatamente o que aconteceu em **E** (ponteiro
+  ao lado da cópia) e em **G** (aviso ao lado da lista fraca). Nos três casos, o conserto real foi
+  apagar um dos lados.
+
+O critério que fica: **marcar só serve para o que não se pode consertar agora.** Se a tradução já é
+sabida, ela é o conserto, e adiá-la significa reescrever o mesmo texto duas vezes, uma no aviso e
+outra na tarefa, e ainda arcar com o risco de o aviso envelhecer sozinho.

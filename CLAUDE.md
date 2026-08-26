@@ -1,10 +1,10 @@
 # Viveiro Mudar: Ecossistema de Gestão
 
 > 📂 **Mapa de toda a documentação em [`docs/README.md`](docs/README.md)**, comece por aí para se situar.
-> Contexto completo (arquitetura dos projetos P1→P13, princípios de formulário de campo,
+> Contexto completo (arquitetura dos projetos P1 a P15, princípios de formulário de campo,
 > histórico do sistema antigo) em `docs/contexto-projeto.md`. Rotinas de negócio em `docs/rotinas/`.
 > **Divergências conhecidas entre planos e código** em `docs/auditoria-divergencias.md`, ler
-> antes de implementar por um plan file antigo (vários foram escritos para Supabase, que não é a stack).
+> antes de implementar por um plan file antigo.
 
 ## Projeto
 Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10.000 m², 9 pessoas, venda atacado via WhatsApp.
@@ -20,7 +20,7 @@ Sistema de gestão para viveiro de mudas nativas (Alto Vale do Itajaí, SC). ~10
 - **Frontend**: Next.js 16 (App Router) + React 19 + Tailwind. TypeScript em todo o ecossistema.
 - **Dados**: Server Actions com SQL direto (`pool.query`).
 - **Infra**: PWA mobile, n8n + Evolution API (WhatsApp), deploy VPS/local.
-- **Fotos de espécies**: `public/uploads/especies/`, servidas estaticamente.
+- **Fotos de espécies**: linha em `species_photos` (BYTEA), referenciada por `species.photo_url` no formato `/api/fotos/<uuid>`. **Não gravar em `public/uploads/`**: o filesystem da Vercel é somente-leitura fora de `/tmp` e é descartado a cada deploy, ou seja, o upload em disco nunca funcionou em produção (migration `20260811000001_species_photos.sql`). Ganho colateral: a imagem entra no mesmo backup do banco.
 
 ## Banco de dados (schema compartilhado entre projetos)
 Toda alteração no banco: (1) arquivo `.sql` em `migrations/` (psql puro), (2) manter compatibilidade retroativa, (3) documentar no CHANGELOG. Tabelas: snake_case, plural (`species`, `batches`, `loss_events`).

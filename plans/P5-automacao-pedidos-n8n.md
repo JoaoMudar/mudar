@@ -1,12 +1,5 @@
 # P5: Automação de Pedidos (n8n)
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🗂️ **Módulo 3 · Comercial** (reorganização de 19/08/2026). As telas de pedido já existem em
 > `/pedidos/*` (cadastro, verificação, aprovação e separação) construídas pela
 > [rotina de pedidos](../docs/rotinas/3-comercial/pedidos.md), não por este plano. O que o P5
@@ -93,7 +86,7 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 - [ ] **T5.9** Instalar n8n na VPS (Docker compose)
 - [ ] **T5.10** Workflow: **Pedido Aprovado → Separação**
   ```
-  Trigger: webhook do Supabase quando order.status = 'aprovado'
+  Trigger: a Server Action que grava order.status = 'aprovado' chama o n8n por HTTP
   → Gerar ordem de separação (lista de espécies/qtd por lote)
   → Enviar WhatsApp para Débora: "Novo pedido #123 — separar: [lista]"
   → Enviar WhatsApp para cliente: "Seu pedido foi confirmado! Previsão de entrega: [data]"
@@ -117,7 +110,8 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
   → Query pedidos onde tempo_na_etapa > SLA
   → Enviar WhatsApp para João/Gilberto: "Pedido #123 está há 48h em 'separando' — SLA é 24h"
   ```
-- [ ] **T5.14** Configurar Supabase webhooks para disparar workflows do n8n
+- [ ] **T5.14** Guardar a URL de cada workflow do n8n em variável de ambiente e disparar a chamada
+  HTTP de dentro da própria Server Action que muda o estado do pedido
 
 ### Fase 4: Ordem de Separação
 
@@ -144,7 +138,9 @@ Hoje o fluxo é 100% verbal: Gilberto fecha a venda pelo WhatsApp, avisa a Débo
 
 ## Notas Técnicas
 - n8n self-hosted é gratuito e ilimitado. Requer VPS com Node.js + Docker.
-- Supabase webhooks usam o recurso Database Webhooks (via pg_net ou Supabase Functions).
+- O disparo para o n8n é uma chamada HTTP da Server Action, na mesma operação que muda o estado.
+  Postgres puro não tem webhook de banco, e não faz falta: quem sabe que o pedido mudou é o código
+  que o mudou.
 - A ordem de separação com sugestão de lote (FIFO) ajuda a vender mudas mais antigas primeiro.
 - Não integrar emissão de NF nesta fase: verificar API do sistema Sebrae como fase futura.
 - O kanban é visual para João/Gilberto. Débora e funcionários interagem via WhatsApp.

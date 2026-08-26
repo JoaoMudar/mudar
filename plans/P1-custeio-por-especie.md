@@ -1,11 +1,5 @@
 # P1: Custeio por Espécie
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**. O banco é PostgreSQL
-> puro (local no dev, Neon em produção): o Neon é só o banco, não tem nada da plataforma
-> Supabase. Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🩹 **Correção de 11/08/2026.** As tabelas `input_usages` e `input_price_history` constavam de
 > `_migrations` como aplicadas, mas **não existiam nem no Postgres local nem no Neon**. Na
 > prática, `/producao/consumo-insumos` (na época `/insumos/registrar`) (T1.10–T1.12) falhava em todo envio em produção e
@@ -33,11 +27,16 @@
 > insumo e horas da agenda. Ver [`docs/rotinas/00-mapa-de-rotinas.md`](../docs/rotinas/00-mapa-de-rotinas.md)
 > e o achado K de [`auditoria-divergencias.md`](../docs/auditoria-divergencias.md).
 
-## Status: PARCIAL, 16 de 32 tarefas
+## Status: PARCIAL, 15 das 20 tarefas de desenvolvimento
 **Feito:** todas as tabelas, a view `species_unit_cost`, os 5 CRUDs administrativos e o
-formulário mobile de insumos com fila offline.
-**Falta:** o motor de cálculo (T1.18–T1.20), que depende da mão de obra vinda do
-[P13 · agenda de pessoal](P13-producao-agenda-cadastros.md).
+formulário mobile de insumos com fila offline (T1.1 a T1.7 e T1.10 a T1.17).
+**Falta:** a checagem de perfil (T1.8), o seed (T1.9) e o motor de cálculo (T1.18–T1.20), que
+depende da mão de obra vinda do [P13 · agenda de pessoal](P13-producao-agenda-cadastros.md).
+
+> A conta é das tarefas `T1.x`. O arquivo tem 32 caixas ao todo, porque somam aí os 7 itens de
+> levantamento de campo e os 5 critérios de aceite, que não são trabalho de desenvolvimento. A
+> versão anterior deste cabeçalho dizia "16 de 32", misturando as três listas e errando o
+> numerador.
 
 ## Prioridade: CRÍTICA
 ## Dependências: P13 Fase 5 (custo de mão de obra), para o custo ficar completo
@@ -111,11 +110,10 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
   ```
   custo_unitário = custo_variável + (custo_fixo_mensal_rateado / produção_mensal_estimada)
   ```
-- [ ] **T1.8** ~~Criar RLS policies~~ → **não se aplica.** A migration `20260413000002_p1_rls.sql`
-  removeu o conceito: *"RLS removido, projeto usa PostgreSQL local sem autenticação Supabase.
-  Controle de acesso será feito na camada de aplicação (Next.js)"*. O controle real é a checagem
-  de perfil dentro de cada Server Action, especificada na
-  [Matriz RBAC (D4)](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md).
+- [ ] **T1.8** Aplicar a checagem de perfil em cada Server Action de custeio, conforme a
+  [Matriz RBAC (D4)](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md). O controle de acesso
+  deste projeto é de aplicação, e não de banco: `src/lib/permissions.ts` é a fonte, e o
+  [`D4 §4.1`](../docs/engenharia/D-arquitetura/D4-matriz-rbac.md) explica por que não é RLS.
 - [ ] **T1.9** Criar seed data com as espécies e recipientes levantados pela equipe de campo.
 
 ### Fase 2: Formulário Mobile de Registro de Insumos
@@ -141,11 +139,12 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
 - [x] **T1.17** Registro de coleta de sementes (`/producao/coleta-sementes`)
 
 ### Fase 4: Motor de Cálculo de Custo
-- [ ] **T1.18** Implementar Edge Function `calculate-species-cost` que:
+- [ ] **T1.18** Implementar a Server Action `calculateSpeciesCost` (`src/app/financeiro/custeio/actions.ts`) que:
   1. Soma custos variáveis (substrato + semente + insumos + mão de obra)
   2. Rateia custos fixos pela produção mensal estimada
   3. Retorna custo unitário por espécie × recipiente
-- [ ] **T1.19** Criar job agendado (cron) para recalcular custos diariamente
+- [ ] **T1.19** Criar a rota `src/app/api/cron/custeio/route.ts`, chamada diariamente pelo Vercel
+  Cron, para recalcular os custos
 - [ ] **T1.20** Criar relatório `/financeiro/custeio`:
   - Tabela: espécie | recipiente | custo variável | custo fixo rateado | custo total | preço atual | margem %
   - Ordenável por qualquer coluna
@@ -166,5 +165,6 @@ Hoje o Gilberto precifica de cabeça. Não existe custo por espécie. Frete não
 ## Notas Técnicas
 - O schema deste projeto é a BASE de todo o ecossistema. Modelar com cuidado.
 - A tabela `species` será referenciada por P2 (perdas), P3 (preços), P7 (catálogo), P10 (e-commerce).
-- Usar Supabase Realtime para que dados cadastrados apareçam imediatamente no dashboard (P6).
+- Chamar `revalidatePath` ao fim de cada Server Action de cadastro, para o dado novo aparecer no
+  dashboard (P6) sem refresh manual.
 - Para o rateio de custos fixos, usar produção mensal estimada inicialmente. Quando P2 estiver rodando, usar produção real (descontando perdas).

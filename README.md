@@ -73,19 +73,20 @@ A aplicação fica disponível em `http://localhost:3000`. O login é exigido em
 docs/              Documentação de referência (ver docs/README.md, mapa de tudo)
 migrations/        Migrações SQL (psql puro), aplicadas em ordem cronológica
 data/seeds/        Fontes de carga inicial (seed), ex.: export das 142 espécies
-plans/             Planos de implementação por projeto (P1–P10)
+plans/             Planos de implementação por projeto (P1 a P15)
 scripts/           migrate.ts, seed-admin.ts, geração de ícones, hooks de git
-public/uploads/    Fotos de espécies (servidas estaticamente)
 src/
-  app/             Rotas (App Router)
-    admin/         Cadastros: espécies, recipientes, insumos, custos fixos,
-                   coleta de sementes, usuários
-    insumos/       Registro de insumos em campo
-    pedidos/       Rotina completa de pedidos
-    login/ logout/ Fluxo de autenticação
-    api/           Endpoints (ex.: notificações)
+  app/             Rotas (App Router), organizadas pelos quatro módulos
+    cadastros/     1 · Espécies, recipientes, insumos, pessoas, tipos de tarefa
+    producao/      2 · Consumo de insumo, coleta de sementes, lotes, agenda
+    pedidos/       3 · Rotina completa de pedidos
+    clientes/ fornecedores/  3 · As telas de cada papel (dados fiscais, cotação)
+    financeiro/    4 · Custos fixos, custeio, preços, indicadores (restrito)
+    admin/         Usuários e configurações
+    login/ logout/ conta/ trocar-senha/   Fluxo de autenticação
+    api/           Endpoints (notificações, fotos de espécie)
   components/      Componentes compartilhados (Toast, Autocomplete, sino de notificações)
-  lib/             db, auth, orders, notifications, offline-queue, utilitários
+  lib/             db, auth, orders, permissions, modules, offline-queue, utilitários
   middleware.ts    Proteção de rotas por sessão
 ```
 
@@ -98,7 +99,12 @@ São quatro papéis, com visibilidade progressiva no menu inicial:
 - **admin**: acesso total, incluindo gestão de usuários
 - **chefia**: administração e pedidos (sem gestão de usuários)
 - **gerencia**: pedidos
-- **funcionario**: operações de campo (ex.: registrar insumo)
+- **colaborador**: operações de campo (ex.: registrar insumo)
+
+> `colaborador` é o **nível de acesso** (`users.role`), renomeado de `funcionario` na migration
+> `20260810000001`. Não confundir com o papel `funcionario` de `cadastro.party_roles`, que diz
+> *esta pessoa trabalha aqui* e vale até para quem não tem login. A matriz completa está em
+> [`docs/engenharia/D-arquitetura/D4-matriz-rbac.md`](docs/engenharia/D-arquitetura/D4-matriz-rbac.md).
 
 ---
 

@@ -1,12 +1,5 @@
 # P3: Modelo de Precificação Inteligente
 
-> ⚠️ **Plano escrito para Supabase, stack que o projeto não usa.** Onde se lê *Edge Function*,
-> leia **Server Action**; *RLS policy* → **checagem de perfil na Server Action**; *Supabase
-> Storage* → **`public/uploads/`**; *Realtime* → **`revalidatePath`**; *webhook do Supabase* →
-> **chamada HTTP feita pela própria Server Action**. O banco é PostgreSQL puro (local no dev,
-> Neon em produção): o Neon é só o banco, não traz nada da plataforma Supabase.
-> Ver [`docs/auditoria-divergencias.md`](../docs/auditoria-divergencias.md), achado A.
-
 > 🗂️ **Módulo 4 · Financeiro** (reorganização de 19/08/2026). Preço, margem e rentabilidade
 > são dinheiro: vivem em `/financeiro/*`, junto do custeio que os alimenta. A exceção é o
 > **simulador de orçamento**, que é conversa com cliente e fica no Comercial
@@ -91,20 +84,20 @@ Gilberto define preços de memória. Não existe tabela formal. Diferentes clien
 
 ### Fase 2: Motor de Precificação
 
-- [ ] **T3.8** Criar Edge Function `generate-price-table`:
+- [ ] **T3.8** Criar a Server Action `generatePriceTable` (`src/app/financeiro/precos/actions.ts`):
   - Para cada espécie × recipiente × canal:
     1. Buscar custo unitário de P1 (ajustado por mortalidade de P2)
     2. Aplicar margem do canal
     3. Calcular preço unitário = custo_real × (1 + margem)
     4. Verificar se preço >= piso mínimo
     5. Salvar na `price_table`
-  - Deve rodar sob demanda e via cron (diário)
-- [ ] **T3.9** Criar Edge Function `calculate-quote`:
+  - Roda sob demanda pela tela e diariamente por `src/app/api/cron/precos/route.ts` (Vercel Cron)
+- [ ] **T3.9** Criar a Server Action `calculateQuote` (`src/app/financeiro/precos/actions.ts`):
   - Input: lista de {species_id, container_id, quantity}, channel_id, distância_km
   - Para cada item: buscar preço na `price_table`, aplicar desconto por volume
   - Calcular frete com base nas `freight_rules`
   - Retornar: subtotal, frete, total, margem estimada
-- [ ] **T3.10** Criar Edge Function `check-price-competitiveness`:
+- [ ] **T3.10** Criar a Server Action `checkPriceCompetitiveness` (`src/app/financeiro/precos/actions.ts`):
   - Comparar preço da tabela com preços de concorrentes
   - Retornar flag: abaixo_mercado, no_mercado, acima_mercado
 
