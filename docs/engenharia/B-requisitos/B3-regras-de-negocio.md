@@ -80,10 +80,10 @@ Classificação adotada neste catálogo:
   regras não gera RNF: os não funcionais deste projeto derivam predominantemente das restrições do
   ambiente (ver seção 6). Célula vazia é informação, não omissão.
 
-### 2.4 Sete regras que são convenção, não fato observado
+### 2.4 Nove regras que são convenção, não fato observado
 
 O critério da seção 2.1 (apague o sistema e veja se o enunciado sobrevive) é limpo para quase
-todo o catálogo, e áspero para sete regras da área C, todas nascidas ao desenhar a agenda de
+todo o catálogo, e áspero para nove regras da área C, todas nascidas ao desenhar a agenda de
 pessoal, o apontamento e o mapa de produção:
 
 | RN | Por que merece ressalva |
@@ -93,16 +93,18 @@ pessoal, o apontamento e o mapa de produção:
 | **RN-51** | Assumir o planejado como realizado é **escolha metodológica** diante de dado faltante. A alternativa (agenda com buraco) inviabiliza o custo do período; a condição fica registrada justamente para que a suposição não se disfarce de medição. Com o apontamento, a suposição passou a ser o **caso de exceção** em vez do caso único |
 | **RN-83** | "Uma pessoa faz uma tarefa por vez" é **verdade da operação** (ninguém repica e irriga ao mesmo tempo), mas o **encerramento automático da anterior** é convenção do sistema. Ela existe para que a troca de serviço custe um toque e não dois, e a alternativa (exigir que se encerre antes de começar) produziria tarefas eternamente abertas |
 | **RN-86** | Que o dia termine é fato. Que o **apontamento esquecido aberto seja truncado no fim do turno** é convenção defensiva: sem ela, relógio esquecido ligado produz jornada impossível e custo falso. É arbitragem sobre dado faltante, da mesma família de RN-51 |
+| **RN-93** | Que o lote atrasado seja o que preocupa é observação: é assim que o Gilberto olha o viveiro, pelo que ainda não foi feito. Que a situação seja **derivada e nunca digitada** é decisão de projeto, e da mesma família de RN-13 e RN-88: guardar o número cria duas verdades sobre ele, e esta em particular envelheceria sozinha da noite para o dia |
 | **RN-94** | Que o lote atrasado mereça atenção é observação; que a fronteira entre atenção e crítico caia em **três dias** é arbitragem do projeto. O número foi escolhido para a tela ter alguma cor, e é parâmetro justamente para poder estar errado sem exigir implantação |
+| **RN-96** | Que a rotina fixa e o dia de trabalho sejam coisas distintas é fato. Que **editar o dia não altere a regra, e alterar a regra não reescreva o passado** é convenção: o viveiro não tem "regra" nenhuma hoje, tem hábito. A separação existe para que a hora já trabalhada não seja reescrita por uma decisão tomada depois |
 | **RN-97** | Que uma pessoa não trabalhe em dois lugares ao mesmo tempo é fato. Que o sistema **recuse** o lançamento sobreposto, em vez de apenas sinalizá-lo, é convenção defensiva: hora contada em dobro corrompe o custo de mão de obra em silêncio, e é o número que o sistema existe para apurar |
 
 Registrar a ressalva é mais defensável do que reclassificá-las como requisito: elas governam a
 operação, e não a interface. Mas ao escrever o capítulo, atribuí-las à observação do viveiro seria
-inexato: a origem correta das sete é **ORG**, política do projeto, e é assim que `B2` as marca
-(RF-73, RF-75, RF-97, RF-100, RF-111 e RF-118).
+inexato: a origem correta das nove é **ORG**, política do projeto, e é assim que `B2` as marca
+(RF-73, RF-75, RF-97, RF-100, RF-111, RF-115 e RF-118).
 
 **As demais regras novas da área C não precisam de ressalva.** Área, canteiro, lote, categoria de
-tarefa e forma de medição (RN-74 a RN-82, RN-84, RN-85, RN-87 a RN-93, RN-95, RN-96) descrevem o viveiro como
+tarefa e forma de medição (RN-74 a RN-82, RN-84, RN-85, RN-87 a RN-92, RN-95) descrevem o viveiro como
 ele funciona hoje, sem sistema nenhum: as áreas têm letra, os canteiros têm número, planta-se por
 leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados sobrevivem. RN-91
 é do mesmo tipo: quem diz quantos saquinhos fez é cada um, e não o grupo.
@@ -171,7 +173,7 @@ leva, e já se diz "fiz tantos saquinhos hoje". Apague o sistema e os enunciados
 | **RN-92** | A **ocupação do canteiro é a soma dos saldos dos lotes abertos** nele. A capacidade cadastrada continua sendo aviso ao criar lote, e nunca trava: o viveiro sabe apertar mais do que a conta quando precisa, e uma trava faria registrar o lote no canteiro errado só para conseguir registrá-lo | Derivação | `rotinas/2-producao/04` | RF-85, RF-117 | - |
 | **RN-93** | A **situação do lote é derivada, nunca digitada**: saudável, atenção e crítico saem do atraso das tarefas planejadas para ele. Situação gravada envelhece sozinha, e o lote marcado como saudável ontem continuaria saudável hoje, que é o contrário do que a tela mostra | Derivação | `rotinas/2-producao/04` | RF-118, RF-119 | RNF-02 |
 | **RN-94** | O **limite de dias que separa atenção de crítico é parâmetro mantido**, não constante. Muda com a estação e com o tipo de tarefa, pelo mesmo motivo do período de trabalho (RN-85): convenção que muda é dado | Fato | `rotinas/2-producao/04` | RF-118 | - |
-| **RN-95** | A **tarefa recorrente declara hora de início e de fim**, e é a exceção à RN-48. A rotina fixa já tem hora na vida real ("irrigação das sete às oito"), e é justamente por tê-la que não precisa ser lançada todo dia | Fato | `rotinas/2-producao/01` | RF-114, RF-109 | - |
+| **RN-95** | A **tarefa recorrente declara turno e hora de início e de fim**. A hora é a exceção à RN-48: a rotina fixa já a tem na vida real ("irrigação das sete às oito"), e é por tê-la que não precisa ser lançada todo dia. O **turno continua obrigatório**, porque a hora não o determina: os turnos não cobrem o dia inteiro, e a rotina das onze e meia não cai em nenhum deles | Fato | `rotinas/2-producao/01` | RF-114, RF-109 | - |
 | **RN-96** | A **ocorrência gerada pela recorrência é atribuição comum**: alterar ou excluir o dia não altera a regra, e alterar a regra não reescreve dia passado. Regra que reescrevesse o passado apagaria hora já trabalhada | Restrição | `rotinas/2-producao/01` | RF-115, RF-116 | - |
 | **RN-97** | **Dois apontamentos da mesma pessoa não se sobrepõem no tempo.** RN-83 impedia dois em curso; com horário informado, dois já encerrados podem se cruzar e contar a mesma hora duas vezes, inflando o custo de mão de obra | Restrição | `rotinas/2-producao/05` | RF-110, RF-111 | - |
 
@@ -485,8 +487,8 @@ restrições que o domínio absorveu.
 
 A seção 8 impõe que regra nova venha antes do requisito. O inverso, regra catalogada sem
 requisito correspondente: **não é erro de catálogo: é lacuna de especificação**, e é assim que
-[`B5`](B5-matriz-rastreabilidade.md) §5 tratou as 25 que encontrou. Cinco das regras acrescentadas
-nesta revisão estão nessa situação: existem no viveiro, têm um requisito que as tangencia, e
+[`B5`](B5-matriz-rastreabilidade.md) §5 tratou as 25 que encontrou. Seis das regras acrescentadas
+nestas revisões estão nessa situação: existem no viveiro, têm um requisito que as tangencia, e
 nenhum que as cumpra.
 
 | RN | RF que tangencia | O que nenhum requisito cobre |
@@ -496,6 +498,7 @@ nenhum que as cumpra.
 | **RN-68** | RF-57 | **Parear** as duas pontas de uma transferência entre contas próprias e retirá-las de despesa e receita |
 | **RN-69** | RF-57 | **Repartir** um lançamento entre centros de custo, com a soma das partes travada no total |
 | **RN-70** | RF-51, RF-56 | Reconhecer o **recebimento** de um pedido e distingui-lo da entrega |
+| **RN-92** | RF-84, RF-85, RF-117 | O **aviso** de que a leva não cabe no que resta do canteiro. RF-84 manda criar o lote informando o canteiro e não menciona conferência nenhuma; a ocupação é apresentada (RF-85, RF-117), mas ninguém é avisado no momento em que a decisão é tomada |
 
 Nenhuma delas vira requisito nesta revisão. Convertê-las exigiria ator, prioridade, critério de
 verificação, caso de uso, entidade e caso de teste, uma passada de especificação, não de
@@ -628,7 +631,7 @@ Origem: **OP** observação participante · **EN** entrevista · **AD** análise
 | RF-111 | O sistema não deve permitir apontamento cujo intervalo se sobreponha ao de outro apontamento do mesmo funcionário | D | ORG |
 | RF-112 | O sistema deve permitir lançar o mesmo apontamento para vários funcionários de uma vez, criando um apontamento por participante | D | OP |
 | RF-113 | O sistema deve permitir registrar a área ou o canteiro da tarefa que não exige lote, e dispensá-los quando o lote os determinar | D | OP |
-| RF-114 | O sistema deve permitir manter tarefas recorrentes com tipo de tarefa, grupo de funcionários, dias da semana, hora de início e de fim, e período de vigência | D | EN |
+| RF-114 | O sistema deve permitir manter tarefas recorrentes com tipo de tarefa, grupo de funcionários, dias da semana, turno, hora de início e de fim, e período de vigência | D | EN |
 | RF-115 | O sistema deve gerar as atribuições da recorrência na agenda sem digitação, e permitir alterar ou excluir a ocorrência de um dia sem alterar a regra | D | ORG |
 | RF-116 | O sistema deve permitir encerrar a vigência da recorrência preservando as ocorrências já geradas | D | ORG |
 | RF-117 | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação | D | EN |

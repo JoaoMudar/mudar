@@ -99,6 +99,12 @@ horas.
 > que ninguém trabalhou. **O sistema recusa intervalos que se cruzam**, e a garantia é do banco,
 > não da tela.
 
+**E a recusa precisa ter para onde ir.** O registro feito sem rede entra numa fila que reenvia
+sozinha quando a conexão volta; se aquele reenvio for recusado por cruzar com outro apontamento, a
+fila não pode ficar tentando para sempre. O recusado vai para uma **lista de pendências**, e quem
+coordena resolve escolhendo qual dos dois horários vale. Fila que trava num item para de enviar o
+resto, e aí o dia inteiro se perde por causa de um lançamento.
+
 **E dá para lançar a mesma tarefa para vários de uma vez.** Três pessoas descarregaram a carga de
 terra: escolhe-se a tarefa, marcam-se os três, e sai um apontamento para cada um. Abrir três
 faixas para registrar o mesmo fato é o tipo de repetição que faz o registro parar de acontecer.

@@ -548,3 +548,86 @@ Nove correções:
 documento e documento contra banco, e o que escapou às duas foi a **ordem**. A migration escrita
 depois da conferência do modelo deixa o modelo desatualizado no mesmo dia em que foi conferido.
 Quando a rodada inclui migration, a conferência é a última etapa, nunca a penúltima.
+
+---
+
+## M: um lote por canteiro, que o viveiro nunca praticou (26/08/2026)
+
+🔴 **Divergência entre o modelo e a operação, e não entre documentos.** A RN-76 dizia "um lote ocupa
+um canteiro" e o banco garantia isso com o índice único parcial
+`batches_um_lote_aberto_por_canteiro`. O viveiro **nunca operou assim**: um canteiro recebe seis,
+oito, nove levas ao mesmo tempo, e é assim que o espaço é usado.
+
+| Onde estava | O que dizia |
+|---|---|
+| `B3` RN-76 | "Um lote ocupa um canteiro. Leva que não cabe é outro lote" |
+| `C6` §3.2 e §3.3 | cardinalidade `beds ||--o| batches`, no máximo um |
+| `C8` `batches` | "a pergunta da operação é 'o que tem neste canteiro', que um lote por canteiro responde sem junção" |
+| `migrations/20260824000004` | `CREATE UNIQUE INDEX batches_um_lote_aberto_por_canteiro` |
+| `plans/P14` decisão 2 | "Garantido por índice único parcial, não por validação de tela" |
+| `C2` UC-47 FA-1 | a leva que não cabe vira dois lotes |
+
+Os seis diziam a mesma coisa, coerentes entre si, e a coerência foi o que escondeu o erro: **nenhuma
+conferência documento-contra-documento acharia isso**, porque não havia contradição para achar. As
+cinco passadas anteriores compararam artefato com artefato e artefato com banco, e o erro não estava
+em nenhum dos dois lados: estava entre o banco e o viveiro.
+
+**Quem apontou foi um protótipo de tela.** O desenho do mapa de produção, feito no Figma antes de
+qualquer código, mostra os lotes como quadrados dentro de cada canteiro, vários por canteiro. Foi ao
+tentar escrever os requisitos daquele desenho que a contradição apareceu.
+
+### Resolução: a exclusividade caiu, o resto ficou
+
+A RN-76 tinha duas afirmações grudadas, e só uma era verdadeira:
+
+1. **"Um lote não se espalha por dois canteiros"** — continua de pé, e é a que interessa: é ela que
+   faz "o que tem neste canteiro" ter resposta direta, sem entidade de ocupação no meio.
+2. **"Um canteiro tem no máximo um lote"** — caiu. Nunca foi observação, foi suposição.
+
+O índice único foi derrubado em `20260826000001` e substituído por `batches.position`, a ordem do
+lote dentro do canteiro, que é o que dá ao mapa um desenho estável. RN-79 foi emendada junto
+("canteiro livre é canteiro sem **nenhum** lote aberto") e RN-92 entrou para dizer que a ocupação é
+a soma dos saldos dos lotes abertos.
+
+**A lição é sobre o que uma auditoria de documentos não alcança.** Cinco passadas conferiram
+documento contra documento e documento contra banco. Nenhuma delas podia achar este erro, porque as
+duas pontas concordavam entre si e discordavam **do viveiro**. O que achou foi desenhar a tela: a
+figura obriga a representar o espaço, e o espaço não mente. **Protótipo de tela antes do código é
+verificação de requisito, e não só de interface** — vale tratá-lo como tal na próxima rotina que for
+levantada.
+
+---
+
+## Sexta passada: a própria entrega da tela de produção, conferida contra si mesma (26/08/2026)
+
+A engenharia dos dois protótipos foi escrita, aplicada e commitada, e **em seguida auditada**. A
+conferência achou cinco defeitos na entrega recém-feita, três deles de modelo e lógica:
+
+1. **`task_recurrences` nascera sem turno**, e `assignments.shift_id` é `NOT NULL`. A ocorrência
+   gerada por RF-115 não tinha de onde tirar o turno, e a hora não o determina: os turnos não cobrem
+   o dia inteiro, e a rotina das 11h30 às 12h30 não cai em nenhum deles. Corrigido em
+   `20260826000006`, com `shift_id` obrigatório.
+2. **A visão `batch_health` tratava tarefa `confirmada` como pendência.** O filtro era
+   `status <> 'nao_confirmada'`, escrito pensando só no fechamento da semana, e deixava passar o
+   status que significa "o colaborador deu por concluída" (RF-74). O lote ficaria colorido por um
+   serviço feito, sem nada na tela denunciando. Corrigido em `20260826000005`, com condição
+   **positiva**: pendência é o que segue `planejada`, e nada mais.
+3. **A divisão da figura 13 custou dois relacionamentos**, `especies → atribuicoes` e
+   `recipientes → atribuicoes`, exatamente o que a caixa de aviso do
+   [`README` do `modelo-dados-pt`](engenharia/modelo-dados-pt/README.md) manda conferir desde que a
+   `fig06` cometeu a mesma falha. Segunda ocorrência do mesmo erro: a conferência virou **comando
+   documentado** naquele README, e não mais uma lembrança.
+4. **As chaves estrangeiras novas não ganharam relacionamento no `C6` §3.3**, nem a caixa `areas`.
+   O `C8` listava os FKs corretamente e o desenho ficou atrás do texto: doze relacionamentos
+   faltando entre `areas`/`beds`/`species`/`containers`/`batches`/`work_shifts` e as três entidades
+   de agenda. Repostos, e o `C6` e as figuras voltaram a bater, 31 de cada lado.
+5. **`word/4.4-modelagem-do-sistema.md` estava desatualizado**, gerado antes da última correção no
+   `C2`. É a mesma lição da quinta passada, de novo: **a geração é a última etapa, nunca a
+   penúltima**. Desta vez o que ficou entre as duas foi uma edição de documento, e não uma
+   migration.
+
+**A lição desta passada:** auditar a própria entrega, no mesmo dia, achou o que a escrita não achou.
+Os defeitos 1 e 2 só apareceram ao perguntar "isto é implementável?" e "quais valores esta coluna
+aceita mesmo?", que são perguntas de conferência, não de redação. O defeito 3 já tinha aviso escrito
+e mesmo assim aconteceu: **aviso que depende de alguém lembrar não é controle**, e por isso virou
+comando.

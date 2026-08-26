@@ -943,6 +943,7 @@ dizer de que regra vinha.
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `task_type_id` | uuid | ● | FK → `task_types` | Tipo de tarefa que se repete |
+| `shift_id` | uuid | ● | FK → `work_shifts` | Turno que a ocorrência gerada herda (RN-48). Obrigatório: a hora não o determina |
 | `weekdays` | smallint[] | ● | | Dias em que a regra vale, ISO: 1 = segunda a 7 = domingo. Restrição: de um a sete dias, todos na faixa e nenhum nulo |
 | `start_time` | time | ● | | Hora de início. Obrigatória, ao contrário da atribuição comum (RN-95) |
 | `end_time` | time | ● | | Hora de fim. Restrição: posterior ao início |
@@ -966,6 +967,18 @@ dizer de que regra vinha.
 > escrita do jeito óbvio, ela deixava passar exatamente o caso que existia para barrar, e a falha
 > só apareceu ao testar a migration. `cardinality` devolve zero, que é falso de verdade. O elemento
 > nulo é barrado à parte, porque o operador de contenção sozinho não o pega.
+
+> **`shift_id` é obrigatório porque a hora não determina o turno.** `assignments.shift_id` é
+> `NOT NULL`, e a ocorrência gerada precisa de um. Os turnos cadastrados são `07:00-11:00` e
+> `13:00-17:00`, com o almoço entre eles: a recorrência das 11:30 às 12:30 **não cai em nenhum**.
+> Derivar o turno da hora obrigaria a escolher entre errar e recusar, e a pergunta que resolve
+> ("esta rotina conta como manhã ou como tarde?") a gerência responde sem pensar. A coluna entrou
+> em 26/08/2026, depois de a auditoria mostrar que RF-115 não era implementável sem ela.
+
+> **Uma recorrência gera no máximo uma ocorrência por dia**, e o índice
+> `assignments_uma_ocorrencia_por_dia`, sobre `(recurrence_id, work_date)`, garante isso. Irrigar de
+> manhã **e** de tarde são **duas regras**, não uma com dois horários: é o que mantém a geração
+> idempotente, e é o que permite encerrar a vigência de uma sem mexer na outra.
 
 > **Encerrar a recorrência é preencher `valid_until`, nunca apagar a linha** (RF-116, RN-96). As
 > ocorrências já geradas apontam para ela, e apagá-la apagaria o vínculo de dias já trabalhados. A
@@ -993,7 +1006,7 @@ decorre: `saudavel`, `atencao` ou `critico`. É o que pinta o mapa de produção
 | Atributo | Origem |
 |---|---|
 | `batch_id`, `batch_code`, `bed_id`, `position` | `batches`, restrito aos lotes abertos |
-| `pending_assignment_id`, `pending_task_type_id`, `pending_task_name` | a atribuição do lote cuja data já passou e que não tem execução concluída |
+| `pending_assignment_id`, `pending_task_type_id`, `pending_task_name` | a atribuição do lote que segue `planejada`, cuja data já passou e que não tem execução concluída |
 | `pending_since` | `assignments.work_date` da pendência |
 | `days_late` | a data de hoje menos `pending_since`; zero quando não há pendência |
 | `health` | `days_late` comparado aos parâmetros `producao.atraso_atencao_dias` e `producao.atraso_critico_dias` de `settings` |
@@ -1006,9 +1019,15 @@ decorre: `saudavel`, `atencao` ou `critico`. É o que pinta o mapa de produção
 > espera há mais tempo, e é ela que aparece ao apontar o lote (RF-119): resolvê-la é a providência
 > que o mapa está pedindo.
 
-> **A tarefa dada como realizada no fechamento da semana deixa de ser pendência** (RF-75, RN-51).
-> Sem isso, toda semana fechada deixaria um vermelho permanente atrás de si, e o mapa inteiro
-> ficaria vermelho até deixar de ser olhado.
+> **Pendência é o que segue `planejada`, e a condição é positiva de propósito.** Os outros dois
+> status saem, cada um pelo seu motivo: `confirmada` é a tarefa que o colaborador deu por concluída
+> (RF-74), e `nao_confirmada` é a que o fechamento da semana assumiu como feita (RF-75, RN-51). Sem
+> a segunda, toda semana fechada deixaria um vermelho permanente atrás de si.
+>
+> **A primeira versão da visão enumerava pela exclusão** (`status <> 'nao_confirmada'`) e deixava
+> `confirmada` passar: o lote ficava colorido por um serviço que foi feito, sem nada na tela
+> denunciando o erro. Corrigido em `20260826000005`. É a razão de a condição ser positiva agora:
+> excluir por lista exige lembrar de todos os casos, e um deles escapou.
 
 > **Os limites vêm de `settings`, e não de literal na visão** (RN-94). É o que faz o parâmetro ser
 > parâmetro de verdade, e não constante com outro nome. A migration que cria a visão afirma que as

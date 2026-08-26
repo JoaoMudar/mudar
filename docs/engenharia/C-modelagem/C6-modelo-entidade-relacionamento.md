@@ -582,6 +582,7 @@ erDiagram
   task_recurrences {
     uuid id PK
     uuid task_type_id FK
+    uuid shift_id FK
     smallint_array weekdays
     time start_time
     time end_time
@@ -693,6 +694,8 @@ erDiagram
   }
   inputs {
   }
+  areas {
+  }
   beds {
   }
   task_types {
@@ -719,11 +722,19 @@ erDiagram
   species     ||--o{ assignments         : "é objeto de"
   containers  ||--o{ assignments         : "contextualiza"
   batches     ||--o{ assignments         : "é trabalhado em"
+  areas       ||--o{ assignments         : "localiza"
+  beds        ||--o{ assignments         : "localiza"
   assignments ||--o{ assignment_members  : "escala"
   parties     ||--o{ assignment_members  : "participa de"
 
   task_recurrences ||--o{ assignments             : "gera ocorrência"
   task_types       ||--o{ task_recurrences        : "classifica"
+  work_shifts      ||--o{ task_recurrences        : "situa no dia"
+  species          ||--o{ task_recurrences        : "é objeto de"
+  containers       ||--o{ task_recurrences        : "contextualiza"
+  batches          ||--o{ task_recurrences        : "é trabalhado em"
+  areas            ||--o{ task_recurrences        : "localiza"
+  beds             ||--o{ task_recurrences        : "localiza"
   task_recurrences ||--o{ task_recurrence_members : "escala"
   parties          ||--o{ task_recurrence_members : "participa de"
 
@@ -731,6 +742,10 @@ erDiagram
   task_types  ||--o{ task_executions     : "classifica"
   parties     ||--o{ task_executions     : "executa"
   batches     ||--o{ task_executions     : "recebe trabalho de"
+  species     ||--o{ task_executions     : "é objeto de"
+  containers  ||--o{ task_executions     : "contextualiza"
+  areas       ||--o{ task_executions     : "localiza"
+  beds        ||--o{ task_executions     : "localiza"
   task_executions ||--o{ batch_movements : "movimenta"
   task_executions ||--o{ input_usages    : "consome"
   task_executions ||--o{ task_expenses   : "incorre em"
@@ -820,6 +835,14 @@ nos dias sem apontamento, e a atribuição com hora vale a janela declarada. Que
 planejamento é a **tarefa recorrente**, e ela é a única (RN-95). Fazer o contrário, trocar o turno
 pela hora em toda a agenda, exigiria montar a semana de hora em hora, e é a decisão que a RN-48
 recusa desde o começo.
+
+**A recorrência declara turno *e* hora, e o turno não é enfeite.** `assignments.shift_id` é
+obrigatório: a ocorrência gerada precisa de um, e a hora sozinha não o determina. Os turnos são
+`07:00-11:00` e `13:00-17:00`, com o almoço no meio, e a recorrência das 11:30 às 12:30 (a carga de
+terra que chega no fim da manhã) não cai em nenhum dos dois. Derivar o turno da hora exigiria
+escolher entre errar e recusar; quem responde é a gerência, e a pergunta é simples: esta rotina
+conta como manhã ou como tarde? **`shift_id` entrou em `task_recurrences` por isso**, e é ele que a
+ocorrência herda, enquanto `start_time`/`end_time` desenham a barra na linha do tempo.
 
 **`task_recurrences` é a regra, e `assignments` continua sendo a ocorrência.** A recorrência não
 tem linha do tempo própria: ela **gera atribuições**, e dali em diante cada dia vive por conta

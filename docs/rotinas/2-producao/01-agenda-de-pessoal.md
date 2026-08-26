@@ -68,6 +68,7 @@ Nova tarefa recorrente
   Tarefa       [ Irrigação                  ▾ ]
   Quem         [ Rogério, Amélia, Jaison    ▾ ]   ← um ou um grupo
   Dias         [x] seg [x] ter [x] qua [x] qui [x] sex [x] sáb [ ] dom
+  Turno        [ Manhã                      ▾ ]   ← o que o dia gerado herda
   Horário      [ 07:00 ] às [ 08:00 ]
   Vale de      [ 26/08/2026 ] até [ (sem prazo) ]
 
@@ -77,6 +78,16 @@ Nova tarefa recorrente
 > **Por que a marca não bastava.** Um "é fixa" no sim ou não dizia que a tarefa se repetia sem
 > dizer **em que dias**, **em que horário** e **até quando**. Servia para copiar a semana; não
 > serve para a irrigação de segunda a sábado que muda quando o verão acaba.
+
+> **Por que o turno aparece junto da hora, e não em vez dela.** O dia gerado é uma atribuição
+> comum, e atribuição sem turno não existe: é dele que saem as horas dos dias em que ninguém
+> aponta. E a hora não diz qual é o turno, porque os turnos não cobrem o dia inteiro: entre as 11h
+> e as 13h não há turno nenhum, e a carga de terra que chega meio-dia cairia num vazio. Quem sabe
+> se aquilo conta como manhã ou como tarde é quem monta a agenda, não o relógio.
+
+**Uma recorrência gera um dia de cada vez.** Irrigar de manhã **e** de tarde são **duas regras**,
+não uma com dois horários. Parece repetição, e é o que permite encerrar a da tarde no fim do verão
+sem mexer na da manhã.
 
 **O dia gerado é um dia comum.** Excluir a ocorrência de uma quarta não mexe na regra, e mexer na
 regra não reescreve o que já foi trabalhado. Encerrar a recorrência é preencher a data de fim, e
@@ -228,7 +239,8 @@ existem na agenda mesmo sem nunca terem feito login.
 2. **Toda tarefa tem ao menos um responsável.** Não existe tarefa sem pessoa; existe pessoa sem
    tarefa.
 3. **Tipo de tarefa vem do catálogo.** Nunca texto livre.
-4. **Só a tarefa recorrente declara hora no planejamento.** O resto é turno.
+4. **Só a tarefa recorrente declara hora no planejamento.** O resto é turno, e a recorrente
+   declara os dois.
 5. **A regra da recorrência e o dia gerado por ela são coisas separadas.** Mexer num não mexe no
    outro.
 6. **Uma pessoa faz uma tarefa por vez.** Começar outra encerra a anterior, sem perguntar.

@@ -28,7 +28,7 @@ tarefa de campo diz em que leva foi trabalhada, por quem e por quanto tempo.
 
 ---
 
-## As 5 decisões (fechadas em 24/08/2026)
+## As decisões (5 fechadas em 24/08/2026, mais a da tela em 26/08)
 
 ### 1. Lote entrou no escopo, e a decisão está justificada por escrito
 Estava excluído em `A1` §7 e fora do glossário em `A2`, enquanto o `P2` já o assumia: divergência
@@ -54,24 +54,51 @@ contra controle de ponto.
 `assignments` perdeu `party_id` para `assignment_members`. Metade da equipe enchendo saquinho
 enquanto a outra repica é a norma do viveiro.
 
+### 6. A tela inicial do módulo, e o que ela obriga (26/08/2026)
+
+O protótipo da agenda em linha do tempo e do mapa de produção trouxe RF-108 a RF-120 e RN-92 a
+RN-97, com as migrations `20260826000001` a `20260826000006`. Quatro consequências para quem for
+construir, todas verificadas contra o banco:
+
+**Trocar de tarefa é fechar-e-abrir, nessa ordem e na mesma transação.** RF-95 diz que iniciar uma
+tarefa encerra a anterior automaticamente, e a implementação ingênua (inserir a nova e depois
+fechar a velha) é **recusada pelo banco**: `task_executions_um_aberto_por_pessoa` não deixa dois
+apontamentos abertos existirem nem por um instante dentro da transação. `UPDATE` do `ended_at`
+primeiro, `INSERT` depois.
+
+**Apontamento com horário informado pode ser recusado, e a fila offline precisa saber disso.**
+`task_executions_sem_sobreposicao` recusa intervalos que se cruzam para a mesma pessoa (RN-97).
+Vindo da fila offline (RNF-05), esse registro **não pode ficar tentando para sempre**: precisa de
+destino, uma lista de recusados que a gerência resolve escolhendo qual dos dois intervalos vale.
+Sem isso, a fila trava num item e para de enviar o resto.
+
+**A ocorrência da recorrência nasce ao abrir a agenda do dia, não por tarefa agendada.** Não há
+processo de fundo no sistema, e não vale criar um para isto. O que torna a geração segura é o
+índice `assignments_uma_ocorrencia_por_dia`: gerar duas vezes é recusado, então a tela pode gerar
+sem verificar antes. A geração precisa do `week_plan` do dia já existente, e **não deve gerar em
+semana fechada** (RN-50).
+
+**O mapa lê `batch_health`, e não calcula nada.** A visão devolve situação, dias de atraso e a
+tarefa pendente por lote aberto. Os totais por área (RF-120) saem de juntar com `beds` e `areas`.
+
 ---
 
 ## Impacto nos documentos de engenharia (TCC)
 
-Todos já aplicados em 24/08/2026.
+Aplicados em 24/08/2026, e estendidos em 26/08/2026 com a tela inicial do módulo.
 
 | Doc | O que mudou | Gravidade |
 |---|---|---|
 | `A1` | §7: lote saiu do fora-de-escopo, com justificativa; entrou "rastreamento individual da muda" | 🔴 alta |
 | `A2` | §6 nova (Trabalho e agenda); verbetes Lote, Área, Canteiro, Classificação; "Lote" saiu dos não adotados | 🔴 alta |
-| `B2` | RF-80 a RF-105; §2.2.4, §2.3.4, §2.3.5 e §2.3.6 novas; RF-70 movido e emendado | 🔴 alta |
-| `B3` | RN-74 a RN-90; RN-48 e RN-51 emendadas; ressalvas §2.4 de três para cinco | 🔴 alta |
+| `B2` | RF-80 a RF-120; §2.2.4 e §2.3.4 a §2.3.7 novas; RF-70 movido, RF-85 e RF-94 emendados | 🔴 alta |
+| `B3` | RN-74 a RN-97; RN-48, RN-51, RN-76 e RN-79 emendadas; ressalvas §2.4 de três para nove | 🔴 alta |
 | `B4` | Quadros 3, 9 e 10 | 🟠 média |
 | `B5` | 26 linhas novas; §5.5 reescrita: a lacuna de teste da agenda fechou | 🟠 média |
 | `C1` | UC-46 a UC-55; subsistemas Lotes e Apontamento no §2 | 🟠 média |
 | `C2` | UC-47, UC-48, UC-50 e UC-51 detalhados; UC-17 emendado (o quinto campo entrou sem virar campo) | 🟠 média |
-| `C6` / `C8` | 46 → **55 entidades** e 1 → **2 visões**; `production_activities` virou `task_executions` | 🔴 alta |
-| `modelo-dados-pt` | 12 → **15 figuras**, com renumeração; conceitual dividido em dois | 🔴 alta |
+| `C6` / `C8` | 46 → **57 entidades** e 1 → **3 visões**; `production_activities` virou `task_executions`; a recorrência e `batch_health` entraram em 26/08 | 🔴 alta |
+| `modelo-dados-pt` | 12 → **17 figuras**, com duas renumerações; conceitual dividido em dois e a agenda em três | 🔴 alta |
 | `D4` | 7 recursos novos; §3.13, §3.14 e §3.15 | 🟠 média |
 | `E2` | §5.1 nova: TA-59 a TA-85 | 🟠 média |
 | `src/lib/permissions.ts` | 7 recursos, conferidos contra o `D4` por teste | 🟠 média |

@@ -35,6 +35,14 @@ erDiagram
   }
   lotes {
   }
+  especies {
+  }
+  recipientes {
+  }
+  areas {
+  }
+  canteiros {
+  }
   centros_custo {
   }
 
@@ -42,6 +50,10 @@ erDiagram
   tipos_tarefa     ||--o{ execucoes_tarefa : "classifica"
   pessoas          ||--o{ execucoes_tarefa : "executa"
   lotes            ||--o{ execucoes_tarefa : "recebe trabalho de"
+  especies         ||--o{ execucoes_tarefa : "é objeto de"
+  recipientes      ||--o{ execucoes_tarefa : "contextualiza"
+  areas            ||--o{ execucoes_tarefa : "localiza"
+  canteiros        ||--o{ execucoes_tarefa : "localiza"
   execucoes_tarefa ||--o{ gastos_tarefa    : "incorre em"
   atribuicoes      ||--o{ gastos_tarefa    : "incorre em"
   centros_custo    ||--o{ gastos_tarefa    : "destina"

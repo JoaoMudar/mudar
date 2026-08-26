@@ -322,7 +322,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-111 | Recusa de apontamento sobreposto | O sistema não deve permitir apontamento cujo intervalo se sobreponha ao de outro apontamento do mesmo funcionário. | RN-83, RN-97 |
 | RF-112 | Apontamento para vários funcionários | O sistema deve permitir lançar o mesmo apontamento para vários funcionários de uma vez, criando um apontamento por participante. | RN-84 |
 | RF-113 | Local da tarefa sem lote | O sistema deve permitir registrar a área ou o canteiro da tarefa que não exige lote, e dispensá-los quando o lote os determinar. | RN-74, RN-82 |
-| RF-114 | Manutenção de tarefa recorrente | O sistema deve permitir manter tarefas recorrentes com tipo de tarefa, grupo de funcionários, dias da semana, hora de início e de fim, e período de vigência. | RN-48, RN-84, RN-95 |
+| RF-114 | Manutenção de tarefa recorrente | O sistema deve permitir manter tarefas recorrentes com tipo de tarefa, grupo de funcionários, dias da semana, turno, hora de início e de fim, e período de vigência. | RN-48, RN-84, RN-95 |
 | RF-115 | Geração das ocorrências da recorrência | O sistema deve gerar as atribuições da recorrência na agenda sem digitação, e permitir alterar ou excluir a ocorrência de um dia sem alterar a regra. | RN-96 |
 | RF-116 | Encerramento da vigência da recorrência | O sistema deve permitir encerrar a vigência da recorrência preservando as ocorrências já geradas. | RN-96 |
 | RF-117 | Mapa de produção | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação. | RN-74, RN-76, RN-79, RN-92, RN-93 |
