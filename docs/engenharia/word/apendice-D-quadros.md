@@ -73,17 +73,17 @@ Fonte: Elaborado pelo autor (2026).
 | RN-16 | A perda é evento normal da produção e exige causa classificada em lista fechada, seca, praga, geada, manuseio, outro. |
 | RN-17 | A mortalidade é a razão entre mudas perdidas e mudas produzidas, por espécie e período. Acima de 20% a situação é anormal e exige providência. |
 | RN-18 | A muda perdida carrega o custo já incorrido. A perda tem valor financeiro, não apenas quantidade. |
-| RN-48 | O trabalho do viveiro é planejado por turno, não por horário. A unidade da agenda é dia × turno (manhã, tarde), e a duração do turno vem do período de trabalho cadastrado. |
+| RN-48 | O trabalho do viveiro é planejado por turno, não por horário. A unidade da agenda é dia × turno (manhã, tarde), e a duração do turno vem do período de trabalho cadastrado. A tarefa recorrente é a exceção declarada e traz hora consigo. |
 | RN-50 | A semana fecha e, fechada, não se altera. |
 | RN-51 | As horas do período saem do apontamento quando ele existe. Onde não houve apontamento, a tarefa planejada conta como realizada pelo turno, com a condição registrada. |
 | RN-52 | O colaborador responde pelas suas tarefas. Vê e conclui as que lhe foram atribuídas, e nenhuma outra. |
 | RN-57 | Só semeadura e repicagem somam ao estoque. Irrigação, adubação e rustificação são manejo e não alteram quantidade. |
 | RN-74 | O viveiro é dividido em áreas identificadas por letra, e cada área tem canteiros numerados de 1 até o máximo dela. |
 | RN-75 | Lote é a leva de mudas da mesma espécie, no mesmo recipiente, plantada junta. É a unidade de rastreamento da produção. |
-| RN-76 | Um lote ocupa um canteiro. Leva que não cabe num canteiro é outro lote. |
+| RN-76 | Um lote ocupa um canteiro, e um canteiro comporta vários lotes. Leva que não cabe num canteiro é outro lote, e não o mesmo lote espalhado. |
 | RN-77 | A repicagem para recipiente maior cria lote novo ligado ao de origem. A leva muda de identidade quando muda de tamanho. |
 | RN-78 | Nenhum lote tem saldo negativo. |
-| RN-79 | Lote com saldo zero está encerrado, sai da ocupação e permanece no histórico. |
+| RN-79 | Lote com saldo zero está encerrado: sai da ocupação do canteiro e permanece no histórico. Canteiro livre é canteiro sem nenhum lote aberto. |
 | RN-80 | Toda tarefa pertence a uma de seis categorias: semente, terra, plantio, manutenção, pós-morte e expedição. A categoria classifica, não comanda formulário. |
 | RN-81 | Toda tarefa é medida por tempo. Parte delas é também contada por unidade, e a pergunta do viveiro é quantos fez em quantas horas. |
 | RN-82 | Tarefa que trabalha mudas já plantadas identifica o lote, e o lote carrega o canteiro, a espécie e o recipiente. |
@@ -96,6 +96,12 @@ Fonte: Elaborado pelo autor (2026).
 | RN-89 | Gasto extra da tarefa é custo direto do lote e da espécie trabalhada. |
 | RN-90 | A classificação separa mortas de vivas, e a parte morta vira perda do lote no mesmo registro. |
 | RN-91 | A quantidade realizada é de cada pessoa, e não da tarefa: quatro pessoas produzem quatro números, e não um dividido por quatro. |
+| RN-92 | A ocupação do canteiro é a soma dos saldos dos lotes abertos nele. A capacidade cadastrada é aviso ao criar lote, nunca trava. |
+| RN-93 | A situação do lote é derivada, nunca digitada: saudável, atenção e crítico saem do atraso das tarefas planejadas para ele. |
+| RN-94 | O limite de dias que separa atenção de crítico é parâmetro mantido, não constante. |
+| RN-95 | A tarefa recorrente declara hora de início e de fim, e é a exceção à regra de planejamento por turno. |
+| RN-96 | A ocorrência gerada pela recorrência é atribuição comum: alterar ou excluir o dia não altera a regra, e alterar a regra não reescreve dia passado. |
+| RN-97 | Dois apontamentos da mesma pessoa não se sobrepõem no tempo, nem os abertos nem os já encerrados. |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -180,14 +186,14 @@ Fonte: Elaborado pelo autor (2026).
 |---|---|---|
 | A: Domínio e produto | RN-01 a RN-06 | 6 |
 | B: Custeio | RN-07 a RN-12, RN-53, RN-56 | 8 |
-| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-91 | 29 |
+| C: Produção, estoque e perdas | RN-13 a RN-18, RN-48, RN-50 a RN-52, RN-57, RN-74 a RN-97 | 35 |
 | D: Precificação | RN-19 a RN-24, RN-58, RN-59 | 8 |
 | E: Cliente e obrigação fiscal | RN-25 a RN-30, RN-55, RN-62 | 8 |
 | F: Pedido, entrega e fornecedor | RN-31 a RN-35, RN-37 a RN-39, RN-66, RN-67 | 10 |
 | G: Financeiro | RN-40 a RN-44, RN-68 a RN-73 | 11 |
 | H: Acesso e responsabilidade | RN-45, RN-46 | 2 |
 | I: Indicadores | RN-47 | 1 |
-| Total |  | 83 |
+| Total |  | 89 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -283,7 +289,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-82 | Formulário comandado pelo catálogo | O sistema deve pedir, no planejamento e no encerramento, exatamente os dados que o tipo de tarefa declarar exigir, e nenhum outro. | RN-81, RN-82 |
 | RF-83 | Cadastro do período de trabalho | O sistema deve permitir manter o período de trabalho, com hora de início e de fim de cada turno, e adotá-lo como jornada padrão da agenda. | RN-48, RN-85 |
 | RF-84 | Criação de lote | O sistema deve permitir criar lote informando espécie, recipiente, quantidade, área e canteiro. | RN-75, RN-76 |
-| RF-85 | Ocupação do viveiro | O sistema deve apresentar a ocupação do viveiro por área e canteiro, indicando o lote de cada canteiro ocupado e quais estão livres. | RN-74, RN-76, RN-79 |
+| RF-85 | Ocupação do viveiro | O sistema deve apresentar a ocupação do viveiro por área e canteiro, indicando os lotes de cada canteiro ocupado e quais estão livres. | RN-74, RN-76, RN-79 |
 | RF-86 | Repicagem com lote de origem | O sistema deve permitir registrar repicagem transferindo parte ou todo o lote para recipiente maior, criando um lote novo que aponta para o de origem. | RN-77 |
 | RF-87 | Histórico de movimentos do lote | O sistema deve apresentar o histórico de movimentos do lote, com a quantidade e o motivo de cada um. | RN-75, RN-77 |
 | RF-88 | Recusa de saldo negativo de lote | O sistema não deve permitir movimento que deixe o saldo do lote negativo. | RN-78 |
@@ -292,7 +298,7 @@ Fonte: Elaborado pelo autor (2026).
 | RF-91 | Vínculo de perda e contagem ao lote | O sistema deve permitir vincular perda, contagem física e saída de venda ao lote, dispensando informar espécie e recipiente quando o lote os determinar. | RN-13, RN-16, RN-75, RN-90 |
 | RF-92 | Grupo de funcionários na tarefa | O sistema deve permitir atribuir a mesma tarefa a mais de um funcionário, e mais de uma tarefa ao mesmo turno com grupos diferentes. | RN-84 |
 | RF-93 | Lançamento por intervalo de dias | O sistema deve permitir lançar a mesma atribuição para um intervalo de dias de uma vez. | RN-48, RN-84 |
-| RF-94 | Agenda do dia com cartão por pessoa | O sistema deve apresentar a agenda do dia com as tarefas planejadas e um cartão por funcionário, mostrando o que cada um faz naquele momento. | RN-84 |
+| RF-94 | Agenda do dia com cartão por pessoa | O sistema deve apresentar a agenda do dia com uma faixa por funcionário, mostrando o que cada um faz naquele momento e o que estava planejado para ele. | RN-84 |
 | RF-95 | Início de apontamento | O sistema deve permitir iniciar o apontamento de uma tarefa para um funcionário, encerrando automaticamente o apontamento que estiver aberto para ele. | RN-83 |
 | RF-96 | Encerramento do dia | O sistema deve permitir encerrar o dia do funcionário, fechando o apontamento aberto sem iniciar outro. | RN-86 |
 | RF-97 | Um apontamento aberto por pessoa | O sistema não deve permitir dois apontamentos abertos para o mesmo funcionário. | RN-83 |
@@ -306,6 +312,19 @@ Fonte: Elaborado pelo autor (2026).
 | RF-105 | Sinalização de saldo negativo de insumo | O sistema deve sinalizar, sem recusar, o consumo que deixaria o saldo do insumo negativo. | RN-78, RN-88 |
 | RF-106 | Registro de entrada de insumo | O sistema deve permitir registrar entrada de insumo no estoque, informando insumo, motivo (compra, ajuste ou perda), quantidade e, na compra, o custo unitário. | RN-88 |
 | RF-107 | Encerramento da tarefa do grupo | O sistema deve permitir encerrar a tarefa de uma vez para todo o grupo escalado, apresentando os campos que o tipo de tarefa exigir: o lote uma vez para a tarefa, e a quantidade uma vez por participante. | RN-81, RN-84, RN-91 |
+| RF-108 | Entrada do módulo Produção | O sistema deve apresentar, na entrada do módulo Produção, as visões de agenda do dia e mapa de produção alternadas por aba, com as demais rotinas listadas abaixo delas. | – |
+| RF-109 | Agenda do dia em linha do tempo | O sistema deve apresentar a agenda do dia como linha do tempo horizontal, com uma faixa por funcionário e cada tarefa como barra posicionada e dimensionada pelo horário, distinguindo a que está em curso, a concluída e a planejada ainda não iniciada. | RN-84, RN-95 |
+| RF-110 | Apontamento pelo relógio ou por horário informado | O sistema deve permitir iniciar o apontamento a partir da faixa do funcionário, escolhendo entre marcar pelo relógio ou informar início e fim de trabalho já ocorrido. | RN-83, RN-97 |
+| RF-111 | Recusa de apontamento sobreposto | O sistema não deve permitir apontamento cujo intervalo se sobreponha ao de outro apontamento do mesmo funcionário. | RN-83, RN-97 |
+| RF-112 | Apontamento para vários funcionários | O sistema deve permitir lançar o mesmo apontamento para vários funcionários de uma vez, criando um apontamento por participante. | RN-84 |
+| RF-113 | Local da tarefa sem lote | O sistema deve permitir registrar a área ou o canteiro da tarefa que não exige lote, e dispensá-los quando o lote os determinar. | RN-74, RN-82 |
+| RF-114 | Manutenção de tarefa recorrente | O sistema deve permitir manter tarefas recorrentes com tipo de tarefa, grupo de funcionários, dias da semana, hora de início e de fim, e período de vigência. | RN-48, RN-84, RN-95 |
+| RF-115 | Geração das ocorrências da recorrência | O sistema deve gerar as atribuições da recorrência na agenda sem digitação, e permitir alterar ou excluir a ocorrência de um dia sem alterar a regra. | RN-96 |
+| RF-116 | Encerramento da vigência da recorrência | O sistema deve permitir encerrar a vigência da recorrência preservando as ocorrências já geradas. | RN-96 |
+| RF-117 | Mapa de produção | O sistema deve apresentar o mapa do viveiro com as áreas, os canteiros de cada área e os lotes abertos de cada canteiro, cada lote com a sua situação. | RN-74, RN-76, RN-79, RN-92, RN-93 |
+| RF-118 | Classificação da situação do lote | O sistema deve classificar o lote em saudável, atenção e crítico a partir do atraso das tarefas planejadas para ele, sem que a situação seja digitada. | RN-93, RN-94 |
+| RF-119 | Tarefa pendente do lote | O sistema deve apresentar, ao apontar o lote, a tarefa pendente que determina a situação dele e o atraso em dias. | RN-93 |
+| RF-120 | Totais por situação do lote | O sistema deveria apresentar o total de lotes por situação, no geral e por área. | RN-93 |
 
 Fonte: Elaborado pelo autor (2026).
 
@@ -361,10 +380,10 @@ Fonte: Elaborado pelo autor (2026).
 
 | Origem | Requisitos funcionais: Qtd. | Requisitos funcionais: % | Requisitos não funcionais: Qtd. | Requisitos não funcionais: % |
 |---|---|---|---|---|
-| Regra de negócio | 103 | 96,3 | 3 | 11,5 |
+| Regra de negócio | 115 | 95,8 | 3 | 11,5 |
 | Restrição do ambiente (RE-1 a RE-5) | – | – | 10 | 38,5 |
-| Política do projeto | 4 | 3,7 | 13 | 50,0 |
-| Total | 107 | 100,0 | 26 | 100,0 |
+| Política do projeto | 5 | 4,2 | 13 | 50,0 |
+| Total | 120 | 100,0 | 26 | 100,0 |
 
 Fonte: Elaborado pelo autor (2026).
 

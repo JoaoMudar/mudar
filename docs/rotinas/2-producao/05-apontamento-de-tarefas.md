@@ -6,7 +6,7 @@
 
 ## A ideia em 1 frase
 
-**Uma pessoa coordena a equipe inteira de um aparelho só**, tocando no cartão de quem trocou de
+**Uma pessoa coordena a equipe inteira de um aparelho só**, tocando na faixa de quem trocou de
 serviço.
 
 ## Situação atual
@@ -18,12 +18,12 @@ conserto; a repicagem termina antes da hora e sobra meio turno.
 Nada disso fica registrado. No fim do mês existe o que foi **planejado**, e a diferença entre
 isso e o que aconteceu é exatamente o que ninguém sabe medir.
 
-## As 4 decisões de desenho
+## As 5 decisões de desenho
 
 ### 1. Quem aponta é quem coordena, não quem executa
 
 O funcionário **não** registra a própria entrada e saída. Quem toca no botão é a Débora, ou quem
-estiver coordenando, no cartão da pessoa.
+estiver coordenando, na faixa da pessoa.
 
 > **Por que não o próprio funcionário.** Seria controle de ponto, e o
 > [`B2` §4](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) descartou isso ao
@@ -73,45 +73,67 @@ mais do que nenhum registro.
 
 ### 4. O dia termina explicitamente
 
-Há um botão "encerrar o dia" no cartão. Sem ele, um apontamento esquecido aberto produziria
+Há um botão "encerrar o dia" na faixa. Sem ele, um apontamento esquecido aberto produziria
 jornada de dezoito horas e custo de mão de obra falso: por isso apontamento aberto **não conta
 hora além do fim do turno**.
 
 Encerrar por engano é comum, e reabrir o dia é um toque: recusar seria garantir que o resto do
 dia não fosse registrado.
 
+### 5. O relógio é o caminho normal, e o horário digitado é o remendo
+
+Quem coordena está no campo, e nem sempre aponta na hora. Às onze, lembra que a repicagem começou
+às sete. Por isso o lançamento tem dois botões:
+
+```
+  [ Iniciar agora ]        [ Escolher horário ]
+```
+
+**"Iniciar agora" pega a hora do relógio** e é o gesto de todo dia. **"Escolher horário" pede
+início e fim** e serve para o que já aconteceu: sem ele, o lançamento das onze mentiria em quatro
+horas.
+
+> **O que o horário digitado trouxe junto.** Enquanto tudo nascia do relógio, bastava impedir dois
+> apontamentos **abertos** para a mesma pessoa. Com horário digitado dá para gravar 7h-11h e
+> 9h-12h para o mesmo funcionário: duas linhas legítimas, cada uma com fim, somando quatro horas
+> que ninguém trabalhou. **O sistema recusa intervalos que se cruzam**, e a garantia é do banco,
+> não da tela.
+
+**E dá para lançar a mesma tarefa para vários de uma vez.** Três pessoas descarregaram a carga de
+terra: escolhe-se a tarefa, marcam-se os três, e sai um apontamento para cada um. Abrir três
+faixas para registrar o mesmo fato é o tipo de repetição que faz o registro parar de acontecer.
+
 ## As telas
 
 ### Gerência: agenda do dia (tela principal)
 
+É a **primeira aba da tela inicial da Produção**, e a segunda é o mapa
+([`04`](04-lotes-e-canteiros.md)).
+
 ```
-Segunda, 10 de agosto                              ⏱ 09:42
+Segunda, 10 de agosto                                            ⏱ 09:42
 
-PLANEJADO PARA HOJE
-  MANHÃ   Repicagem · Ipê-amarelo · lote 2026-0147 (A-3)   Rogério, Amélia
-  MANHÃ   Irrigação                                        Jaison
-  TARDE   Encher saquinho                                  Rogério, Amélia, Mathias
+           06h   07h   08h   09h   10h   11h   12h   13h   14h
+Rogério          ├── Repicagem · A-3 ────────┤
+Amélia           ├── Repicagem · A-3 ────────┤
+Jaison     ├─ Irrigação ─┤   ├── Carregar · Ped. #124 ──▸
+Mathias    (sem tarefa)
 
-─────────────────────────────────────────────────────────
+■ em curso   ■ concluído   □ planejado, não iniciado
 
-  ┌─ Rogério ──────────────────────────┐  ┌─ Amélia ───────────────────────────┐
-  │ Repicagem · lote 2026-0147 (A-3)   │  │ Repicagem · lote 2026-0147 (A-3)   │
-  │ desde 07:15   ·   2h27             │  │ desde 07:15   ·   2h27             │
-  │                                    │  │                                    │
-  │ [outra tarefa]      [encerrar dia] │  │ [outra tarefa]      [encerrar dia] │
-  └────────────────────────────────────┘  └────────────────────────────────────┘
-
-  ┌─ Jaison ───────────────────────────┐  ┌─ Mathias ──────────────────────────┐
-  │ Carregar · Ped. #124               │  │ sem tarefa                         │
-  │ desde 08:50   ·   0h52             │  │                                    │
-  │ ⚠ fora do planejado                │  │                                    │
-  │ [outra tarefa]      [encerrar dia] │  │ [começar tarefa]                   │
-  └────────────────────────────────────┘  └────────────────────────────────────┘
+                                    [+ Atividade para vários funcionários]
+                                    [+ Tarefa recorrente]
 ```
 
-Jaison estava escalado para irrigação e está carregando: o cartão mostra o que ele **faz**, e
+**Uma faixa por pessoa, e a barra ocupa o tempo que a tarefa levou.** É o cartão esticado sobre o
+dia: mostra o que a pessoa faz agora, desde quando, o que veio antes, e **onde ficou o buraco**. O
+buraco é a informação que o cartão não tinha como dar, e é a que se procura antes de o mês fechar.
+
+Jaison estava escalado para irrigação e está carregando: a faixa mostra o que ele **faz**, e
 sinaliza que não é o planejado. **O planejado não é alterado**: a comparação entre um e outro é
 justamente o que se quer enxergar no fim do mês.
+
+Tocar na faixa de alguém abre o lançamento ali mesmo, sem sair da tela.
 
 ### Começar uma tarefa: o que a tela pergunta
 
@@ -122,11 +144,13 @@ Rogério · começar tarefa
 
   Lote                [ A-3 · Ipê-amarelo · tubete ▾ ]   ← só aparece porque "Repicar" exige lote
 
-  [ Começar ]
+  [ Iniciar agora ]   [ Escolher horário ]
 ```
 
-Se o tipo de tarefa fosse "Irrigação", a segunda linha não existiria. **O catálogo comanda o
-formulário**, e a tela não sabe nada por conta própria.
+Se o tipo de tarefa fosse "Irrigação", a segunda linha seria **Área**, e não Lote. **O catálogo
+comanda o formulário**, e a tela não sabe nada por conta própria: tarefa que exige lote pede o
+lote, que já traz o canteiro; tarefa que não exige pede **onde foi feita**, porque irrigação sem
+lugar é registro que não serve para nada depois.
 
 ### Encerrar: o que a tela pergunta
 
@@ -158,7 +182,7 @@ Encerrar uma repicagem é o caso mais pesado da tela, e mesmo ele cabe numa pág
 **O lote é pedido uma vez, e a quantidade uma vez por pessoa.** É a diferença entre o que pertence
 à tarefa e o que pertence a quem a executou. O canteiro não é perguntado: vem do lote escolhido.
 
-**Há dois encerramentos, e este é o do grupo.** O outro é o do cartão individual, quando alguém
+**Há dois encerramentos, e este é o do grupo.** O outro é o da faixa individual, quando alguém
 sai de um serviço e começa outro no meio do turno: ali fecha-se uma pessoa só. O do grupo fecha
 todos de uma vez, que é como a manhã inteira de uma equipe normalmente termina.
 
@@ -204,6 +228,8 @@ essa distinção que mantém a ferramenta sendo de planejamento e não de avalia
 6. **A quantidade é de cada participante**, e não da tarefa: quatro pessoas, quatro números.
 7. **O planejado não é reescrito pelo realizado.** Os dois convivem, e a diferença é informação.
 8. **Valor em reais não aparece para o colaborador.**
+9. **Dois apontamentos da mesma pessoa não se cruzam no tempo**, nem os abertos nem os já
+   encerrados. Hora contada em dobro corrompe o custo em silêncio.
 
 ## Dependências com outras rotinas
 
@@ -230,9 +256,9 @@ essa distinção que mantém a ferramenta sendo de planejamento e não de avalia
 | Artefato | O que esta rotina acrescentou |
 |---|---|
 | [`A2`](../../engenharia/A-fundacao/A2-glossario-dominio.md) | §6: Apontamento, Atribuição, Tipo de tarefa, Turno |
-| [`B3`](../../engenharia/B-requisitos/B3-regras-de-negocio.md) | RN-81 a RN-83, RN-86 a RN-89; RN-48 e RN-51 emendadas |
-| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.3.5 e §2.3.6 novas: RF-94 a RF-105 |
+| [`B3`](../../engenharia/B-requisitos/B3-regras-de-negocio.md) | RN-81 a RN-83, RN-86 a RN-89; RN-48 e RN-51 emendadas; RN-97 em 26/08/2026 |
+| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.3.5 e §2.3.6 novas: RF-94 a RF-105; RF-109 a RF-113 em 26/08/2026 |
 | [`C1`](../../engenharia/C-modelagem/C1-diagrama-casos-de-uso.md) / [`C2`](../../engenharia/C-modelagem/C2-especificacao-casos-de-uso.md) | UC-50 a UC-53 e UC-55; UC-50 e UC-51 detalhados |
-| [`C6`](../../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md) | `task_executions`, `task_expenses`, `input_stock_entries` e a visão `input_stock_balance`; `input_usages` ganhou `task_execution_id` e `batch_id` |
+| [`C6`](../../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md) | `task_executions`, `task_expenses`, `input_stock_entries` e a visão `input_stock_balance`; `input_usages` ganhou `task_execution_id` e `batch_id`; `task_executions` ganhou `area_id`, `bed_id` e a restrição de não sobreposição |
 | [`D4`](../../engenharia/D-arquitetura/D4-matriz-rbac.md) | recursos **Apontamento**, **Estoque de insumo** e **Gastos de tarefa**; §3.11 estendido e §3.14 |
 | [`E2`](../../engenharia/E-qualidade/E2-casos-de-teste-de-aceite.md) | TA-74 a TA-84 |

@@ -88,6 +88,12 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 
 ### 2.3 Módulo 2 · Produção
 
+#### 2.3.0 Entrada do módulo
+
+| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
+|---|---|---|---|---|
+| RF-108 | *(pendente)* | *sem entidade*: organização de interface | Tarefas, Lotes | *(pendente)* |
+
 #### 2.3.1 Registro de campo
 
 | RF | Caso de uso | Entidade | Recurso em D4 | Teste |
@@ -104,7 +110,7 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-75 | UC-43 | `assignments`, `task_executions` | Tarefas | TA-79 |
 | RF-92 | UC-43 | `assignment_members` | Tarefas | TA-69 |
 | RF-93 | UC-43 | `assignments` | Tarefas | TA-70 |
-| RF-94 | UC-50 | `task_executions`, `assignment_members` | Apontamento | TA-74 |
+| RF-94 | UC-50 | `task_executions`, `assignment_members`, `assignments` | Apontamento | TA-74 |
 | RF-95 | UC-50 | `task_executions` | Apontamento | TA-74 |
 | RF-96 | UC-52 | `task_executions` | Apontamento | TA-76 |
 | RF-97 | UC-50 | `task_executions` | Apontamento | TA-75 |
@@ -118,6 +124,14 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-105 | UC-51 | `input_usages`, `input_stock_balance` | Estoque de insumo | TA-82 |
 | RF-106 | UC-56 | `input_stock_entries` | Estoque de insumo | TA-85 |
 | RF-107 | UC-51 | `task_executions`, `assignment_members` | Apontamento | TA-77, TA-86 |
+| RF-109 | UC-50 | `task_executions`, `assignments`, `work_shifts` | Apontamento | *(pendente)* |
+| RF-110 | UC-50 | `task_executions` | Apontamento | *(pendente)* |
+| RF-111 | UC-50 | `task_executions` | Apontamento | *(pendente)* |
+| RF-112 | UC-50 | `task_executions`, `assignment_members` | Apontamento | *(pendente)* |
+| RF-113 | UC-50, UC-51 | `task_executions`, `assignments`, `areas`, `beds` | Apontamento | *(pendente)* |
+| RF-114 | *(pendente)* | `task_recurrences`, `task_recurrence_members` | Tarefas | *(pendente)* |
+| RF-115 | *(pendente)* | `task_recurrences`, `assignments` | Tarefas | *(pendente)* |
+| RF-116 | *(pendente)* | `task_recurrences` | Tarefas | *(pendente)* |
 
 #### 2.3.2 Estoque
 
@@ -150,6 +164,15 @@ renumerar quebraria justamente a rastreabilidade que esta matriz existe para sus
 | RF-89 | UC-49 | `batches`, `beds` | Lotes | TA-64 |
 | RF-90 | UC-47 | `batches`, `species` | Lotes | TA-63 |
 | RF-91 | UC-17, UC-16 | `batches`, `loss_events`, `stock_counts` | Lotes | TA-66, TA-68 |
+
+#### 2.3.7 Mapa de produção
+
+| RF | Caso de uso | Entidade | Recurso em D4 | Teste |
+|---|---|---|---|---|
+| RF-117 | *(pendente)* | `batches`, `beds`, `areas`, `batch_health` *(visão)* | Lotes | *(pendente)* |
+| RF-118 | *(pendente)* | `batch_health` *(visão)*, `assignments`, `settings` | Lotes | *(pendente)* |
+| RF-119 | *(pendente)* | `batch_health` *(visão)*, `task_types` | Lotes | *(pendente)* |
+| RF-120 | *(pendente)* | `batch_health` *(visão)* | Lotes | *(pendente)* |
 
 ### 2.4 Módulo 3 · Comercial
 
@@ -360,16 +383,23 @@ teste era lacuna de verificação. A primeira ainda está aberta.
 
 | Verificação | Resultado |
 |---|---|
-| Requisitos funcionais com caso de uso | **107 de 107** |
-| Requisitos funcionais com entidade ou derivação declarada | **107 de 107** |
-| Requisitos funcionais com regra de acesso definida | **107 de 107** |
-| Requisitos de prioridade *deve ter* com teste de aceite | **84 de 84** |
-| Requisitos *deveria ter* / *poderia ter* sem teste | 12: deliberado |
+| Requisitos funcionais com caso de uso | 112 de 120 |
+| Requisitos funcionais com entidade ou derivação declarada | **120 de 120** |
+| Requisitos funcionais com regra de acesso definida | **120 de 120** |
+| Requisitos de prioridade *deve ter* com teste de aceite | 84 de 96 |
+| Requisitos *deveria ter* / *poderia ter* sem teste | 13: deliberado |
 | Casos de uso sem requisito de origem | 0 |
 | Entidades sem requisito de origem | 0 |
 
-Dezoito requisitos estão sem caso de aceite próprio, e as duas ausências têm naturezas opostas.
-**Doze** são de prioridade inferior a *deve ter*: decisão declarada, não omissão, o critério de
+**A cobertura recuou em 26/08/2026, e o recuo é declarado.** RF-108 a RF-120, nascidos do protótipo
+da tela inicial da Produção, entraram com **entidade e recurso de acesso definidos** e **sem caso de
+uso nem teste de aceite**: `C1`/`C2` e `E2` não foram estendidos na mesma alteração. Oito deles não
+têm caso de uso (RF-108 e RF-114 a RF-120) e doze são *deve ter* sem teste. As duas lacunas são
+tarefa seguinte, e ficam aqui contadas em vez de arredondadas: matriz que se declara completa sem
+estar é pior do que matriz que aponta o próprio buraco.
+
+Dos requisitos anteriores a 26/08/2026, dezoito estão sem caso de aceite próprio, e as duas
+ausências têm naturezas opostas. **Doze** são de prioridade inferior a *deve ter*: decisão declarada, não omissão, o critério de
 aprovação de subsistema em [`E2`](../E-qualidade/E2-casos-de-teste-de-aceite.md) exige
 verificação apenas dos *deve ter*, e estender a cobertura consumiria tempo de usuário, o recurso
 mais escasso do projeto ([`E3`, R-04](../E-qualidade/E3-analise-de-riscos.md)).

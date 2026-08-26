@@ -45,9 +45,9 @@ quatro módulos do sistema, com o Acesso à frente por atravessar os quatro.
 
 ## Recorte implementado
 
-Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 55
-entidades, **44 existem no banco** (mais as duas visões, `species_unit_cost` e
-`input_stock_balance`) e **11 estão especificadas e ainda não implementadas**. A distinção é
+Este dicionário descreve o **modelo especificado**, que é maior que o protótipo construído. Das 57
+entidades, **46 existem no banco** (mais as três visões, `species_unit_cost`,
+`input_stock_balance` e `batch_health`) e **11 estão especificadas e ainda não implementadas**. A distinção é
 registrada entidade por entidade, e não é defeito de modelagem: o modelo responde à especificação
 completa de requisitos, e a construção segue a priorização declarada em
 [`B2`](../B-requisitos/B2-especificacao-requisitos.md).
@@ -56,10 +56,10 @@ completa de requisitos, e a construção segue a priorização declarada em
 |---|---:|---:|
 | *(transversal)* Acesso | 5 | 0 |
 | 1 · Cadastros | 16 | 0 |
-| 2 · Produção | 12 | 0 |
+| 2 · Produção | 14 | 0 |
 | 3 · Comercial | 8 | 0 |
 | 4 · Financeiro | 3 | 11 |
-| **Total** | **44** | **11** |
+| **Total** | **46** | **11** |
 
 As 11 pendentes são todas do Financeiro: `sale_channels`, `sale_prices` e as nove do esquema
 `financeiro` (`accounts`, `cost_centers`, `category_groups`, `categories`, `statement_imports`,
@@ -67,7 +67,10 @@ As 11 pendentes são todas do Financeiro: `sale_channels`, `sale_prices` e as no
 
 **A Produção deixou de ser o módulo mais especificado e menos construído em 24/08/2026**, quando as
 migrations `20260824000001` a `20260824000007` criaram as dezesseis entidades do lote, da agenda,
-do apontamento e do estoque de insumo. O que ainda não existe ali é **tela**: as tabelas estão no
+do apontamento e do estoque de insumo. Em 26/08/2026 as migrations `20260826000001` a
+`20260826000004` acrescentaram a tarefa recorrente (`task_recurrences`,
+`task_recurrence_members`) e a visão `batch_health`, e emendaram `batches`, `assignments` e
+`task_executions`: são as entidades que o protótipo da tela inicial do módulo exigiu. O que ainda não existe ali é **tela**: as tabelas estão no
 banco, com a carga inicial dos vinte e dois tipos de tarefa e dos dois turnos, e a construção da
 aplicação está planejada em [`plans/P14`](../../../plans/P14-producao-lotes-apontamento.md).
 
@@ -514,20 +517,33 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 | `planted_at` | date | ● | | Data em que a leva foi plantada no canteiro |
 | `expected_ready_at` | date | ○ | | **Derivado**: `planted_at` mais o tempo de produção da espécie. Fica nulo quando a espécie não o tem cadastrado |
 | `closed_at` | timestamptz | ○ | | Momento do encerramento; a partir dele o lote sai da ocupação |
+| `position` | integer | ○ | | Ordem do lote dentro do canteiro, a partir de 1. Dá ao mapa um desenho estável (RF-117) |
 | `notes` | text | ○ | | Observação |
 
 > **O endereço fica fora do código** (`2026-0147`, e não `2026-A3-004`). O canteiro do lote muda:
 > `batch_movements` tem o tipo `transferencia`, e o encerramento anula `bed_id`. Código com área e
 > canteiro dentro passaria a mentir na primeira transferência, e a correção seria renomear o lote,
-> invalidando toda referência anterior a ele. Quem responde **onde** o lote está é `bed_id`, com o
-> índice único parcial `batches_um_lote_aberto_por_canteiro`; o código responde **qual leva** é, e
-> por isso não muda nunca.
+> invalidando toda referência anterior a ele. Quem responde **onde** o lote está é o par
+> `bed_id` e `position`; o código responde **qual leva** é, e por isso não muda nunca.
 
-> **Um lote ocupa um canteiro** (RN-76). Leva que não cabe em um canteiro é outro lote, e não o
-> mesmo lote espalhado. A alternativa, uma entidade de ocupação com quantidade por canteiro,
-> custaria um nível de indireção em toda tela que pede lote, para representar o que dois lotes já
-> representam. E a pergunta da operação é "o que tem neste canteiro", que um lote por canteiro
-> responde sem junção.
+> **Um lote ocupa um canteiro, e um canteiro comporta vários lotes** (RN-76, emendada em
+> 26/08/2026). A metade que continua de pé é a que interessa: leva que não cabe em um canteiro é
+> outro lote, e não o mesmo lote espalhado. A alternativa, uma entidade de ocupação com quantidade
+> por canteiro, custaria um nível de indireção em toda tela que pede lote, para representar o que
+> dois lotes já representam.
+>
+> **O que caiu foi a exclusividade**, e com ela o índice `batches_um_lote_aberto_por_canteiro`. Ela
+> nunca existiu no viveiro: o canteiro recebe seis, oito, nove levas, e é o que o mapa de produção
+> desenha. O índice proibia exatamente o que a operação faz todo dia, e quem revelou isso foi o
+> protótipo da tela, não o banco.
+
+> **`position` é ordem, não coordenada.** Conta da esquerda para a direita, como a equipe lê o
+> canteiro de pé na frente dele. Sem ela os lotes trocariam de lugar no mapa a cada carregamento, e
+> quem opera perderia a referência espacial que a tela existe para dar: reconhece-se o lote pelo
+> lugar antes de ler o rótulo. **É nula quando a ordem não foi cuidada**, e o índice
+> `batches_posicao_unica_no_canteiro` é parcial nos dois eixos por isso: exigir posição faria a
+> gerência inventar um número só para conseguir registrar o lote, e número inventado desenha o mapa
+> errado.
 
 > **`bed_id` é opcional apenas para o lote encerrado.** Enquanto aberto, todo lote tem canteiro:
 > lote sem lugar é a situação que a entidade existe para eliminar. Ao encerrar, o canteiro é
@@ -685,8 +701,8 @@ Visão derivada: soma de `input_stock_entries` menos soma de `input_usages`, por
 ## `task_executions`: apontamento de tarefa
 
 **O realizado, contra `assignments`, que é o planejado.** Uma linha por funcionário e por tarefa,
-com hora de início e de fim: é dela que saem as horas do período (RF-100) e é ela que sustenta o
-cartão do funcionário na agenda do dia (RF-94).
+com hora de início e de fim: é dela que saem as horas do período (RF-100) e é ela que sustenta a
+faixa do funcionário na linha do tempo do dia (RF-94, RF-109).
 
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
@@ -700,6 +716,8 @@ cartão do funcionário na agenda do dia (RF-94).
 | `batch_id` | uuid | ○ | FK → `batches` | Lote trabalhado, exigido no encerramento quando o tipo declarar lote específico (RN-82, RF-99) |
 | `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir e não houver lote |
 | `container_id` | uuid | ○ | FK → `containers` | Recipiente, nas mesmas condições |
+| `area_id` | uuid | ○ | FK → `areas` | Área onde a tarefa foi feita, quando ela não tem lote (RF-113) |
+| `bed_id` | uuid | ○ | FK → `beds` | Canteiro onde a tarefa foi feita, quando ela não tem lote (RF-113) |
 | `quantity` | integer | ○ | | Quantos **esta pessoa** fez. Pedido apenas quando o tipo de tarefa for quantitativo por unidade (RN-81, RN-91) |
 | `status` | text | ● | | Situação em **lista fechada**: `em_andamento`, `concluida`, `interrompida` |
 | `recorded_by` | uuid | ● | FK → `users` | Quem registrou o apontamento, distinto de quem o executou |
@@ -716,6 +734,22 @@ cartão do funcionário na agenda do dia (RF-94).
 > sobre `party_id` onde `ended_at` é nulo**. Não é validação de aplicação de propósito: duas telas
 > abertas ao mesmo tempo a burlariam, e dois apontamentos abertos contariam a mesma hora duas
 > vezes, inflando o custo de mão de obra, que é o número que o sistema existe para apurar.
+
+> **E dois apontamentos encerrados também não se cruzam** (RN-97), garantido pela restrição de
+> exclusão `task_executions_sem_sobreposicao`, sobre `party_id` e o intervalo entre `started_at` e
+> `ended_at`. O índice parcial acima cobria só o par de **abertos**, e isso bastava enquanto todo
+> apontamento nascia do relógio. Com o horário informado (RF-110), quem coordena lança às onze o
+> que começou às sete, e nada impedia gravar 7h-11h e 9h-12h para a mesma pessoa: duas linhas
+> legítimas, cada uma com fim, somando quatro horas que ninguém trabalhou. **O apontamento aberto
+> entra na mesma restrição** como intervalo sem fim, de modo que ela cobre os dois casos; o índice
+> parcial fica por ser a garantia que RN-83 cita, e porque a segunda barreira sobre o caso comum
+> não custa nada.
+
+> **Lugar e lote são alternativos, nunca redundantes.** `area_id` e `bed_id` só aparecem na tela
+> quando o tipo de tarefa **não** exige lote (RF-82, RF-113): "Irrigação" tem
+> `requires_batch = FALSE` e, até 26/08/2026, não havia onde registrar *onde* ela foi feita. Tarefa
+> com lote herda o canteiro dele, e pedir os dois seria pedir a mesma informação duas vezes, que é
+> como formulário de campo deixa de ser preenchido.
 
 > **Começar outra tarefa encerra a anterior**, na mesma transação e sem perguntar. O gesto de
 > começar já declara que saiu da anterior; pedir confirmação acrescentaria um toque a algo que se
@@ -863,8 +897,12 @@ horas dos dias sem apontamento (RF-100), e a duração do turno vem de `work_shi
 | `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir |
 | `container_id` | uuid | ○ | FK → `containers` | Recipiente, quando o tipo de tarefa o exigir |
 | `batch_id` | uuid | ○ | FK → `batches` | Lote, quando o tipo de tarefa o exigir (RN-82) |
+| `area_id` | uuid | ○ | FK → `areas` | Área da tarefa que não exige lote (RF-113) |
+| `bed_id` | uuid | ○ | FK → `beds` | Canteiro da tarefa que não exige lote (RF-113) |
+| `start_time` | time | ○ | | Hora de início, quando a atribuição a declara. Nula = vale o turno inteiro |
+| `end_time` | time | ○ | | Hora de fim, nas mesmas condições. As duas são preenchidas juntas ou nenhuma |
 | `planned_quantity` | integer | ○ | | Quantidade planejada, quando aplicável |
-| `is_recurring` | boolean | ● | | Tarefa fixa: renasce em toda semana nova (RF-72) |
+| `recurrence_id` | uuid | ○ | FK → `task_recurrences` | Regra que gerou esta ocorrência. Nula = atribuição lançada à mão (RN-96) |
 | `status` | text | ● | | `planejada`, `confirmada`, `nao_confirmada`: a última é a que o fechamento assume como realizada (RN-51) |
 | `notes` | text | ○ | | Observação livre; único campo aberto da agenda |
 
@@ -876,8 +914,115 @@ horas dos dias sem apontamento (RF-100), e a duração do turno vem de `work_shi
 > duração. O valor de quatro horas saiu do enunciado da RN-48 e virou parâmetro (RN-85).
 
 > **`work_date` mais `shift_id` continuam sendo a unidade de planejamento**, e não `started_at`.
-> Hora marcada é do apontamento, que é execução; a agenda planeja por turno porque é assim que o
-> viveiro pensa a semana, e pedir horário exato no planejamento garantiria agenda não preenchida.
+> A agenda planeja por turno porque é assim que o viveiro pensa a semana, e pedir horário exato no
+> planejamento garantiria agenda não preenchida.
+
+> **`start_time` e `end_time` são acréscimo sobre o turno, não substituição dele**, e é isso que
+> preserva a RN-48. `shift_id` continua obrigatório: a atribuição sem hora vale o turno inteiro,
+> que é o que RF-100 usa nos dias sem apontamento, e a atribuição com hora vale a janela declarada.
+> Quem traz hora para o planejamento é a **tarefa recorrente** (RN-95), e ela é a única: a rotina
+> fixa já tem hora na vida real, e é por tê-la que não precisa ser lançada todo dia.
+>
+> **Não se exige que a janela caiba dentro do turno.** A carga de terra que chega às 11h40
+> atravessa o almoço, e uma trava aqui faria registrar hora errada para conseguir registrar alguma
+> coisa.
+
+> **`is_recurring` saiu, substituído por `recurrence_id`** (26/08/2026), pelo mesmo motivo que
+> `measurement_type` saiu de `task_types`: o booleano dizia que a tarefa era fixa **sem dizer de
+> que regra vinha**, em que dias valia nem até quando. `recurrence_id IS NOT NULL` responde a
+> pergunta inteira, e leva junto o endereço da regra. Nenhuma linha existia e nenhuma tela lia a
+> coluna: a troca não custou migração de dado.
+
+> **A ocorrência é atribuição comum, e é isso que a torna editável** (RN-96). Ela nasce da regra e
+> guarda de qual, mas dali em diante vive por conta própria: excluir a ocorrência de uma quarta não
+> altera a regra, e alterar a regra não reescreve o dia já trabalhado. O índice
+> `assignments_uma_ocorrencia_por_dia` é a idempotência da geração, que acontece ao abrir a agenda
+> do dia e não por tarefa agendada: sem ele, abrir a tela duas vezes geraria a atribuição duas
+> vezes, e as horas de RF-100 dobrariam.
+
+## `task_recurrences`: tarefa recorrente
+
+**A rotina fixa que não se lança todo dia.** A irrigação das 7h às 8h, de segunda a sábado, até o
+fim do verão: dias, hora e vigência declarados uma vez, e a agenda passa a nascer com ela dentro
+(RF-114). Substituiu o booleano `assignments.is_recurring`, que dizia que a tarefa era fixa sem
+dizer de que regra vinha.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `id` | uuid | ● | PK | Identificador |
+| `task_type_id` | uuid | ● | FK → `task_types` | Tipo de tarefa que se repete |
+| `weekdays` | smallint[] | ● | | Dias em que a regra vale, ISO: 1 = segunda a 7 = domingo. Restrição: de um a sete dias, todos na faixa e nenhum nulo |
+| `start_time` | time | ● | | Hora de início. Obrigatória, ao contrário da atribuição comum (RN-95) |
+| `end_time` | time | ● | | Hora de fim. Restrição: posterior ao início |
+| `species_id` | uuid | ○ | FK → `species` | Espécie, quando o tipo de tarefa a exigir |
+| `container_id` | uuid | ○ | FK → `containers` | Recipiente, quando o tipo de tarefa o exigir |
+| `batch_id` | uuid | ○ | FK → `batches` | Lote, quando o tipo de tarefa declarar lote específico |
+| `area_id` | uuid | ○ | FK → `areas` | Área, quando a tarefa não tem lote |
+| `bed_id` | uuid | ○ | FK → `beds` | Canteiro, nas mesmas condições |
+| `valid_from` | date | ● | | Início da vigência |
+| `valid_until` | date | ○ | | Fim da vigência. **Nula = sem prazo**. Restrição: não anterior ao início |
+| `active` | boolean | ● | | Regra ativa |
+| `notes` | text | ○ | | Observação |
+| `created_by` | uuid | ● | FK → `users` | Quem criou a regra |
+
+> **`weekdays` é array, e não sete colunas booleanas.** A pergunta que se faz é sempre "esta regra
+> vale na quarta?", que uma busca de valor no array responde direto; sete colunas obrigariam a
+> nomear cada dia em toda consulta e a manter sete restrições onde uma basta.
+
+> **A restrição de dias usa `cardinality`, e não `array_length`.** Para o array vazio,
+> `array_length` devolve nulo, e nulo comparado a uma faixa continua nulo, que a restrição aceita:
+> escrita do jeito óbvio, ela deixava passar exatamente o caso que existia para barrar, e a falha
+> só apareceu ao testar a migration. `cardinality` devolve zero, que é falso de verdade. O elemento
+> nulo é barrado à parte, porque o operador de contenção sozinho não o pega.
+
+> **Encerrar a recorrência é preencher `valid_until`, nunca apagar a linha** (RF-116, RN-96). As
+> ocorrências já geradas apontam para ela, e apagá-la apagaria o vínculo de dias já trabalhados. A
+> regra para de gerar dias novos e o passado permanece explicável.
+
+## `task_recurrence_members`: participante da recorrência
+
+Quem a regra escala. Mesma forma de `assignment_members`, e pelo mesmo motivo (RN-84): a
+recorrência vale para **um funcionário ou um grupo**, e "a equipe inteira irriga de manhã" é uma
+regra só, não nove regras parecidas.
+
+| Atributo | Tipo | Ob. | Chave | Descrição |
+|---|---|:--:|:--:|---|
+| `recurrence_id` | uuid | ● | PK, FK → `task_recurrences` | Regra |
+| `party_id` | uuid | ● | PK, FK → `cadastro.parties` | Funcionário escalado |
+
+> **O apagamento em cascata é dos membros, e nunca das atribuições.** Apagar a regra apaga quem
+> estava nela; apagar o dia que já foi trabalhado, jamais.
+
+## `batch_health`: situação do lote *(não é tabela)*
+
+**Visão.** Devolve, para cada lote aberto, a tarefa pendente mais antiga e a situação que dela
+decorre: `saudavel`, `atencao` ou `critico`. É o que pinta o mapa de produção (RF-117 a RF-120).
+
+| Atributo | Origem |
+|---|---|
+| `batch_id`, `batch_code`, `bed_id`, `position` | `batches`, restrito aos lotes abertos |
+| `pending_assignment_id`, `pending_task_type_id`, `pending_task_name` | a atribuição do lote cuja data já passou e que não tem execução concluída |
+| `pending_since` | `assignments.work_date` da pendência |
+| `days_late` | a data de hoje menos `pending_since`; zero quando não há pendência |
+| `health` | `days_late` comparado aos parâmetros `producao.atraso_atencao_dias` e `producao.atraso_critico_dias` de `settings` |
+
+> **É visão e não coluna** (RN-93), pela mesma razão de `input_stock_balance` e
+> `species_unit_cost`: situação gravada envelhece sozinha, e o lote marcado como saudável ontem
+> continuaria saudável hoje, que é o contrário do que a tela mostra.
+
+> **A mais antiga manda.** Havendo três pendências no mesmo lote, quem determina a cor é a que
+> espera há mais tempo, e é ela que aparece ao apontar o lote (RF-119): resolvê-la é a providência
+> que o mapa está pedindo.
+
+> **A tarefa dada como realizada no fechamento da semana deixa de ser pendência** (RF-75, RN-51).
+> Sem isso, toda semana fechada deixaria um vermelho permanente atrás de si, e o mapa inteiro
+> ficaria vermelho até deixar de ser olhado.
+
+> **Os limites vêm de `settings`, e não de literal na visão** (RN-94). É o que faz o parâmetro ser
+> parâmetro de verdade, e não constante com outro nome. A migration que cria a visão afirma que as
+> duas chaves existem: sem elas a subconsulta devolveria nulo e **todo** lote apareceria como
+> saudável, que é a falha silenciosa mais cara possível nesta tela.
+
 
 # Módulo 3 · Comercial
 
@@ -1299,9 +1444,9 @@ ausência de sobreposição entre períodos de vigência.
 |---|---:|---|
 | *(transversal)* Acesso | 5 | inclui `settings`, os parâmetros do sistema |
 | 1 · Cadastros | 16 | inclui `task_types`, o endereço do viveiro (`areas`, `beds`), `work_shifts` e o esquema `cadastro` (`parties`, `party_roles`, `addresses`) |
-| 2 · Produção | 12 | lote, movimento, agenda, apontamento, consumo, coleta, perda, contagem |
+| 2 · Produção | 14 | lote, movimento, agenda, recorrência, apontamento, consumo, coleta, perda, contagem |
 | 3 · Comercial | 8 | pedido, item, carga, cotação |
 | 4 · Financeiro | 14 | nove entidades no esquema `financeiro`, mais custeio e preço em `public` |
-| **Total** | **55** | mais `species_unit_cost` e `input_stock_balance`, que são visões e não tabelas |
+| **Total** | **57** | mais `species_unit_cost`, `input_stock_balance` e `batch_health`, que são visões e não tabelas |
 
 

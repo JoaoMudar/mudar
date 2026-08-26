@@ -12,6 +12,7 @@ erDiagram
     date plantado_em
     date previsao_pronto_em
     timestamptz encerrado_em
+    int posicao
   }
   movimentos_lote {
     uuid id PK
@@ -35,7 +36,7 @@ erDiagram
 
   especies    ||--o{ lotes           : "é plantada em"
   recipientes ||--o{ lotes           : "define o porte de"
-  canteiros   ||--o| lotes           : "abriga"
+  canteiros   ||--o{ lotes           : "abriga"
   lotes       ||--o{ lotes           : "dá origem a"
   lotes       ||--o{ movimentos_lote : "é explicado por"
   canteiros   ||--o{ movimentos_lote : "é origem ou destino de"

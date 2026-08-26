@@ -33,27 +33,34 @@ O `-s 3` renderiza a 3x: no Word a imagem entra reduzida e continua nítida na i
 | 7 | `fig07-conceitual-comercial` | Conceitual: do custo ao dinheiro | 6,5 pt |
 | 8 | `fig08-acesso` | Acesso e parâmetros, transversais aos quatro módulos | 7,3 pt |
 | 9 | `fig09-cadastros-especie` | Cadastros: a espécie e seus nomes | 15,8 pt |
-| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,6 pt |
-| 11 | `fig11-cadastros-viveiro` | Cadastros: área, canteiro e turno de trabalho | 16,2 pt |
+| 10 | `fig10-cadastros-insumo-recipiente` | Cadastros: recipiente, insumo e tipo de tarefa | 7,7 pt |
+| 11 | `fig11-cadastros-viveiro` | Cadastros: área, canteiro e turno de trabalho | 16,3 pt |
 | 12 | `fig12-cadastros-pessoas` | Cadastros: identidade única e papéis | 6,9 pt |
-| 13 | `fig13-producao-agenda` | Produção: agenda, apontamento e gasto de tarefa | 6,2 pt · **a mais apertada** |
-| 14 | `fig14-producao-lote` | Produção: o lote e seus movimentos | 9,8 pt |
-| 15 | `fig15-producao-campo` | Produção: consumo, perda e contagem | 5,5 pt · **usar paisagem** (8,2 pt) |
-| 16 | `fig16-comercial-pedido` | Comercial: pedido, item e carga | 7,3 pt |
-| 17 | `fig17-comercial-cotacao` | Comercial: cotação com fornecedor | 12,4 pt |
-| 18 | `fig18-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
-| 19 | `fig19-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,5 pt |
-| 20 | `fig20-financeiro-custo-preco` | Financeiro: do custo ao preço | 6,9 pt |
+| 13 | `fig13-producao-agenda` | Produção: semana, atribuição e tarefa recorrente | 7,7 pt |
+| 14 | `fig14-producao-apontamento` | Produção: apontamento e gasto de tarefa | 10,1 pt |
+| 15 | `fig15-producao-lote` | Produção: o lote e seus movimentos | 9,5 pt |
+| 16 | `fig16-producao-campo` | Produção: consumo, perda e contagem | 5,5 pt · **usar paisagem** (8,2 pt) |
+| 17 | `fig17-comercial-pedido` | Comercial: pedido, item e carga | 7,3 pt |
+| 18 | `fig18-comercial-cotacao` | Comercial: cotação com fornecedor | 12,5 pt |
+| 19 | `fig19-financeiro-extrato` | Financeiro: o extrato como fonte da verdade | 6,4 pt |
+| 20 | `fig20-financeiro-classificacao` | Financeiro: categoria, centro de custo e regra | 9,5 pt |
+| 21 | `fig21-financeiro-custo-preco` | Financeiro: do custo ao preço | 6,9 pt |
+
+**A antiga Figura 13 virou duas, em 26/08/2026, e daí a renumeração.** Ela juntava planejamento e
+execução e já era a mais apertada da série, a 6,2 pt. Com a tarefa recorrente dentro, caiu para
+**4,8 pt**, abaixo do piso de legibilidade impressa. Dividida no ponto em que o modelo já se
+divide, o planejado de um lado e o realizado do outro, as duas metades sobem para 7,7 e 10,1 pt.
+**As figuras 14 a 20 antigas passaram a 15 a 21.**
 
 "Fonte útil" é o tamanho que o texto assume ao encaixar a figura na mancha de 16 x 24 cm, limitado
 pela largura ou pela altura, o que apertar primeiro. Abaixo de 6 pt não se lê impresso.
 
-**Só a Figura 15 exige paisagem.** É uma faixa de 105 x 37 cm, e em retrato a largura a esmaga
+**Só a Figura 16 exige paisagem.** É uma faixa de 105 x 37 cm, e em retrato a largura a esmaga
 para 5,5 pt. Girada, a dimensão longa ocupa a altura e a fonte sobe para 8,2 pt.
 
-**As figuras posteriores deslocam em 9.** O capítulo 4 ia até a Figura 18 antes destas; com 15
-figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 21 e a segurança
-(4.7) na 27.
+**As figuras posteriores deslocam em 10.** O capítulo 4 ia até a Figura 18 antes destas; com 16
+figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura 22 e a segurança
+(4.7) na 28.
 
 ## Como as divisões foram feitas
 
@@ -61,9 +68,9 @@ figuras no lugar das 6 originais, a arquitetura (4.6) passa a começar na Figura
 |---|---|---|
 | 6 · Conceitual (20 entidades) | 6 e 7 | O ciclo produtivo, contra o ciclo do dinheiro |
 | 8 · Cadastros (16 entidades) | 9, 10, 11 e 12 | Catálogo botânico, catálogo de custeio, endereço do viveiro, identidade das pessoas |
-| 9 · Produção (12) | 13, 14 e 15 | O que se planeja e executa, o lote, o que se consome e se perde |
-| 10 · Comercial (8) | 16 e 17 | Ciclo do pedido, contra a cotação que o complementa |
-| 11 · Financeiro (14) | 18, 19 e 20 | As duas subseções do texto (extrato, custo ao preço), mais a classificação |
+| 9 · Produção (14) | 13, 14, 15 e 16 | O planejado, o apontado, o lote, o que se consome e se perde |
+| 10 · Comercial (8) | 17 e 18 | Ciclo do pedido, contra a cotação que o complementa |
+| 11 · Financeiro (14) | 19, 20 e 21 | As duas subseções do texto (extrato, custo ao preço), mais a classificação |
 
 **Por que o conceitual foi dividido em 24/08/2026.** Ele resistiu à primeira rodada de divisões
 como figura única, ao custo de virar uma faixa de 3,5:1 que só se lia em paisagem, a 8,2 pt. Com o

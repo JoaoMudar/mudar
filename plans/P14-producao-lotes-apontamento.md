@@ -35,9 +35,11 @@ Estava excluído em `A1` §7 e fora do glossário em `A2`, enquanto o `P2` já o
 não catalogada, registrada agora como **achado L** da auditoria. O limite não sumiu, subiu de
 altura: **rastreamento vai até o lote, nunca até a muda**.
 
-### 2. Um lote ocupa um canteiro
-Leva que não cabe em um canteiro é **outro lote**. Garantido por índice único parcial, não por
-validação de tela.
+### 2. Um lote ocupa um canteiro, e um canteiro comporta vários lotes
+Leva que não cabe em um canteiro é **outro lote**; o canteiro, esse, recebe quantas levas
+couberem. A exclusividade caiu em 26/08/2026, com o protótipo do mapa de produção: o índice único
+`batches_um_lote_aberto_por_canteiro` proibia o que a operação faz todo dia. O que ficou no lugar
+é `batches.position`, a ordem do lote dentro do canteiro, que dá ao mapa um desenho estável.
 
 ### 3. Repicagem cria lote filho
 A muda que muda de recipiente virou outro produto. A repicagem baixa parte do lote de origem e

@@ -15,66 +15,54 @@ erDiagram
     uuid especie_id FK
     uuid recipiente_id FK
     uuid lote_id FK
+    uuid area_id FK
+    uuid canteiro_id FK
+    time hora_inicio
+    time hora_fim
     int quantidade_planejada
-    boolean e_recorrente
+    uuid recorrencia_id FK
     text situacao
   }
   atribuicoes_participantes {
     uuid atribuicao_id PK
     uuid pessoa_id PK
   }
-  execucoes_tarefa {
+  recorrencias_tarefa {
     uuid id PK
-    uuid id_offline UK
-    uuid atribuicao_id FK
     uuid tipo_tarefa_id FK
-    uuid pessoa_id FK
-    date data_trabalho
-    timestamptz iniciado_em
-    timestamptz encerrado_em
-    uuid lote_id FK
+    smallint_array dias_semana
+    time hora_inicio
+    time hora_fim
     uuid especie_id FK
     uuid recipiente_id FK
-    int quantidade
-    text situacao
-    uuid registrado_por FK
+    uuid lote_id FK
+    uuid area_id FK
+    uuid canteiro_id FK
+    date vigente_de
+    date vigente_ate
+    boolean ativa
+    uuid criado_por FK
   }
-  gastos_tarefa {
-    uuid id PK
-    uuid execucao_tarefa_id FK
-    uuid atribuicao_id FK
-    text descricao
-    numeric valor
-    date data_gasto
-    uuid centro_custo_id FK
-    uuid registrado_por FK
+  recorrencias_participantes {
+    uuid recorrencia_id PK
+    uuid pessoa_id PK
   }
   tipos_tarefa {
   }
   turnos_trabalho {
   }
-  especies {
-  }
-  recipientes {
-  }
   pessoas {
   }
   lotes {
-  }
-  centros_custo {
   }
 
   planos_semana   ||--o{ atribuicoes               : "compõe-se de"
   tipos_tarefa    ||--o{ atribuicoes               : "classifica"
   turnos_trabalho ||--o{ atribuicoes               : "situa no dia"
   lotes           ||--o{ atribuicoes               : "é trabalhado em"
-  especies        ||--o{ atribuicoes               : "é objeto de"
-  recipientes     ||--o{ atribuicoes               : "contextualiza"
   atribuicoes     ||--o{ atribuicoes_participantes : "escala"
   pessoas         ||--o{ atribuicoes_participantes : "participa de"
-  atribuicoes     ||--o{ execucoes_tarefa          : "vira realizado em"
-  tipos_tarefa    ||--o{ execucoes_tarefa          : "classifica"
-  pessoas         ||--o{ execucoes_tarefa          : "executa"
-  lotes           ||--o{ execucoes_tarefa          : "recebe trabalho de"
-  execucoes_tarefa ||--o{ gastos_tarefa            : "incorre em"
-  centros_custo   ||--o{ gastos_tarefa             : "destina"
+  recorrencias_tarefa ||--o{ atribuicoes                : "gera ocorrência"
+  tipos_tarefa        ||--o{ recorrencias_tarefa        : "classifica"
+  recorrencias_tarefa ||--o{ recorrencias_participantes : "escala"
+  pessoas             ||--o{ recorrencias_participantes : "participa de"

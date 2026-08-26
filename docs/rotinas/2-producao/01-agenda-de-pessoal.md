@@ -35,6 +35,10 @@ quando se toca em "começar" e em "encerrar" (ver decisão 5).
 **cadastro**, na tela de configurações. Muda com a estação e com a combinação da equipe, e
 convenção que muda é dado, não constante escondida no código.
 
+**Há uma exceção, e é declarada: a tarefa recorrente tem hora** (ver decisão 3). A irrigação das
+sete às oito já tem horário na vida real, e é justamente por tê-lo que ela não precisa ser lançada
+todo dia. O resto da agenda continua sendo turno.
+
 ### 2. Escolher, não digitar
 
 Tudo é lista fechada: funcionário (do cadastro), tipo de tarefa (do catálogo), espécie,
@@ -54,9 +58,31 @@ A semana do viveiro se parece muito com a anterior. O botão principal da tela �
 **"Copiar semana passada"**: traz tudo preenchido, e ajusta-se o que mudou. Preencher do
 zero é a exceção.
 
-Tarefas recorrentes (irrigação diária, por exemplo) podem ser marcadas como **fixas** e já
-nascem em toda semana nova. E uma tarefa pode ser lançada **para um intervalo de dias** de uma
-vez, em vez de cinco vezes.
+Tarefas recorrentes (irrigação diária, por exemplo) deixaram de ser uma **marca** e viraram
+**regra própria**: escolhe-se um funcionário ou um grupo, os dias da semana, a hora de início e de
+fim, e até quando vale. Dali em diante a agenda nasce com elas dentro, sem ninguém lançar nada.
+
+```
+Nova tarefa recorrente
+
+  Tarefa       [ Irrigação                  ▾ ]
+  Quem         [ Rogério, Amélia, Jaison    ▾ ]   ← um ou um grupo
+  Dias         [x] seg [x] ter [x] qua [x] qui [x] sex [x] sáb [ ] dom
+  Horário      [ 07:00 ] às [ 08:00 ]
+  Vale de      [ 26/08/2026 ] até [ (sem prazo) ]
+
+  [ Salvar ]
+```
+
+> **Por que a marca não bastava.** Um "é fixa" no sim ou não dizia que a tarefa se repetia sem
+> dizer **em que dias**, **em que horário** e **até quando**. Servia para copiar a semana; não
+> serve para a irrigação de segunda a sábado que muda quando o verão acaba.
+
+**O dia gerado é um dia comum.** Excluir a ocorrência de uma quarta não mexe na regra, e mexer na
+regra não reescreve o que já foi trabalhado. Encerrar a recorrência é preencher a data de fim, e
+não apagá-la: os dias que ela gerou continuam na agenda e no custo.
+
+E uma tarefa pode ser lançada **para um intervalo de dias** de uma vez, em vez de cinco vezes.
 
 ### 4. A tarefa é do grupo, não da pessoa
 
@@ -70,7 +96,7 @@ com grupos diferentes.
 
 ### 5. O planejado vira realizado pelo relógio, e o turno é a rede de proteção
 
-Durante o dia, quem coordena marca no cartão do funcionário quando ele **começa** e quando
+Durante o dia, quem coordena marca na faixa do funcionário quando ele **começa** e quando
 **encerra**. Daí saem as horas reais.
 
 **Onde ninguém apontou, o planejado é assumido como realizado**, pelo turno, com uma marca de
@@ -121,8 +147,12 @@ lote só aparecem se o tipo de tarefa exigir.
 ### Gerência: agenda do dia (execução)
 
 É a tela do dia a dia, e está descrita em
-[`05-apontamento-de-tarefas.md`](05-apontamento-de-tarefas.md): em cima, as tarefas planejadas do
-dia; embaixo, **um cartão por funcionário** mostrando o que cada um está fazendo agora.
+[`05-apontamento-de-tarefas.md`](05-apontamento-de-tarefas.md): **uma linha do tempo horizontal,
+com uma faixa por funcionário** e as tarefas como barras posicionadas pelo horário.
+
+É a **primeira aba da tela inicial da Produção**; a segunda é o mapa de produção
+([`04`](04-lotes-e-canteiros.md)). São as duas perguntas que se faz ao entrar no módulo: *quem
+está fazendo o quê agora* e *como está o viveiro*.
 
 ### Colaborador: hoje
 
@@ -181,7 +211,9 @@ rateio geral, junto dos custos fixos. Tarefa **com lote** vira custo direto daqu
 | `task_types` | catálogo de tipos de tarefa: nome, categoria, quantitativa por unidade?, lote específico?, exige espécie?, exige recipiente?. Vive nos [Cadastros](../1-cadastros/00-visao-geral.md) |
 | `work_shifts` | o período de trabalho: hora de início e fim de cada turno |
 | `week_plans` | a semana: `week_start`, `status` (rascunho · publicada · fechada) |
-| `assignments` | a célula da grade: data, turno, tipo de tarefa, espécie?, recipiente?, lote?, quantidade planejada |
+| `assignments` | a célula da grade: data, turno, tipo de tarefa, espécie?, recipiente?, lote?, área?, canteiro?, quantidade planejada, hora de início e fim quando a declara |
+| `task_recurrences` | a regra da rotina fixa: tipo de tarefa, dias da semana, hora de início e fim, vigência |
+| `task_recurrence_members` | o grupo que a recorrência escala |
 | `assignment_members` | o grupo escalado na atribuição |
 | `task_executions` | o apontamento: uma linha por pessoa, com início e fim |
 | `labor_rates` | valor-hora médio por período (mês) |
@@ -196,9 +228,12 @@ existem na agenda mesmo sem nunca terem feito login.
 2. **Toda tarefa tem ao menos um responsável.** Não existe tarefa sem pessoa; existe pessoa sem
    tarefa.
 3. **Tipo de tarefa vem do catálogo.** Nunca texto livre.
-4. **Uma pessoa faz uma tarefa por vez.** Começar outra encerra a anterior, sem perguntar.
-5. **Funcionário inativo some da grade, mas não do histórico.**
-6. **Colaborador só vê e edita as próprias tarefas**: a grade da semana inteira é de
+4. **Só a tarefa recorrente declara hora no planejamento.** O resto é turno.
+5. **A regra da recorrência e o dia gerado por ela são coisas separadas.** Mexer num não mexe no
+   outro.
+6. **Uma pessoa faz uma tarefa por vez.** Começar outra encerra a anterior, sem perguntar.
+7. **Funcionário inativo some da grade, mas não do histórico.**
+8. **Colaborador só vê e edita as próprias tarefas**: a grade da semana inteira é de
    gerência e chefia (matriz RBAC, D4).
 
 ## O que isso destrava
@@ -217,7 +252,7 @@ existem na agenda mesmo sem nunca terem feito login.
 |---|---|
 | [`A2`](../../engenharia/A-fundacao/A2-glossario-dominio.md) | §6 nova: Turno, Tipo de tarefa, Atribuição, Apontamento |
 | [`B3`](../../engenharia/B-requisitos/B3-regras-de-negocio.md) | RN-80 a RN-86; RN-48 e RN-51 emendadas; ressalvas §2.4 de três para cinco |
-| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.2.4 nova (RF-70 movido, RF-82, RF-83); RF-92 a RF-100 |
+| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.2.4 nova (RF-70 movido, RF-82, RF-83); RF-92 a RF-100; RF-108, RF-114 a RF-116 e RF-94 emendado em 26/08/2026 |
 | [`C1`](../../engenharia/C-modelagem/C1-diagrama-casos-de-uso.md) / [`C2`](../../engenharia/C-modelagem/C2-especificacao-casos-de-uso.md) | UC-50, UC-51, UC-52 e UC-54; os dois primeiros detalhados |
 | [`C6`](../../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md) | `work_shifts`, `assignment_members`, `task_expenses`; `production_activities` virou `task_executions`; `assignments` perdeu `party_id` e ganhou `shift_id` |
 | [`D4`](../../engenharia/D-arquitetura/D4-matriz-rbac.md) | recursos **Apontamento**, **Período de trabalho** e **Gastos de tarefa**; §3.14 |

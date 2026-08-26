@@ -313,12 +313,14 @@ propagaria o erro para o estoque. A correção é uma contagem física (UC-16), 
 
 ### FA-1: A leva não cabe em um canteiro
 
-No passo 3, a quantidade excede o que um canteiro comporta. O sistema informa, e a gerência cria
-**dois lotes**, um por canteiro, em vez de um lote em dois lugares (RN-76).
+No passo 3, a quantidade excede o que o canteiro ainda comporta, contando os lotes já abertos nele.
+O sistema **avisa e não recusa** (RN-92), e a gerência escolhe: apertar mais, ou criar **dois
+lotes**, um por canteiro, em vez de um lote em dois lugares (RN-76).
 
 > **Por que não um lote em dois canteiros.** Seria uma entidade a mais e um campo a mais em toda
 > tela que pede lote, para representar o que dois lotes já representam. E a pergunta que a
-> operação faz é "o que tem neste canteiro", que um lote por canteiro responde direto.
+> operação faz é "o que tem neste canteiro", que o lote inteiro num canteiro só responde direto.
+> **O canteiro comporta vários lotes** desde 26/08/2026: o que não existe é o lote espalhado.
 
 ### FA-2: Espécie sem tempo de produção cadastrado
 

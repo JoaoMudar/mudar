@@ -67,7 +67,7 @@ erDiagram
 
   ESPECIE      ||--o{ LOTE        : "é plantada em"
   RECIPIENTE   ||--o{ LOTE        : "define o porte de"
-  CANTEIRO     ||--o| LOTE        : "abriga"
+  CANTEIRO     ||--o{ LOTE        : "abriga"
   LOTE         ||--o{ LOTE        : "dá origem a"
   LOTE         ||--o{ PRODUCAO    : "recebe trabalho de"
   LOTE         ||--o{ PERDA       : "sofre"
@@ -95,7 +95,7 @@ erDiagram
   PEDIDO       ||--o| LANCAMENTO  : "é conciliado com"
 ```
 
-O diagrama conceitual apresenta **vinte e uma entidades**, e não as cinquenta e cinco do modelo completo.
+O diagrama conceitual apresenta **vinte e uma entidades**, e não as cinquenta e sete do modelo completo.
 A redução é deliberada: Sommerville (2011) observa que a ausência de detalhe excessivo é
 característica central do modelo, cujo objetivo é destacar o mais relevante e não especificar por
 inteiro. Entidades associativas, de histórico e de auditoria aparecem apenas nos modelos lógicos por
@@ -126,9 +126,9 @@ Seis leituras que o modelo conceitual já entrega:
 
 ### 2.1 Recorte implementado
 
-O modelo descrito aqui é o **especificado**, e é maior que o protótipo construído: das 55 entidades,
-**44 existem no banco** (mais as duas visões, `species_unit_cost` e `input_stock_balance`) e
-**11 permanecem só especificadas**. O recorte segue a priorização de
+O modelo descrito aqui é o **especificado**, e é maior que o protótipo construído: das 57 entidades,
+**46 existem no banco** (mais as três visões, `species_unit_cost`, `input_stock_balance` e
+`batch_health`) e **11 permanecem só especificadas**. O recorte segue a priorização de
 [`B2`](../B-requisitos/B2-especificacao-requisitos.md), e não uma limitação do modelo: o que se
 modela é o sistema especificado, o que se constrói é o recorte que cabe no prazo do trabalho.
 
@@ -136,10 +136,10 @@ modela é o sistema especificado, o que se constrói é o recorte que cabe no pr
 |---|---:|---:|---|
 | *(transversal)* Acesso | 5 | 0 | - |
 | 1 · Cadastros | 16 | 0 | - |
-| 2 · Produção | 12 | 0 | - |
+| 2 · Produção | 14 | 0 | - |
 | 3 · Comercial | 8 | 0 | - |
 | 4 · Financeiro | 3 | 11 | as nove de `financeiro`, mais `sale_channels` e `sale_prices` |
-| **Total** | **44** | **11** | |
+| **Total** | **46** | **11** | |
 
 O [`C8`](C8-dicionario-de-dados.md) marca a condição entidade por entidade. Três atributos de
 entidade já existente estão na mesma situação: `users.party_id`, o par
@@ -149,8 +149,12 @@ este último à espera do esquema `financeiro`.
 **A Produção era o módulo mais especificado e o menos construído, e deixou de ser em 24/08/2026.**
 As migrations `20260824000001` a `20260824000007` levaram ao banco as dezesseis entidades do lote,
 da agenda, do apontamento e do estoque de insumo, com a carga inicial dos vinte e dois tipos de
-tarefa e dos dois turnos. **O que falta ali é tela, não tabela**: a construção da aplicação está
-planejada em [`plans/P14`](../../../plans/P14-producao-lotes-apontamento.md). O Financeiro passou
+tarefa e dos dois turnos. Em 26/08/2026 as migrations `20260826000001` a `20260826000004`
+acrescentaram a tarefa recorrente e a visão de situação do lote, e emendaram `batches`,
+`assignments` e `task_executions`: são as entidades que o protótipo da tela inicial do módulo
+exigiu, e a alteração do lote por canteiro nasceu de o desenho contradizer o modelo. **O que falta
+ali é tela, não tabela**: a construção da aplicação está planejada em
+[`plans/P14`](../../../plans/P14-producao-lotes-apontamento.md). O Financeiro passou
 a ser o único módulo com entidade no papel, e por motivo próprio: depende de acesso a extrato
 bancário que o protótipo ainda não tem.
 
@@ -422,7 +426,7 @@ erDiagram
   task_types  ||--o{ assignments          : "classifica"
   work_shifts ||--o{ assignments          : "situa no dia"
   areas       ||--o{ beds                 : "divide-se em"
-  beds        ||--o| batches              : "abriga"
+  beds        ||--o{ batches              : "abriga"
 ```
 
 **Por que `species_popular_names` é entidade separada.** O nome popular é atributo **multivalorado**
@@ -473,9 +477,15 @@ dela, e a numeração recomeça em cada área: por isso a unicidade é do par (`
 não do número sozinho (RN-74). É o vocabulário que a equipe já usa apontando com o dedo, e o
 sistema não inventa nomenclatura nova para ele.
 
-**`beds ||--o| batches` é a cardinalidade que carrega a regra.** Um canteiro abriga **no máximo um**
-lote aberto, e lote encerrado libera o canteiro (RN-79). `capacity` é opcional e serve de aviso ao
-criar lote, não de trava: o viveiro sabe apertar mais do que a conta quando precisa.
+**`beds ||--o{ batches` é a cardinalidade que carrega a regra.** Um canteiro abriga **vários** lotes
+abertos, e lote encerrado larga o canteiro (RN-79): canteiro livre é canteiro sem nenhum lote
+aberto. `capacity` é opcional e serve de aviso ao criar lote, não de trava: o viveiro sabe apertar
+mais do que a conta quando precisa, e a ocupação real é a soma dos saldos dos lotes abertos nele
+(RN-92).
+
+**A cardinalidade era `||--o|` até 26/08/2026.** O modelo declarava um lote por canteiro, e o
+viveiro nunca operou assim: quem apontou a contradição foi o protótipo do mapa de produção, que
+desenha vários lotes dentro do mesmo canteiro porque é o que se vê ao olhar para ele.
 
 **`work_shifts` é o período de trabalho, e existe para tirar um número de dentro do código.** A
 regra RN-48 dizia, no próprio enunciado, que um turno vale quatro horas. Isso é convenção que muda
@@ -508,7 +518,9 @@ Registro do que acontece no campo. Consome o catálogo do módulo 1 (daí as cai
 entrega estoque para o Comercial e medida de consumo e de horas para o custeio.
 
 **É o maior módulo do modelo, e passou a ser em 24/08/2026**, quando o lote entrou no escopo
-([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). Doze entidades e uma visão derivada.
+([`A1`](../A-fundacao/A1-documento-de-visao.md) §7). Quatorze entidades e duas visões derivadas: a
+tarefa recorrente e a situação do lote entraram em 26/08/2026, com o protótipo da tela inicial do
+módulo.
 
 ```mermaid
 erDiagram
@@ -525,6 +537,7 @@ erDiagram
     date planted_at
     date expected_ready_at
     timestamptz closed_at
+    int position
     text notes
   }
   batch_movements {
@@ -557,10 +570,34 @@ erDiagram
     uuid species_id FK
     uuid container_id FK
     uuid batch_id FK
+    uuid area_id FK
+    uuid bed_id FK
+    time start_time
+    time end_time
     int planned_quantity
-    boolean is_recurring
+    uuid recurrence_id FK
     text status
     text notes
+  }
+  task_recurrences {
+    uuid id PK
+    uuid task_type_id FK
+    smallint_array weekdays
+    time start_time
+    time end_time
+    uuid species_id FK
+    uuid container_id FK
+    uuid batch_id FK
+    uuid area_id FK
+    uuid bed_id FK
+    date valid_from
+    date valid_until
+    boolean active
+    uuid created_by FK
+  }
+  task_recurrence_members {
+    uuid recurrence_id PK
+    uuid party_id PK
   }
   assignment_members {
     uuid assignment_id PK
@@ -578,6 +615,8 @@ erDiagram
     uuid batch_id FK
     uuid species_id FK
     uuid container_id FK
+    uuid area_id FK
+    uuid bed_id FK
     int quantity
     text status
     uuid recorded_by FK
@@ -669,7 +708,7 @@ erDiagram
 
   species     ||--o{ batches             : "é plantada em"
   containers  ||--o{ batches             : "define o porte de"
-  beds        ||--o| batches             : "abriga"
+  beds        ||--o{ batches             : "abriga"
   batches     ||--o{ batches             : "dá origem a"
   batches     ||--o{ batch_movements     : "é explicado por"
   beds        ||--o{ batch_movements     : "é origem ou destino de"
@@ -682,6 +721,11 @@ erDiagram
   batches     ||--o{ assignments         : "é trabalhado em"
   assignments ||--o{ assignment_members  : "escala"
   parties     ||--o{ assignment_members  : "participa de"
+
+  task_recurrences ||--o{ assignments             : "gera ocorrência"
+  task_types       ||--o{ task_recurrences        : "classifica"
+  task_recurrences ||--o{ task_recurrence_members : "escala"
+  parties          ||--o{ task_recurrence_members : "participa de"
 
   assignments ||--o{ task_executions     : "vira realizado em"
   task_types  ||--o{ task_executions     : "classifica"
@@ -720,11 +764,18 @@ erDiagram
 não tinha resposta para a segunda pergunta, e a rotina de campo não consegue operar sem ela: a
 tarefa de repicagem é dada apontando um canteiro, não uma espécie.
 
-**Um lote ocupa um canteiro, e a cardinalidade é `beds ||--o| batches`.** Leva que não cabe em um
-canteiro é **outro lote** (RN-76). A alternativa, uma entidade de ocupação com quantidade por
-canteiro, custaria um nível de indireção em toda tela que pede lote, para representar o que dois
-lotes já representam. E a pergunta que a operação faz é "o que tem neste canteiro", que um lote
-por canteiro responde sem junção.
+**Um lote ocupa um canteiro, e um canteiro abriga vários: a cardinalidade é `beds ||--o{ batches`.**
+Leva que não cabe em um canteiro é **outro lote** (RN-76). A alternativa, uma entidade de ocupação
+com quantidade por canteiro, custaria um nível de indireção em toda tela que pede lote, para
+representar o que dois lotes já representam.
+
+**A cardinalidade era `||--o|` até 26/08/2026, e a correção veio do protótipo da tela.** O modelo
+declarava exclusividade, garantida pelo índice `batches_um_lote_aberto_por_canteiro`, e o viveiro
+nunca a teve: o mapa de produção desenha seis, oito, nove lotes no mesmo canteiro, que é como a
+operação usa o espaço. O índice proibia exatamente o gesto de todo dia, e ninguém tinha esbarrado
+nele porque a tela ainda não existia. **`position` entrou junto**, para que o desenho do canteiro
+seja estável entre um carregamento e outro: reconhece-se o lote pelo lugar antes de ler o rótulo, e
+lote que troca de posição a cada abertura desfaz essa leitura.
 
 **`parent_batch_id` é reflexivo, e é o que a repicagem produz.** Quando a muda passa do tubete
 para o saco, ela muda de recipiente, e recipiente define produto, custo e preço: comercialmente,
@@ -758,10 +809,33 @@ duração do turno que a RN-48 usa: o valor de quatro horas saiu do enunciado da
 parâmetro (RN-85).
 
 **`task_executions` tem `started_at` e `ended_at`, e `ended_at` nulo significa tarefa em curso.**
-É o que sustenta o cartão do funcionário na agenda do dia. Uma pessoa faz uma tarefa por vez
+É o que sustenta a faixa do funcionário na linha do tempo do dia. Uma pessoa faz uma tarefa por vez
 (RN-83), e o banco garante isso com **índice único parcial sobre `party_id` onde `ended_at` é
 nulo**: não é validação de aplicação, porque duas telas abertas ao mesmo tempo a burlariam, e
 duas tarefas abertas contariam a mesma hora duas vezes.
+
+**A hora entrou em `assignments` sem derrubar o turno.** `start_time` e `end_time` são opcionais e
+`shift_id` continua obrigatório: a atribuição sem hora vale o turno inteiro, que é o que RF-100 usa
+nos dias sem apontamento, e a atribuição com hora vale a janela declarada. Quem traz hora para o
+planejamento é a **tarefa recorrente**, e ela é a única (RN-95). Fazer o contrário, trocar o turno
+pela hora em toda a agenda, exigiria montar a semana de hora em hora, e é a decisão que a RN-48
+recusa desde o começo.
+
+**`task_recurrences` é a regra, e `assignments` continua sendo a ocorrência.** A recorrência não
+tem linha do tempo própria: ela **gera atribuições**, e dali em diante cada dia vive por conta
+própria (RN-96). Excluir a ocorrência de uma quarta não altera a regra; alterar a regra não
+reescreve o dia já trabalhado. É a mesma separação entre planejado e realizado, um nível acima: a
+regra explica de onde o dia veio, sem poder reescrevê-lo.
+
+**A geração é sob demanda, ao abrir a agenda do dia, e não por tarefa agendada.** O sistema não tem
+processo de fundo, e criar um só para isto seria infraestrutura nova para uma regra que a própria
+tela resolve ao ser aberta. O que torna isso seguro é o índice único parcial sobre
+`(recurrence_id, work_date)`: sem ele, abrir a tela duas vezes geraria a atribuição duas vezes, e
+as horas assumidas por RF-100 dobrariam em silêncio.
+
+**`assignments.is_recurring` saiu na mesma alteração.** O booleano dizia que a tarefa era fixa sem
+dizer de que regra vinha, em que dias valia nem até quando: metade da resposta, guardada onde a
+resposta inteira cabia. É o mesmo corte que tirou `measurement_type` de `task_types`.
 
 **`task_executions` substituiu `production_activities`, e não é renomeação cosmética.** A entidade
 antiga registrava um fato consumado (espécie, recipiente, quantidade, data) e classificava-o por
@@ -783,6 +857,29 @@ das linhas que já existiam.
 **`client_id` repete em `task_executions` a solução já adotada em `input_usages`**: chave gerada no
 aparelho antes do primeiro envio, que torna o reenvio idempotente (RNF-05). Apontamento duplicado
 inflaciona horas, que é o número que o custeio existe para apurar.
+
+**O horário informado abriu um buraco na garantia de RN-83, e a restrição de exclusão o fecha.** O
+índice único parcial cobria dois apontamentos **abertos** para a mesma pessoa, e isso bastava
+enquanto todo apontamento nascia do relógio. Com "escolher horário" (RF-110), quem coordena lança às
+onze o que começou às sete, e nada impedia gravar 7h-11h e 9h-12h para a mesma pessoa: duas linhas
+legítimas, cada uma com fim, somando quatro horas que ninguém trabalhou.
+`task_executions_sem_sobreposicao` é `EXCLUDE USING gist` sobre `party_id` e o intervalo do
+apontamento, com o aberto entrando como intervalo sem fim, de modo que a mesma restrição cobre os
+dois casos (RN-97). É garantia de banco pelo mesmo motivo da anterior: duas telas abertas ao mesmo
+tempo burlariam qualquer validação de aplicação.
+
+**`area_id` e `bed_id` entraram nos dois lados porque o lugar não tinha onde ser gravado.**
+`assignments` e `task_executions` tinham lote, espécie e recipiente; "Irrigação" tem
+`requires_batch = FALSE`, e até 26/08/2026 não havia como registrar **onde** ela foi feita. Lugar e
+lote são **alternativos, nunca redundantes**: a tela só apresenta área e canteiro quando o tipo de
+tarefa não exige lote (RF-82, RF-113), e tarefa com lote herda o canteiro dele.
+
+**A situação do lote é visão, e não coluna.** `batch_health` deriva de `assignments` e
+`task_executions`: o lote fica em atenção ou crítico conforme o atraso da tarefa planejada para ele
+que ninguém executou, com os limites vindos de `settings` (RN-93, RN-94). Guardar a situação em
+`batches` criaria um valor que envelhece sozinho, e o lote marcado como saudável ontem continuaria
+saudável hoje: é a mesma razão que mantém `input_stock_balance` e `species_unit_cost` fora das
+tabelas.
 
 #### Insumo: entrada, consumo e saldo
 

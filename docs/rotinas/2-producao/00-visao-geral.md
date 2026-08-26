@@ -51,7 +51,7 @@ abertos dela. Sem lote, as três subrotinas funcionam por espécie agregada, e n
 
 ### Gerência
 - **Agenda da semana**: preencher o que cada funcionário faz (subrotina 1)
-- **Agenda do dia**: um cartão por funcionário, para apontar quem trocou de serviço (subrotina 2)
+- **Agenda do dia**: linha do tempo com uma faixa por funcionário, para apontar quem trocou de serviço (subrotina 2)
 - **Ocupação do viveiro**: o que há em cada canteiro, e quais estão livres (subrotina 3)
 - **Ficha do lote**: semeado → germinando → repicado → pronto, com o histórico que explica o saldo
 

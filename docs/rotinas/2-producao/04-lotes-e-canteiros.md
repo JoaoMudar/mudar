@@ -52,11 +52,22 @@ são dois lugares diferentes. É como a equipe já fala, e o sistema não invent
 Uma leva de mudas da **mesma espécie**, no **mesmo recipiente**, plantada junta, ocupando **um**
 canteiro. Guarda a quantidade que entrou, quanto ainda tem vivo, em que fase está e desde quando.
 
-**Um lote ocupa um canteiro.** Leva que não cabe em um canteiro é **outro lote**.
+**Um lote ocupa um canteiro, e um canteiro comporta vários lotes.** Leva que não cabe em um
+canteiro é **outro lote**; mas o canteiro recebe quantas levas couberem nele.
 
 > **Por que não um lote espalhado por vários canteiros.** Custaria um nível de indireção em toda
 > tela que pede lote, para representar o que dois lotes já representam. E a pergunta que a
-> operação faz é "o que tem neste canteiro", que um lote por canteiro responde direto.
+> operação faz é "o que tem neste canteiro", que o lote inteiro num canteiro só responde direto.
+
+> **Por que a exclusividade caiu, em 26/08/2026.** Até aqui este documento dizia *um* lote por
+> canteiro, e o banco garantia isso com um índice único. Estava errado, e ninguém tinha esbarrado
+> porque a tela ainda não existia: ao desenhar o mapa de produção ficou claro que o canteiro tem
+> seis, oito, nove quadradinhos, cada um uma leva. O sistema proibia o gesto de todo dia.
+
+**A ocupação do canteiro é a soma dos saldos dos lotes abertos nele.** A capacidade cadastrada
+continua sendo **aviso** ao criar lote, e nunca trava: o viveiro sabe apertar mais do que a conta
+quando precisa, e uma trava faria registrar o lote no canteiro errado só para conseguir
+registrá-lo.
 
 ### Lote de origem
 
@@ -88,24 +99,57 @@ se faz com uma **contagem física**, que gera o movimento de ajuste.
 
 ## As telas
 
-### Gerência: ocupação do viveiro (tela principal)
+### Gerência: mapa de produção (tela principal)
+
+É a **segunda aba da tela inicial da Produção**; a primeira é a agenda do dia
+([`01`](01-agenda-de-pessoal.md)). O viveiro desenhado como ele é: a área é o quadro, o canteiro é
+a faixa dentro dela, o lote é o quadrado dentro do canteiro.
 
 ```
-Ocupação do viveiro                                    [+ Novo lote]
+■ Saudável (71)   ■ Atenção (19)   □ Crítico (10)     apontar o lote → tarefa que falta
 
-ÁREA A
-  A-1   Aroeira · tubete · 1.200      semeado em 12/06   pronto ~ 12/12
-  A-2   Aroeira · tubete · 800        semeado em 12/06   pronto ~ 12/12
-  A-3   Ipê-amarelo · tubete · 180    semeado em 03/03   ⚠ 64% repicado
-  A-4   livre
-
-ÁREA B
-  B-1   Ipê-amarelo · saco 10x18 · 300   repicado de A-3 em 20/08
-  B-2   livre
-  B-3   Canela · saco 17x22 · 450        repicado de A-7 em 02/07   pronto ~ 02/01
+┌─ ÁREA A ───────────────┐  ┌─ ÁREA B ───────────────┐
+│ 25/36 ok · 4 crítico   │  │ 19/26 ok · 2 crítico   │
+│                        │  │                        │
+│  A-1 ■■□■ ■■■■         │  │  B-1 ■■□■ ■■           │
+│  A-2 ■■■■ ■■■          │  │  B-2 (livre)           │
+│  A-3 ■□■■ ■□■■         │  │  B-3 ■■■■ ■■■          │
+│  A-4 (livre)           │  │                        │
+└────────────────────────┘  └────────────────────────┘
 ```
 
-Canteiro livre é canteiro **sem lote aberto**. Lote que zera encerra sozinho e libera o canteiro.
+**Reconhece-se o lote pelo lugar antes de ler o rótulo**, e é isso que a tela existe para dar. Por
+isso o lote guarda a **posição** dentro do canteiro: sem ela os quadrados trocariam de lugar a cada
+abertura, e a referência espacial se perderia.
+
+Canteiro livre é canteiro **sem nenhum lote aberto**. Lote que zera encerra sozinho e larga o
+canteiro.
+
+### A situação do lote, e o que ela mede
+
+Três estados, e uma coisa só sendo medida: **tarefa que estava planejada para o lote e ninguém
+fez**.
+
+| Cor | Estado | Quando |
+|---|---|---|
+| verde | saudável | nenhuma tarefa vencida |
+| amarelo | atenção | tarefa vence hoje, ou está atrasada dentro do limite |
+| vermelho | crítico | tarefa atrasada além do limite |
+
+Apontar o lote mostra **qual tarefa falta e há quantos dias**: "Irrigação, atrasada 3 dias". A cor
+sozinha diz que algo está errado; o que se quer é a providência.
+
+> **Por que só o atraso, e não também a mortalidade.** Mortalidade acima do limite e previsão de
+> disponibilidade vencida já têm alerta próprio, e continuam onde estão. Somar tudo numa cor só
+> produziria um vermelho que não diz o que fazer, e um mapa cujo vermelho não indica ação deixa de
+> ser olhado em duas semanas.
+
+> **A situação não é digitada, e não existe campo para ela.** Sai do que já foi registrado na
+> agenda. Status digitado envelhece sozinho: o lote marcado como saudável ontem continuaria
+> saudável hoje, que é exatamente o contrário do que este mapa serve para mostrar.
+
+**O limite de dias é configuração, não número no código.** Muda com a estação e com o tipo de
+tarefa, pelo mesmo motivo que a duração do turno virou parâmetro.
 
 ### Gerência: ficha do lote
 
@@ -135,7 +179,8 @@ nasce da repicagem, dentro do gesto de encerrar a tarefa.
 
 ## Regras invioláveis
 
-1. **Um lote ocupa um canteiro.** Leva que não cabe é outro lote.
+1. **Um lote ocupa um canteiro, e um canteiro comporta vários lotes.** Leva que não cabe é outro
+   lote; o canteiro é o endereço, não a exclusividade.
 2. **Nenhum lote tem saldo negativo.** Baixa maior que o saldo é recusada: significa que a
    contagem está errada, e gravar o negativo propaga o erro para o estoque.
 3. **Lote com saldo zero está encerrado**, sai da ocupação e permanece no histórico.
@@ -170,10 +215,10 @@ nasce da repicagem, dentro do gesto de encerrar a tarefa.
 |---|---|
 | [`A1`](../../engenharia/A-fundacao/A1-documento-de-visao.md) | §7: lote saiu do fora-de-escopo, com a justificativa da revisão declarada; entrou "rastreamento individual da muda" |
 | [`A2`](../../engenharia/A-fundacao/A2-glossario-dominio.md) | verbetes Lote, Lote de origem, Área, Canteiro e Classificação; "Lote" saiu dos termos não adotados |
-| [`B3`](../../engenharia/B-requisitos/B3-regras-de-negocio.md) | RN-74 a RN-79 e RN-90 |
-| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.3.4 nova (RF-84 a RF-91); RF-80 e RF-81 em §2.2.1 |
+| [`B3`](../../engenharia/B-requisitos/B3-regras-de-negocio.md) | RN-74 a RN-79 e RN-90; em 26/08/2026, RN-92 a RN-94, com RN-76 e RN-79 emendadas |
+| [`B2`](../../engenharia/B-requisitos/B2-especificacao-requisitos.md) | §2.3.4 nova (RF-84 a RF-91); RF-80 e RF-81 em §2.2.1; §2.3.7 nova (RF-117 a RF-120) e RF-85 emendado em 26/08/2026 |
 | [`C1`](../../engenharia/C-modelagem/C1-diagrama-casos-de-uso.md) / [`C2`](../../engenharia/C-modelagem/C2-especificacao-casos-de-uso.md) | UC-46, UC-47, UC-48 e UC-49; UC-47 e UC-48 detalhados; UC-17 emendado |
-| [`C6`](../../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md) | `areas`, `beds`, `batches`, `batch_movements`; `loss_events` e `stock_counts` ganharam `batch_id` |
+| [`C6`](../../engenharia/C-modelagem/C6-modelo-entidade-relacionamento.md) / [`C8`](../../engenharia/C-modelagem/C8-dicionario-de-dados.md) | `areas`, `beds`, `batches`, `batch_movements`; `loss_events` e `stock_counts` ganharam `batch_id`; a visão `batch_health` e `batches.position`, com a cardinalidade canteiro-lote corrigida para 1:N |
 | [`D4`](../../engenharia/D-arquitetura/D4-matriz-rbac.md) | recursos **Áreas e canteiros** e **Lotes**; §3.13 |
 | [`E2`](../../engenharia/E-qualidade/E2-casos-de-teste-de-aceite.md) | TA-59 e TA-63 a TA-68 |
 | [`auditoria-divergencias.md`](../../auditoria-divergencias.md) | achado L: o conflito entre `A1`/`A2`/`C2` e o `P2`, e a decisão que o resolveu |
