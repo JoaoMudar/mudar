@@ -67,11 +67,11 @@ Por isso **a repicagem não move o lote**. Ela baixa parte do lote de origem e c
 que aponta para ele.
 
 ```
-Lote A-3 · Ipê · tubete · 500 mudas
+Lote 2026-0147 · A-3 · Ipê · tubete · 500 mudas
         │
-        ├── repica 300 ──→  Lote B-1 · Ipê · saco 10x18 · 300 mudas
-        ├── morrem 20   ──→  perda registrada no lote A-3
-        └── restam 180 em A-3
+        ├── repica 300 ──→  Lote 2026-0182 · B-1 · Ipê · saco 10x18 · 300 mudas
+        ├── morrem 20   ──→  perda registrada no lote 2026-0147
+        └── restam 180 em 2026-0147, que continua no A-3
 ```
 
 **É essa cadeia que responde a pergunta que o viveiro nunca pôde responder**: de cada mil
@@ -110,7 +110,7 @@ Canteiro livre é canteiro **sem lote aberto**. Lote que zera encerra sozinho e 
 ### Gerência: ficha do lote
 
 ```
-Lote 2026-A3-004 · Ipê-amarelo · tubete
+Lote 2026-0147 · Ipê-amarelo · tubete
 Canteiro A-3 · plantado em 03/03/2026 · previsão 03/11/2026
 
 Saldo: 180 mudas          (entrou com 500)
@@ -118,7 +118,7 @@ Saldo: 180 mudas          (entrou com 500)
 MOVIMENTOS
   03/03   entrada             +500
   18/05   perda (geada)        −40    Rogério
-  20/08   saída p/ repicagem  −300    → lote 2026-B1-011
+  20/08   saída p/ repicagem  −300    → lote 2026-0182
   20/08   perda (manuseio)     −20    na repicagem
   ────────────────────────────────
                                180

@@ -45,7 +45,7 @@ banco de dados usam o equivalente em **inglês**, indicado entre parênteses qua
 | **Lote** | **Leva de mudas da mesma espécie, no mesmo recipiente, plantada junta e ocupando um canteiro.** É a unidade de rastreamento da produção: onde a muda está, de onde veio e quanto sobrou dela. Um lote ocupa **um** canteiro; leva que não cabe em um canteiro é outro lote. | "a leva", "aquele canteiro de ipê" | **Lote** (`batch`) |
 | **Lote de origem** | Lote do qual outro nasceu. A repicagem para recipiente maior **não move** o lote: encerra parte do lote de origem e cria um lote novo que aponta para ele. É o que permite saber quanto de uma leva sobreviveu até a venda. | "veio daquele tubete" | **Lote de origem** (`parent_batch`) |
 | **Área** | Divisão física do viveiro, identificada por **letra** (A, B, C…). Contém canteiros. | "área A", "lá em cima" | **Área** (`area`) |
-| **Canteiro** | Subdivisão da área, identificada por **número** dentro dela, de 1 até o máximo daquela área. O endereço de uma muda no viveiro é o par letra da área + número do canteiro. | "canteiro 4", "o quatro da B" | **Canteiro** (`bed`) |
+| **Canteiro** | Subdivisão da área, identificada por **número** dentro dela, de 1 até o máximo daquela área. O endereço de uma muda no viveiro é o par letra da área + número do canteiro, escrito **`A-3`**: letra, hífen, número. | "canteiro 4", "o quatro da B" | **Canteiro** (`bed`) |
 | **Classificação** | Atividade de separar, dentro de um lote, as mudas mortas das vivas e as maiores das menores. Ocorre em dois momentos: **pós-germinação** e **seleção**, esta quando a muda troca de bandeja. A parte morta vira perda do lote no mesmo registro. | "classificar", "escolher" | **Classificação** |
 
 ## 2. Recipientes e medidas

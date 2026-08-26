@@ -88,14 +88,14 @@ dia não fosse registrado.
 Segunda, 10 de agosto                              ⏱ 09:42
 
 PLANEJADO PARA HOJE
-  MANHÃ   Repicagem · Ipê-amarelo · lote A-3      Rogério, Amélia
-  MANHÃ   Irrigação                                Jaison
-  TARDE   Encher saquinho                          Rogério, Amélia, Mathias
+  MANHÃ   Repicagem · Ipê-amarelo · lote 2026-0147 (A-3)   Rogério, Amélia
+  MANHÃ   Irrigação                                        Jaison
+  TARDE   Encher saquinho                                  Rogério, Amélia, Mathias
 
 ─────────────────────────────────────────────────────────
 
   ┌─ Rogério ──────────────────────────┐  ┌─ Amélia ───────────────────────────┐
-  │ Repicagem · lote A-3               │  │ Repicagem · lote A-3               │
+  │ Repicagem · lote 2026-0147 (A-3)   │  │ Repicagem · lote 2026-0147 (A-3)   │
   │ desde 07:15   ·   2h27             │  │ desde 07:15   ·   2h27             │
   │                                    │  │                                    │
   │ [outra tarefa]      [encerrar dia] │  │ [outra tarefa]      [encerrar dia] │

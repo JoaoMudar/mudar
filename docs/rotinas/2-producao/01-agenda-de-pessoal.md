@@ -101,7 +101,7 @@ Semana de 10/08 a 15/08                    [Copiar semana passada] [Publicar]
 Rogério      Repicagem  Repicagem  Irrigação  Semeadura  Semeadura  Limpeza
 Amélia       Repicagem  Repicagem  Semeadura  Semeadura  Semeadura  —
              Ipê-amar.  Ipê-amar.  Aroeira    Aroeira    Aroeira
-             lote A-3   lote A-3   —          —          —
+             2026-0147  2026-0147  —          —          —
              M+T        M          M          M+T        M          M
 
 Jaison       Separação  Entrega    Adubação   Adubação   Separação  —
@@ -129,8 +129,8 @@ dia; embaixo, **um cartão por funcionário** mostrando o que cada um está faze
 ```
 Segunda, 10 de agosto
 
-☐  MANHÃ    Repicagem · Ipê-amarelo · lote A-3 · saco 10x18
-☐  TARDE    Repicagem · Ipê-amarelo · lote A-3 · saco 10x18
+☐  MANHÃ    Repicagem · Ipê-amarelo · lote 2026-0147 (A-3) · saco 10x18
+☐  TARDE    Repicagem · Ipê-amarelo · lote 2026-0147 (A-3) · saco 10x18
 
             [Concluir]  → pergunta só a quantidade
 ```

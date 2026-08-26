@@ -453,10 +453,12 @@ pede para ser executada.
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
 | `area_id` | uuid | ● | FK → `areas` | Área a que pertence |
-| `number` | integer | ● | UK | Número dentro da área. Restrição: maior que zero |
+| `number` | integer | ● | | Número dentro da área. Restrição: maior que zero |
 | `capacity` | integer | ○ | | Quantas mudas o canteiro comporta; serve de aviso ao criar lote, não de trava |
 | `notes` | text | ○ | | Observação |
 | `active` | boolean | ● | | Canteiro em uso |
+
+**Restrição de unicidade:** número de canteiro único dentro da área.
 
 > **A unicidade é do par (`area_id`, `number`), não do número sozinho.** A numeração recomeça em
 > cada área: existe o canteiro 4 da área A e o canteiro 4 da área B, e são dois lugares diferentes.
@@ -501,7 +503,7 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 | Atributo | Tipo | Ob. | Chave | Descrição |
 |---|---|:--:|:--:|---|
 | `id` | uuid | ● | PK | Identificador |
-| `code` | text | ● | UK | Código legível, gerado pelo sistema: ano, área, canteiro e sequência |
+| `code` | text | ● | UK | Código legível, gerado pelo sistema, no formato `AAAA-NNNN`: ano do plantio e sequência de quatro dígitos dentro do ano |
 | `species_id` | uuid | ● | FK → `species` | Espécie da leva |
 | `container_id` | uuid | ● | FK → `containers` | Recipiente, que define o porte da muda |
 | `bed_id` | uuid | ○ | FK → `beds` | Canteiro ocupado. Nulo quando o lote está encerrado |
@@ -513,6 +515,13 @@ respondia o que a muda era e não onde estava. A revisão de escopo está justif
 | `expected_ready_at` | date | ○ | | **Derivado**: `planted_at` mais o tempo de produção da espécie. Fica nulo quando a espécie não o tem cadastrado |
 | `closed_at` | timestamptz | ○ | | Momento do encerramento; a partir dele o lote sai da ocupação |
 | `notes` | text | ○ | | Observação |
+
+> **O endereço fica fora do código** (`2026-0147`, e não `2026-A3-004`). O canteiro do lote muda:
+> `batch_movements` tem o tipo `transferencia`, e o encerramento anula `bed_id`. Código com área e
+> canteiro dentro passaria a mentir na primeira transferência, e a correção seria renomear o lote,
+> invalidando toda referência anterior a ele. Quem responde **onde** o lote está é `bed_id`, com o
+> índice único parcial `batches_um_lote_aberto_por_canteiro`; o código responde **qual leva** é, e
+> por isso não muda nunca.
 
 > **Um lote ocupa um canteiro** (RN-76). Leva que não cabe em um canteiro é outro lote, e não o
 > mesmo lote espalhado. A alternativa, uma entidade de ocupação com quantidade por canteiro,
